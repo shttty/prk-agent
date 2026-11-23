@@ -1,0 +1,193 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 790" width="1560" height="790" font-family="'Inter','Noto Sans','Segoe UI','Helvetica Neue',Arial,sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4a5160"/>
+    </marker>
+    <marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#a3a8b2"/>
+    </marker>
+    <marker id="diamond" viewBox="0 0 12 12" refX="6" refY="6" markerWidth="12" markerHeight="12" orient="auto">
+      <path d="M6,0 L12,6 L6,12 L0,6 z" fill="#3b6fd1"/>
+    </marker>
+    <style>
+      .box { fill: #fff; stroke: #4a5160; stroke-width: 1.4; }
+      .hot { fill: #eaf2fd; stroke: #3b6fd1; stroke-width: 2; }
+      .band { fill: #eef4fd; stroke: #3b6fd1; stroke-width: 1.4; }
+      .env { fill: none; stroke: #8a909b; stroke-width: 1.4; stroke-dasharray: 7 5; }
+      .h { font-size: 16.5px; font-weight: 700; fill: #1f2430; text-anchor: middle; }
+      .hl { font-size: 15px; font-weight: 700; fill: #1f2430; }
+      .t { font-size: 12.5px; fill: #4a5160; text-anchor: middle; }
+      .tl { font-size: 12.5px; fill: #4a5160; }
+      .tb { font-size: 13px; fill: #2c5fbf; text-anchor: middle; }
+      .lbl { font-size: 12px; fill: #2c5fbf; font-weight: 700; text-anchor: middle; }
+      .lblg { font-size: 12px; fill: #6b717c; text-anchor: middle; }
+      .main { stroke: #4a5160; stroke-width: 1.6; fill: none; }
+      .dash { stroke: #a3a8b2; stroke-width: 1.4; stroke-dasharray: 6 5; fill: none; }
+      .persist { stroke: #a3a8b2; stroke-width: 1.4; fill: none; }
+      .peer { stroke: #3b6fd1; stroke-width: 1.6; stroke-dasharray: 6 4; fill: none; }
+    </style>
+  </defs>
+
+  <rect x="10" y="10" width="1540" height="770" rx="10" fill="#fbfbfc" stroke="#e1e3e8"/>
+
+  <!-- title -->
+  <text x="36" y="58" font-size="27" font-weight="800" fill="#1f2430">How PRK fits together</text>
+  <text x="372" y="58" font-size="15" fill="#4a5160">Sessions live in the Gateway, code runs on target machines, and the browser and CLI are only clients.</text>
+
+  <!-- left column -->
+  <rect class="box" x="36" y="104" width="224" height="82" rx="4"/>
+  <text class="h" x="148" y="128">Clients</text>
+  <text class="t" x="148" y="150">browser (desktop or phone)</text>
+  <text class="t" x="148" y="167">attach CLI</text>
+  <text class="t" x="148" y="183">or your own, on the Unix socket</text>
+
+  <rect class="box" x="36" y="214" width="224" height="80" rx="4"/>
+  <text class="h" x="148" y="237">What wakes the model</text>
+  <text class="t" x="148" y="257">a terminal finishes or goes quiet</text>
+  <text class="t" x="148" y="273">a child hands back its result</text>
+  <text class="t" x="148" y="289">a message arrives</text>
+
+  <rect class="box" x="36" y="330" width="224" height="80" rx="4"/>
+  <text class="h" x="148" y="356">Session storage</text>
+  <text class="t" x="148" y="378">Pi SDK JSONL history</text>
+  <text class="t" x="148" y="397">sessions can sleep and wake</text>
+
+  <rect class="box" x="36" y="494" width="224" height="204" rx="4"/>
+  <text class="h" x="148" y="530" font-size="17.5">When things go wrong</text>
+  <text class="t" x="148" y="562">stuck hook: aborted on stop</text>
+  <text class="t" x="148" y="589">interrupt ignored: kernel restarted</text>
+  <text class="t" x="148" y="616">connection lost: fresh kernel</text>
+  <text class="t" x="148" y="643">target down: error right away</text>
+  <text class="t" x="148" y="670">Gateway stuck: restart from the web</text>
+
+  <!-- API layer -->
+  <rect class="box" x="298" y="104" width="188" height="82" rx="4"/>
+  <text class="h" x="392" y="128">Web API</text>
+  <text class="t" x="392" y="149">forwards HTTP, SSE</text>
+  <text class="t" x="392" y="165">and terminal WebSockets</text>
+  <text class="t" x="392" y="181">runs no agent itself</text>
+
+  <!-- Gateway -->
+  <rect class="hot" x="524" y="92" width="520" height="106" rx="6"/>
+  <text x="784" y="131" font-size="23" font-weight="800" fill="#1f2430" text-anchor="middle">Gateway</text>
+  <text class="tb" x="784" y="158">Every session lives here, and all clients see the same ones.</text>
+  <text class="tb" x="784" y="181">It takes messages, queues them and schedules model calls.</text>
+
+  <!-- sessions -->
+  <rect class="box" x="550" y="262" width="148" height="88" rx="4"/>
+  <text class="h" x="624" y="291">main session</text>
+  <text class="t" x="624" y="315">a special local session</text>
+  <text class="t" x="624" y="335">splits work, collects</text>
+
+  <rect class="box" x="726" y="262" width="144" height="88" rx="4"/>
+  <text class="h" x="798" y="291">Regular sessions</text>
+  <text class="t" x="798" y="315">separate contexts</text>
+  <text class="t" x="798" y="335">own machine and cwd</text>
+
+  <rect class="box" x="898" y="262" width="146" height="88" rx="4"/>
+  <text class="h" x="971" y="291">Child sessions</text>
+  <text class="t" x="971" y="315">via session_spawn</text>
+  <text class="t" x="971" y="335">can use other machines</text>
+
+  <!-- right column -->
+  <rect class="box" x="1098" y="92" width="434" height="68" rx="4"/>
+  <text class="h" x="1315" y="114">Tools and plugins</text>
+  <text class="t" x="1315" y="134">tools, skills, plugins and switches</text>
+  <text class="t" x="1315" y="151">global ones in the Gateway, project ones follow the working directory</text>
+
+  <rect class="box" x="1098" y="178" width="434" height="68" rx="4"/>
+  <text class="h" x="1315" y="200">Memory</text>
+  <text class="t" x="1315" y="221">five layers: control, user, memory, instance, project</text>
+  <text class="t" x="1315" y="239">injected per machine, tidied up in the background</text>
+
+  <rect class="box" x="1098" y="262" width="434" height="68" rx="4"/>
+  <text class="h" x="1315" y="284">Plugin UI</text>
+  <text class="t" x="1315" y="304">dialogs and notifications from plugins on the target</text>
+  <text class="t" x="1315" y="321">show up in the web UI</text>
+
+  <rect class="box" x="1098" y="494" width="434" height="68" rx="4"/>
+  <text class="h" x="1315" y="516">Tool delivery</text>
+  <text class="t" x="1315" y="536">bun, rg, fd and uv are copied to a target when it needs them</text>
+  <text class="t" x="1315" y="553">cached by sha256, so nothing is sent twice</text>
+
+  <rect class="box" x="1098" y="580" width="434" height="118" rx="4"/>
+  <text class="h" x="1315" y="610">Code conventions</text>
+  <text class="t" x="1315" y="636">one directory per object, one file per method</text>
+  <text class="t" x="1315" y="660">no code file over 200 effective lines</text>
+  <text class="t" x="1315" y="684">public Pi SDK APIs only; Pi itself is not patched</text>
+
+  <!-- target channel -->
+  <rect class="band" x="298" y="384" width="746" height="64" rx="4"/>
+  <text x="671" y="411" font-size="17" font-weight="700" fill="#1f2430" text-anchor="middle">Target connection</text>
+  <text class="tb" x="671" y="434">One per machine, to the pi-env daemon there: started directly here, over SSH elsewhere. Sessions on a machine share it.</text>
+
+  <!-- execution environment -->
+  <rect class="env" x="298" y="488" width="746" height="210" rx="6"/>
+  <text class="hl" x="316" y="516">Target machine</text>
+  <text class="tl" x="436" y="516">this one, an office box, or any Linux machine</text>
+
+  <rect class="box" x="314" y="532" width="167" height="110" rx="4"/>
+  <text class="h" x="397" y="564">Kernel</text>
+  <text class="t" x="397" y="588">Python or Bun</text>
+  <text class="t" x="397" y="606">variables survive calls</text>
+  <text class="t" x="397" y="624">can call Gateway tools</text>
+
+  <rect class="box" x="497" y="532" width="167" height="110" rx="4"/>
+  <text class="h" x="580" y="564">Plugin host</text>
+  <text class="t" x="580" y="590">Pi's 7 coding tools</text>
+  <text class="t" x="580" y="612">plugins run unmodified</text>
+
+  <rect class="box" x="680" y="532" width="167" height="110" rx="4"/>
+  <text class="h" x="763" y="564">Terminals</text>
+  <text class="t" x="763" y="590">quiet ones wake the model</text>
+  <text class="t" x="763" y="612">you can take over</text>
+
+  <rect class="box" x="863" y="532" width="167" height="110" rx="4"/>
+  <text class="h" x="946" y="564">Project files</text>
+  <text class="t" x="946" y="590">AGENTS.md, skills, prompts</text>
+  <text class="t" x="946" y="612">read per directory</text>
+
+  <text x="671" y="676" font-size="12.5" fill="#2c5fbf" text-anchor="middle">Each kernel has its own systemd scope and memory limit. Files stay on the target; only results travel.</text>
+
+  <!-- main flow arrows -->
+  <line class="main" x1="260" y1="145" x2="296" y2="145" marker-end="url(#arrow)"/>
+  <line class="main" x1="486" y1="145" x2="522" y2="145" marker-end="url(#arrow)"/>
+  <path class="main" d="M260,254 L505,254 L505,180 L522,180" marker-end="url(#arrow)"/>
+  <line class="main" x1="624" y1="198" x2="624" y2="260" marker-end="url(#arrow)"/>
+  <line class="main" x1="798" y1="198" x2="798" y2="260" marker-end="url(#arrow)"/>
+  <line class="main" x1="971" y1="198" x2="971" y2="260" marker-end="url(#arrow)"/>
+  <line class="main" x1="1044" y1="126" x2="1096" y2="126" marker-end="url(#arrow)"/>
+  <path class="main" d="M1044,170 L1072,170 L1072,212 L1096,212" marker-end="url(#arrow)"/>
+  <line class="main" x1="624" y1="350" x2="624" y2="382" marker-end="url(#arrow)"/>
+  <line class="main" x1="798" y1="350" x2="798" y2="382" marker-end="url(#arrow)"/>
+  <line class="main" x1="971" y1="350" x2="971" y2="382" marker-end="url(#arrow)"/>
+  <line class="main" x1="671" y1="448" x2="671" y2="486" marker-end="url(#arrow)"/>
+
+  <!-- session-to-session links -->
+  <line class="peer" x1="698" y1="306" x2="726" y2="306" marker-start="url(#diamond)" marker-end="url(#diamond)"/>
+  <line class="peer" x1="870" y1="306" x2="898" y2="306" marker-start="url(#diamond)" marker-end="url(#diamond)"/>
+  <text class="lbl" x="700" y="246">message each other</text>
+  <text class="lbl" x="895" y="246">hand out, hand back</text>
+
+  <!-- persistence and dashed flows -->
+  <path class="persist" d="M550,290 L278,290 L278,368 L262,368" marker-end="url(#arrow-gray)"/>
+  <text class="lblg" x="370" y="282">saved</text>
+  <path class="dash" d="M1044,416 L1315,416 L1315,332" marker-end="url(#arrow-gray)"/>
+  <text class="lblg" x="1355" y="380">UI events</text>
+  <line class="dash" x1="1098" y1="528" x2="1046" y2="528" marker-end="url(#arrow-gray)"/>
+  <text class="lblg" x="1072" y="518">copy</text>
+  <line class="dash" x1="260" y1="596" x2="296" y2="596" marker-end="url(#arrow-gray)"/>
+  <text class="lblg" x="278" y="586">watch</text>
+  <line class="dash" x1="148" y1="494" x2="148" y2="412" marker-end="url(#arrow-gray)"/>
+  <text class="lblg" x="178" y="458">wake</text>
+
+  <!-- legend -->
+  <line class="main" x1="36" y1="752" x2="70" y2="752"/>
+  <text class="tl" x="78" y="756">calls</text>
+  <line class="peer" x1="130" y1="752" x2="164" y2="752"/>
+  <text class="tl" x="172" y="756">between sessions</text>
+  <line class="dash" x1="300" y1="752" x2="334" y2="752"/>
+  <text class="tl" x="342" y="756">copy, return, watch</text>
+  <line class="persist" x1="480" y1="752" x2="514" y2="752"/>
+  <text class="tl" x="522" y="756">saved</text>
+</svg>

@@ -31,118 +31,122 @@
   <rect x="10" y="10" width="1540" height="770" rx="10" fill="#fbfbfc" stroke="#e1e3e8"/>
 
   <!-- title -->
-  <text x="36" y="58" font-size="27" font-weight="800" fill="#1f2430">PRK · Pi Remote Kernel</text>
-  <text x="384" y="58" font-size="15" fill="#4a5160">一个大脑 × 多台机器的手脚 —— 计算 · 状态 · 执行 三层分离，7×24 常驻</text>
-  <text x="1524" y="52" font-size="12.5" fill="#6b717c" text-anchor="end">首个提交 2026-09-16</text>
+  <text x="36" y="58" font-size="27" font-weight="800" fill="#1f2430">PRK 架构</text>
+  <text x="170" y="58" font-size="15" fill="#4a5160">会话都在 Gateway 里，代码在目标机上跑，网页和命令行只是客户端</text>
 
   <!-- left column -->
   <rect class="box" x="36" y="104" width="224" height="82" rx="4"/>
-  <text class="h" x="148" y="131">多入口</text>
-  <text class="t" x="148" y="154">Web（桌面 / 手机）· CLI attach</text>
-  <text class="t" x="148" y="173">其他客户端：Unix socket 协议</text>
+  <text class="h" x="148" y="128">客户端</text>
+  <text class="t" x="148" y="150">浏览器（电脑或手机）</text>
+  <text class="t" x="148" y="167">attach 命令行</text>
+  <text class="t" x="148" y="183">或者自己写，走 Unix socket</text>
 
   <rect class="box" x="36" y="214" width="224" height="80" rx="4"/>
-  <text class="h" x="148" y="240">事件唤醒</text>
-  <text class="t" x="148" y="262">终端完成 / 安静 · 子会话交付</text>
-  <text class="t" x="148" y="281">收件箱消息 → 自动接续</text>
+  <text class="h" x="148" y="238">什么时候叫醒模型</text>
+  <text class="t" x="148" y="260">终端跑完，或者没了输出</text>
+  <text class="t" x="148" y="279">子会话交回结果、收到消息</text>
 
   <rect class="box" x="36" y="330" width="224" height="80" rx="4"/>
   <text class="h" x="148" y="356">会话存储</text>
-  <text class="t" x="148" y="378">Pi SDK JSONL 历史</text>
-  <text class="t" x="148" y="397">休眠 / 唤醒 · 原生 sessionId</text>
+  <text class="t" x="148" y="378">Pi SDK 的 JSONL 历史</text>
+  <text class="t" x="148" y="397">会话可以休眠，唤醒后接着用</text>
 
   <rect class="box" x="36" y="494" width="224" height="204" rx="4"/>
-  <text class="h" x="148" y="530" font-size="18">Watchdog · 自愈</text>
-  <text class="t" x="148" y="562">钩子卡住 → 停止即 abort</text>
-  <text class="t" x="148" y="589">中断超时 → 自动重启 kernel</text>
-  <text class="t" x="148" y="616">连接丢失 → 下次输入起新 kernel</text>
-  <text class="t" x="148" y="643">目标失联 → 快速失败</text>
-  <text class="t" x="148" y="670">Gateway 卡死 → 网页一键重启</text>
+  <text class="h" x="148" y="530" font-size="18">出错的时候</text>
+  <text class="t" x="148" y="562">钩子卡住：停止时直接中止</text>
+  <text class="t" x="148" y="589">中断没反应：重启 kernel</text>
+  <text class="t" x="148" y="616">连接断了：下次输入起新 kernel</text>
+  <text class="t" x="148" y="643">目标机连不上：马上报错</text>
+  <text class="t" x="148" y="670">Gateway 卡死：在网页上重启</text>
 
   <!-- API layer -->
   <rect class="box" x="298" y="104" width="188" height="82" rx="4"/>
-  <text class="h" x="392" y="128">API 层</text>
-  <text class="t" x="392" y="149">HTTP · SSE · 终端</text>
-  <text class="t" x="392" y="165">WebSocket</text>
-  <text class="t" x="392" y="181">不持有 Agent</text>
+  <text class="h" x="392" y="128">Web API</text>
+  <text class="t" x="392" y="149">转发网页的 HTTP、SSE</text>
+  <text class="t" x="392" y="165">和终端 WebSocket</text>
+  <text class="t" x="392" y="181">自己不跑 agent</text>
 
   <!-- Gateway -->
   <rect class="hot" x="524" y="92" width="520" height="106" rx="6"/>
-  <text x="784" y="131" font-size="23" font-weight="800" fill="#1f2430" text-anchor="middle">Gateway · 大脑</text>
-  <text class="tb" x="784" y="158">唯一状态权威 · Pi SDK 会话集合</text>
-  <text class="tb" x="784" y="181">准入 / 排队 / 推理调度 · 所有入口共享同一批会话</text>
+  <text x="784" y="131" font-size="23" font-weight="800" fill="#1f2430" text-anchor="middle">Gateway</text>
+  <text class="tb" x="784" y="158">所有会话都在这里，每个客户端看到的是同一批</text>
+  <text class="tb" x="784" y="181">收消息、排队、调度模型调用</text>
 
   <!-- sessions -->
   <rect class="box" x="550" y="262" width="148" height="88" rx="4"/>
-  <text class="h" x="624" y="291">main · 空间调度</text>
-  <text class="t" x="624" y="315">一个特殊的 local 会话</text>
-  <text class="t" x="624" y="335">拆活 · 派发 · 收结果</text>
+  <text class="h" x="624" y="291">main 会话</text>
+  <text class="t" x="624" y="315">本机上的特殊会话</text>
+  <text class="t" x="624" y="335">拆分任务、汇总结果</text>
 
   <rect class="box" x="726" y="262" width="144" height="88" rx="4"/>
-  <text class="h" x="798" y="291">Worker Session</text>
-  <text class="t" x="798" y="315">隔离上下文</text>
-  <text class="t" x="798" y="335">各自的目标机与 cwd</text>
+  <text class="h" x="798" y="291">普通会话</text>
+  <text class="t" x="798" y="315">上下文各自独立</text>
+  <text class="t" x="798" y="335">各有自己的机器和目录</text>
 
   <rect class="box" x="898" y="262" width="146" height="88" rx="4"/>
   <text class="h" x="971" y="291">子会话</text>
-  <text class="t" x="971" y="315">session_spawn</text>
-  <text class="t" x="971" y="335">跨机派生 · 结果回送</text>
+  <text class="t" x="971" y="315">session_spawn 派出</text>
+  <text class="t" x="971" y="335">可以在别的机器上</text>
 
   <!-- right column -->
   <rect class="box" x="1098" y="92" width="434" height="68" rx="4"/>
-  <text class="h" x="1315" y="118">能力目录</text>
-  <text class="t" x="1315" y="140">工具 · skill · 插件 · 开关 —— 全局来自 Gateway，项目跟随 cwd</text>
+  <text class="h" x="1315" y="114">工具和插件</text>
+  <text class="t" x="1315" y="134">工具、skill、插件和开关</text>
+  <text class="t" x="1315" y="151">全局的放在 Gateway，项目的跟着工作目录走</text>
 
   <rect class="box" x="1098" y="178" width="434" height="68" rx="4"/>
-  <text class="h" x="1315" y="200">记忆层</text>
-  <text class="t" x="1315" y="221">control · user · memory · instance · project 分层</text>
-  <text class="t" x="1315" y="239">按机器注入 · 后台复盘</text>
+  <text class="h" x="1315" y="200">记忆</text>
+  <text class="t" x="1315" y="221">分五层：control、user、memory、instance、project</text>
+  <text class="t" x="1315" y="239">按机器注入，后台定期整理</text>
 
   <rect class="box" x="1098" y="262" width="434" height="68" rx="4"/>
-  <text class="h" x="1315" y="288">远程插件 UI 透传</text>
-  <text class="t" x="1315" y="310">按 Pi RPC 语义，把目标机插件的对话框 / 通知投到网页原生控件</text>
+  <text class="h" x="1315" y="284">插件界面</text>
+  <text class="t" x="1315" y="304">目标机上的插件弹出的对话框和通知</text>
+  <text class="t" x="1315" y="321">会显示在网页上</text>
 
   <rect class="box" x="1098" y="494" width="434" height="68" rx="4"/>
-  <text class="h" x="1315" y="520">制品库</text>
-  <text class="t" x="1315" y="542">sha256 内容寻址 · bun / rg / fd / uv 按需下发 · 命中缓存零传输</text>
+  <text class="h" x="1315" y="516">工具分发</text>
+  <text class="t" x="1315" y="536">bun、rg、fd、uv 在需要时传到目标机</text>
+  <text class="t" x="1315" y="553">按 sha256 缓存，已经有的不重复传</text>
 
   <rect class="box" x="1098" y="580" width="434" height="118" rx="4"/>
-  <text class="h" x="1315" y="610">工程底座</text>
-  <text class="t" x="1315" y="636">目录即架构：目录 = 对象，文件 = 方法</text>
-  <text class="t" x="1315" y="660">单个代码文件 ≤ 200 有效行 · 单元测试不起外部进程</text>
-  <text class="t" x="1315" y="684">基于 Pi SDK 公开接口，不改 Pi 本体</text>
+  <text class="h" x="1315" y="610">代码约定</text>
+  <text class="t" x="1315" y="636">一个目录是一个对象，一个文件是一个方法</text>
+  <text class="t" x="1315" y="660">单个代码文件不超过 200 行有效代码</text>
+  <text class="t" x="1315" y="684">只用 Pi SDK 的公开接口，不改 Pi</text>
 
   <!-- target channel -->
   <rect class="band" x="298" y="384" width="746" height="64" rx="4"/>
-  <text x="671" y="411" font-size="17" font-weight="700" fill="#1f2430" text-anchor="middle">目标通道 Target Channel</text>
-  <text class="tb" x="671" y="434">每台机器一条 · pi-env daemon（本机自有 / SSH 等免交互命令）· 会话间复用 · 连不上快速失败</text>
+  <text x="671" y="411" font-size="17" font-weight="700" fill="#1f2430" text-anchor="middle">目标机连接</text>
+  <text class="tb" x="671" y="434">每台机器一条，连到机器上的 pi-env daemon；本机直接起，远程走 SSH。同一台机器的会话共用这一条</text>
 
   <!-- execution environment -->
   <rect class="env" x="298" y="488" width="746" height="210" rx="6"/>
-  <text class="hl" x="316" y="516">执行环境 · 每台目标机</text>
-  <text class="tl" x="487" y="516">本机 / 办公机 / 任意 Linux</text>
+  <text class="hl" x="316" y="516">目标机</text>
+  <text class="tl" x="372" y="516">本机、办公室的机器，或者任何 Linux</text>
 
   <rect class="box" x="314" y="532" width="167" height="110" rx="4"/>
-  <text class="h" x="397" y="564">常驻 Kernel</text>
-  <text class="t" x="397" y="590">Python / Bun · 变量常驻</text>
-  <text class="t" x="397" y="612">gateway.*() 回调工具</text>
+  <text class="h" x="397" y="564">kernel</text>
+  <text class="t" x="397" y="588">Python 或 Bun</text>
+  <text class="t" x="397" y="606">变量在调用之间保留</text>
+  <text class="t" x="397" y="624">可以回调 Gateway 的工具</text>
 
   <rect class="box" x="497" y="532" width="167" height="110" rx="4"/>
-  <text class="h" x="580" y="564">插件宿主</text>
-  <text class="t" x="580" y="590">Pi 原生 7 个编码工具</text>
-  <text class="t" x="580" y="612">插件原样运行</text>
+  <text class="h" x="580" y="564">插件进程</text>
+  <text class="t" x="580" y="590">Pi 自带的 7 个编码工具</text>
+  <text class="t" x="580" y="612">插件不用改就能跑</text>
 
   <rect class="box" x="680" y="532" width="167" height="110" rx="4"/>
   <text class="h" x="763" y="564">终端</text>
-  <text class="t" x="763" y="590">模型终端：安静即唤醒</text>
-  <text class="t" x="763" y="612">人工终端：随时接管</text>
+  <text class="t" x="763" y="590">没输出了就叫醒模型</text>
+  <text class="t" x="763" y="612">你随时可以接手</text>
 
   <rect class="box" x="863" y="532" width="167" height="110" rx="4"/>
-  <text class="h" x="946" y="564">项目资源</text>
-  <text class="t" x="946" y="590">AGENTS.md · skills</text>
-  <text class="t" x="946" y="612">prompts · 按 cwd 读取</text>
+  <text class="h" x="946" y="564">项目文件</text>
+  <text class="t" x="946" y="590">AGENTS.md、skill</text>
+  <text class="t" x="946" y="612">prompt，按工作目录读取</text>
 
-  <text x="671" y="676" font-size="12.5" fill="#2c5fbf" text-anchor="middle">独立 systemd scope：内存上限，OOM 只杀肇事进程　｜　文件留在目标机：内容不回传，只回结果</text>
+  <text x="671" y="676" font-size="12.5" fill="#2c5fbf" text-anchor="middle">每个 kernel 有自己的 systemd scope 和内存上限；文件不离开目标机，只传结果</text>
 
   <!-- main flow arrows -->
   <line class="main" x1="260" y1="145" x2="296" y2="145" marker-end="url(#arrow)"/>
@@ -161,28 +165,28 @@
   <!-- session-to-session links -->
   <line class="peer" x1="698" y1="306" x2="726" y2="306" marker-start="url(#diamond)" marker-end="url(#diamond)"/>
   <line class="peer" x1="870" y1="306" x2="898" y2="306" marker-start="url(#diamond)" marker-end="url(#diamond)"/>
-  <text class="lbl" x="700" y="246">session_send</text>
-  <text class="lbl" x="895" y="246">派活 / 回送</text>
+  <text class="lbl" x="700" y="246">互相发消息</text>
+  <text class="lbl" x="895" y="246">派活、交回结果</text>
 
   <!-- persistence and dashed flows -->
   <path class="persist" d="M550,290 L278,290 L278,368 L262,368" marker-end="url(#arrow-gray)"/>
-  <text class="lblg" x="370" y="282">持久化</text>
+  <text class="lblg" x="370" y="282">保存</text>
   <path class="dash" d="M1044,416 L1315,416 L1315,332" marker-end="url(#arrow-gray)"/>
-  <text class="lblg" x="1345" y="380">UI 回传</text>
+  <text class="lblg" x="1345" y="380">界面事件</text>
   <line class="dash" x1="1098" y1="528" x2="1046" y2="528" marker-end="url(#arrow-gray)"/>
-  <text class="lblg" x="1072" y="518">下发</text>
+  <text class="lblg" x="1072" y="518">传过去</text>
   <line class="dash" x1="260" y1="596" x2="296" y2="596" marker-end="url(#arrow-gray)"/>
-  <text class="lblg" x="278" y="586">监控</text>
+  <text class="lblg" x="278" y="586">看着</text>
   <line class="dash" x1="148" y1="494" x2="148" y2="412" marker-end="url(#arrow-gray)"/>
   <text class="lblg" x="180" y="458">唤醒</text>
 
   <!-- legend -->
   <line class="main" x1="36" y1="752" x2="70" y2="752"/>
-  <text class="tl" x="78" y="756">主流程</text>
-  <line class="peer" x1="148" y1="752" x2="182" y2="752"/>
-  <text class="tl" x="190" y="756">会话之间直通</text>
-  <line class="dash" x1="290" y1="752" x2="324" y2="752"/>
-  <text class="tl" x="332" y="756">下发 / 回传 / 监控</text>
-  <line class="persist" x1="460" y1="752" x2="494" y2="752"/>
-  <text class="tl" x="502" y="756">持久化</text>
+  <text class="tl" x="78" y="756">调用</text>
+  <line class="peer" x1="130" y1="752" x2="164" y2="752"/>
+  <text class="tl" x="172" y="756">会话之间</text>
+  <line class="dash" x1="250" y1="752" x2="284" y2="752"/>
+  <text class="tl" x="292" y="756">分发、回传、监控</text>
+  <line class="persist" x1="410" y1="752" x2="444" y2="752"/>
+  <text class="tl" x="452" y="756">保存</text>
 </svg>
