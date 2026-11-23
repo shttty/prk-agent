@@ -1,0 +1,54 @@
+.config-scrim { position: absolute; inset: 0; opacity: 0; pointer-events: none; cursor: pointer; will-change: opacity; }
+.capability-layer[data-open="true"] > .config-scrim { opacity: 1; pointer-events: auto; }
+.config-panel { position: absolute; top: 0; right: 0; bottom: 0; display: flex; flex-direction: column; background: var(--pi-surface); border-left: 1px solid var(--pi-line);
+  border-radius: var(--pi-radius-lg) 0 0 var(--pi-radius-lg); box-shadow: var(--pi-shadow-overlay); overflow: hidden; transform: translateX(100%); opacity: .6; visibility: hidden; will-change: transform, opacity; }
+.config-scrim { z-index: var(--pi-z-settings-config); background: var(--pi-scrim-soft); backdrop-filter: blur(2px); transition: opacity var(--pi-motion-slow) var(--pi-motion-ease-sheet); }
+.config-panel { z-index: var(--pi-z-settings-config); width: clamp(420px, 48%, 580px);
+  transition: transform var(--pi-motion-slow) var(--pi-motion-ease-sheet), opacity var(--pi-motion-slow) var(--pi-motion-ease-sheet), visibility 0s var(--pi-motion-slow); }
+.capability-layer[data-open="true"] > .config-panel { transform: none; opacity: 1; visibility: visible; transition: transform var(--pi-motion-slow) var(--pi-motion-ease-sheet), opacity var(--pi-motion-slow) var(--pi-motion-ease-sheet); }
+@media (max-width: 48em) { .config-panel { width: calc(100% - 60px); } }
+.config-head { flex: none; display: flex; align-items: center; gap: 10px; padding: 14px 12px 12px 22px; border-bottom: 1px solid var(--pi-line); }
+.config-title { flex: 1; min-width: 0; }
+.config-title h3 { margin: 0; font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+.config-title span { color: var(--pi-faint); font-size: 12.5px; }
+.config-scroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
+.config-body { flex: 1; padding: 16px 22px 24px; display: flex; flex-direction: column; gap: 12px; }
+.config-source { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: var(--pi-faint); font-size: 12px; }
+.config-source code { padding: 1px 7px; border-radius: 6px; background: var(--pi-code-inline-bg); color: var(--pi-ink-2); font-family: var(--pi-font-mono); font-variant-ligatures: none; font-size: 12px; word-break: break-all; }
+.config-empty { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 14px 16px; border: 1px dashed var(--pi-line-strong); border-radius: var(--pi-radius); }
+.config-card { border: 1px solid var(--pi-line); border-radius: var(--pi-radius); overflow: hidden; }
+.config-card-head { margin: 0; padding: 9px 14px; background: var(--pi-surface-2); border-bottom: 1px solid var(--pi-line); font-size: 13px; font-weight: 600; }
+.config-card-head.is-key { font-family: var(--pi-font-mono); font-variant-ligatures: none; font-weight: 500; font-size: 12.5px; }
+.config-field { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; padding: 10px 14px; }
+.config-field + .config-field { border-top: 1px solid var(--pi-line); }
+.config-field[data-layout="column"] { flex-direction: column; align-items: stretch; }
+.config-label { flex: 1 1 140px; min-width: 0; }
+.config-label b { font-weight: 500; }
+.config-key { display: block; color: var(--pi-faint); font-family: var(--pi-font-mono); font-variant-ligatures: none; font-size: 11.5px; word-break: break-all; }
+.config-key.is-primary { color: var(--pi-ink-2); font-size: 12.5px; }
+.config-field[data-changed="true"] .config-label > :first-child::after { content: ""; display: inline-block; width: 6px; height: 6px; margin-left: 7px; border-radius: 50%; background: var(--pi-accent); vertical-align: 2px; }
+.config-description { display: block; margin-top: 2px; color: var(--pi-muted); font-size: 12px; }
+.config-control { flex: none; display: flex; align-items: center; gap: 6px; max-width: 100%; }
+.config-field[data-type="string"] .config-control { flex: 1 1 220px; }
+.config-field[data-layout="column"] .config-label, .config-field[data-layout="column"] .config-control { flex: none; }
+.config-control .config-input { flex: 1; min-width: 0; }
+.config-field[data-type="string"] .config-input input { font-family: var(--pi-font-mono); font-variant-ligatures: none; font-size: 12.5px; }
+.config-number { display: flex; align-items: center; gap: 6px; }
+.config-number .config-input { width: 96px; }
+.config-number input { text-align: right; font-variant-numeric: tabular-nums; }
+.config-unit { min-width: 1.5em; color: var(--pi-faint); font-size: 12px; }
+.config-list { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.config-list-item { display: flex; align-items: center; gap: 6px; }
+.config-list-add { align-self: flex-start; }
+.config-pending { position: sticky; bottom: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin: 0 14px 14px; padding: 10px 12px 10px 14px;
+  border: 1px solid var(--pi-line); border-radius: var(--pi-radius); background: var(--pi-overlay); backdrop-filter: var(--pi-glass); box-shadow: var(--pi-shadow-overlay); }
+.config-pending-text { flex: 1 1 220px; min-width: 0; font-size: 12.5px; }
+.config-pending-text code { color: var(--pi-faint); font-size: 11.5px; word-break: break-all; }
+.config-pending-list { margin-top: 4px; color: var(--pi-muted); font-family: var(--pi-font-mono); font-variant-ligatures: none; font-size: 11.5px; }
+.config-pending-list > div { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.config-pending-list s { color: var(--pi-faint); }
+.config-pending-actions { display: flex; gap: 6px; margin-left: auto; }
+.config-path-form { flex: 1; display: flex; align-items: center; gap: 6px; }
+.config-path-form .config-input { flex: 1; min-width: 0; }
+.config-path-form input { font-family: var(--pi-font-mono); font-variant-ligatures: none; font-size: 12.5px; }
+.config-source [data-exists] { color: var(--pi-warn); }

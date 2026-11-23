@@ -1,0 +1,166 @@
+/* Input and output share one thin-framed card; the `Output` rule sits on its seam like a fieldset legend.
+   Blocks never scroll: long lines wrap, long blocks fold behind `.pi-fold-more`. */
+
+.pi-code-block,
+.pi-output-block {
+  --pi-gutter: calc(var(--pi-ln-w, 1) * 1ch + 1.05rem);
+  margin: 0;
+  border: 1px solid var(--pi-line-strong);
+  border-radius: 6px;
+  padding: .55rem .8rem;
+  background: var(--pi-code-bg);
+  color: var(--pi-code-ink);
+  font: .78rem/1.65 var(--pi-font-mono);
+  font-variant-ligatures: none;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.pi-output-block { color: var(--pi-muted); }
+.pi-io > .pi-code-block,
+.pi-io > .pi-output-block {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.pi-fold-more {
+  display: block;
+  width: fit-content;
+  max-width: calc(100% - 1.6rem);
+  margin: .4rem .8rem;
+  border: 1px solid var(--pi-line-strong);
+  border-radius: 6px;
+  padding: .4rem .7rem;
+  background: var(--pi-surface);
+  color: var(--pi-accent-strong);
+  font: .74rem/1.4 var(--pi-font-mono);
+  font-variant-ligatures: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pi-fold-more:hover { background: var(--pi-accent-soft); border-color: var(--pi-accent); }
+
+.pi-fold-more:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: 2px; }
+
+.pi-fold-more:disabled { cursor: wait; color: var(--pi-muted); }
+
+@media (pointer: coarse) { .pi-fold-more { min-height: 40px; } }
+
+/* Line-numbered code and diffs: the gutter strip is the scroller's own background, numbers are ::before text. */
+
+.pi-cl { display: block; min-height: 1lh; }
+
+.pi-cl-numbers,
+.pi-cl-diff {
+  padding: .5rem 0;
+  background:
+    linear-gradient(to right, color-mix(in srgb, var(--pi-code-ink) 6%, transparent) calc(var(--pi-gutter) - 1px), var(--pi-code-line) 0 var(--pi-gutter), transparent 0),
+    var(--pi-code-bg);
+}
+
+.pi-io > .pi-cl-numbers,
+.pi-io > .pi-cl-diff { background: linear-gradient(to right, color-mix(in srgb, var(--pi-code-ink) 6%, transparent) calc(var(--pi-gutter) - 1px), var(--pi-code-line) 0 var(--pi-gutter), transparent 0); }
+
+.pi-cl-numbers { counter-reset: pi-ln; }
+
+.pi-cl-numbers .pi-cl,
+.pi-cl-diff .pi-cl {
+  position: relative;
+  padding: 0 .8rem 0 calc(var(--pi-gutter) + .7rem);
+}
+
+.pi-cl-numbers .pi-cl { counter-increment: pi-ln; }
+
+.pi-cl-numbers .pi-cl::before,
+.pi-cl-diff .pi-cl::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  width: var(--pi-gutter);
+  padding-right: .55rem;
+  color: var(--pi-code-dim);
+  text-align: right;
+  user-select: none;
+}
+
+.pi-cl-numbers .pi-cl::before { content: counter(pi-ln); }
+
+.pi-cl-diff .pi-cl::before { content: attr(data-n); }
+
+.pi-cl-diff .is-add { background: color-mix(in srgb, var(--pi-ok) 8%, transparent); }
+
+.pi-cl-diff .is-del { background: color-mix(in srgb, var(--pi-danger) 8%, transparent); }
+
+.pi-cl-diff .is-add::before { color: var(--pi-ok); }
+
+.pi-cl-diff .is-del::before { color: var(--pi-danger); }
+
+.pi-cl-diff .is-ctx,
+.pi-cl-diff .is-gap { opacity: .7; }
+
+/* Light theme: the same tints and dimming are too weak on the pale code background. */
+
+:root[data-mantine-color-scheme="light"] .pi-cl-diff .is-add { background: color-mix(in srgb, var(--pi-ok) 18%, transparent); }
+
+:root[data-mantine-color-scheme="light"] .pi-cl-diff .is-del { background: color-mix(in srgb, var(--pi-danger) 12%, transparent); }
+
+:root[data-mantine-color-scheme="light"] .pi-cl-diff :is(.is-ctx, .is-gap) { opacity: .92; }
+
+.pi-cl-diff .is-gap::before { padding-left: .5rem; text-align: left; }
+
+/* `$` before the first line of a command; continuation lines hang under it. */
+
+.pi-cl-prompt .pi-cl { position: relative; padding-left: 1.6ch; }
+
+.pi-cl-prompt .pi-cl:first-child::before {
+  position: absolute;
+  left: 0;
+  content: "$";
+  color: var(--pi-code-dim);
+  user-select: none;
+}
+
+.pi-tool-diffstat {
+  flex: 0 0 auto;
+  color: var(--pi-faint);
+  font: .74rem/1.5 var(--pi-font-mono);
+  font-variant-ligatures: none;
+  white-space: nowrap;
+}
+
+.pi-tool-diffstat .is-add { color: var(--pi-ok); }
+
+.pi-tool-diffstat .is-del { color: var(--pi-danger); }
+
+/* Highlight tokens (lezer classHighlighter classes) → --pi-syn-* in tokens.css; nothing here is a literal color.
+   Shared by tool bodies, Markdown fences and the workspace file editor. */
+
+:is(.pi-cl, .pi-markdown pre, .pi-file-editor) .tok-keyword { color: var(--pi-syn-keyword); }
+
+:is(.pi-cl, .pi-markdown pre, .pi-file-editor) :is(.tok-atom, .tok-bool, .tok-number) { color: var(--pi-syn-number); }
+
+:is(.pi-cl, .pi-markdown pre, .pi-file-editor) .tok-string { color: var(--pi-syn-string); }
+
+:is(.pi-cl, .pi-markdown pre, .pi-file-editor) .tok-inserted { color: var(--pi-syn-inserted); }
+
+:is(.pi-cl, .pi-markdown pre, .pi-file-editor) :is(.tok-string2, .tok-escape, .tok-url) { color: var(--pi-syn-string2); }
+
+:is(.pi-cl, .pi-markdown pre, .pi-file-editor) :is(.tok-typeName, .tok-className, .tok-namespace) { color: var(--pi-syn-type); }
+
+:is(.pi-cl, .pi-markdown pre, .pi-file-editor) :is(.tok-function, .tok-definition) { color: var(--pi-syn-function); }
+
+:is(.pi-cl, .pi-markdown pre, .pi-file-editor) .tok-propertyName { color: var(--pi-syn-property); }
+
+:is(.pi-cl, .pi-markdown pre, .pi-file-editor) :is(.tok-operator, .tok-punctuation) { color: var(--pi-syn-operator); }
+
+:is(.pi-cl, .pi-markdown pre, .pi-file-editor) :is(.tok-comment, .tok-meta) { color: var(--pi-syn-comment, var(--pi-code-dim)); font-style: italic; font-synthesis-style: none; }
+
+:is(.pi-cl, .pi-markdown pre, .pi-file-editor) :is(.tok-heading, .tok-strong) { color: var(--pi-syn-heading); font-weight: 600; }
+
+:is(.pi-cl, .pi-markdown pre, .pi-file-editor) :is(.tok-emphasis) { font-style: italic; }
+
+:is(.pi-cl, .pi-markdown pre, .pi-file-editor) .tok-link { color: var(--pi-syn-link); text-decoration: underline; }
+
+:is(.pi-cl, .pi-markdown pre, .pi-file-editor) :is(.tok-deleted, .tok-invalid) { color: var(--pi-syn-deleted); }

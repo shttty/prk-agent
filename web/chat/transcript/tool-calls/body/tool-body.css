@@ -1,0 +1,96 @@
+.pi-tool-body {
+  margin: .15rem 0 .55rem .45rem;
+  padding: .2rem 0 .1rem 1.05rem;
+  border-left: 1px solid var(--pi-line);
+}
+
+
+.pi-io {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--pi-line);
+  border-radius: 6px;
+  background: var(--pi-code-bg);
+}
+
+
+.pi-io-rule {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: 0 .8rem;
+  color: var(--pi-code-dim);
+  font: .72rem/1 var(--pi-font-mono);
+  font-variant-ligatures: none;
+}
+
+.pi-io-rule::before,
+.pi-io-rule::after {
+  height: 1px;
+  content: "";
+  background: var(--pi-code-line);
+}
+
+.pi-io-rule::before { flex: 0 0 .6rem; }
+
+.pi-io-rule::after { flex: 1; }
+
+/* Faint lines under the code: read continuation notice, write result, bash timeout. */
+
+.pi-io-note {
+  padding: .1rem .8rem .5rem;
+  color: var(--pi-code-dim);
+  font: .72rem/1.4 var(--pi-font-mono);
+  font-variant-ligatures: none;
+  overflow-wrap: anywhere;
+}
+
+.pi-io > .pi-code-block + .pi-io-note,
+.pi-io > .pi-output-block + .pi-io-note { padding-top: .4rem; }
+
+.pi-nested-calls {
+  padding: .35rem .8rem .5rem;
+  color: var(--pi-code-dim);
+  font: .74rem/1.5 var(--pi-font-mono);
+  font-variant-ligatures: none;
+  overflow-wrap: anywhere;
+}
+
+.pi-tool-body > .pi-nested-calls { padding: .25rem 0 0; }
+
+.pi-nested-call[data-status="error"] { color: var(--pi-danger); }
+
+.pi-nested-count { color: var(--pi-code-dim); }
+
+@media (max-width: 700px) {
+  .pi-tool-body { margin-left: .2rem; padding-left: .75rem; }
+}
+
+/* session_list: one line per session (name, role, state, project), relations below in faint text. */
+.pi-session-list { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.pi-session-list.is-empty { color: var(--pi-muted); font-size: .8rem; }
+.pi-session-entry { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 6px 0; }
+.pi-session-entry + .pi-session-entry { border-top: 1px solid var(--pi-line); }
+.pi-session-entry-head { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; min-width: 0; }
+.pi-session-entry-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--pi-ink); font-size: .84rem; font-weight: 600; }
+.pi-session-entry-state { color: var(--pi-muted); font-size: .76rem; }
+.pi-session-entry-project { padding: 0 6px; border-radius: 4px; background: var(--pi-surface-2); color: var(--pi-ink-2); font-size: .74rem; }
+.pi-session-entry-relations { display: flex; flex-wrap: wrap; gap: 2px 12px; color: var(--pi-faint); font-size: .76rem; }
+.pi-session-entry-relations .is-pending { color: var(--pi-accent-strong); }
+
+/* ImageContent parts of a tool result, under the output text. */
+
+.pi-io-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  padding: .4rem .8rem .6rem;
+}
+
+.pi-io-images img {
+  display: block;
+  max-width: 100%;
+  max-height: 24rem;
+  object-fit: contain;
+  border-radius: var(--pi-radius-sm);
+}

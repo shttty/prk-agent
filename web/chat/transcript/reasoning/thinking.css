@@ -1,0 +1,24 @@
+/* Thinking row: the tool row's summary (shared rules in tool-calls.css), a one-line preview, a quieter body. */
+
+.pi-thinking { min-width: 0; margin: 0; }
+
+.pi-thinking .pi-tool-state { color: var(--pi-faint); }
+
+.pi-thinking[data-state="running"] .pi-tool-state { color: var(--pi-accent); }
+
+.pi-thinking[data-state="running"] .tool-name { color: var(--pi-accent-strong); animation: pi-pulse var(--pi-motion-pulse) ease-in-out infinite; }
+
+.pi-thinking-preview {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--pi-muted);
+  font-size: .8rem;
+}
+
+.pi-thinking-body.pi-markdown {
+  margin: .15rem 0 .45rem 1.55rem;
+  color: var(--pi-muted);
+  font-size: .82rem;
+  line-height: 1.6;
+}

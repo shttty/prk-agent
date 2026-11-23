@@ -1,0 +1,53 @@
+{
+  "name": "pi-remote-kernel-web",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "Browser workbench for pi-remote-kernel; talks to the backend only through /api",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@assistant-ui/react": "^0.15.38",
+    "@assistant-ui/react-markdown": "^0.14.26",
+    "@chinese-fonts/maple-mono-cn": "2.0.0",
+    "@codemirror/language": "^6.13.1",
+    "@codemirror/language-data": "^6.5.2",
+    "@fontsource-variable/figtree": "^5.3.0",
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource-variable/manrope": "^5.3.0",
+    "@fontsource-variable/noto-sans-sc": "^5.3.1",
+    "@mantine/core": "^9.8.2",
+    "@mantine/hooks": "^9.8.2",
+    "@tabler/icons-react": "^3.52.0",
+    "@uiw/react-codemirror": "^4.25.12",
+    "@xterm/addon-fit": "0.12.0-beta.335",
+    "@xterm/addon-image": "0.10.0-beta.334",
+    "@xterm/addon-search": "0.17.0-beta.333",
+    "@xterm/addon-unicode11": "0.10.0-beta.333",
+    "@xterm/addon-web-links": "0.13.0-beta.333",
+    "@xterm/xterm": "6.1.0-beta.339",
+    "anser": "^2.3.5",
+    "dequal": "^2.0.3",
+    "dockview-react": "8.9.1",
+    "lxgw-wenkai-screen-webfont": "^1.7.0",
+    "mdast-util-from-markdown": "^2.1.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.3.0",
+    "eslint": "^10.15.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
+    "remark-parse": "^11.0.0",
+    "unified": "^11.0.5",
+    "vite": "^8.3.8"
+  }
+}

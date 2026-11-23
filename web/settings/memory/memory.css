@@ -1,0 +1,13 @@
+.memory-documents { display: flex; flex-direction: column; gap: 22px; }
+.memory-document { min-width: 0; }
+.memory-document-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px; margin-bottom: 10px; }
+.memory-document-head h3 { margin: 0; font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.memory-usage { color: var(--pi-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.memory-usage[data-over-limit="true"] { color: var(--pi-warn); }
+.memory-entry { padding: 10px 0; border-bottom: 1px solid var(--pi-line); }
+.memory-entry-content { color: var(--pi-ink); font-size: 14px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.memory-editor { margin-top: 12px; }
+.memory-layer-card { display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid var(--pi-line); border-radius: 8px; min-width: 0; }
+.memory-layer-name { flex: 1; min-width: 0; }
+.memory-config-raw { margin: 0; padding: 10px; border: 1px solid var(--pi-line); border-radius: 8px; font-family: var(--pi-font-mono); font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--pi-ink); }
+

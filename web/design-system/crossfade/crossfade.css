@@ -1,0 +1,7 @@
+/* Cross-fade layers (Crossfade.jsx): opaque (--pi-fade-bg, the surface they sit on), stacked, plus-lighter only while
+   two are on screen, so the sum of both opacities is 1 everywhere and nothing brightens or flickers. */
+.pi-fade { position: relative; isolation: isolate; }
+.pi-fade > .pi-fade-live, .pi-fade > .pi-fade-leaving { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--pi-fade-bg, var(--pi-surface)); }
+.pi-fade > .pi-fade-live > * { flex: 1; min-height: 0; }
+.pi-fade > .pi-fade-leaving { pointer-events: none; }
+.pi-fade[data-fading] > * { mix-blend-mode: plus-lighter; }

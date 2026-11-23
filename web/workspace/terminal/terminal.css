@@ -1,0 +1,21 @@
+/* One shell fills its dock panel: xterm over the panel, nothing else (the dock's own tab strip is the only tab row). The panel
+   gets its size from the dock. Size and layout containment keep xterm's synchronous IME measurements inside the shell. */
+.pi-term { height: 100%; min-height: 0; display: flex; flex-direction: column; overflow: hidden; contain: strict; isolation: isolate; background: var(--pi-bg); }
+.pi-term-view { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+/* The padding sits on the .xterm element itself: FitAddon subtracts that one (not its parent's) when it counts rows and columns. */
+.pi-term-host { flex: 1; min-height: 0; }
+.pi-term-host .xterm { height: 100%; padding: .35rem 0 0 .5rem; font-variant-ligatures: none; }
+.pi-term-host .xterm-viewport { background: transparent !important; }
+/* Right-click menu: a zero-size anchor at the pointer; shortcut hints right-aligned, quiet. */
+.pi-term-menu-anchor { position: absolute; width: 0; height: 0; pointer-events: none; }
+.pi-term-menu-keys { margin-left: 1.5rem; color: var(--pi-faint); font: .72rem var(--pi-font-ui); }
+.pi-term-menu-note { max-width: 15rem; white-space: normal; }
+/* Find bar: floats over the terminal's top-right corner. The host isolates xterm's own z-indexed layers (decorations,
+   helper textarea), so lifting the bar over its sibling host is enough. */
+.pi-term-host { isolation: isolate; }
+.pi-term-search { position: absolute; top: .35rem; right: .75rem; z-index: var(--pi-z-raised); display: flex; align-items: center; gap: 2px; padding: 3px 4px; border: 1px solid var(--pi-line); border-radius: 8px; background: var(--pi-surface); box-shadow: var(--pi-shadow); }
+.pi-term-search .mantine-TextInput-root { width: 14rem; }
+.pi-term-search-count { color: var(--pi-faint); font: .72rem var(--pi-font-ui); font-variant-numeric: tabular-nums; white-space: nowrap; }
+@media (max-width: 48em) {
+  .pi-term-host .xterm { padding: .5rem .25rem 0 .5rem; }
+}

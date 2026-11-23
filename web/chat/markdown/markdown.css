@@ -1,0 +1,121 @@
+.pi-markdown {
+  font-size: .97rem;
+  line-height: 1.76;
+  overflow-wrap: anywhere;
+}
+
+.pi-markdown > :first-child { margin-top: 0; }
+
+.pi-markdown > :last-child { margin-bottom: 0; }
+
+.pi-markdown p,
+.pi-markdown ul,
+.pi-markdown ol,
+.pi-markdown blockquote,
+.pi-markdown pre { margin: .72em 0; }
+
+.pi-markdown ul,
+.pi-markdown ol { padding-left: 1.5em; }
+
+.pi-markdown li::marker { color: var(--pi-accent); }
+
+.pi-markdown h1,
+.pi-markdown h2,
+.pi-markdown h3,
+.pi-markdown h4 { margin: 1.2em 0 .5em; font-weight: 650; line-height: 1.35; letter-spacing: -.005em; }
+
+.pi-markdown h1 { font-size: 1.3em; }
+
+.pi-markdown h2 { font-size: 1.16em; }
+
+.pi-markdown h3,
+.pi-markdown h4 { font-size: 1.02em; }
+
+.pi-markdown hr { border: 0; border-top: 1px solid var(--pi-line); margin: 1.4em 0; }
+
+.pi-markdown blockquote {
+  margin-left: 0;
+  padding-left: 1em;
+  border-left: 3px solid var(--pi-line-strong);
+  color: var(--pi-muted);
+}
+
+.pi-markdown code {
+  border-radius: .35rem;
+  padding: .1em .38em;
+  background: var(--pi-code-inline-bg);
+  color: var(--pi-code-ink);
+  font: .86em/1.6 var(--pi-font-mono);
+  font-variant-ligatures: none;
+}
+
+.pi-markdown pre {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--pi-line);
+  border-radius: var(--pi-radius);
+  padding: .85rem 1rem;
+  background: var(--pi-code-bg);
+  color: var(--pi-code-ink);
+  white-space: pre;
+}
+
+.pi-markdown pre code { padding: 0; background: transparent; font-size: .82rem; line-height: 1.7; }
+
+.pi-markdown a { color: var(--pi-accent-strong); text-underline-offset: 3px; }
+
+.pi-markdown table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; font-size: .9em; }
+
+.pi-markdown th,
+.pi-markdown td { border: 1px solid var(--pi-line); padding: .4rem .7rem; }
+
+.pi-markdown th { background: var(--pi-surface-2); font-weight: 600; text-align: left; }
+
+/* Streaming reply: a caret at the end of the last paragraph. */
+
+.pi-markdown .code-toolbar {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  min-height: 2.1rem;
+  margin-top: .72em;
+  border: 1px solid var(--pi-line);
+  border-bottom: 0;
+  border-radius: var(--pi-radius) var(--pi-radius) 0 0;
+  padding: .2rem .45rem .2rem .9rem;
+  background: var(--pi-surface-2);
+}
+
+.pi-markdown .code-toolbar + pre {
+  margin-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.pi-markdown .code-language {
+  margin-right: auto;
+  color: var(--pi-muted);
+  font: .72rem/1.5 var(--pi-font-mono);
+  font-variant-ligatures: none;
+  letter-spacing: .06em;
+  text-transform: lowercase;
+}
+
+.pi-markdown .code-copy {
+  min-width: 1.85rem;
+  min-height: 1.85rem;
+  border: 0;
+  border-radius: var(--pi-radius-sm);
+  padding: 0;
+  color: var(--pi-muted);
+  background: transparent;
+  transition: background var(--pi-motion-fast), color var(--pi-motion-fast);
+}
+
+.pi-markdown .code-copy:hover { color: var(--pi-ink); background: var(--pi-hover); }
+
+/* ── Agent turn: process steps fold behind one summary line (Codex "Worked for"). ── */
+
+@media (max-width: 700px) {
+  .pi-markdown { font-size: .93rem; }
+}

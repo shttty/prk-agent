@@ -1,0 +1,177 @@
+/* Desktop frame: the session sidebar sits flat on the canvas (--pi-sidebar); chat, workspace and terminal are rounded
+   cards on it, --pi-card-gap apart and from the window edge (styled where each region lives). */
+.workbench {
+  position: relative;
+  display: flex;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--pi-sidebar);
+  color: var(--pi-ink);
+  transition: background-color var(--pi-motion-slow) ease, color var(--pi-motion-slow) ease;
+}
+/* --pi-sidebar-width is set on .workbench by App (saved width fitted into the window, see app/layout-state.js). */
+.desktop-sidebar {
+  flex: 0 0 var(--pi-sidebar-width);
+  width: var(--pi-sidebar-width);
+  min-height: 0;
+  background: var(--pi-sidebar);
+  overflow: hidden;
+  isolation: isolate;
+}
+.desktop-sidebar[hidden] { display: none; }
+.workspace { position: relative; flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.topbar {
+  min-height: 70px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--pi-line);
+  background: var(--pi-bg);
+}
+.topbar-leading, .topbar-heading { min-width: 0; }
+.topbar-heading { display: grid; gap: 2px; }
+.topbar-eyebrow {
+  overflow: hidden;
+  color: var(--pi-muted);
+  font-size: 11px;
+  letter-spacing: .14em;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.topbar-heading h1 {
+  margin: 0;
+  overflow: hidden;
+  color: var(--pi-ink);
+  font-family: var(--pi-font-display);
+  font-size: 23px;
+  font-weight: 500;
+  letter-spacing: .02em;
+  line-height: 1.3;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.topbar-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 28px;
+  padding: 0 11px;
+  border: 1px solid var(--pi-line);
+  border-radius: 999px;
+  background: var(--pi-surface);
+  color: var(--pi-ink-2);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.mobile-menu { display: none; }
+/* Desktop has no top bar: the title and status stay in the DOM (page title for assistive tech, state hooks), not on screen. */
+.topbar.is-hidden { position: absolute; width: 1px; height: 1px; min-height: 0; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); border: 0; white-space: nowrap; pointer-events: none; }
+
+.chat-container { position: relative; flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
+.chat-container > * { min-height: 0; }
+/* Stage: desktop, the dockview grid of cards (shell/stage); phone, the chat column with the workspace overlay. */
+.pi-stage { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: var(--pi-card-gap); padding: var(--pi-card-gap) var(--pi-card-gap) var(--pi-card-gap) 0; }
+.workbench > .desktop-sidebar[hidden] ~ .workspace .pi-stage { padding-left: var(--pi-card-gap); }
+/* Regions keep to their own box: content with a z-index (Mantine Select chevrons, dockview overlays) must not paint over a neighbour. The columns clip as a whole; each region also clips and isolates itself. */
+.pi-columns { position: relative; flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: row; gap: var(--pi-card-gap); overflow: hidden; }
+.pi-chatcol { position: relative; flex: 1 1 0; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--pi-card-line); border-radius: var(--pi-radius-lg); background: var(--pi-bg); }
+/* (no isolation on the chat column: the extension overlay inside it is position:fixed and keeps its global layer) */
+.pi-chatcol > .pi-chat-fade { flex: 1; min-height: 0; --pi-fade-bg: var(--pi-bg); }
+/* The fade host isolates only while two layers blend; otherwise the plugin overlay inside (position:fixed) keeps its
+   global layer, as the column itself does. */
+.pi-chatcol > .pi-chat-fade:not([data-fading]) { isolation: auto; }
+.pi-chatcol { --pi-chat-top: 0px; } /* where the thread starts inside the column (toasts offset against it) */
+/* A control floats over the chat column's top corner: leave a strip for it. */
+.pi-chatcol.has-float { --pi-chat-top: 36px; padding-top: var(--pi-chat-top); }
+.pi-float-left, .pi-float-right { position: absolute; z-index: var(--pi-z-controls); top: 5px; }
+.pi-float-left { left: 10px; }
+/* The right group lives in the desktop stage, above the chat and every docked group alike, so it never moves. */
+.pi-float-right { right: 8px; }
+.pi-controls-slot { width: 26px; height: 26px; }
+.pi-tooltip-anchor { display: inline-flex; }
+/* Session heading (desktop): one quiet line in the control strip, from the left edge (after the expand button when the
+   session bar is folded) up to the monitor pill; never a bar of its own. */
+.pi-session-heading { position: absolute; z-index: var(--pi-z-raised); top: 5px; left: 16px; height: 26px; max-width: calc(100% - var(--pi-monitor-right) - 240px); display: flex; align-items: baseline; gap: 8px; min-width: 0; overflow: hidden; line-height: 26px; white-space: nowrap; pointer-events: none; }
+.pi-chatcol.has-expand > .pi-session-heading { left: 44px; max-width: calc(100% - var(--pi-monitor-right) - 268px); }
+.pi-session-heading strong { flex: 0 1 auto; min-width: 0; overflow: hidden; color: var(--pi-ink); font-size: 13.5px; font-weight: 600; text-overflow: ellipsis; }
+.pi-session-fact { flex: 0 1 auto; min-width: 0; overflow: hidden; color: var(--pi-muted); font-size: 12px; text-overflow: ellipsis; }
+.pi-session-fact + .pi-session-fact::before { content: "·"; margin-right: 8px; }
+/* Monitor (desktop): the pill (#toggle-monitor) is the panel's anchor in the chat column's top corner, in the control
+   strip, left of the control group when that group sits over the chat column (chat in the stage's top-right corner). The panel floats under
+   the strip, its right edge on the pill's (--pi-monitor-right is the one inset both use). Phone: a sheet under the top
+   bar. */
+.pi-chatcol { --pi-monitor-right: var(--pi-monitor-inset); }
+.pi-chatcol.has-controls { --pi-monitor-right: calc(var(--pi-controls-w) + 6px); }
+.pi-chatcol > .pi-monitor-pill { position: absolute; z-index: var(--pi-z-monitor-panel); top: 5px; right: var(--pi-monitor-right); }
+.pi-chatcol > .pi-monitor-panel { position: absolute; z-index: var(--pi-z-monitor-panel); top: 38px; right: var(--pi-monitor-right); width: var(--pi-monitor-w); max-height: calc(100% - 50px); }
+/* Unfolded beside the chat, the panel never covers the reading column. While the column (centered in the chat area W)
+   keeps --pi-monitor-gap to the panel's left edge, nothing moves. Otherwise --pi-monitor-room is the room the panel
+   takes from the right of the area (its width, inset and the gap): the scroller keeps the card's full width, so its
+   scrollbar stays at the card edge, and pads it inside; the column and the composer center in what is left. The
+   condition is the step `(2 × room − (W − column)) × 1000` clamped to 0..room. Percentages resolve where it is used:
+   the transcript's and the banner lane's padding, and the composer's box, all against the chat column's width (W, the
+   thread's too). The overlay peek (a narrow column) floats over the chat as before. */
+.pi-chatcol[data-monitor="panel"] {
+  --pi-monitor-side: calc(var(--pi-monitor-w) + var(--pi-monitor-right) + var(--pi-monitor-gap));
+  --pi-monitor-room: clamp(0px, (2 * var(--pi-monitor-side) - 100% + min(var(--pi-thread-width), 100%)) * 1000, var(--pi-monitor-side));
+}
+/* Phone sheet: hangs from the top bar's bottom edge (the top of the chat container), opaque, so nothing of the
+   conversation shows above or through it. */
+.chat-container > .pi-monitor-panel[data-mobile] { position: absolute; z-index: var(--pi-z-monitor); top: 0; right: 8px; left: 8px; max-height: calc(100% - 96px); border-top: 0; border-radius: 0 0 22px 22px; background: var(--pi-surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
+/* Quiet icon groups: neutral grey, no borders, hover tint only. */
+.pi-controls, .pi-pane-controls { display: flex; align-items: center; gap: 2px; }
+.pi-controls .mantine-ActionIcon-root, .pi-pane-controls .mantine-ActionIcon-root, .pi-float-left.mantine-ActionIcon-root { width: 26px; height: 26px; min-width: 26px; min-height: 26px; border: 0; background: transparent; color: var(--pi-muted); }
+.pi-controls .mantine-ActionIcon-root:hover, .pi-pane-controls .mantine-ActionIcon-root:hover, .pi-float-left.mantine-ActionIcon-root:hover { background: var(--pi-hover); color: var(--pi-ink); }
+.pi-controls .mantine-ActionIcon-root[aria-pressed="true"] { background: var(--pi-hover); color: var(--pi-ink); }
+.pi-controls .mantine-Button-root, .pi-pane-controls .mantine-Button-root { height: 26px; }
+/* No session yet: the page tone, flat (no card on the canvas). */
+.empty-view {
+  background: var(--pi-bg);
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow-y: auto;
+}
+.empty-view h2 { font-family: var(--pi-font-display); font-weight: 500; letter-spacing: .02em; }
+.empty-wordmark {
+  color: var(--pi-accent);
+  font-family: var(--pi-font-flourish);
+  font-size: 72px;
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: -.02em;
+  line-height: 1;
+  user-select: none;
+}
+
+/* Floats over the top right corner; must not push the work area down. */
+.workbench-notice { position: absolute; z-index: var(--pi-z-notice); top: 12px; right: 20px; margin: 0; width: min(420px, calc(100vw - 32px)); max-width: calc(100vw - 32px); box-shadow: var(--pi-shadow); pointer-events: none; }
+.workbench-notice .mantine-Notification-closeButton { pointer-events: auto; }
+.mobile-sidebar-body { height: calc(100dvh - 64px); padding: 0; display: flex; flex-direction: column; }
+/* Phone: full-bleed, no canvas or cards; the top bar is a translucent strip over the page. */
+@media (max-width: 48em) {
+  .workbench { background: var(--pi-bg); }
+  .pi-stage { padding: 0; gap: 0; }
+  .pi-chatcol { border: 0; border-radius: 0; }
+  .desktop-sidebar { display: none; }
+  .mobile-menu { display: inline-flex; }
+  .topbar { min-height: 58px; padding: 8px 10px; gap: 6px; border-bottom-color: transparent; background: color-mix(in srgb, var(--pi-bg) 82%, transparent); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+  .topbar-heading h1 { font-size: 18px; }
+  .topbar-eyebrow { font-size: 10px; letter-spacing: .1em; }
+  .topbar-status { height: 26px; padding: 0 8px; border-color: transparent; background: transparent; }
+  .topbar-status-label { display: none; }
+  .workbench-notice { top: 66px; right: 10px; width: min(420px, calc(100vw - 20px)); max-width: calc(100vw - 20px); }
+  .empty-view { padding: 24px; }
+  .empty-wordmark { font-size: 60px; }
+}

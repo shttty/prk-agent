@@ -1,0 +1,11 @@
+.session-facts { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 12px; margin: 0; font-size: 14px; }
+.session-facts dt { color: var(--pi-muted); }
+.session-facts dd { margin: 0; overflow-wrap: anywhere; }
+.session-section { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--pi-line); padding-top: 14px; }
+.session-section-title { color: var(--pi-faint); font-size: 12px; font-weight: 600; letter-spacing: .08em; }
+/* Ligatures are off wherever text is monospace. The `font` shorthand resets font-variant-ligatures, so every rule that reads --pi-font-mono sets it itself, after the font declaration. */
+#session-id { font-family: var(--pi-font-mono); font-variant-ligatures: none; font-size: 13px; }
+.diagnostics summary { cursor: pointer; font-size: 14px; padding: 8px 0; }
+.activity-feed { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.activity-card { border: 1px solid var(--pi-line); border-radius: var(--pi-radius-sm); padding: 12px; min-width: 0; overflow-wrap: anywhere; background: var(--pi-surface); }
+.activity-output { max-height: 240px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: 12px/1.6 var(--pi-font-mono); font-variant-ligatures: none; }

@@ -1,0 +1,10 @@
+/* Leaving copies (motion/ghost/): above the regions they slide off, never hit-testable, clipped like the original. */
+.pi-ghost { z-index: var(--pi-z-leaving); overflow: hidden; pointer-events: none; }
+
+/* Overlays that arrive on mount (toasts, banners, the top-right notice): up from transparent in place (no travel, so
+   nothing is measured mid-flight); they leave sliding up as a copy (LeaveList). */
+@keyframes pi-arrive { from { opacity: 0; } }
+.pi-toasts > .mantine-Notification-root, .pi-banners > .pi-banner, .workbench-notice { animation: pi-arrive var(--pi-motion-fast) var(--pi-motion-ease-out); }
+.pi-turn-process[data-state="running"] > .pi-turn-summary .pi-turn-label { animation: pi-pulse var(--pi-motion-pulse) ease-in-out infinite; }
+/* Running: a calm pulse, opacity only. */
+@keyframes pi-pulse { 50% { opacity: .5; } }

@@ -1,0 +1,42 @@
+/* Pill three-way switch on the shared pill skin (design-system/switch/pill-switch.css: sizes, state colours, track and
+   knob classes). This file adds the middle stop, the mixed stripes and the state word. */
+.tri { --tri-w: var(--pill-w); --tri-h: var(--pill-h); --tri-knob: var(--pill-knob); --tri-pad: var(--pill-pad); position: relative; flex: none; display: inline-flex; align-items: center; gap: 6px; }
+
+.tri-track { position: relative; width: var(--tri-w); height: var(--tri-h); }
+.tri[data-value="lazy"] .tri-track { --prk-c: var(--prk-state-lazy); }
+.tri[data-value="on"] .tri-track { --prk-c: var(--prk-state-on); }
+/* Mixed group: fine stripes of all three states, no knob. */
+.tri[data-value="mixed"] .tri-track {
+  background: repeating-linear-gradient(135deg, var(--prk-state-off) 0 3px, var(--prk-state-lazy) 3px 6px, var(--prk-state-on) 6px 9px);
+}
+.tri[data-disabled="true"] .tri-track { opacity: .5; }
+
+.tri-knob { position: absolute; top: var(--tri-pad); left: var(--tri-pad); width: var(--tri-knob); height: var(--tri-knob); display: grid; place-items: center; pointer-events: none; }
+.tri-knob svg { width: 12px; height: 12px; }
+.tri[data-value="lazy"] .tri-knob { left: calc((var(--tri-w) - var(--tri-knob)) / 2); }
+.tri[data-value="on"] .tri-knob { left: calc(var(--tri-w) - var(--tri-knob) - var(--tri-pad)); }
+
+/* Without lazy the middle stop is a dashed, faded gap the knob never lands on. */
+.tri-gap {
+  position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%;
+  border: 1.5px dashed var(--pi-surface); opacity: .75; pointer-events: none;
+}
+
+/* Hit zones: three equal thirds over the track. */
+.tri-track > .tri-zone, .tri-zone-wrap { position: absolute; top: 0; bottom: 0; width: calc(var(--tri-w) / 3); }
+.tri-track > .tri-zone[data-zone="off"] { left: 0; }
+.tri-zone-wrap, .tri-track > .tri-zone[data-zone="lazy"] { left: calc(var(--tri-w) / 3); }
+.tri-track > .tri-zone[data-zone="on"] { right: 0; }
+.tri-zone { margin: 0; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.tri-zone-wrap > .tri-zone { width: 100%; height: 100%; }
+.tri-zone:disabled { cursor: not-allowed; }
+.tri-zone:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: 1px; border-radius: 999px; }
+.tri-track:focus-within { box-shadow: 0 0 0 2px var(--pi-accent-ring); }
+
+/* Reserve the state word before reset/track so it cannot cover neighbouring controls or row text. */
+.tri-status {
+  flex: 0 0 42px; width: 42px; padding: 2px 0; text-align: right; white-space: nowrap; background: transparent;
+  color: var(--pi-ink-2); font-size: 12px; line-height: 1.4; opacity: 0; pointer-events: none; transition: opacity 160ms ease;
+}
+.tri[data-flash="true"] .tri-status { opacity: 1; }
+@media (hover: hover) { .tri:hover .tri-status { opacity: 1; } }

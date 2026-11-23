@@ -1,0 +1,12 @@
+{
+  "name": "pi-ui-probe",
+  "private": true,
+  "type": "module",
+  "keywords": ["pi-package"],
+  "pi": { "extensions": ["./index.ts"] },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "1.6.0",
+    "@earendil-works/pi-tui": "1.6.0",
+    "typebox": "*"
+  }
+}

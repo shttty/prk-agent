@@ -1,0 +1,46 @@
+.subsession-settings { display: flex; flex-direction: column; gap: 22px; }
+.subsession-section { display: flex; flex-direction: column; gap: 10px; }
+.subsession-section-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 28px; }
+.subsession-section-title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.subsession-card { border: 1px solid var(--pi-line); border-radius: var(--pi-radius); background: color-mix(in srgb, var(--pi-ink) 3%, transparent); overflow: hidden; }
+.subsession-field { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; min-height: 46px; padding: 8px 14px; }
+.subsession-field + .subsession-field { border-top: 1px solid var(--pi-line); }
+.subsession-field.is-column { flex-direction: column; align-items: stretch; gap: 6px; padding: 10px 14px 12px; }
+.subsession-field-label { flex: 1 1 140px; min-width: 0; display: flex; flex-direction: column; gap: 2px; font-size: 13.5px; color: var(--pi-ink); }
+.subsession-field-sub { font-size: 12px; color: var(--pi-faint); }
+.subsession-field-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.subsession-field-control { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; max-width: 100%; }
+.subsession-select { min-width: 168px; }
+.subsession-select-sm { min-width: 128px; }
+.subsession-footer { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--pi-line); background: color-mix(in srgb, var(--pi-ink) 2%, transparent); }
+.subsession-roles-list { display: flex; flex-direction: column; gap: 8px; }
+.subsession-empty { padding: 16px 14px; border: 1px dashed var(--pi-line-strong); border-radius: var(--pi-radius); text-align: center; }
+.subsession-role-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 14px; border: 1px solid var(--pi-line); border-radius: var(--pi-radius); background: color-mix(in srgb, var(--pi-ink) 3%, transparent); transition: border-color var(--pi-motion-fast) ease, background-color var(--pi-motion-fast) ease; }
+.subsession-role-row:hover { background: var(--pi-hover); }
+.subsession-role-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.subsession-role-head { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; min-width: 0; }
+.subsession-role-name { font-family: var(--pi-font-mono); font-variant-ligatures: none; font-size: 13.5px; font-weight: 600; color: var(--pi-ink); }
+.subsession-role-badges { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+.subsession-role-desc { font-size: 12.5px; color: var(--pi-muted); overflow-wrap: anywhere; }
+.subsession-role-editor { display: flex; flex-direction: column; gap: 14px; }
+.subsession-editor-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.subsession-editor-title { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 15px; font-weight: 600; color: var(--pi-ink); }
+.subsession-editor-title code { font-family: var(--pi-font-mono); font-variant-ligatures: none; font-size: 14px; color: var(--pi-accent); }
+.subsession-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; padding: 12px 14px; }
+.subsession-grid-full { grid-column: 1 / -1; }
+.subsession-capabilities { display: flex; flex-direction: column; border: 1px solid var(--pi-line); border-radius: var(--pi-radius); background: var(--pi-surface); overflow: hidden; }
+.subsession-capabilities-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; padding: 8px 14px 0; background: var(--pi-surface-2); border-bottom: 1px solid var(--pi-line); }
+.subsession-capabilities-title { display: flex; align-items: center; gap: 8px; padding-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--pi-ink); }
+.subsession-capabilities-tabs .mantine-Tabs-list::before { border: 0; }
+.subsession-capabilities-body { padding: 0 14px 12px; max-height: 360px; overflow-y: auto; }
+.subsession-capabilities-body .capability-section + .capability-section { margin-top: 12px; }
+.subsession-capabilities-body .capability-group { padding: 10px 0 8px; }
+.subsession-capabilities-body .capability-group-name { font-size: 14px; }
+.subsession-capabilities-body .capability-row { min-height: 44px; padding: 5px 0; }
+@media (max-width: 48em) {
+  .subsession-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 10px 12px; gap: 6px 10px; }
+  .subsession-select, .subsession-select-sm { min-width: 120px; }
+  .subsession-role-row { flex-direction: column; align-items: stretch; gap: 8px; }
+  .subsession-role-actions { justify-content: flex-end; }
+  .subsession-capabilities-body { padding: 0 10px 10px; max-height: 300px; }
+}

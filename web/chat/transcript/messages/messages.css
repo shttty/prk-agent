@@ -1,0 +1,199 @@
+.pi-transcript {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding-bottom: 1.5rem;
+  padding-right: var(--pi-monitor-room, 0px);
+}
+
+.pi-messages {
+  width: min(var(--pi-thread-width), 100%);
+  margin: 0 auto;
+  padding: 2rem var(--pi-thread-pad) 2.25rem;
+}
+
+.pi-messages-empty {
+  padding: 3.5rem 1rem;
+  font-family: var(--pi-font-display);
+  font-size: 1.15rem;
+}
+
+.pi-message {
+  min-width: 0;
+  width: 100%;
+  display: flex;
+}
+
+.pi-message-body {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  position: relative;
+}
+
+/* ChatGPT-style: the user's turns are right-aligned rounded bubbles (neutral tint, the corner by the edge tucked in);
+   assistant turns are plain, full-width text on the left. Peer-agent rows, system records and native-feedback cards
+   keep their own styles. */
+
+.pi-message-user:not(.pi-message-peer) {
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.pi-message-user:not(.pi-message-peer) .pi-message-body {
+  width: auto;
+  max-width: min(72%, 40rem);
+  padding: .6rem 1.05rem;
+  border-radius: 1.4rem 1.4rem .45rem 1.4rem;
+  background: var(--pi-bubble-user);
+}
+
+.pi-message-user .pi-markdown {
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.pi-message-assistant:not(.pi-native-interaction-card) { flex-direction: column; }
+
+.pi-user-message-content {
+  max-height: min(14rem, 30dvh);
+  overflow: hidden;
+}
+
+.pi-user-message-content.is-expanded {
+  max-height: none;
+  overflow: visible;
+}
+
+.pi-user-message-content.is-collapsed {
+  position: relative;
+}
+
+.pi-user-message-content.is-collapsed::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3.5rem;
+  pointer-events: none;
+  content: "";
+  background: linear-gradient(to bottom, transparent, var(--pi-bg));
+}
+
+/* The fade must end in the bubble colour. */
+
+.pi-message-user:not(.pi-message-peer) .pi-user-message-content.is-collapsed::after {
+  background: linear-gradient(to bottom, transparent, var(--pi-bubble-user));
+}
+
+.pi-user-expand {
+  min-height: 1.75rem;
+  margin-top: .2rem;
+  padding-inline: .25rem;
+  color: var(--pi-accent-strong);
+}
+
+/* Peer agent messages arrive as user-role input but are not the user's words:
+   UI face, quiet rule, and a sender line instead of the accent-ruled display type. */
+
+.pi-message-user.pi-message-peer .pi-message-body {
+  border-left-color: var(--pi-line-strong);
+}
+
+.pi-message-user.pi-message-peer .pi-markdown {
+  font-family: var(--pi-font-ui);
+  font-size: .95rem;
+  line-height: 1.7;
+  letter-spacing: 0;
+  color: var(--pi-ink-2);
+}
+
+.pi-messages { --pi-thread-gap: .95rem; gap: var(--pi-thread-gap); }
+
+.pi-message-system .pi-message-body {
+  padding: .6rem .9rem;
+  border: 1px dashed var(--pi-line-strong);
+  border-radius: var(--pi-radius);
+  background: color-mix(in srgb, var(--pi-surface) 70%, transparent);
+  color: var(--pi-ink-2);
+}
+
+.pi-message-system .pi-markdown { font-size: .86rem; }
+
+.pi-message.is-streaming .pi-markdown > p:last-child::after {
+  display: inline-block;
+  width: .5em;
+  height: 1.05em;
+  margin-left: 3px;
+  vertical-align: -.18em;
+  border-radius: 1px;
+  content: "";
+  background: var(--pi-accent);
+  animation: pi-blink var(--pi-motion-loop) steps(1) infinite;
+}
+
+.pi-message-actions {
+  position: relative;
+  min-height: 1.5rem;
+  opacity: 0;
+  transition: opacity var(--pi-motion-fast) ease;
+}
+
+/* Copy/quote feedback tooltip target: spans the toolbar, mounted on first feedback only. */
+.pi-message-feedback-anchor {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pi-message:hover .pi-message-actions,
+.pi-message:focus-within .pi-message-actions { opacity: 1; }
+
+.pi-message-user .pi-message-actions { padding-right: .2rem; }
+
+.pi-message-actions button {
+  min-width: 2.15rem;
+  min-height: 2.15rem;
+  color: var(--pi-muted);
+}
+
+.pi-message-actions button:hover { color: var(--pi-ink); }
+
+.pi-message-status { margin-top: .35rem; color: var(--pi-muted); }
+
+.pi-message-status.is-error {
+  color: var(--pi-danger);
+  overflow-wrap: anywhere;
+}
+
+/* Code block header joins the block below it. */
+
+.pi-message-attachments, .pi-message-references { margin: .35rem 0; flex-wrap: wrap; }
+
+.pi-message-attachment { display: flex; flex-direction: column; gap: .25rem; max-width: min(18rem, 100%); }
+
+.pi-message-attachment img { display: block; max-width: 100%; max-height: 14rem; object-fit: contain; border-radius: var(--pi-radius-sm); }
+
+.pi-operation-outcome { align-self: flex-start; max-width: 100%; overflow-wrap: anywhere; white-space: pre-wrap; }
+
+.pi-message.pi-search-match { outline: 2px solid var(--pi-accent-ring); outline-offset: 4px; border-radius: var(--pi-radius-sm); }
+
+@media (max-width: 700px) {
+  .pi-messages { --pi-thread-gap: 1.1rem; padding: 1.2rem var(--pi-thread-pad) 1.6rem; gap: var(--pi-thread-gap); }
+  .pi-message-user:not(.pi-message-peer) .pi-message-body { max-width: 88%; }
+  .pi-message-actions { opacity: 1; }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .pi-message-actions { opacity: 1; }
+  .pi-message-actions button { min-width: 2.75rem; min-height: 2.75rem; }
+}
+
+
+.pi-terminal-event { width: 100%; }
+
+.pi-terminal-event-json { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* Keep the last message above the collapsed task row and the run indicator even when both appear. */
+.pi-messages[data-active-composer] { padding-bottom: 4.5rem; }

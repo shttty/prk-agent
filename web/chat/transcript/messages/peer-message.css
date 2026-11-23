@@ -1,0 +1,76 @@
+.pi-peer-header {
+  margin-bottom: .2rem;
+  font-size: .8rem;
+  line-height: 1.4;
+  color: var(--pi-muted);
+}
+
+/* Peer entries delivered together in one merged turn: one dashed frame around the run of rows.
+   Each row draws its own slice (sides; top on the first, bottom on the last) and the thread gap
+   between members (--pi-thread-gap mirrors .pi-messages' gap) is cancelled so the slices join. */
+
+.pi-message.pi-peer-batch {
+  flex-wrap: wrap;
+  padding: 0 .75rem;
+  border-inline: 1px dashed var(--pi-line-strong);
+}
+
+.pi-message.pi-peer-batch:not(.is-batch-first) {
+  margin-top: calc(-1 * var(--pi-thread-gap));
+  padding-top: var(--pi-thread-gap);
+}
+
+.pi-message.pi-peer-batch.is-batch-first {
+  padding-top: .45rem;
+  border-top: 1px dashed var(--pi-line-strong);
+  border-radius: var(--pi-radius) var(--pi-radius) 0 0;
+}
+
+.pi-message.pi-peer-batch.is-batch-last {
+  padding-bottom: .55rem;
+  border-bottom: 1px dashed var(--pi-line-strong);
+  border-radius: 0 0 var(--pi-radius) var(--pi-radius);
+}
+
+.pi-message.pi-peer-batch.is-batch-first.is-batch-last { border-radius: var(--pi-radius); }
+
+.pi-peer-batch-caption {
+  flex-basis: 100%;
+  margin-bottom: .35rem;
+  font-size: .75rem;
+  line-height: 1.4;
+  color: var(--pi-muted);
+}
+
+.pi-peer-sender {
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  color: var(--pi-ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+button.pi-peer-sender {
+  border-radius: var(--pi-radius-sm);
+  font-size: inherit;
+  transition: color var(--pi-motion-fast) var(--pi-motion-ease-spring);
+}
+
+button.pi-peer-sender:hover { color: var(--pi-accent-strong); text-decoration: underline; text-underline-offset: 2px; }
+
+button.pi-peer-sender:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: 2px; }
+
+.pi-peer-reply {
+  padding: 0 .4rem;
+  border: 1px solid var(--pi-line);
+  border-radius: 999px;
+  font-size: .72rem;
+  color: var(--pi-muted);
+}
+
+@media (pointer: coarse) {
+  button.pi-peer-sender { min-height: 44px; padding-inline: .25rem; }
+}
+
+/* System records and native feedback: quiet cards. */

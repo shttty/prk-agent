@@ -1,0 +1,27 @@
+/* Plugin ANSI (web/chat/ansi.jsx): semantic tones and text attributes only; 256/truecolor and backgrounds stay uncolored. */
+
+.pi-ansi[data-ansi-tone="success"] { color: var(--pi-ok); }
+
+.pi-ansi[data-ansi-tone="danger"] { color: var(--pi-danger); }
+
+.pi-ansi[data-ansi-tone="warning"] { color: var(--pi-warn); }
+
+.pi-ansi[data-ansi-tone="accent"] { color: var(--pi-accent-strong); }
+
+.pi-ansi[data-ansi-tone="text"] { color: var(--pi-ink); }
+
+.pi-ansi[data-ansi-tone="muted"] { color: var(--pi-muted); }
+
+.pi-ansi[data-ansi-tone="dim"] { color: var(--pi-faint); }
+
+.pi-ansi[data-ansi-style~="bold"] { font-weight: 600; }
+
+.pi-ansi[data-ansi-style~="dim"] { opacity: .75; }
+
+.pi-ansi[data-ansi-style~="italic"] { font-style: italic; }
+
+.pi-ansi[data-ansi-style~="underline"] { text-decoration-line: underline; }
+
+.pi-ansi[data-ansi-style~="strikethrough"] { text-decoration-line: line-through; }
+
+.pi-ansi[data-ansi-style~="underline"][data-ansi-style~="strikethrough"] { text-decoration-line: underline line-through; }

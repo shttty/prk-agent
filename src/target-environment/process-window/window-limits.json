@@ -1,0 +1,5 @@
+{
+  "maxRequests": 32,
+  "maxBytes": 2097152,
+  "maxFrameBytes": 1048576
+}

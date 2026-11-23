@@ -1,0 +1,46 @@
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+
+export async function checkTargetTools({ activeGeneration, packages, call, target, host, name, proof, storeDir, native, targetRoot, root, declarations, b, server, updates }) {
+    const registration = activeGeneration(packages.lsp).registration;
+    assert(registration.tools.some((tool) => tool.name === "lsp_diagnostics"));
+    assert(registration.tools.some((tool) => tool.name === "lsp_fix"));
+    assert(registration.commands.some((command) => command.name === "lsp"));
+    assert.equal(registration.tools.find((tool) => tool.name === "lsp_fix").parameters.properties.write.type, "boolean");
+    const identity = await call("remote_probe", { action: "identity" });
+    assert.equal(identity.isError, false, JSON.stringify(identity));
+    assert.equal(identity.details.sameManager, true);
+    assert.equal(identity.details.freshContext, true);
+    assert.equal(identity.details.cwd, `${target}/workspace`);
+    assert.equal(identity.details.sessionId, host.state(name).sessionId);
+    assert.equal(identity.details.mode, "rpc");
+    assert.equal(identity.details.hasUI, true);
+    assert.notEqual(identity.details.pid, process.pid);
+    assert.equal(identity.details.packageVersion, "1.0.0");
+    proof("original-package-handshake-and-identity", { generation: activeGeneration().generation, pid: identity.details.pid, tools: registration.tools.map((tool) => tool.name), commands: registration.commands, dependency: "@narumitw/pi-lsp@0.49.11", storeDir });
+    await native(name, "name", { name: "pushed-name" });
+    assert.equal((await call("remote_probe", { action: "identity" })).details.sessionName, "pushed-name");
+    const diagnostics = await call("lsp_diagnostics", { paths: ["example.ts"], server: "typescript" });
+    assert.equal(diagnostics.isError, false, JSON.stringify(diagnostics));
+    const issues = diagnostics.details.routes.flatMap((route) => route.details.files.flatMap((file) => file.diagnostics));
+    assert(issues.some((item) => item.code === 2322), JSON.stringify(diagnostics));
+    const fixed = await call("lsp_fix", { path: "example.ts", server: "typescript", kind: "source.removeUnusedImports.ts", write: true });
+    assert.equal(fixed.isError, false, JSON.stringify(fixed));
+    assert.equal(fixed.details.changed, true, JSON.stringify(fixed));
+    assert.equal(fixed.details.write, true);
+    assert(!(await readFile(join(targetRoot, "workspace/example.ts"), "utf8")).includes("import"));
+    assert.equal(await readFile(join(root, "example.ts"), "utf8"), "GATEWAY_SENTINEL\n");
+    assert(declarations.at(-1).some((tool) => tool.name === "lsp_diagnostics"));
+    assert.equal((await call("lsp_diagnostics", { paths: ["example.ts"], server: "typescript" }, b)).isError, true, "B cannot execute A's LSP tool");
+    assert(!declarations.at(-1).some((tool) => tool.name === "lsp_diagnostics"));
+    proof("target-only-diagnostics-and-fix", { target, server, diagnosticCodes: issues.map((item) => item.code), edits: fixed.details.edits, absentFromB: true });
+    const execution = await call("remote_probe", { action: "exec" });
+    assert.equal(execution.details.execution.code, 0);
+    assert.equal(JSON.parse(execution.details.execution.stdout).cwd, `${target}/workspace`);
+    const nested = await call("remote_probe", { action: "nested", value: 21 });
+    assert.equal(nested.details.nested.value, 42);
+    assert.equal(nested.details.nested.pid, process.pid);
+    assert(updates.some((event) => event.partialResult?.details?.nestedUpdate));
+    proof("reverse-call-reentrancy-and-target-exec", { nested: nested.details.nested, execution: execution.details.execution });
+}

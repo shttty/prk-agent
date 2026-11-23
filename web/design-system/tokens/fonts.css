@@ -1,0 +1,32 @@
+/* MesloLGS NF: the powerlevel10k-patched Meslo (Apache-2.0, fonts/MesloLGS-NF-LICENSE.txt). Maple Mono CN is the
+   monospace font (--pi-font-mono, main.jsx); Meslo stays second in that stack only for the Nerd Font icon code points
+   (terminal prompts), which Maple lacks. It ships with the app because phones have no Nerd Font. A copy installed on the
+   machine is used first (no download); the bundled woff2 is the fallback. Faces are fetched only when text in them is drawn. */
+@font-face {
+  font-family: "PRK MesloLGS NF";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("MesloLGS NF Regular"), local("MesloLGS-NF-Regular"), url("./fonts/MesloLGS-NF-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "PRK MesloLGS NF";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local("MesloLGS NF Bold"), local("MesloLGS-NF-Bold"), url("./fonts/MesloLGS-NF-Bold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "PRK MesloLGS NF";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local("MesloLGS NF Italic"), local("MesloLGS-NF-Italic"), url("./fonts/MesloLGS-NF-Italic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "PRK MesloLGS NF";
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: local("MesloLGS NF Bold Italic"), local("MesloLGS-NF-BoldItalic"), url("./fonts/MesloLGS-NF-BoldItalic.woff2") format("woff2");
+}

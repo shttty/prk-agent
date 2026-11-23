@@ -1,0 +1,102 @@
+/* The tray above the composer (ExtensionUI.jsx): plugin dialogs / custom cards, widgets, then the todo float, one
+   stack of floating cards in the composer column. Empty, it takes no room. */
+
+.extension-ui-host { display: flex; flex-direction: column; gap: 6px; min-width: 0; margin: 0 .9rem .45rem; color: var(--pi-ink); }
+
+.extension-ui-host:not(:has(> :not(.extension-ui-metric))) { margin-bottom: 0; }
+
+.extension-ui-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: 13px/1.55 var(--pi-font-mono); font-variant-ligatures: none; color: var(--pi-ink); }
+
+.extension-ui-container { display: flex; gap: 8px; min-width: 0; }
+
+.extension-ui-container.is-row { flex-direction: row; align-items: center; }
+
+.extension-ui-container.is-column { flex-direction: column; }
+
+.extension-ui-component { min-width: 0; border: 1px solid var(--pi-line); border-radius: var(--pi-radius-sm); background: var(--pi-surface); padding: 10px; }
+
+.extension-ui-notification { color: var(--pi-muted); border-left: 2px solid var(--pi-line-strong); padding-left: 8px; }
+
+.extension-ui-notification.is-error { color: var(--pi-danger); border-left-color: var(--pi-danger); }
+
+.extension-ui-metric { position: absolute; visibility: hidden; pointer-events: none; white-space: pre; font: 13px/1.55 var(--pi-font-mono); font-variant-ligatures: none; }
+
+.extension-ui-header, .extension-ui-footer { flex: 0 0 auto; padding: 6px 12px; }
+
+#extension-autocomplete-list { display: flex; flex-direction: column; }
+
+.extension-ui-component .mantine-Select-root { min-width: 0; }
+
+.extension-ui-component .mantine-Group-root > .mantine-Select-root { flex: 1; }
+
+/* Cards in the tray: a dialog waiting for an answer, a plugin's custom component, a widget. In the tray they are glass
+   (translucent, blurred), a dialog ringed in the accent; an overlay custom keeps a plain raised card. */
+
+.extension-ui-prompt, .pi-tray > .extension-ui-widget {
+  min-width: 0;
+  border: 1px solid var(--pi-line);
+  border-radius: var(--pi-radius);
+  background: var(--pi-surface);
+  box-shadow: var(--pi-shadow);
+}
+
+.extension-ui-prompt { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px 12px; }
+
+.pi-tray > .extension-ui-prompt, .pi-tray > .extension-ui-widget { border-color: transparent; background: var(--pi-overlay); box-shadow: var(--pi-shadow-overlay); -webkit-backdrop-filter: var(--pi-glass); backdrop-filter: var(--pi-glass); }
+
+.pi-tray > .extension-ui-prompt { box-shadow: var(--pi-shadow-overlay), 0 0 0 1.5px var(--pi-accent-ring); }
+
+.pi-tray > .extension-ui-widget { padding: 8px 12px; }
+
+.extension-ui-prompt-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+
+.extension-ui-prompt-title { min-width: 0; font-size: 14px; }
+
+.extension-ui-prompt-head [data-expires-at] { flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+
+.extension-ui-prompt-message { color: var(--pi-ink-2); }
+
+.extension-ui-prompt-actions { margin-top: 2px; }
+
+.extension-ui-options { display: flex; flex-direction: column; gap: 2px; max-height: 14rem; margin: 0 -6px; overflow-y: auto; overscroll-behavior: contain; }
+
+.extension-ui-options button { min-height: 2rem; padding: 5px 14px; border: 0; border-radius: 999px; background: transparent; color: var(--pi-ink); font: inherit; font-size: 13.5px; text-align: left; cursor: pointer; }
+
+.extension-ui-options button:hover, .extension-ui-options button:focus-visible { background: var(--pi-hover); }
+
+.extension-ui-options button[aria-selected="true"] { background: var(--pi-accent-soft); color: var(--pi-accent-strong); }
+
+/* Overlay ctx.ui.custom: positioned by the plugin, a raised card of its own. */
+
+.extension-ui-overlay { position: fixed; max-width: 100vw; max-height: 100dvh; overflow: auto; min-width: min(280px, 100vw); border-radius: var(--pi-radius); }
+
+.extension-ui-overlay[hidden] { display: none; }
+
+.extension-ui-overlay > .extension-ui-prompt { box-shadow: var(--pi-shadow-overlay); }
+
+/* Under the composer: plugin status entries share the meta row with the running strip. */
+
+.extension-ui-status { min-width: 0; max-width: 40%; overflow: hidden; color: var(--pi-muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+
+/* notify: toasts (Mantine Notification) over the top of the transcript, centred on the thread. Only the stack's place is ours.
+   With session banners up they start 8px below the banner stack: --pi-banner-bottom is its bottom edge in the chat column (0 = none), --pi-chat-top the thread's own offset in it. */
+
+.pi-toasts { position: absolute; z-index: var(--pi-z-chat-toast); top: max(10px, calc(var(--pi-banner-bottom, 0px) - var(--pi-chat-top, 0px) + 8px)); left: 50%; width: min(28rem, calc(100% - 2rem)); display: flex; flex-direction: column; gap: 6px; translate: -50% 0; pointer-events: none; }
+
+.pi-toasts > .mantine-Notification-root { pointer-events: auto; }
+
+/* Beside an unfolded monitor panel the toasts centre in the room left of it (--pi-monitor-side, page.css); an overlaid
+   narrow panel covers them (it is below the panel's layer, see tokens.css). */
+.pi-chatcol[data-monitor="panel"] .pi-toasts { left: calc((100% - var(--pi-monitor-side)) / 2); width: min(28rem, calc(100% - var(--pi-monitor-side) - 2rem)); }
+
+/* Phone: tray cards span the composer column; a dialog reads as a bottom sheet (grab bar, rounder top) docked on
+   the composer, with no overlay, so the transcript above stays scrollable while it waits for an answer. */
+
+@media (max-width: 48em) {
+  .extension-ui-host { margin-inline: .35rem; }
+  .extension-ui-container.is-row { flex-wrap: wrap; }
+  .pi-tray > .extension-ui-prompt { position: relative; padding: 18px 14px 12px; border-radius: var(--pi-radius-lg) var(--pi-radius-lg) var(--pi-radius) var(--pi-radius); }
+  .pi-tray > .extension-ui-prompt::before { position: absolute; top: 6px; left: 50%; width: 36px; height: 4px; border-radius: 2px; background: var(--pi-line-strong); content: ""; translate: -50% 0; }
+  .extension-ui-options button { min-height: 2.6rem; }
+  .pi-toasts { top: max(8px, calc(var(--pi-banner-bottom, 0px) - var(--pi-chat-top, 0px) + 8px)); width: calc(100% - 1rem); }
+}

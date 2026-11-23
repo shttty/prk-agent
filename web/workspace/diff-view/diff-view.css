@@ -1,0 +1,5 @@
+.pi-diff-body { flex: 1; min-height: 0; overflow: auto; background: var(--pi-code-bg); }
+.pi-diff-body .pi-code-block { margin: 0; border-radius: 0; }
+.pi-diff-counts .is-add { color: var(--pi-ok); }
+.pi-diff-counts .is-del { color: var(--pi-danger); }
+.pi-diff-counts .is-zero { color: var(--pi-faint); }

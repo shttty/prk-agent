@@ -1,0 +1,16 @@
+import type { RequestContext } from "../listener/listener-state.ts";
+import type { IncomingMessage } from "node:http";
+import type { ServerResponse } from "node:http";
+import { renameSessionRequest } from "./metadata/parse-rename-request.ts";
+import { readJsonBody } from "../request/read-json-body.ts";
+import { gatewayResponse } from "../responses/reply-with-gateway-result.ts";
+
+export async function renameSession(ctx: RequestContext, request: IncomingMessage, response: ServerResponse, sessionId: string): Promise<void> {
+  const { gateway, http, limits } = ctx;
+
+      const label = renameSessionRequest(limits, await readJsonBody(http, request));
+      await gatewayResponse(http, response, "Session label could not be changed by the Gateway.", () => {
+        return gateway.call("renameSession", { sessionId, label });
+      });
+    
+}

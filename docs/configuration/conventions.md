@@ -1,0 +1,76 @@
+## 约定
+
+- `src/config/` 按 `document`、`home` 与领域选项对象组织；`document/load-prk-config.ts` 顺序读取两份文档，`parse-prk-config.ts` 组合原默认值和校验。跨对象引用对象直接层的公开文件；实例和派生行为分别归 Gateway 与会话对象。
+- `src/main.ts` 只保留进程入口，命令选择在 `src/application/command-line/run.ts`；先由 `config/home/initialize-prk-home.ts` 绑定所选主目录，再由 `application/sdk-brand/assert-brand.ts` 动态加载 SDK。错误诊断实现在 `src/diagnostics/session-errors/`。
+- 实例能力默认必须写入 `instances.toml`，全局能力默认必须写入 `config.toml`；按会话、实例、全局、`true` 解析，同层单项必须优先于分组；API 的 `enabled:null` 删除该层键并恢复继承，不持久化 null。
+- 能力目录必须区分注册、声明与权限；`loaded` 只表示注册／发现，关闭项仍保持注册。
+- 能力配置不得重复保存本机工具总开关，也不得为排除工具另建注册表。
+- 能力开关必须立即改变执行权限、下一请求改变声明，不得因开关设置 `requiresReload`；仅注册资源变更经空闲重载应用。
+- 能力设置详情的鼠标悬停与触摸长按必须只绑定左侧 capability-copy；移出该区域必须清除待触发的 hover 计时器并延迟隐藏未固定浮层，右侧空白、状态字、开关与重置按钮不得触发 Peek。三态状态字必须占据文档流内固定透明槽，配置按钮与收窄省略的简介必须自然排在其左侧，不得脱离文档流覆盖左邻元素。
+- 本项目全局配置必须放在所选主目录的 `config.toml`，全部实例字段必须放在 `instances.toml` 的 `instances` 数组，`SDK` 代理数据必须放在该目录的 `agent`。
+- 相对 session.historyDir 必须相对本项目主目录解析，不得混用项目或目标执行 cwd。
+- 必须保留 `Pi` 全局和项目设置的资源作用域及项目可信判定。
+- 本项目包过滤与运行时设置变更只能应用于会话内存快照，不得写回 `SDK` 或项目 `settings.json`。
+- 实例增删改及实例能力设置必须只读改写原始 `instances.toml`，全局设置必须只读改写原始 `config.toml`，保留未编辑值及其省略默认值。
+- 实例远程扩展包列表必须只保存到 `instances.toml`；全局 `extensions.locations` 和 `extensions.defaultRemote` 必须只保存到 `config.toml`。
+- 写回必须用 `smol-toml.stringify` 重建 TOML，首行注释说明由 PRK 设置页写回且不保留注释；键名必须原样往返。
+- 每次服务端读改写必须保存本次读取内容的 hash，在 rename 前与磁盘内容比较；不匹配必须报 `CONFLICT` 且不发布候选文件，不得解释为客户端版本协议或原子比较交换。
+- 全局配置必须经默认权限的临时文件原子替换，实例文件必须经权限 0600 的临时文件原子替换；校验失败不得发布候选文件。
+- 配置不得接受 `instances` 或任何实例字段，不得兼容读取、保留旧文件名别名或自动迁移；缺失实例文件必须视为没有实例。
+- 所选主目录存在旧 `config.json` 或 `instances.json` 时 Gateway 必须拒绝启动并提示显式迁移命令，不得因 TOML 已存在而忽略旧文件。
+- 会话历史目录和新文件必须按进程 umask 创建，不得改写已有权限；删除前的目录边界检查见[会话约定](../wire/sessions.md#约定)。
+- 主目录必须依次选 `--home`、`PRK_HOME`、绝对非空 `XDG_CONFIG_HOME/pi-remote-kernel`、`HOME/.config/pi-remote-kernel`。
+- `HOME` 为空时必须使用操作系统主目录。
+- 显式相对主目录必须相对命令 `cwd` 解析，空值或控制字符必须拒绝。
+- `SDK` 服务或扩展初始化前必须把 `PRK_CODING_AGENT_DIR` 与 `PI_CODING_AGENT_DIR` 设为所选主目录的 `agent`。
+- 不得用继承的 `Pi` 代理目录选择本项目主目录。
+- 同一宿主进程必须仅使用一个本项目主目录。
+- 服务启动前必须完整校验全局与实例文档的对象结构、已知键和字段类型，非法或未知值必须拒绝。
+- 缺失配置文件、组或键必须采用默认值；TOML 无 `null`，程序传入的 `null` 不得视为缺失，`kernelTools` 覆盖必须一次性递归拒绝全部 null（包括数组元素）。
+- 配置加载边界必须按字段单位、整数性、有限性及上下界校验数值，只有字段明确允许时才能接受零。
+- `remoteHost` 必须只配置目标宿主及其资源解析运行时；`runtime` 只允许 bun／node，默认 bun；内存上限必须为安全整数的字节数，只有 `memorySwapMax` 可以为零，`abortTimeoutMs` 必须为正的毫秒计时器；`nodeArgs`／`bunArgs` 必须为无 NUL 的字符串数组，分别默认 `["--optimize-for-size"]`／`["--smol"]`，只传所选宿主运行时的参数，显式空数组必须保持为空。
+- 实例加载和写入必须校验全部字段，名称必须唯一，显示标签必须忽略大小写后唯一；不同实例可使用相同连接命令。
+- 连接命令必须原样保留；只有编辑接口返回原文，公开工作台不得发布命令。
+- local:true 必须使用自有本机 daemon，且不得保存 sshCommand；远程命令不得追加参数。
+- 原生七工具必须在所属实例的独立目标宿主执行，包括 local 实例；location:local 的 Gateway 插件/provider 所有权不变。
+- 实例及会话执行绑定必须保存无控制字符的绝对 `POSIX cwd`，加载、重载、新增、编辑及恢复绑定时不得接受缺失或相对值。
+- Python 必须由实例的绝对可执行路径选择，最低 3.9，不得接受会话级覆盖。
+- 缺 Python 或远程连接命令必须保存为待补配置；读取记录不得连接，执行必须 submitted:false。
+- 修改连接或解释器必须通过活动资源检查；完整且变动的配置保存前必须实际验证 Python。
+- 根内核默认值必须逐键应用于未覆盖的实例内核配置。
+- 实例编辑已写入的有效内核值必须保留为显式覆盖，不得被后续根默认值替换。
+- 派生模型与思考级别必须逐字段依次选用显式请求、所选角色、创建者当前值；配置不得接受全局派生模型或思考级别。工具档位必须依次选用角色、派生默认、宿主 session.workerTools，不得从 spawn 接收。
+- 未知角色、不可用模型或思考级别必须拒绝，不得替换或降级。
+- 派生 instructions 必须保留角色显式空串，否则依次取全局值、内置文案；角色 capabilities 必须成为初始原生会话覆盖，isolated 必须按请求、角色、全局、false 解析，深度必须限制为配置的 1..10 整数（默认 3）。
+- 派生角色默认值只在配置子系统定义；解析必须逐字段合并内置 task/small 与用户覆盖，省略 role 必须选 task，设置接口 defaults.roles 必须公开内置基线供网页判断不可删除的角色。
+- 派生设置接口必须先严格校验整份配置再原子替换 config.toml 的 derivation，并热更新 Gateway 派生配置；其他配置字段与现有子会话设置必须保持不变。
+- 存在 `extensions.allow` 时必须仅准入列出的包和扩展工具并始终减去拒绝项，缺失时必须仅减去拒绝项。
+- 扩展准入策略不得应用于本项目自有工具。
+- 工作进程解析或导入包前必须过滤全局和项目包快照。
+- 工具过滤不得禁用包钩子。
+- 包过滤不得改写 `Pi` 设置或独立扩展路径；共享提供方初始化不得应用工作进程的包准入策略。
+- 共享提供方初始化必须从所选主目录 `agent/settings.json` 的普通 `packages` 列表加载，不得增加独立 provider 清单；必须沿用包位置选择，并排除默认及实例远程列表管理的包。
+- Gateway 必须按加载期 `registerProvider` 行为识别包与 provider ID 的所有权，不得按包名或 metadata 推断；启动日志必须列出识别结果。
+- `models.json` 声明的 provider ID 必须优先保留给手写配置；插件同名注册必须报结构化扩展错误并记 Gateway 日志，不得覆盖或合并。
+- 其余 provider ID 必须按 `packages` 加载顺序归第一个注册成功的包所有；后续包争用同一 ID 必须报结构化扩展错误并记日志，不得替换所有者。
+- 所有者包的 Gateway 实例必须可以在后续刷新中注册／注销自己的 provider ID；其他包不得修改该所有权下的共享提供方。
+- 会话、全局目录和发现实例对已有所有者的 provider ID 注册／注销必须 no-op 并记 debug 日志；无所有者的 ID 必须报结构化扩展错误并记 Gateway 日志，不得修改共享运行时，也不得阻断该插件其他工具、hook 和命令的注册。
+- 非 provider 包的 Gateway 加载实例必须丢弃 SDK 管理的工具、hook、命令、总线订阅及其注册生命周期；不得承诺回滚插件自建的 JavaScript 状态、timer 或文件副作用。
+- 修改 provider 包列表、provider 配置或 `models.json` 后必须重启 Gateway 重建共享目录及所有权；单个会话重载不得重建 Gateway 所有权。
+- 扩展位置必须依次选用包名覆盖、包记录的位置、`local`；优先列表必须选择首个已安装且平台兼容的位置。
+- 网关打包必须优先把包的 `pi.location` 保存到记录；未声明时必须只读静态判定并保存默认位置，不得导入或执行扩展。
+- 仅有本机 `SDK` 安装的包不得当作已远程安装；缺少目标安装必须报告错误。
+- 扩展加载失败或平台不匹配不得触发换位置重试。
+- 本机实例的 target 位置扩展也必须使用独立目标宿主；location:local 扩展仍由 Gateway 加载。
+- 默认远程包必须沿用 `config.toml`，实例远程包必须沿用 `instances.toml`；同名实例记录必须覆盖默认记录，不得另建安装数据库。
+- 远程包与位置保存必须保留连接凭据及无关配置，并沿用能力变更通知和空闲重载，不得热替换运行中插件。
+- `session.noExtensions` 不得禁用显式配置的远程安装列表。
+- `session.delegation` 必须只允许 gated／restrained／eager，默认 eager；会话选择必须写入原生 `gateway-native-session-state`，不得修改其他会话或全局默认；每次模型请求必须经公开 `context_with_system` 钩子读取当前级别，休眠能力查询不得唤醒会话。
+- 手工修改其他行为配置必须重启所属命令。
+- 显式能力及终端设置保存接口不得解释为全量配置热重载。
+- `learning.autoTools` 和 `learning.autoSkills` 必须仅分别控制对应主动学习提示。
+- 关闭学习提示不得禁用显式工具保存、技能管理、加载、执行或读取能力。
+- `memory.enabled=false` 必须关闭模型记忆注入、记忆工具和后台复查，并拒绝模型记忆写入。
+- 禁用模型记忆不得删除已有文件或阻止操作者通过管理接口编辑文件。
+- 命令行 `--host`、`--port`、`--socket` 必须覆盖对应进程的监听地址或连接端点，不得改写共享 `config.toml`。
+- 生成身份和协议平台上限不得由通用容量配置放宽。

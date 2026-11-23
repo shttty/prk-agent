@@ -1,0 +1,1 @@
+export const TARGET_FIELDS = ["id", "label", "local", "sshCommand", "python", "pythonIndexUrl", "bunPackages", "tags", "cwd", "executionTimeoutMs", "kernel", "capabilities", "customMetrics"] as const;

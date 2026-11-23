@@ -1,0 +1,2 @@
+{"python": "3.9.25", "preload": "numpy", "value": 42, "first": [1857725, 1, 0], "second": [1857726, 1, 9], "cancel_to_wait_ms": 0.547105, "refused": "refused Threads=2"}
+{"python": "3.12.13", "preload": "numpy", "value": 42, "first": [1857730, 1, 0], "second": [1857731, 1, 9], "cancel_to_wait_ms": 0.499086, "refused": "refused Threads=2"}

@@ -1,0 +1,19 @@
+.management-target-row {
+  min-width: 0;
+  padding: 8px 0;
+  border-top: 1px solid var(--pi-line);
+}
+.management-target-row:first-child { border-top: 0; }
+.management-target-copy {
+  min-width: 0;
+  overflow: hidden;
+}
+.management-target-copy .mantine-Text-root {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.management-danger-card {
+  border-color: color-mix(in srgb, var(--pi-danger) 40%, var(--pi-line));
+  background: color-mix(in srgb, var(--pi-danger) 7%, var(--pi-surface));
+}

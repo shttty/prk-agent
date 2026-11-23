@@ -1,0 +1,41 @@
+/* Monitor button (desktop pill / phone icon) and session-row marks. The panel itself: monitor-panel.css (lazy). */
+
+/* Phone icon: grows to the right when it carries a `+N`; the dot sits on its top-right corner. */
+.mantine-ActionIcon-root.pi-monitor-toggle { position: relative; width: auto; padding-inline: 5px; gap: 3px; }
+.pi-monitor-glyph { position: relative; display: inline-flex; }
+.pi-monitor-glyph .pi-monitor-dot { position: absolute; top: -2px; right: -3px; }
+.pi-monitor-toggle .pi-monitor-delta { font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1; }
+
+/* Desktop pill: the panel's anchor in the chat column's top right (position: app/style.css). Clear inside with a 1px
+   accent ring that darkens while pressed (panel unfolded); labels use muted ink and readings use body text. */
+.pi-monitor-pill {
+  --pi-pill-ring: var(--pi-accent);
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--pi-pill-ring);
+  color: var(--pi-text);
+  font: inherit;
+  cursor: pointer;
+  transition: box-shadow var(--pi-motion-fast) ease;
+}
+.pi-monitor-pill:hover, .pi-monitor-pill[aria-pressed="true"] { --pi-pill-ring: var(--pi-accent-strong); }
+.pi-monitor-pill:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: 1px; }
+.pi-monitor-pill-fact { display: inline-flex; align-items: baseline; gap: 4px; font-size: 11px; white-space: nowrap; }
+.pi-monitor-pill-fact > span { color: var(--pi-muted); }
+.pi-monitor-pill-fact b { font: 800 12.5px/1 var(--pi-font-monitor); font-variant-numeric: tabular-nums; color: var(--pi-text); }
+.pi-monitor-pill .pi-monitor-delta { font-size: 11.5px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+
+.pi-monitor-dot { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: var(--pi-danger); box-shadow: 0 0 0 1.5px var(--pi-bg); }
+.pi-monitor-delta { color: var(--pi-ok); }
+
+/* Session rows: low-key, never wider than a few characters. */
+.management-session-aside { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.pi-monitor-marks { display: inline-flex; align-items: center; gap: 4px; flex: 0 0 auto; }
+.pi-monitor-marks .pi-monitor-dot { box-shadow: none; }
+.pi-monitor-marks .pi-monitor-delta { font-size: 10.5px; font-weight: 600; font-variant-numeric: tabular-nums; }

@@ -1,0 +1,12 @@
+/* Spawned child sessions of one turn (SpawnSummary.jsx): one quiet card under the process fold. */
+.pi-spawn { display: flex; flex-direction: column; gap: 2px; margin: .25rem 0 .5rem; padding: .5rem .6rem; border: 1px solid var(--pi-line); border-radius: var(--pi-radius); background: var(--pi-surface); font-size: .85rem; }
+.pi-spawn-head { display: flex; align-items: baseline; gap: .6rem; padding: 0 .1rem .2rem; }
+.pi-spawn-head span { color: var(--pi-muted); font-size: .78rem; font-variant-numeric: tabular-nums; }
+.pi-spawn-row { width: 100%; display: grid; grid-template-columns: 10px minmax(0, 1fr) auto auto; align-items: center; gap: .55rem; padding: .2rem .3rem; border: 0; border-radius: var(--pi-radius-sm); background: transparent; color: var(--pi-ink); font: inherit; text-align: left; cursor: pointer; }
+.pi-spawn-row:hover, .pi-spawn-row:focus-visible { background: var(--pi-hover); }
+.pi-spawn-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pi-spawn-place, .pi-spawn-state { color: var(--pi-muted); font-size: .78rem; white-space: nowrap; }
+/* A handed-in result: quoted with who and where, a blue (info) rule on the left. */
+.pi-spawn-result { margin: .15rem 0 .35rem 1.35rem; padding: .25rem .7rem; border-left: 3px solid var(--mantine-color-blue-filled); color: var(--pi-ink-2); }
+.pi-spawn-result cite { display: block; color: var(--pi-muted); font-size: .75rem; font-style: normal; }
+.pi-spawn-result p { margin: .1rem 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }

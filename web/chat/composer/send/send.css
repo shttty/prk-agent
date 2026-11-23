@@ -1,0 +1,49 @@
+.pi-operation-bar {
+  min-width: 0;
+  padding: 0 .5rem;
+  border-radius: var(--pi-radius-sm);
+  background: var(--pi-bg);
+  color: var(--pi-ink-2);
+  white-space: nowrap;
+}
+
+.pi-operation-bar #operation-state { min-width: 0; overflow: hidden; font-size: .78rem; text-overflow: ellipsis; }
+
+.pi-operation-bar button { color: var(--pi-muted); font-weight: 500; }
+
+.pi-operation-bar button:hover { color: var(--pi-ink); }
+
+/* Todo float: how the tray draws the todo plugin's widget (plugin-renderers.js). It takes its own room in the composer
+   column (the transcript above shrinks), so it never covers a message; open, the list grows upward. A glass card like
+   everything else in the tray. */
+
+.pi-send-status { min-height: 1lh; margin: .3rem .6rem 0; color: var(--pi-muted); }
+
+.pi-send-status.is-unknown { color: var(--pi-warn); }
+
+.pi-send-status.is-restored { color: var(--pi-ink-2); }
+
+/* SDK-owned queued input, with one way to take it all back. */
+
+.pi-pending-queue {
+  display: flex;
+  align-items: flex-end;
+  gap: .5rem;
+  margin: 0 .2rem .45rem;
+  border: 1px dashed var(--pi-line-strong);
+  border-radius: var(--pi-radius);
+  padding: .45rem .5rem .45rem .8rem;
+  background: var(--pi-surface);
+}
+
+.pi-pending-queue-list { min-width: 0; flex: 1; max-height: 7.5rem; overflow: auto; }
+
+.pi-pending-queue-label { color: var(--pi-faint); font-size: .72rem; font-weight: 600; letter-spacing: .04em; }
+
+.pi-pending-queue ol { margin: .1rem 0 .25rem; padding-left: 1.2rem; color: var(--pi-ink-2); font-size: .84rem; }
+
+.pi-pending-queue li { overflow-wrap: anywhere; white-space: pre-wrap; }
+
+.pi-pending-queue button { flex: 0 0 auto; }
+
+/* Find in page: floats over the transcript, never inside the composer. */

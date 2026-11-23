@@ -1,0 +1,90 @@
+/* Workbench design tokens (fonts, radii, layout, z-index layers, motion). Colours live in shared/palette.js;
+   theme.js writes them as --pi-* per colour scheme. */
+:root {
+  /* Every stack ends its CJK in the bundled "Noto Sans SC Variable" (@fontsource-variable/noto-sans-sc, main.jsx; unicode-range
+     slices, so only the slices a page draws are fetched). No system CJK font is named: phones and other machines would
+     pick their own, and a bare generic `monospace`/`serif` lets fontconfig choose any (often a Kai face). The generic
+     keyword stays last only for symbols the bundled fonts lack. */
+  --pi-font-ui: "Figtree Variable", "Noto Sans SC Variable", sans-serif;
+  --pi-font-display: "LXGW WenKai Screen", "Figtree Variable", "Noto Sans SC Variable", sans-serif; /* titles only (topbar h1, empty view, empty chat) */
+  --pi-font-mono: "PRK Maple Mono CN", "PRK MesloLGS NF", "Noto Sans SC Variable", monospace; /* Maple Mono CN (main.jsx, Regular/Italic/Bold/BoldItalic) draws Latin + CJK + true italics; MesloLGS NF (app/fonts.css) only fills the Nerd Font icon code points; everything monospace incl. the terminal */
+  --pi-font-flourish: "Fraunces Variable", Georgia, serif;
+  /* Monitor panel titles and numbers only (Manrope loads with the panel): bold CJK sans (Noto Sans SC = Source Han Sans,
+     OFL) behind Manrope (OFL) for Latin and tabular figures. */
+  --pi-font-monitor: "Manrope Variable", "Noto Sans SC Variable", sans-serif;
+
+  --pi-radius-sm: 9px;
+  --pi-radius: 13px;
+  --pi-radius-lg: 18px;
+  --pi-radius-xl: 22px;
+  /* The reading column (messages, composer) grows with the chat area on wide screens instead of leaving wide empty
+     margins: this share of the area, within min..max, centered. */
+  --pi-thread-min: 760px;
+  --pi-thread-share: .8;
+  --pi-thread-max: 1200px;
+  --pi-thread-width: clamp(var(--pi-thread-min), 100% * var(--pi-thread-share), var(--pi-thread-max));
+  --pi-thread-pad: 1.75rem; /* side padding inside the reading column: messages and session banners start at its content box */
+  --pi-sidebar-width: 280px;
+  --pi-monitor-w: 304px; /* the floating monitor panel */
+  --pi-monitor-inset: 12px; /* its distance from the chat card's right edge */
+  /* Least space between the reading column and the unfolded monitor panel. With less, the chat scroller keeps its full
+     width (scrollbar at the card edge) and reserves room for the panel inside, the column centered in what is left. */
+  --pi-monitor-gap: 20px;
+  /* --pi-card-gap (desktop frame: chat, workspace and terminal are rounded cards this far apart and from the window
+     edge) is written by App from layout-state.js CARD_GAP, which the width fitting counts with. */
+  /* What floats over content (menus, selects, popovers, modals, the tray cards, the monitor panel) is translucent
+     (--pi-overlay) with this behind it. */
+  --pi-glass: blur(22px) saturate(1.5);
+
+  /* Layer table: every hand-written z-index reads one of these (a lint in check:quick forbids bare numbers elsewhere).
+     Each fixed region of the workbench (session sidebar, chat column, workspace pane, editor area, directory tree,
+     terminal dock) clips its own content (overflow: hidden) and, except the chat column (it holds a position:fixed
+     overlay that must keep its global layer), is its own stacking context (isolation: isolate). So the LOCAL layers
+     below only compete with siblings inside one region; only the cross-region ones compete with other regions.
+     Mantine menus/selects/tooltips/modals are portaled and use Mantine's own --mantine-z-index-* (modal 200, popover 300). */
+  --pi-z-raised: 1;           /* local: lift a control above its siblings (tree toggle on a session row) */
+  --pi-z-handle: 3;           /* local: splitter handles over the content they sit between */
+  --pi-z-sheet: 4;            /* local: phone directory sheet / desktop popover tree over the editor, inside the workspace pane */
+  --pi-z-chat-overlay: 5;     /* local to the chat column: "/" candidate menu over the composer */
+  --pi-z-chat-search: 6;      /* local to the chat column: find-in-page bar over the transcript */
+  --pi-z-monitor-panel: 7;    /* local to the chat column: the floating monitor panel / its button, over the transcript */
+  --pi-z-chat-banner: 6;      /* local to the chat column / empty view: session banners (connection, reload, ...) floating over the top of the transcript; below the monitor panel, which is the thing the user opened last */
+  --pi-z-chat-toast: 6;       /* local to the chat thread: plugin notify toasts over the top of the transcript; below the monitor panel like the banners */
+  --pi-z-dockview: 50;        /* local to the editor area: dockview drop overlays and popovers (--dv-overlay-z-index) */
+  --pi-z-settings-sheet: 2;   /* local to the settings window: phone provider sheet + its scrim, over the page */
+  --pi-z-settings-config: 3;  /* local to the settings window: plugin config slide-over + its scrim, over everything else there */
+  --pi-z-settings-peek: 4;    /* local to the settings window: tool detail card (hover / long press) */
+  --pi-z-controls: 8;         /* cross-region: top-right control group and the left expand button, above the chat column's own layers and the workspace */
+  --pi-z-leaving: 9;          /* cross-region: a closing panel's leaving copy (motion/ghost/) sliding off over its neighbours */
+  --pi-z-pane-overlay: 190;   /* cross-region: the phone workspace as a full-screen overlay */
+  --pi-z-notice: 200;         /* cross-region: toast notice at the top right */
+  --pi-z-extension-overlay: 300; /* cross-region: plugin overlays (position:fixed, +1 per stacked overlay), the same level as Mantine popovers */
+  --pi-z-monitor: 300;        /* cross-region: the phone monitor sheet under the top bar, the same level as other popovers */
+
+  /* Motion: every duration and curve the UI animates with (CSS reads these; JS reads them through
+     design-system/motion/motion-token.js). Only transform and opacity move, except <details> height. Reduced motion:
+     element-styles.css zeroes CSS durations, JS animations check prefersReducedMotion(). */
+  --pi-motion-instant: 120ms;  /* cross-fades (opacities sum to 1, plus-lighter), popover/menu exits */
+  --pi-motion-fast: 200ms;     /* hover/press colour, popover/menu/toast/banner entry */
+  --pi-motion-base: 250ms;     /* panels: sidebar, file pane, terminal dock, monitor panel, phone sheets */
+  --pi-motion-slow: 320ms;     /* <details> height, settings config slide-over, theme colour change */
+  --pi-motion-loop: 1s;        /* spinners */
+  --pi-motion-pulse: 1.6s;     /* running pulse (opacity only) */
+  --pi-motion-ease-out: cubic-bezier(.22, .8, .3, 1);      /* things arriving */
+  --pi-motion-ease-in: cubic-bezier(.4, 0, 1, 1);          /* things leaving */
+  --pi-motion-ease-swap: cubic-bezier(.65, 0, .35, 1);     /* steep in-out for cross-fades */
+  --pi-motion-ease-sheet: cubic-bezier(.32, .72, 0, 1);    /* settings slide-over and its scrim */
+  --pi-motion-ease-spring: cubic-bezier(.2, .9, .25, 1.06); /* carets and small toggles only (slight overshoot) */
+  --pi-motion-rise: 8px;       /* how far an arriving or leaving overlay travels */
+  --pi-motion-slide: 16px;     /* how far a panel travels */
+
+  interpolate-size: allow-keywords;
+}
+
+/* Phone: the reading column's side padding narrows. */
+@media (max-width: 700px) { :root { --pi-thread-pad: 1rem; } }
+
+/* Colours: shared/palette.js; theme.js writes them as --pi-* per colour scheme. */
+
+@keyframes pi-blink { 50% { opacity: 0; } }
+@keyframes pi-spin { to { transform: rotate(360deg); } }

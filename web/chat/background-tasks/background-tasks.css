@@ -1,0 +1,9 @@
+.pi-background-tasks .pi-todo-list li { align-items: center; }
+.pi-background-tasks .pi-todo-list li .pi-todo-icon { margin-top: 0; }
+.pi-background-task-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.pi-background-task-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pi-background-task-held { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pi-background-tasks .pi-todo-list li .pi-background-task-mode { margin-left: 0; font-family: var(--pi-font-mono); font-variant-ligatures: none; }
+.pi-background-task-time { flex: 0 0 auto; color: var(--pi-muted); font-variant-numeric: tabular-nums; }
+.pi-background-tasks .pi-todo-caret { margin-inline-start: auto; }
+.pi-background-tasks [data-action] { flex: 0 0 auto; }

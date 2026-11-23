@@ -1,0 +1,14 @@
+/* ── splitters ── */
+/* touch-action/user-select: a finger on a handle must drag it, not scroll the page or start a text selection (both end the drag with pointercancel). */
+.pi-splitter { position: absolute; z-index: var(--pi-z-handle); background: transparent; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transition: background var(--pi-motion-fast) var(--pi-motion-ease-spring); }
+.pi-splitter:hover, .pi-splitter:focus-visible, .pi-splitter:active { background: var(--pi-accent-soft); outline: none; }
+.pi-splitter.is-x { top: 0; bottom: 0; left: -3px; width: 6px; cursor: col-resize; }
+.pi-splitter.is-y { left: 0; right: 0; top: -3px; height: 6px; cursor: row-resize; }
+/* Fingers: the hit area grows (invisible) to 24px around the thin line. */
+@media (pointer: coarse) {
+  .pi-splitter::before { content: ""; position: absolute; }
+  .pi-splitter.is-x::before { top: 0; bottom: 0; left: -9px; right: -9px; }
+  .pi-splitter.is-y::before { left: 0; right: 0; top: -9px; bottom: -9px; }
+}
+/* The session sidebar's handle sits on its right edge, outside the clipped sidebar so the touch area is not cut in half. */
+.pi-splitter.is-session { left: calc(var(--pi-sidebar-width) - 3px); }

@@ -1,0 +1,20 @@
+.pi-files-row {
+  width: calc(100% - .8rem);
+  min-height: 1.9rem;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  margin: 1px .4rem;
+  padding: 0 .7rem;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--pi-ink);
+  font-size: .82rem;
+  text-align: left;
+  cursor: pointer;
+}
+.pi-files-row:hover { background: var(--pi-hover); }
+.pi-files-row.is-active { background: var(--pi-selected); color: var(--pi-accent-strong); }
+.pi-files-icon { flex: 0 0 auto; color: var(--pi-muted); }
+.pi-files-icon.is-dir { color: var(--pi-accent); }

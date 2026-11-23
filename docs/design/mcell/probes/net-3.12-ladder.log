@@ -1,0 +1,77 @@
+scope=/user.slice/user-1000.slice/user@1000.service/app.slice/prk-net-r2-3-12-1861226-28925.scope memory.max=536870912 netns=net:[4026533020] host_netns=net:[4026531833]
+Cpus_allowed_list:	0
+1
+Linux 7.2.14-arch1-1 x86_64 GNU/Linux
+lo               UNKNOWN        127.0.0.1/8 10.255.255.1/32 ::1/128 
+table inet net_r2 {
+	chain output {
+		type filter hook output priority filter; policy accept;
+		ip daddr 10.255.255.1 tcp dport 22 counter packets 0 bytes 0 drop
+	}
+}
+after connect: 		ip daddr 10.255.255.1 tcp dport 22 counter packets 1 bytes 60 drop
+after paramiko: 		ip daddr 10.255.255.1 tcp dport 22 counter packets 2 bytes 120 drop
+Exception in thread net_target:
+Traceback (most recent call last):
+  File "/tmp/mcell-r2.D9rSata8/net/net_probe.py", line 98, in invoke
+    result = launch(name, port)
+             ^^^^^^^^^^^^^^^^^^
+  File "/tmp/mcell-r2.D9rSata8/net/net_probe.py", line 40, in launch
+    return operation(name, port)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "<task>/py/a_net_scenarios.py", line 41, in operation
+    conn = psycopg2.connect(host=host, port=22 if port is None else port,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<probe-venv>/lib/python3.12/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.OperationalError: connection to server at "10.255.255.1", port 22 failed: Connection reset by peer
+	Is the server running on that host and accepting TCP/IP connections?
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<uv-python>/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+    self.run()
+  File "<uv-python>/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py", line 1012, in run
+    self._target(*self._args, **self._kwargs)
+  File "/tmp/mcell-r2.D9rSata8/net/net_probe.py", line 101, in invoke
+    outcome.update(kind='exception', type=type(exc).__name__, message=str(exc))
+                                          ^^^^^^^^^
+KeyboardInterrupt
+after pg_blackhole: 		ip daddr 10.255.255.1 tcp dport 22 counter packets 3 bytes 180 drop
+Exception in thread net_target:
+Traceback (most recent call last):
+  File "/tmp/mcell-r2.D9rSata8/net/net_probe.py", line 98, in invoke
+    result = launch(name, port)
+             ^^^^^^^^^^^^^^^^^^
+  File "/tmp/mcell-r2.D9rSata8/net/net_probe.py", line 40, in launch
+    return operation(name, port)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "<task>/py/a_net_scenarios.py", line 41, in operation
+    conn = psycopg2.connect(host=host, port=22 if port is None else port,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<probe-venv>/lib/python3.12/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.OperationalError: connection to server at "127.0.0.1", port 56399 failed: server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<uv-python>/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+    self.run()
+  File "<uv-python>/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/threading.py", line 1012, in run
+    self._target(*self._args, **self._kwargs)
+  File "/tmp/mcell-r2.D9rSata8/net/net_probe.py", line 101, in invoke
+    outcome.update(kind='exception', type=type(exc).__name__, message=str(exc))
+                                          ^^^^^^^^^
+KeyboardInterrupt
+scope=prk-net-r2-3-12-1861226-28925.scope returncode=0
+LoadState=not-found
+ActiveState=inactive
+ControlGroup=

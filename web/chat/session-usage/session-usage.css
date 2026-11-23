@@ -1,0 +1,16 @@
+.pi-usage-facts {
+  display: grid;
+  grid-template-columns: 4.8rem minmax(0, 1fr);
+  gap: .4rem .75rem;
+  margin: 0;
+  font-size: .8rem;
+  line-height: 1.5;
+}
+
+.pi-usage-facts dt { color: var(--pi-muted); }
+
+.pi-usage-facts dd { margin: 0; color: var(--pi-ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+
+.pi-usage-note { margin-top: .65rem; color: var(--pi-faint); font-size: .72rem; line-height: 1.5; }
+
+/* Keyboard help, opened from the composer + menu. */

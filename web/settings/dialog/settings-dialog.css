@@ -1,0 +1,63 @@
+/* The settings modal frames, clips and stacks its slide-overs and the tool detail card. */
+.pi-settings .mantine-Modal-content { position: relative; overflow: clip; isolation: isolate; display: flex; flex-direction: column; }
+.pi-settings .mantine-Modal-header { z-index: auto; border-bottom: 1px solid var(--pi-line); }
+.pi-settings .mantine-Modal-body { padding: 0; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.pi-settings-titlebar { position: relative; display: flex; align-items: center; height: 28px; min-width: 160px; font-weight: 600; }
+.pi-settings-titlebar > span { position: absolute; left: 0; white-space: nowrap; pointer-events: none; transition: opacity var(--pi-motion-base) var(--pi-motion-ease-out), transform var(--pi-motion-base) var(--pi-motion-ease-out); }
+.pi-settings-title-page, .pi-settings-back { display: none; }
+.pi-settings-shell { position: relative; display: grid; grid-template-columns: 200px minmax(0, 1fr); height: min(720px, 80dvh); }
+.pi-settings-nav { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 10px 8px; overflow-y: auto; background: var(--pi-sidebar); border-right: 1px solid var(--pi-line); }
+.pi-settings-nav > button { display: flex; align-items: center; gap: 10px; height: 38px; padding: 0 10px; border: 0; border-radius: 9px; background: transparent; color: var(--pi-ink-2); font: inherit; text-align: left; cursor: pointer; }
+.pi-settings-nav > button:hover { background: var(--pi-hover); }
+.pi-settings-nav > button[aria-current] { background: var(--pi-sidebar-selected); color: var(--pi-ink); box-shadow: var(--pi-shadow); }
+.pi-settings-nav-icon { display: grid; place-items: center; color: var(--pi-muted); }
+.pi-settings-nav-icon > span { display: grid; place-items: center; }
+.pi-settings-nav > button[aria-current] .pi-settings-nav-icon { color: var(--pi-accent); }
+.pi-settings-nav-text { flex: 1; min-width: 0; display: flex; align-items: center; }
+.pi-settings-nav-text > span { flex: 1; }
+.pi-settings-nav .pi-settings-chevron { display: none; }
+.pi-settings-content { min-width: 0; min-height: 0; }
+.pi-settings-page { padding: 18px 24px 24px; overflow-y: auto; }
+@media (max-width: 48em) {
+  .pi-settings-titlebar { margin-left: 4px; }
+  .pi-settings-titlebar > .pi-settings-title-page { display: inline; opacity: 0; transform: translateX(28px); }
+  .pi-settings-back { display: inline-flex; position: absolute; left: -6px; opacity: 0; pointer-events: none; transform: translateX(6px); transition: opacity var(--pi-motion-base) var(--pi-motion-ease-out), transform var(--pi-motion-base) var(--pi-motion-ease-out); }
+  .pi-settings-titlebar[data-mode="content"] .pi-settings-back { opacity: 1; pointer-events: auto; transform: none; }
+  .pi-settings-titlebar[data-mode="content"] .pi-settings-title-root { opacity: 0; transform: translateX(-10px); }
+  .pi-settings-titlebar[data-mode="content"] .pi-settings-title-page { opacity: 1; }
+  /* The list is full-screen; entering a page slides the page in over it from the right while the labels fade out,
+     which reads as the list folding into its icon column. Rows, icons and padding keep one geometry; only
+     transform/opacity animate; the page's edge shadow is on the page itself, so it rides the same transform. */
+  .pi-settings-shell { display: block; height: 100%; flex: 1; }
+  .pi-settings-nav { position: absolute; inset: 0; padding: 6px 0; gap: 0; border: 0; background: var(--pi-surface); }
+  .pi-settings-nav > button, .pi-settings-nav > button:hover, .pi-settings-nav > button[aria-current] { height: 60px; padding: 0; gap: 0; border-radius: 0; background: none; box-shadow: none; }
+  .pi-settings-nav-icon { width: 56px; height: 100%; flex: none; }
+  .pi-settings-nav-icon > span { position: relative; width: 38px; height: 38px; border-radius: 12px; background: var(--pi-surface-2); color: var(--pi-muted); }
+  .pi-settings-nav-icon > span::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--pi-accent-soft); opacity: 0; transition: opacity var(--pi-motion-base) var(--pi-motion-ease-out); }
+  .pi-settings-nav-icon svg { position: relative; }
+  .pi-settings-nav-text { height: 100%; gap: 8px; padding: 0 14px 0 6px; border-bottom: 1px solid var(--pi-line); font-size: 15.5px; color: var(--pi-ink); transition: opacity var(--pi-motion-base) var(--pi-motion-ease-out), transform var(--pi-motion-base) var(--pi-motion-ease-out); will-change: transform, opacity; }
+  .pi-settings-nav > button:last-child .pi-settings-nav-text { border-bottom: 0; }
+  .pi-settings-nav .pi-settings-chevron { display: block; color: var(--pi-faint); }
+  .pi-settings-shell[data-mode="content"] .pi-settings-nav-text { opacity: 0; transform: translateX(-16px); pointer-events: none; }
+  .pi-settings-shell[data-mode="content"] .pi-settings-nav > button[aria-current] .pi-settings-nav-icon > span { color: var(--pi-accent); }
+  .pi-settings-shell[data-mode="content"] .pi-settings-nav > button[aria-current] .pi-settings-nav-icon > span::before { opacity: 1; }
+  .pi-settings-shell[data-mode="content"] .pi-settings-nav { cursor: pointer; }
+  .pi-settings-content { position: absolute; top: 0; bottom: 0; left: 56px; right: 0; border-left: 1px solid var(--pi-line); box-shadow: var(--pi-shadow-overlay);
+    transform: translateX(28%); opacity: 0; pointer-events: none; transition: transform var(--pi-motion-base) var(--pi-motion-ease-out), opacity var(--pi-motion-base) var(--pi-motion-ease-out); will-change: transform, opacity; }
+  .pi-settings-shell[data-mode="content"] .pi-settings-content { transform: none; opacity: 1; pointer-events: auto; cursor: auto; }
+  .pi-settings-page { padding: 14px 14px 24px; }
+}
+.pi-settings-body { display: flex; flex-direction: column; gap: 18px; }
+.settings-section { display: flex; flex-direction: column; gap: 8px; }
+.pi-settings-heading { margin: 0 0 0 4px; color: var(--pi-faint); font-size: 12px; font-weight: 600; letter-spacing: .08em; }
+.pi-settings-group { display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; background: color-mix(in srgb, var(--pi-ink) 4%, transparent); }
+.pi-settings-row { min-height: 46px; display: flex; align-items: center; gap: 12px; padding: 8px 12px; border: 0; background: transparent; color: var(--pi-ink); font: inherit; font-size: 14px; text-align: left; cursor: pointer; transition: background-color var(--pi-motion-fast) ease; }
+.pi-settings-row + .pi-settings-row { border-top: 1px solid color-mix(in srgb, var(--pi-ink) 7%, transparent); }
+.pi-settings-row:hover { background: var(--pi-hover); }
+.pi-settings-row:focus-visible { outline-offset: -2px; }
+.pi-settings-row.is-static { cursor: default; }
+.pi-settings-row.is-static:hover { background: transparent; }
+.pi-settings-icon { flex: 0 0 auto; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; background: var(--pi-accent-soft); color: var(--pi-accent-strong); }
+.pi-settings-title { flex: 1 1 auto; min-width: 0; }
+.pi-settings-fact { flex: 0 0 auto; }
+.pi-settings-chevron { flex: 0 0 auto; color: var(--pi-faint); }

@@ -1,0 +1,126 @@
+.pi-todo {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: var(--pi-radius);
+  background: var(--pi-overlay);
+  box-shadow: var(--pi-shadow-overlay);
+  -webkit-backdrop-filter: var(--pi-glass);
+  backdrop-filter: var(--pi-glass);
+}
+
+.pi-todo-head {
+  width: 100%;
+  min-height: 2.25rem;
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  padding: .3rem .7rem .3rem .8rem;
+  border: 0;
+  background: transparent;
+  color: var(--pi-ink-2);
+  font: inherit;
+  font-size: .84rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pi-todo-head:hover { background: var(--pi-hover); }
+
+.pi-todo-head:focus-visible { outline-offset: -2px; }
+
+.pi-todo-count { flex: 0 0 auto; color: var(--pi-muted); font-variant-numeric: tabular-nums; }
+
+.pi-todo-count b { color: var(--pi-ink); font-weight: 600; }
+
+.pi-todo-bar { flex: 0 0 auto; display: flex; gap: 2px; width: clamp(2.5rem, 12%, 5rem); }
+
+.pi-todo-bar i { flex: 1; min-width: 2px; height: 5px; border-radius: 999px; background: var(--pi-track); }
+
+.pi-todo-bar i[data-status="completed"] { background: var(--pi-accent); }
+
+.pi-todo-bar i[data-status="cancelled"] { background: var(--pi-line-strong); }
+
+.pi-todo-bar i[data-status="in_progress"] { background: var(--pi-accent-ring); }
+
+.pi-todo-bar i[data-status="blocked"] { background: var(--pi-warn); }
+
+.pi-todo-current { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: .4rem; }
+
+.pi-todo-current > span:not(.pi-todo-more) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.pi-todo-more { flex: 0 0 auto; color: var(--pi-muted); font-variant-numeric: tabular-nums; }
+
+.pi-todo-caret { flex: 0 0 auto; color: var(--pi-faint); transition: transform var(--pi-motion-fast) var(--pi-motion-ease-spring); }
+
+.pi-todo[data-open="true"] .pi-todo-caret { transform: rotate(180deg); }
+
+.pi-todo-icon { flex: 0 0 auto; color: var(--pi-faint); }
+
+.pi-todo-icon[data-status="in_progress"] { color: var(--pi-accent); }
+
+.pi-todo-icon[data-status="completed"] { color: var(--pi-accent); }
+
+.pi-todo-icon[data-status="blocked"] { color: var(--pi-warn); }
+
+.pi-todo-list {
+  max-height: min(40dvh, 20rem);
+  margin: 0;
+  padding: .45rem .45rem .35rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-bottom: 1px solid var(--pi-line);
+  list-style: none;
+}
+
+/* Still scrollable downwards: fade the last rows out (alpha only, so it follows the glass card in both schemes). */
+
+.pi-todo-list[data-more="true"] {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 2.25rem), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 2.25rem), transparent);
+}
+
+.pi-todo-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+  padding: .28rem .4rem .28rem calc(.4rem + var(--pi-todo-depth, 0) * 1.15rem);
+  border-radius: var(--pi-radius-sm);
+  color: var(--pi-ink);
+  font-size: .86rem;
+  line-height: 1.45;
+}
+
+.pi-todo-list li .pi-todo-icon { margin-top: .12rem; }
+
+.pi-todo-list li[aria-current="step"] { background: var(--pi-accent-soft); }
+
+.pi-todo-list li[data-status="completed"] .pi-todo-text,
+.pi-todo-list li[data-status="cancelled"] .pi-todo-text { color: var(--pi-muted); text-decoration: line-through; text-decoration-color: var(--pi-line-strong); }
+
+.pi-todo-list li[data-kind="fold"] .pi-todo-text { color: var(--pi-muted); }
+
+.pi-todo-list li[data-kind="phase"] { align-items: baseline; justify-content: space-between; padding-left: .4rem; color: var(--pi-muted); font-weight: 600; }
+
+.pi-todo-list li[data-kind="phase"]:not(:first-child) { margin-top: .25rem; }
+
+.pi-todo-list li[data-kind="phase"][data-active="true"] { color: var(--pi-accent); }
+
+.pi-todo-list li[data-kind="phase"][data-collapsed="true"] { font-weight: 500; }
+
+.pi-todo-phase-count { flex: 0 0 auto; font-weight: 400; font-variant-numeric: tabular-nums; }
+
+.pi-todo-text { min-width: 0; flex: 1 1 auto; overflow-wrap: anywhere; }
+
+.pi-todo-owner { flex: 0 0 auto; margin-left: auto; color: var(--pi-faint); font-size: .78rem; line-height: 1.7; }
+
+.pi-todo-reason { display: block; color: var(--pi-warn); font-size: .78rem; }
+
+@media (max-width: 48em) {
+  .pi-todo-list { max-height: 45dvh; }
+  .pi-todo-list li { min-height: 2.25rem; align-items: center; }
+  .pi-todo-list li .pi-todo-icon { margin-top: 0; }
+}
+
+/* The composer sits on a same-colour chat card, so it needs its own hairline and a resident shadow a step stronger than
+   --pi-shadow (which left it invisible at rest) but lighter than the floating-layer one; focus adds the accent ring. */

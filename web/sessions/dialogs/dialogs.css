@@ -1,0 +1,24 @@
+.management-affected-tree,
+.management-affected-tree ul,
+.management-retained ul { margin: 0; padding: 0; list-style: none; }
+.management-affected-tree { padding: 6px 12px; border-radius: var(--pi-radius); background: color-mix(in srgb, var(--pi-ink) 4%, transparent); }
+.management-affected-tree ul { margin-left: 3px; padding-left: 14px; border-left: 1px solid var(--pi-line-strong); }
+.management-affected-tree > li > .management-affected-node { padding-block: 6px; }
+.management-affected-node {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 13px;
+}
+.management-affected-node strong { min-width: 0; overflow: hidden; color: var(--pi-ink); font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.management-affected-node.is-retained strong { color: var(--pi-muted); font-weight: 500; }
+.management-retained { display: flex; flex-direction: column; gap: 4px; }
+.management-archive-lead { display: flex; align-items: center; gap: 10px; }
+.management-archive-lead-icon { flex: 0 0 auto; display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--pi-radius-sm); background: var(--pi-accent-soft); color: var(--pi-accent-strong); }
+.management-retained-title { color: var(--pi-muted); }
+.management-retained ul { padding: 2px 12px; border: 1px dashed var(--pi-line-strong); border-radius: var(--pi-radius-sm); }
+.management-holder-change { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 10px 12px; border: 1px solid var(--pi-line); border-radius: var(--pi-radius-sm); background: var(--pi-surface-2); color: var(--pi-muted); }
+.management-holder { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--pi-ink-2); font-size: 13.5px; }
+.management-holder[data-holder="to"] { color: var(--pi-ink); font-weight: 600; }

@@ -1,0 +1,188 @@
+.management-sidebar {
+  width: 100%;
+  min-width: 0;
+  flex: 1;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 18px 12px 12px;
+  background: var(--pi-sidebar);
+  /* Secondary text (row location, list and group headings): a step above --pi-faint so it keeps AA (4.5:1) on the
+     sidebar, a hovered row and a selected row in both schemes (faint alone falls to 4.5 on a hovered light row). */
+  --pi-sidebar-dim: color-mix(in srgb, var(--pi-faint) 40%, var(--pi-muted));
+}
+.management-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 8px 18px;
+}
+.management-brand-mark {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--pi-ink);
+}
+.management-brand-mark::after {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  content: "";
+  background: var(--pi-accent);
+}
+.management-brand-name {
+  color: var(--pi-ink);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  white-space: nowrap;
+}
+.management-sidebar-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 2px;
+}
+.management-primary-action { flex: 1; }
+.management-sidebar-heading .management-primary-action:not(:disabled):not([data-disabled]) {
+  border-color: var(--pi-line);
+  background: var(--pi-surface);
+  color: var(--pi-ink);
+}
+.management-sidebar-heading .management-primary-action:not(:disabled):not([data-disabled]):hover {
+  border-color: var(--pi-line-strong);
+  background: var(--pi-surface);
+}
+.management-sidebar-heading .mantine-Button-root { height: 38px; border-radius: 999px; }
+.management-sidebar-heading .mantine-Button-root:not(.management-primary-action) { border-color: transparent; background: transparent; color: var(--pi-ink-2); }
+.management-view-switch { margin-inline: 2px; }
+.management-view-switch .mantine-SegmentedControl-indicator { box-shadow: none; }
+.management-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 20px 10px 6px;
+  color: var(--pi-sidebar-dim);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+.management-count {
+  min-width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  padding: 0 6px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--pi-ink) 9%, transparent);
+  color: var(--pi-ink-2);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+.management-sidebar-list {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 0 1px;
+}
+.management-group {
+  margin: 4px 0 6px;
+}
+.management-group[data-droppable="true"] {
+  border-radius: var(--pi-radius-sm);
+  transition: background var(--pi-motion-fast) ease, outline-color var(--pi-motion-fast) ease;
+}
+.management-group[data-drop-target="true"] {
+  background: var(--pi-accent-soft);
+  outline: 1.5px dashed var(--pi-accent);
+  outline-offset: -1px;
+}
+.management-drop-ungrouped {
+  padding: 8px 10px;
+  border: 1px dashed var(--pi-line-strong);
+  border-radius: var(--pi-radius-sm);
+}
+.management-drop-zone-label {
+  color: var(--pi-muted);
+  font-size: 12px;
+  text-align: center;
+}
+.management-group-header-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.management-group-header {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: var(--pi-radius-sm);
+  background: transparent;
+  color: var(--pi-sidebar-dim);
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  cursor: pointer;
+  transition: background var(--pi-motion-fast) ease, color var(--pi-motion-fast) ease;
+}
+.management-group-header:hover,
+.management-group-header:focus-visible {
+  background: var(--pi-hover);
+  color: var(--pi-ink-2);
+}
+.management-group-header > span:not(.management-count):not(.management-local-badge) {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.management-project-created { flex: none; color: var(--pi-muted); font-size: 11.5px; font-weight: 400; letter-spacing: 0; white-space: nowrap; }
+.management-group-caret {
+  flex: 0 0 auto;
+  color: var(--pi-faint);
+  transition: transform var(--pi-motion-slow) var(--pi-motion-ease-spring);
+}
+.management-group-header[aria-expanded="true"] .management-group-caret { transform: rotate(90deg); }
+.management-local-badge { flex: 0 0 auto; margin-inline-start: 6px; }
+.management-group-add, .management-group-menu { color: var(--pi-muted); }
+.management-group-children { min-width: 0; }
+.management-sidebar-footer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 36px;
+  margin-top: 10px;
+  padding: 10px 6px 0;
+}
+.management-sidebar-footer .management-connection-dot, .management-sidebar-footer .mantine-ActionIcon-root { flex: 0 0 auto; }
+.management-sidebar-footer #management-connection-status { flex: 1 1 0; min-width: 0; margin: 0 4px 0 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.management-brand-collapse { margin-left: auto; margin-block: -4px; color: var(--pi-muted); }
+.management-group-children > .management-tree-node:not(:has(> .is-closed)) + .management-tree-node:has(> .is-closed) { margin-top: 5px; padding-top: 5px; border-top: 1px dashed var(--pi-line-strong); }
+@media (max-width: 700px) {
+  .management-sidebar {
+    width: 100%;
+    min-width: 0;
+    flex-basis: auto;
+    border-right: 0;
+    padding-top: 12px;
+  }
+}
+.mantine-Menu-dropdown.management-session-dropdown { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 6px; border-color: var(--pi-line); border-radius: 14px; background: var(--pi-overlay-solid); box-shadow: var(--pi-shadow-overlay); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.management-session-dropdown .mantine-Menu-item { min-height: 34px; border-radius: 9px; }

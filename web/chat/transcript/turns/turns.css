@@ -1,0 +1,52 @@
+.pi-turn-process { margin: 0 0 .5rem; }
+
+.pi-turn-summary {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  min-height: 2rem;
+  cursor: pointer;
+  list-style: none;
+  color: var(--pi-muted);
+  font-size: .8rem;
+  font-weight: 500;
+  user-select: none;
+}
+
+.pi-turn-summary::-webkit-details-marker { display: none; }
+
+.pi-turn-summary::after {
+  flex: 1;
+  height: 1px;
+  content: "";
+  background: var(--pi-line);
+}
+
+.pi-turn-summary:hover { color: var(--pi-ink-2); }
+
+.pi-turn-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.pi-turn-caret { flex: 0 0 auto; color: var(--pi-faint); transition: transform var(--pi-motion-slow) var(--pi-motion-ease-spring); }
+
+.pi-turn-process[open] > .pi-turn-summary .pi-turn-caret { transform: rotate(90deg); }
+
+.pi-turn-process[data-state="running"] > .pi-turn-summary { color: var(--pi-accent-strong); }
+
+.pi-turn-process[data-state="error"] > .pi-turn-summary .pi-turn-label { color: var(--pi-danger); }
+
+.pi-turn-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: .15rem 0 .35rem;
+}
+
+/* Interim narration between steps reads quieter than the final answer. */
+
+.pi-turn-steps > .pi-markdown {
+  margin: .3rem 0;
+  color: var(--pi-ink-2);
+  font-size: .9rem;
+}
+
+/* ── Tool call: one quiet row, details open inline. ── */

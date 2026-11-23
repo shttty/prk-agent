@@ -1,0 +1,18 @@
+scope=/user.slice/user-1000.slice/user@1000.service/app.slice/prk-net-r2-3-9-1861740-11139.scope memory.max=536870912 netns=net:[4026533034] host_netns=net:[4026531833]
+Cpus_allowed_list:	0
+1
+Linux 7.2.14-arch1-1 x86_64 GNU/Linux
+lo               UNKNOWN        127.0.0.1/8 10.255.255.1/32 ::1/128 
+table inet net_r2 {
+	chain output {
+		type filter hook output priority filter; policy accept;
+		ip daddr 10.255.255.1 tcp dport 22 counter packets 0 bytes 0 drop
+	}
+}
+after connect: 		ip daddr 10.255.255.1 tcp dport 22 counter packets 1 bytes 60 drop
+after paramiko: 		ip daddr 10.255.255.1 tcp dport 22 counter packets 2 bytes 120 drop
+after pg_blackhole: 		ip daddr 10.255.255.1 tcp dport 22 counter packets 3 bytes 180 drop
+scope=prk-net-r2-3-9-1861740-11139.scope returncode=0
+LoadState=not-found
+ActiveState=inactive
+ControlGroup=

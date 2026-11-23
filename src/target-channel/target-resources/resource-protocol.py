@@ -1,0 +1,8 @@
+DEFAULT_MAX_BYTES = 50 * 1024
+IGNORED_DIRECTORIES = {"node_modules", ".git", ".venv", "venv", "__pycache__"}
+MAX_DEPTH = 6
+CONTEXT_NAMES = ("AGENTS.override.md", "AGENTS.md", "AGENTS.MD", "CLAUDE.md", "CLAUDE.MD")
+DEFAULT_CONTEXT_FILE_BYTES = 64 * 1024
+DEFAULT_CONTEXT_TOTAL_BYTES = 256 * 1024
+
+

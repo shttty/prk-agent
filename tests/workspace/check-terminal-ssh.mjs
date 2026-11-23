@@ -1,0 +1,57 @@
+import assert from "node:assert/strict";
+import { withTerminalFixture } from "./model-terminals/with-terminal-fixture.mjs";
+
+await withTerminalFixture(async ({ call, transport, config, sessionId }) => {
+  for (const name of ["model", "human"]) {
+    if (name === "human") await transport.open(sessionId, config, name);
+    const send = (text, extra = {}) => call("terminal_textsend", { name, text, yield_s: 3, ...extra });
+    assert.match((await send('echo "$COLORTERM"')).output.trim(), /(?:^|\n)truecolor$/u, `${name}: local rc advertises true color`);
+    assert.match((await send('echo "$TERM"')).output.trim(), /(?:^|\n)xterm-256color$/u, `${name}: preserve terminado TERM`);
+    const local = await send("bash -c 'printf LOCAL_C; exit 6'");
+    assert.equal(local.status, "done");
+    assert.equal(local.exit_code, 6, "bash -c keeps its actual exit status");
+    const child = await send("bash --noprofile --norc -i", { yield_s: 0.3 });
+    assert.equal(child.status, "running", "unmarked interactive child stays part of its local command");
+    const childExit = await send("exit 9");
+    assert.equal(childExit.command_id, child.command_id);
+    assert.equal(childExit.exit_code, 9);
+    const login = await send("prk_ssh -o BatchMode=yes localhost");
+    assert.equal(login.status, "done", `${name}: ssh must connect and reach the integrated remote prompt`);
+    assert.equal(login.exit_code, null, "B while running ends prk_ssh without inventing an exit code");
+    assert.match((await send('echo "$COLORTERM"')).output.trim(), /(?:^|\n)truecolor$/u, `${name}: first SSH hop advertises true color`);
+    assert.match((await send('echo "$TERM"')).output.trim(), /(?:^|\n)xterm-256color$/u, `${name}: preserve SSH TERM`);
+    const first = await send("bash -c 'printf REMOTE_ONE; exit 7'");
+    assert.equal(first.status, "done");
+    assert.equal(first.exit_code, 7);
+    assert.notEqual(first.command_id, login.command_id);
+    assert.match(first.output, /REMOTE_ONE/u);
+    const login2 = await send("prk_ssh -o BatchMode=yes localhost");
+    assert.equal(login2.status, "done");
+    assert.equal(login2.exit_code, null);
+    assert.notEqual(login2.command_id, first.command_id);
+    assert.match((await send('echo "$COLORTERM"')).output.trim(), /(?:^|\n)truecolor$/u, `${name}: second SSH hop advertises true color`);
+    const second = await send("bash -c 'printf REMOTE_TWO; exit 11'");
+    assert.equal(second.exit_code, 11);
+    assert.match(second.output, /REMOTE_TWO/u);
+    const exit2 = await send("exit 4");
+    assert.equal(exit2.status, "done");
+    assert.equal(exit2.exit_code, 4, "outer shell's D is attributed to remote exit");
+    assert.notEqual(exit2.command_id, second.command_id);
+    const back1 = await send("bash -c 'printf BACK_ON_ONE; exit 13'");
+    assert.equal(back1.exit_code, 13);
+    assert.match(back1.output, /BACK_ON_ONE/u);
+    const exit1 = await send("exit");
+    assert.equal(exit1.status, "done");
+    assert.equal(exit1.exit_code, 13, "exit without an argument preserves the preceding remote status");
+    const backLocal = await send("printf BACK_LOCAL");
+    assert.equal(backLocal.exit_code, 0);
+    assert.match(backLocal.output, /BACK_LOCAL/u);
+    const ordinary = await send("ssh -t -o BatchMode=yes localhost", { yield_s: 0.7 });
+    assert.equal(ordinary.status, "running", "ordinary ssh remains one running command");
+    const ordinaryExit = await send("exit 8");
+    assert.equal(ordinaryExit.command_id, ordinary.command_id);
+    assert.equal(ordinaryExit.exit_code, 8);
+    await call("terminal_close", { name });
+  }
+  console.log("PASS prk_ssh: model+human, true localhost SSH two hops, independent command IDs and exit codes, both exits, bash -c/unmarked child and ordinary ssh unchanged");
+});

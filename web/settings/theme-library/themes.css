@@ -1,0 +1,11 @@
+#theme-settings { min-width: 0; }
+#theme-settings select { text-overflow: ellipsis; }
+#theme-settings textarea { font-family: var(--pi-font-mono); font-variant-ligatures: none; font-size: .75rem; }
+.pi-theme-preview { padding: .8rem; border: 1px solid var(--pi-line-strong); border-radius: var(--pi-radius-sm); background: var(--pi-bg); color: var(--pi-ink); overflow-wrap: anywhere; }
+.pi-theme-preview p { margin: .4rem 0; }
+.pi-theme-secondary { color: var(--pi-muted); }
+.pi-theme-preview pre { margin: 0; padding: .5rem; background: var(--pi-code-bg); color: var(--pi-code-ink); font-family: var(--pi-font-mono); white-space: pre-wrap; }
+.pi-theme-comment { color: var(--pi-syn-comment); }
+.pi-theme-keyword { color: var(--pi-syn-keyword); }
+.pi-theme-warnings { margin: 0; padding-left: 1.2rem; }
+

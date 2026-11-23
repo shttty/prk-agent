@@ -1,0 +1,15 @@
+node_modules/
+.pi/
+.env
+.env.*
+!.env.example
+.venv/
+.runtime/
+__pycache__/
+.smart-cascade/
+web/dist/
+/.local-benchmarks/
+/dist/
+/.scratch/
+/mine.html
+/.agents/

@@ -1,0 +1,181 @@
+.pi-composer-wrap {
+  --pi-composer-area: calc(100% - var(--pi-monitor-room, 0px));
+  position: relative;
+  left: calc(var(--pi-monitor-room, 0px) / -2);
+  flex: 0 0 auto;
+  width: min(clamp(var(--pi-thread-min), var(--pi-composer-area) * var(--pi-thread-share), var(--pi-thread-max)), var(--pi-composer-area));
+  margin: 0 auto;
+  padding: 0 1.75rem max(1rem, env(safe-area-inset-bottom));
+}
+
+.pi-composer-wrap::before {
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  left: 0;
+  height: 2.5rem;
+  pointer-events: none;
+  content: "";
+  background: linear-gradient(to top, var(--pi-bg), transparent);
+}
+
+/* Status appears above the composer without resizing the scrollport. Candidate menus still open over it. */
+.pi-composer-overlays {
+  position: absolute;
+  inset: auto 1.75rem calc(100% + .35rem);
+  z-index: var(--pi-z-raised);
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  pointer-events: none;
+}
+
+.pi-composer-overlays > * { pointer-events: auto; }
+
+.pi-composer {
+  position: relative;
+  border: 1px solid var(--pi-line);
+  border-radius: var(--pi-radius-xl);
+  padding: .65rem .55rem .5rem .9rem;
+  background: var(--pi-surface);
+  box-shadow: var(--pi-shadow-composer);
+  transition: border-color var(--pi-motion-fast) ease, box-shadow var(--pi-motion-fast) ease;
+}
+
+.pi-composer:focus-within {
+  box-shadow: var(--pi-shadow-composer), 0 0 0 2px var(--pi-accent-ring);
+}
+
+/* Candidate menus ("/", "@", plugin completions) float above the composer instead of pushing it: glass, like the menus. */
+
+.pi-candidates {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + .45rem);
+  left: 0;
+  z-index: var(--pi-z-chat-overlay);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 15rem;
+  overflow: auto;
+  padding: .3rem;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: var(--pi-overlay);
+  box-shadow: var(--pi-shadow-overlay);
+  -webkit-backdrop-filter: var(--pi-glass);
+  backdrop-filter: var(--pi-glass);
+}
+
+/* Reference candidates are whole-row buttons; command rows are divs with their own inner help button. */
+
+.pi-reference-candidates-menu button { display: flex; justify-content: space-between; gap: .75rem; width: 100%; text-align: left; }
+
+.pi-reference-candidates-menu button strong { font-family: var(--pi-font-mono); font-variant-ligatures: none; font-size: .8rem; font-weight: 500; }
+
+.pi-reference-candidates-menu button.is-active { background: var(--pi-accent-soft); }
+
+.pi-reference-candidates-menu button span { color: var(--pi-muted); font-size: .78rem; overflow: hidden; text-overflow: ellipsis; }
+
+.pi-reference-candidates-menu { max-height: 12rem; }
+
+/* Rows keep their height; the menu scrolls instead of squeezing them. */
+
+.pi-candidates > * { flex-shrink: 0; }
+
+.pi-extension-candidates-menu button {
+  display: flex;
+  align-items: baseline;
+  gap: .75rem;
+  width: 100%;
+  min-height: 1.9rem;
+  padding: .3rem .6rem;
+  border: 0;
+  border-radius: var(--pi-radius-sm);
+  background: transparent;
+  color: var(--pi-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pi-extension-candidates-menu button strong { font: 500 .82rem/1.45 var(--pi-font-mono); font-variant-ligatures: none; white-space: nowrap; }
+
+.pi-extension-candidates-menu button span { min-width: 0; overflow: hidden; color: var(--pi-muted); font-size: .78rem; text-overflow: ellipsis; white-space: nowrap; }
+
+.pi-extension-candidates-menu button.is-active { background: var(--pi-accent-soft); }
+
+.pi-extension-candidates-menu button.is-active strong { color: var(--pi-accent-strong); }
+
+@media (hover: none) { .pi-extension-candidates-menu button { min-height: 2.5rem; } }
+
+.pi-composer-hint { margin: 0 .1rem .35rem; }
+
+.pi-upload-error { margin: 0 .2rem .25rem; }
+
+.pi-reference-list, .pi-attachment-list { flex-wrap: wrap; min-width: 0; margin: 0 0 .35rem; }
+
+.pi-composer-input textarea,
+.pi-composer-input {
+  min-height: 1.6rem;
+  max-height: min(160px, 25dvh);
+  overflow-y: auto;
+  resize: none;
+  padding: .15rem .1rem;
+  border: 0;
+  background: transparent;
+  color: var(--pi-ink);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+/* Browser sizing avoids a synchronous hidden textarea measurement on every keystroke. */
+.pi-composer-input textarea { field-sizing: content; max-height: min(calc(6lh + .3rem), 25dvh); }
+
+.pi-composer-input textarea::placeholder { color: var(--pi-faint); }
+
+.pi-composer-input textarea:focus,
+.pi-composer-input:focus { box-shadow: none; }
+
+.pi-composer-footer { min-height: 2.15rem; margin-top: .2rem; }
+
+.pi-composer .pi-composer-add { color: var(--pi-muted); }
+
+.pi-composer .pi-composer-add:hover { color: var(--pi-ink); background: var(--pi-hover); }
+
+.pi-composer .pi-composer-send,
+.pi-composer .pi-composer-stop {
+  flex: 0 0 auto;
+  transition: transform var(--pi-motion-fast) ease, filter var(--pi-motion-fast) ease, background-color var(--pi-motion-fast) ease, color var(--pi-motion-fast) ease;
+}
+
+.pi-composer .pi-composer-send:is(:disabled, [data-disabled]) {
+  background: var(--pi-surface-2);
+  color: var(--pi-faint);
+}
+
+.pi-composer .pi-composer-send.is-queue { padding-inline: .8rem .65rem; font-size: .82rem; font-weight: 600; }
+
+.pi-composer .pi-composer-send.is-idle-hidden { display: none !important; }
+
+/* Send (when it can send) and stop read as the primary control: an ink disc, as solid as a primary button. Disabled send
+   stays the quiet surface tone, so "can send" and "cannot send" are told apart at a glance. */
+
+.pi-composer .pi-composer-send:not(:disabled):not([data-disabled]),
+.pi-composer .pi-composer-stop { background: var(--pi-ink); color: var(--pi-bg); }
+
+.pi-composer .pi-composer-stop:is(:disabled, [data-disabled]) { background: var(--pi-surface-2); color: var(--pi-faint); }
+
+.pi-composer .pi-composer-send:not(:disabled):not([data-disabled]):hover,
+.pi-composer .pi-composer-stop:not(:disabled):not([data-disabled]):hover { filter: brightness(1.08); }
+
+.pi-composer .pi-composer-send:not(:disabled):not([data-disabled]):active,
+.pi-composer .pi-composer-stop:not(:disabled):not([data-disabled]):active { transform: translateY(1px); }
+
+/* ── "/" command menu: name, one-to-two line summary, corner button for details. ── */
+
+@media (max-width: 700px) {
+  .pi-composer-wrap { padding-inline: .6rem; }
+  .pi-composer-overlays { inset-inline: .6rem; }
+}

@@ -1,0 +1,173 @@
+.pi-tool { min-width: 0; margin: 0; }
+
+:is(.pi-tool, .pi-thinking) > summary {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  min-height: 2rem;
+  margin: 0 -.5rem;
+  padding: .2rem .5rem;
+  border-radius: var(--pi-radius-sm);
+  cursor: pointer;
+  list-style: none;
+  color: var(--pi-muted);
+  font-size: .84rem;
+  transition: background var(--pi-motion-fast) ease, color var(--pi-motion-fast) ease;
+}
+
+:is(.pi-tool, .pi-thinking) > summary::-webkit-details-marker { display: none; }
+
+:is(.pi-tool, .pi-thinking) > summary:hover { background: var(--pi-hover); color: var(--pi-ink-2); }
+
+.pi-tool-state {
+  flex: 0 0 1rem;
+  display: grid;
+  place-items: center;
+  color: var(--pi-faint);
+}
+
+.pi-tool[data-state="done"] .pi-tool-state { color: var(--pi-ok); }
+
+.pi-tool[data-state="running"] .pi-tool-state { color: var(--pi-accent); }
+
+.pi-tool[data-state="running"] .pi-tool-state svg { animation: pi-spin var(--pi-motion-loop) linear infinite; }
+
+.pi-tool[data-state="error"] .pi-tool-state,
+.pi-tool[data-state="unknown"] .pi-tool-state { color: var(--pi-danger); }
+
+.pi-tool-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: .55rem;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+:is(.pi-tool, .pi-thinking) .tool-name {
+  flex: 0 0 auto;
+  color: var(--pi-ink-2);
+  font-size: .82rem;
+  font-weight: 600;
+}
+
+/* The model's one-line title for this call, ahead of any path. */
+.pi-tool-call-title {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--pi-ink);
+  font-size: .84rem;
+}
+
+.pi-tool-args {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--pi-muted);
+  font: .78rem/1.5 var(--pi-font-mono);
+  font-variant-ligatures: none;
+}
+
+/* The real tool ran through the direct-mode `tool_call` meta tool: a faint tag, not a row of its own. */
+.pi-tool-via {
+  flex: 0 0 auto;
+  padding: 0 .35rem;
+  border: 1px solid var(--pi-line);
+  border-radius: 4px;
+  color: var(--pi-faint);
+  font: .7rem/1.45 var(--pi-font-mono);
+  font-variant-ligatures: none;
+  white-space: nowrap;
+}
+
+/* A renderCall header is one clipped line; extra lines live in the body. */
+
+.pi-tool-call {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-height: 1.5em;
+  overflow: hidden;
+  font: .78rem/1.5 var(--pi-font-mono);
+  font-variant-ligatures: none;
+}
+
+.pi-tool-call .extension-ui-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre;
+  font: inherit;
+  color: var(--pi-ink-2);
+}
+
+/* Running rows pulse (opacity only) instead of claiming a percentage we do not have. */
+
+.pi-tool.is-running .tool-name {
+  color: var(--pi-accent-strong);
+  animation: pi-pulse var(--pi-motion-pulse) ease-in-out infinite;
+}
+
+/* Status words stay in the DOM for assistive tech; only problems are shown. */
+
+.pi-tool .tool-status {
+  flex: 0 0 auto;
+  color: var(--pi-danger);
+  font-size: .74rem;
+  white-space: nowrap;
+}
+
+.pi-tool .tool-status:is([data-state="done"], [data-state="running"]) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.pi-tool .tool-status:is([data-state="pending"], [data-state="interrupted"]) { color: var(--pi-muted); }
+
+.pi-tool .tool-duration,
+.pi-tool .tool-elapsed {
+  flex: 0 0 auto;
+  color: var(--pi-faint);
+  font: .72rem/1 var(--pi-font-mono);
+  font-variant-ligatures: none;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pi-tool .tool-elapsed { color: var(--pi-accent-strong); }
+
+.pi-tool-caret {
+  flex: 0 0 auto;
+  color: var(--pi-faint);
+  opacity: 0;
+  transition: transform var(--pi-motion-slow) var(--pi-motion-ease-spring), opacity var(--pi-motion-fast) ease;
+}
+
+:is(.pi-tool, .pi-thinking) > summary:hover .pi-tool-caret,
+:is(.pi-tool, .pi-thinking) > summary:focus-visible .pi-tool-caret,
+:is(.pi-tool, .pi-thinking)[open] .pi-tool-caret { opacity: 1; }
+
+:is(.pi-tool, .pi-thinking)[open] .pi-tool-caret { transform: rotate(90deg); }
+
+/* Secondary code text (comments, line numbers, Output label, notes) and the hairlines around them: one step brighter than --pi-faint / --pi-line-strong. */
+
+.pi-tool-body,
+.pi-file-editor,
+[data-extension-shell="self"] {
+  --pi-code-dim: color-mix(in srgb, var(--pi-faint) 30%, var(--pi-muted));
+  --pi-code-line: color-mix(in srgb, var(--pi-line-strong) 65%, var(--pi-faint));
+}
+
+@media (max-width: 700px) {
+  :is(.pi-tool, .pi-thinking) > summary { gap: .45rem; }
+  .pi-tool-caret { opacity: 1; }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .pi-tool-caret { opacity: 1; }
+}

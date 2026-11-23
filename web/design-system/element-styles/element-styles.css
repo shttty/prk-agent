@@ -1,0 +1,61 @@
+:root { color-scheme: light dark; }
+* { box-sizing: border-box; }
+/* Scrollbars: thin, transparent track, token-colored thumb. Chromium/Safari style ::-webkit-scrollbar (rounded,
+   inset thumb); Chromium ignores it on any element that sets scrollbar-width/-color, so only Firefox gets those. */
+@supports selector(::-webkit-scrollbar) {
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+  ::-webkit-scrollbar-thumb { min-height: 32px; border: 3px solid transparent; border-radius: 999px; background: var(--pi-line-strong) padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background-color: var(--pi-faint); }
+  ::-webkit-scrollbar-thumb:active { background-color: var(--pi-muted); }
+}
+@supports not selector(::-webkit-scrollbar) {
+  * { scrollbar-width: thin; scrollbar-color: var(--pi-line-strong) transparent; }
+}
+html, body, #root { width: 100%; height: 100%; margin: 0; }
+body {
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+button, input, textarea, select { font: inherit; }
+/* The UA default for these is the generic `monospace`, which fontconfig resolves per machine (a Kai or KR face for CJK). */
+pre, code, kbd, samp { font-family: var(--pi-font-mono); font-variant-ligatures: none; }
+button, a, input, textarea, summary { touch-action: manipulation; }
+:focus-visible { outline: 2px solid var(--pi-accent); outline-offset: 3px; }
+::selection { background: var(--pi-accent-soft); }
+/* Phone session drawer: flat in both schemes — a rounded edge over the dimmed page, no shadow. */
+.mantine-Drawer-content { border-radius: 0 22px 22px 0; box-shadow: none; }
+.mantine-Drawer-content, .mantine-Drawer-header { background: var(--pi-sidebar); }
+/* Floating layers (menus, select lists, popovers, modals): translucent glass with a blur behind, generous radius, a
+   soft shadow. The session-row "…" menu is opaque instead (management.css). */
+.mantine-Menu-dropdown, .mantine-Popover-dropdown, .mantine-Combobox-dropdown, .mantine-Modal-content { --mantine-color-body: var(--pi-overlay); background-color: var(--pi-overlay); }
+.mantine-Menu-dropdown, .mantine-Popover-dropdown, .mantine-Combobox-dropdown { border-color: color-mix(in srgb, var(--pi-surface) 60%, transparent); border-radius: 16px; box-shadow: var(--pi-shadow-overlay); -webkit-backdrop-filter: var(--pi-glass); backdrop-filter: var(--pi-glass); }
+.mantine-Menu-dropdown { --menu-item-hover: var(--pi-selected); padding: 6px; }
+.mantine-Menu-item { min-height: 34px; border-radius: 10px; }
+:is(.mantine-Combobox-dropdown, .mantine-Select-dropdown) { padding: 6px; }
+:is(.mantine-Combobox-option, .mantine-Select-option) { border-radius: 9px; }
+:is(.mantine-Combobox-option, .mantine-Select-option):is([data-combobox-active], [data-checked]):not([data-combobox-disabled]) { background-color: transparent; color: var(--pi-accent-strong); font-weight: 600; }
+:is(.mantine-Combobox-option, .mantine-Select-option):is(:hover, [data-combobox-selected]):not([data-combobox-disabled]) { background-color: var(--pi-selected); color: var(--pi-ink); }
+:is(.mantine-Combobox-option, .mantine-Select-option):is([data-combobox-active], [data-checked]):is(:hover, [data-combobox-selected]):not([data-combobox-disabled]) { color: var(--pi-accent-strong); }
+.mantine-Modal-overlay { background: rgb(30 30 28 / 18%); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+[data-mantine-color-scheme="dark"] .mantine-Modal-overlay { background: rgb(8 10 14 / 38%); }
+.mantine-Modal-content { border: 1px solid color-mix(in srgb, var(--pi-surface) 60%, transparent); border-radius: 20px; box-shadow: var(--pi-shadow-overlay); -webkit-backdrop-filter: var(--pi-glass); backdrop-filter: var(--pi-glass); }
+.mantine-Modal-header { padding: 18px 20px 6px; background-color: transparent; }
+.mantine-Modal-title { font-size: 16px; font-weight: 700; }
+.mantine-Modal-body { padding: 8px 20px 20px; }
+[data-mantine-color-scheme="light"] .light-theme-icon, [data-mantine-color-scheme="dark"] .dark-theme-icon { display: none; }
+/* Every <details> (tool rows, the turn's process fold, diagnostics) opens and closes by height on one curve; the only
+   motion that is not transform/opacity, because the content below must follow. auto↔auto changes (output streaming
+   into an open row) do not animate. */
+details::details-content { block-size: 0; overflow: clip; transition: block-size var(--pi-motion-slow) var(--pi-motion-ease-out), content-visibility var(--pi-motion-slow) allow-discrete; }
+details[open]::details-content { block-size: auto; }
+/* The system preference and the app switch use the same marker, including overlays mounted in the body. */
+:root[data-no-animation], :root[data-no-animation] *,
+:root[data-no-animation] ::before, :root[data-no-animation] ::after,
+:root[data-no-animation] ::details-content {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}

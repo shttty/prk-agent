@@ -1,0 +1,14 @@
+export async function change(ctx, idOrChanges, enabled) {
+  const { generation, setSaving, setError, session, actions, instance, load } = ctx;
+  const changes = Array.isArray(idOrChanges) ? idOrChanges : [{ id: idOrChanges, enabled }];
+  if (!changes.length) return;
+  const current = generation.current;
+  setSaving(true); setError("");
+  try {
+    if (session) {
+      if (!await actions.executeNativeAction("capabilities", { changes }, { transcript: false })) throw new Error("工具设置保存失败。");
+    } else await actions.api.post("/capabilities", instance ? { instance, changes } : { changes });
+    if (current === generation.current) await load();
+  } catch (cause) { if (current === generation.current) setError(cause.message); }
+  finally { setSaving(false); }
+}

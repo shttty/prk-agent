@@ -1,0 +1,14 @@
+/* Session banners (App.jsx, BannerStack.jsx): float over the top of the conversation column, so they never push the transcript or the composer.
+   The lane spans the column below its control strip and carries the same side room as the transcript (--pi-monitor-room); the stack inside
+   takes the content width of the messages (--pi-thread-width less --pi-thread-pad on each side), so its edges are the messages' edges
+   whatever the window, the sidebars or the monitor panel do. The chip row (#toggle-banners) is the stack's top-right corner and folds the
+   banners below it; those are the only part that goes away. */
+.pi-banner-lane { --pi-banner-inset: 6px; position: absolute; z-index: var(--pi-z-chat-banner); top: calc(var(--pi-chat-top, 0px) + var(--pi-banner-inset)); right: 0; left: 0; padding-right: var(--pi-monitor-room, 0px); pointer-events: none; }
+.pi-banners { width: calc(min(var(--pi-thread-width), 100%) - 2 * var(--pi-thread-pad)); margin-inline: auto; display: flex; flex-direction: column; gap: 8px; }
+.pi-banners > .pi-banner { pointer-events: auto; }
+.pi-banners > .pi-banners-toggle { align-self: flex-end; pointer-events: auto; box-shadow: var(--pi-shadow); }
+/* One line per banner: the message on the left (it wraps when long), the actions on the right, both centred on the line. */
+.pi-banner .mantine-Alert-wrapper { align-items: center; }
+.pi-banner-row { display: flex; align-items: center; gap: 12px; }
+.pi-banner-text { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.pi-banner-actions { flex: none; display: flex; align-items: center; gap: 8px; }

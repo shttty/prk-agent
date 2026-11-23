@@ -1,0 +1,94 @@
+import assert from "node:assert/strict";
+import { parsePeerMessages } from "../../../shared/session-messages/parse-peer-messages.js";
+
+export async function checkDuplexDispatch({ spawn, call, inPython, send, snapshot, toolResults, peerUsers, peers, modelCalls, command, receipt, executions, idle, gateway, until, pause, main, text }) {
+  let counter = 0;
+    const a = await spawn("Worker A"), b = await spawn("Worker B"), c = await spawn("Worker C"), d = await spawn("Worker D");
+    const busy = await call(a, "kernel_code", pause(2.5));
+    await inPython(a, busy.start);
+    const backlog = [await send(b, a, "MERGE-B1"), await send(b, a, "MERGE-B2"), await send(c, a, "MERGE-C1")];
+    assert.deepEqual(backlog.map((item) => [item.accepted, item.delivery, item.pending]), [[true, "queued", 1], [true, "queued", 2], [true, "queued", 3]]);
+    assert.deepEqual(snapshot(a).queuedMessages.steering, []);
+    assert.equal(peerUsers(a, busy.start).length, 0);
+    const overflow = await call(b, "session_send", { to: a, message: "MERGE-OVERFLOW" });
+    await overflow.completion;
+    assert.equal(toolResults(b, "session_send", overflow.start)[0].isError, true);
+    assert.match(text(toolResults(b, "session_send", overflow.start)[0]), /inbox.*(cap|limit|full)/i);
+    const done = await busy.completion;
+    assert.equal(done.status, "completed");
+    for (const item of backlog) assert(done.requestIds.includes(`session-message:${item.id}`));
+    const delivered = peerUsers(a, busy.start);
+    assert.equal(delivered.length, 1, "Whole backlog is one SDK user message");
+    assert.deepEqual(peers(a, busy.start).map((peer) => [peer.sender, peer.messageId, peer.body]), [[snapshot(b).sessionId, backlog[0].id, "MERGE-B1"], [snapshot(b).sessionId, backlog[1].id, "MERGE-B2"], [snapshot(c).sessionId, backlog[2].id, "MERGE-C1"]]);
+    assert.equal(modelCalls.filter((entry) => entry.role === "user" && parsePeerMessages(entry.body)?.some((peer) => peer.messageId === backlog[0].id)).length, 1, "One provider request handles the backlog");
+    const location = snapshot(a).messages.findIndex((message) => message.role === "user" && parsePeerMessages(text(message))?.some((peer) => peer.messageId === backlog[0].id));
+    assert.equal(snapshot(a).messages[location - 1].toolName, "kernel_code", "First tool boundary, no extra response first");
+    const duplexA = await command(a, `TOOLS ${JSON.stringify([{ tool: "kernel_code", args: pause(1.2) }, { tool: "session_send", args: { to: snapshot(b).sessionId, message: "BUSY-FROM-A" } }])}`);
+    const duplexB = await command(b, `TOOLS ${JSON.stringify([{ tool: "session_send", args: { to: snapshot(a).sessionId, message: "BUSY-FROM-B" } }, { tool: "kernel_code", args: pause(2) }])}`);
+    assert.deepEqual((await Promise.all([duplexA.completion, duplexB.completion])).map((entry) => entry.status), ["completed", "completed"]);
+    const receiptA = receipt(a, duplexA.start), receiptB = receipt(b, duplexB.start);
+    assert.deepEqual([receiptA.delivery, receiptB.delivery], ["queued", "queued"]);
+    const spans = [receiptA, receiptB].map((item, index) => {
+      const name = index === 0 ? a : b;
+      const starts = executions.filter((event) => event.name === name && event.tool === "session_send" && event.phase === "tool_execution_start" && event.messageIndex >= (index === 0 ? duplexA.start : duplexB.start));
+      const start = starts[0];
+      const end = executions.find((event) => event.id === start.id && event.phase === "tool_execution_end");
+      assert(end.at - start.at < 500, `Busy session_send completed in ${end.at - start.at}ms, not at recipient settlement`);
+      return end.at - start.at;
+    });
+    assert.equal(peers(a, duplexA.start).filter((peer) => peer.messageId === receiptB.id).length, 1);
+    assert.equal(peers(b, duplexB.start).filter((peer) => peer.messageId === receiptA.id).length, 1);
+    const beforeWake = snapshot(d).messages.length;
+    const wake = await send(c, d, "LONGWORK");
+    assert.deepEqual([wake.delivery, wake.pending], ["delivered", 0]);
+    await inPython(d, beforeWake);
+    const during = [await send(b, d, "DURING-1"), await send(b, d, "DURING-2")];
+    await idle(d);
+    assert.equal(peerUsers(d, beforeWake).length, 2, "Idle prompt followed by one in-run backlog batch");
+    for (const item of [wake, ...during]) assert.equal(peers(d, beforeWake).filter((peer) => peer.messageId === item.id).length, 1);
+    const answerBusy = await call(d, "kernel_code", pause(2));
+    await inPython(d, answerBusy.start);
+    const qa = await send(b, d, "QUESTION-A"), qb = await send(c, d, "QUESTION-B"), fyi = await send(b, d, "FYI", { expectReply: false });
+    await answerBusy.completion;
+    await idle(c);
+    const answer = receipt(d, answerBusy.start);
+    assert.equal(answer.to, snapshot(c).sessionId);
+    assert.equal(answer.expectReply, false);
+    assert(peers(c).some((peer) => peer.messageId === answer.id && peer.replyTo === qb.id));
+    assert(!peers(b).some((peer) => peer.messageId === answer.id));
+    assert.deepEqual(peers(d, answerBusy.start).map((peer) => [peer.messageId, peer.expectReply]), [[qa.id, true], [qb.id, true], [fyi.id, false]]);
+    const repeatReply = await call(d, "session_send", { to: c, message: "duplicate merged-batch answer", replyTo: qb.id });
+    assert.equal((await repeatReply.completion).status, "completed");
+    assert.equal(toolResults(d, "session_send", repeatReply.start)[0].isError, true);
+    assert.match(text(toolResults(d, "session_send", repeatReply.start)[0]), /already answered; send a new message to add more/);
+    assert.equal(peers(c).filter((peer) => peer.replyTo === qb.id).length, 1, "Merged-batch question receives only its first answer");
+    const noReplyRun = await call(d, "session_send", { to: b, message: "acknowledgement", replyTo: fyi.id });
+    await noReplyRun.completion;
+    assert.equal(toolResults(d, "session_send", noReplyRun.start)[0].isError, true);
+    assert.match(text(toolResults(d, "session_send", noReplyRun.start)[0]), /expects no reply/);
+    const charsBusy = await call(a, "kernel_code", pause(1.5));
+    await inPython(a, charsBusy.start);
+    const big = await send(b, a, "X".repeat(200));
+    const excess = await call(c, "session_send", { to: a, message: "Y".repeat(100) });
+    await excess.completion;
+    assert.equal(toolResults(c, "session_send", excess.start)[0].isError, true);
+    assert.match(text(toolResults(c, "session_send", excess.start)[0]), /inbox.*(char|cap|limit|full)/i);
+    await charsBusy.completion;
+    assert.deepEqual(peers(a, charsBusy.start).map((peer) => peer.messageId), [big.id]);
+    for (const name of [main, a]) {
+      await gateway.session(name).reload();
+      const modeRun = name === main ? await command(name, "MODE-INITIAL") : await call(name, "kernel_code", pause(1));
+      if (name === a) await inPython(name, modeRun.start);
+      else await until(() => modelCalls.at(-1)?.body === "MODE-INITIAL", "main provider entered busy generation");
+      for (const [queue, values] of [["steer", ["MODE-S1", "MODE-S2", "MODE-S3"]], ["followUp", ["MODE-F1", "MODE-F2"]]]) {
+        for (const message of values) assert((await gateway.session(name).submit({ requestId: `mode-${++counter}`, message, queue })).accepted);
+      }
+      assert.equal((await modeRun.completion).status, "completed");
+      const runMessages = snapshot(name).messages.slice(modeRun.start);
+      const s2 = runMessages.findIndex((message) => text(message) === "MODE-S2");
+      assert.deepEqual(runMessages.slice(s2 - 1, s2 + 2).map(text), ["MODE-S1", "MODE-S2", "MODE-S3"], "All steering inputs drained before another assistant response after reload");
+      const f2 = runMessages.findIndex((message) => text(message) === "MODE-F2");
+      assert.equal(text(runMessages[f2 - 1]), "MODE-F1", "All follow-ups drained together after reload");
+    }
+  return { b, c, d, spans, backlog };
+}

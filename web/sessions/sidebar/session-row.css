@@ -1,0 +1,130 @@
+.management-session-row {
+  position: relative;
+  min-width: 0;
+  margin: 1px 0;
+  border-radius: 10px;
+  transition: background var(--pi-motion-fast) ease;
+}
+.management-session-row:hover,
+.management-session-row:focus-within { background: var(--pi-hover); }
+.management-session-row.is-selected { background: var(--pi-sidebar-selected); }
+.management-session-row[draggable="true"] .management-session-select { cursor: grab; }
+.management-session-row.is-dragging { opacity: .48; }
+.management-session-row.is-dragging .management-session-select { cursor: grabbing; }
+/* Closed rows read quieter by their hollow dot and a muted title, never by opacity (that took the location line to 2.6:1). */
+.management-session-row.is-closed .management-session-copy strong { color: var(--pi-muted); }
+.management-session-select {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 7px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 38px 7px 12px;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.management-session-select:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: -2px; }
+.management-session-menu {
+  position: absolute;
+  top: 0;
+  right: 5px;
+  bottom: 0;
+  margin-block: auto;
+  color: var(--pi-muted);
+  opacity: 0;
+  transition: opacity var(--pi-motion-fast) ease;
+}
+.management-session-row:hover .management-session-menu,
+.management-session-row:focus-within .management-session-menu,
+.management-session-row.is-selected .management-session-menu,
+.management-session-menu[aria-expanded="true"] { opacity: 1; }
+@media (hover: none) { .management-session-menu { opacity: 1; } }
+.management-session-copy {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 6px;
+  row-gap: 1px;
+}
+.management-session-copy strong,
+.management-session-copy span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.management-session-title {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+.management-session-title > .pi-role-badges,
+.management-session-title > .mantine-Badge-root { flex: 0 0 auto; }
+.management-session-copy strong {
+  min-width: 0;
+  color: var(--pi-ink);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.management-session-copy > span:not(.mantine-Badge-root, .management-session-title),
+.management-session-state {
+  color: var(--pi-muted);
+  font-size: 11.5px;
+}
+.management-session-copy > span:not(.mantine-Badge-root, .management-session-title) { color: var(--pi-sidebar-dim); }
+.management-session-derivation { color: var(--pi-accent-strong) !important; }
+.management-session-state { white-space: nowrap; }
+.management-ask-mark { flex: 0 0 auto; color: var(--pi-accent-strong); }
+.management-ask-mark:not([data-ask-mark="self"]) { opacity: .75; }
+.management-tree-node { position: relative; min-width: 0; }
+.management-session-children {
+  margin-left: 14px;
+  padding-left: 6px;
+  border-left: 1px solid var(--pi-line);
+}
+/* A child whose manager sits under another instance: indented like a nested child, on the same guide line. */
+.management-tree-node.is-remote-child { margin-left: 14px; padding-left: 6px; border-left: 1px solid var(--pi-line); }
+.management-tree-toggle {
+  position: absolute;
+  z-index: var(--pi-z-raised);
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 12px;
+  height: 18px;
+  margin-block: auto;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--pi-radius-sm);
+  background: transparent;
+  color: var(--pi-faint);
+  cursor: pointer;
+}
+.management-tree-toggle:hover { color: var(--pi-ink-2); }
+.management-tree-toggle:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: 0; }
+.management-tree-toggle svg { transition: transform var(--pi-motion-slow) var(--pi-motion-ease-spring); }
+.management-tree-toggle[aria-expanded="true"] svg { transform: rotate(90deg); }
+.management-session-row.is-temporary { margin: 1px 0; }
+.management-session-row.is-temporary::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -6px;
+  width: 5px;
+  border-top: 1px dashed var(--pi-line-strong);
+}
+.management-session-row.is-temporary .management-session-select { gap: 8px; padding-block: 4px; grid-template-columns: 5px minmax(0, 1fr) auto; }
+.management-session-row.is-temporary .management-session-copy { row-gap: 0; }
+.management-session-row.is-temporary .management-session-copy strong { color: var(--pi-ink-2); font-size: 12.5px; font-weight: 500; }
+.management-session-row.is-temporary .management-session-state { font-size: 10.5px; }
+@media (max-width: 700px) {
+  .management-session-select { padding-block: 10px; }
+}

@@ -1,0 +1,21 @@
+.artifacts-heading { margin: 0; font-size: 15px; font-weight: 600; }
+.artifacts-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+#artifacts-upload-form { padding: 16px; border: 1px solid var(--pi-line); border-radius: 12px; }
+.artifacts-tools { display: flex; flex-direction: column; gap: 22px; }
+.artifact-tool { min-width: 0; }
+.artifact-tool-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--pi-line-strong); }
+.artifact-tool-header h4 { margin: 0; font-family: var(--pi-font-mono); font-variant-ligatures: none; font-size: 14px; overflow-wrap: anywhere; }
+.artifact-tool-header .mantine-NativeSelect-root { width: 170px; flex-shrink: 0; }
+.artifact-version { padding: 12px 0; border-bottom: 1px solid var(--pi-line); }
+.artifact-version-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 24px; margin-bottom: 6px; }
+.artifact-version-name { font-size: 13px; overflow-wrap: anywhere; }
+.artifact-platform { display: grid; grid-template-columns: 82px minmax(100px, 1fr) 80px 88px; gap: 8px; padding: 3px 0; color: var(--pi-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.artifact-platform code { font-family: var(--pi-font-mono); color: var(--pi-ink); font-size: 11px; }
+.artifact-size, .artifact-platform time { text-align: right; }
+@media (max-width: 600px) {
+  .artifacts-form-grid { grid-template-columns: 1fr; }
+  #artifacts-upload-form { padding: 12px; }
+  .artifact-tool-header .mantine-NativeSelect-root { width: 130px; }
+  .artifact-platform { grid-template-columns: 70px minmax(90px, 1fr) 58px; gap: 6px; }
+  .artifact-platform time { grid-column: 2 / 4; text-align: left; font-size: 11px; }
+}

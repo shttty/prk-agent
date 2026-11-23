@@ -1,0 +1,51 @@
+import type { markKernelOrphan } from "./kernel/mark-kernel-orphan.ts";
+import type { exclusive } from "./admission/admit-config-mutation.ts";
+import type { runtimeChange } from "./admission/admit-runtime-change.ts";
+import type { recoveryState } from "./recovery/inspect-saved-binding.ts";
+import type { markUnavailable } from "./recovery/mark-unavailable.ts";
+import type { kernelUnusable } from "./recovery/kernel-unusable.ts";
+import type { unsettled } from "./recovery/inspect-runtime-readiness.ts";
+import type { wake } from "./recovery/wake-runtime.ts";
+import type { autoRecover } from "./recovery/recover-automatically.ts";
+import type { ensureRuntime } from "./recovery/ensure-runtime.ts";
+import type { admitInput } from "./admission/admit-input.ts";
+import type { changeSessionRuntime } from "./admission/change-session-runtime.ts";
+import type { maintainSessionKernel } from "./kernel/maintain-kernel.ts";
+import type { endSession } from "./identity/end-session.ts";
+import type { createManagedSession } from "./identity/create-session.ts";
+import type { reclaimIdle } from "./reclamation/reclaim-idle-sessions.ts";
+import type { kernelVariables } from "./kernel/list-variables.ts";
+import type { kernelDeleteVariable } from "./kernel/delete-variable.ts";
+import type { renameSession } from "./identity/rename-session.ts";
+import type { wakeSession } from "./recovery/wake-session.ts";
+import type { recoverSession } from "./recovery/recover-session.ts";
+import type { kernelClear } from "./kernel/clear-kernel.ts";
+import type { kernelRestart } from "./kernel/restart-kernel.ts";
+
+type WithoutContext<T> = T extends (ctx: never, ...args: infer A) => infer R ? (...args: A) => R : never;
+
+export interface SessionLifecycleMethods {
+  markKernelOrphan: WithoutContext<typeof markKernelOrphan>;
+  exclusive: <T>(action: () => Promise<T>) => Promise<T>;
+  runtimeChange: <T>(action: () => Promise<T>) => Promise<T>;
+  recoveryState: WithoutContext<typeof recoveryState>;
+  markUnavailable: WithoutContext<typeof markUnavailable>;
+  kernelUnusable: WithoutContext<typeof kernelUnusable>;
+  unsettled: WithoutContext<typeof unsettled>;
+  wake: WithoutContext<typeof wake>;
+  autoRecover: WithoutContext<typeof autoRecover>;
+  ensureRuntime: WithoutContext<typeof ensureRuntime>;
+  admitInput: <T>(sessionId: string, action: () => Promise<T>, wakeSleeping?: boolean) => Promise<T>;
+  changeSessionRuntime: <T>(sessionId: string, action: () => Promise<T>) => Promise<T>;
+  maintainSessionKernel: WithoutContext<typeof maintainSessionKernel>;
+  endSession: WithoutContext<typeof endSession>;
+  createManagedSession: WithoutContext<typeof createManagedSession>;
+  reclaimIdle: WithoutContext<typeof reclaimIdle>;
+  kernelVariables: WithoutContext<typeof kernelVariables>;
+  kernelDeleteVariable: WithoutContext<typeof kernelDeleteVariable>;
+  renameSession: WithoutContext<typeof renameSession>;
+  wakeSession: WithoutContext<typeof wakeSession>;
+  recoverSession: WithoutContext<typeof recoverSession>;
+  kernelClear: WithoutContext<typeof kernelClear>;
+  kernelRestart: WithoutContext<typeof kernelRestart>;
+}
