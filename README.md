@@ -8,17 +8,7 @@ English · [简体中文](README.zh-CN.md)
 - **The hands are your target machines**: this one, or any Linux box you can log into without a prompt (usually over SSH). Code runs there and files stay there; only results come back.
 - **Entry points just watch and talk**: the browser, the command line, or a client you write yourself. They all see the same sessions, and disconnecting never interrupts running work.
 
-```text
-browser (desktop / phone) ─> Web API ─┐
-attach CLI ───────────────────────────┼─> Gateway ─┬─ sessions: main / worker / child
-other clients (Unix socket) ──────────┘            ├─ capability catalog: tools, skills, plugins, switches
-                                                   ├─ memory, event wake-ups, session storage
-                                                   └─ target channel (one per machine)
-                                                         │
-                         ┌───────────────────────────────┴───────────────────────────────┐
-                 local pi-env daemon                                           remote pi-env daemon
-           kernel · terminals · plugin host · files                    kernel · terminals · plugin host · files
-```
+![PRK architecture (labels in Chinese)](docs/architecture.svg)
 
 ## The brain: the Gateway
 
