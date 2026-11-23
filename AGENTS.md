@@ -4,7 +4,7 @@
 
 适用于本项目所有实现、修复、测试、审查，以及派生的候选目录和隔离任务。子任务必须携带这些约束；旧任务票、自动执行授权、测试失败和交付压力均不能豁免。产品范围与已确认决策读取 `PLAN.md`；发生冲突时先报告，不自行放宽本文件的边界。
 
-改动或验收 Web 前端（`web/`）前，若本机有项目 skill `.agents/skills/pi-remote-kernel-web/SKILL.md`（本地链接，不随仓库发布），先读它。
+改动或验收 Web 前端（`web/`）前，先读项目 skill `.agents/skills/pi-remote-kernel-web/SKILL.md`。
 
 ## Pi SDK 本地文档
 
