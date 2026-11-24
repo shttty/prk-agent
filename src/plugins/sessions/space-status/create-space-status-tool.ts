@@ -2,14 +2,12 @@ import type { JsonValue } from "@earendil-works/pi-ai";
 import type { SessionsGateway } from "../gateway-types.ts";
 import { defineTool } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
-import { DEFAULT_DERIVATION_ROLE } from "../../../config/derivation/derivation-types.ts";
-
 export function createSpaceStatusTool(gateway: Pick<SessionsGateway, "spaceStatus">) {
   return defineTool({
     name: "space_status",
     label: "Space status",
-  description: `Read-only configured target/session, role, model and valid thinking discovery. Never opens a target connection. Session rows mark the designated root and each project supervisor with root: true and supervisor: true, respectively; otherwise those fields are omitted. Role is a configured identifier, not a task label. Omitted role uses ${DEFAULT_DERIVATION_ROLE}; model/thinking inherit from the selected role, then the creator's current values. Ordinary user-created sessions cannot be adopted or transferred; upgrade only makes an existing derived session user-managed.`,
-  parameters: Type.Object({ target: Type.Optional(Type.String({ minLength: 1, description: "Configured target identity to include in the response; no target connection is opened." })) }, { additionalProperties: false }),
+  description: "Read configured targets, sessions (root/supervisor), roles, and models with valid thinking levels offline.",
+  parameters: Type.Object({ target: Type.Optional(Type.String({ minLength: 1 })) }, { additionalProperties: false }),
   outputSchema: Type.Object({
     targets: Type.Array(Type.Object({ id: Type.String(), label: Type.String(), local: Type.Boolean(), tags: Type.Array(Type.String()), python: Type.Optional(Type.String()), configurationIssue: Type.Optional(Type.Object({ code: Type.String(), message: Type.String() }, { additionalProperties: false })) }, { additionalProperties: false })),
     sessions: Type.Array(Type.Object({

@@ -26,13 +26,21 @@ export function createTerminalTools(terminals: () => ModelTerminals): ToolDefini
     }),
     defineTool({
       ...TERMINAL_TOOL_METADATA.terminal_textsend, label: "Terminal textsend",
-      parameters: Type.Object({ text: Type.String(), name, yield_s: yieldSeconds, timeout_s: Type.Optional(Type.Number({ exclusiveMinimum: 0 })), restart: Type.Optional(Type.Boolean()), quiet_notify: Type.Optional(Type.Boolean({ description: "Set this terminal's background silence notification switch." })), output_brake: Type.Optional(Type.Boolean({ description: "Set this terminal's output brake switch; false exempts continuously logging processes from automatic Ctrl-C." })) }, { additionalProperties: false }),
+      parameters: Type.Object({
+        text: Type.String(),
+        name,
+        yield_s: yieldSeconds,
+        timeout_s: Type.Optional(Type.Number({ exclusiveMinimum: 0, description: "Hard limit: Ctrl-C then rebuild" })),
+        restart: Type.Optional(Type.Boolean({ description: "Recreate (human: user request only)" })),
+        quiet_notify: Type.Optional(Type.Boolean({ description: "Wake on silence (off: ssh/REPL)" })),
+        output_brake: Type.Optional(Type.Boolean({ description: "Ctrl-C on limit (false: logs)" })),
+      }, { additionalProperties: false }),
       outputSchema: resultSchema,
       execute: sendText(ctx),
     }),
     defineTool({
       ...TERMINAL_TOOL_METADATA.terminal_keysend, label: "Terminal keysend",
-      parameters: Type.Object({ keys: Type.String({ minLength: 1 }), name, yield_s: yieldSeconds }, { additionalProperties: false }),
+      parameters: Type.Object({ keys: Type.String({ minLength: 1, description: "C-c C-d C-z Up Down Tab Esc Enter q" }), name, yield_s: yieldSeconds }, { additionalProperties: false }),
       outputSchema: resultSchema,
       execute: sendKey(ctx),
     }),

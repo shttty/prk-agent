@@ -6,7 +6,7 @@ export function createToolCall(discovery?: ToolDiscovery) {
   const parameters = Type.Object({ name: Type.String(), args: Type.Object({}, { additionalProperties: true }) }, { additionalProperties: false });
   return {
     name: "tool_call", label: "Call hidden tool", exposure: "model-only",
-    description: "Execute an enabled hidden tool after inspecting its schema with tool_search. Call declared tools directly instead.",
+    description: "Call an enabled hidden tool after tool_search (call declared tools directly).",
     parameters,
     reachesTools: (input) => typeof input.name === "string" ? [input.name] : [],
     async execute(_id, { name, args }, signal, onUpdate, context) {

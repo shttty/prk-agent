@@ -6,7 +6,7 @@ import { DEFAULT_DERIVATION_ROLE } from "../../config/derivation/derivation-type
 
 export function createDerivedSessionSchemas(limits: LimitsOptions = DEFAULT_LIMITS_OPTIONS) {
   const identity = Type.String({ minLength: 1, maxLength: limits.identityChars });
-  const outputSchema = Type.Union([Type.Boolean(), Type.Record(Type.String(), Type.Unknown())], { description: "JSON Schema for the child's session_result output; local references are supported. Uses the declared draft, or 2020-12 by default." });
+  const outputSchema = Type.Union([Type.Boolean(), Type.Record(Type.String(), Type.Unknown())]);
   const resultSchema = Type.Object({
     id: identity,
     summary: Type.String({ minLength: 1, maxLength: limits.derivedSummaryChars }),
@@ -43,18 +43,18 @@ export function createDerivedSessionSchemas(limits: LimitsOptions = DEFAULT_LIMI
   const taskSchema = Type.Object({
     task: Type.String({ minLength: 1, maxLength: limits.derivedTaskChars }),
     label: Type.String({ minLength: 1, maxLength: limits.labelChars, pattern: "\\S" }),
-    lifecycle: Type.Optional(Type.Union([Type.Literal("temporary"), Type.Literal("persistent")], { description: "temporary stops and archives after delivering its result, so it cannot be steered or asked follow-up questions afterwards; use it for one-off work. persistent stays until its parent destroys it; use it for later additions or follow-up questions. Omit to use session.defaultDerivedLifecycle." })),
-    role: Type.Optional(Type.String({ ...identity, description: `Configured role identifier, not a task label. Discover names with space_status; omit to use ${DEFAULT_DERIVATION_ROLE}.` })),
-    model: Type.Optional(Type.String({ minLength: 1, description: "Configured provider/model from space_status. Omit to use the selected role's model, then the creator's current model." })),
-    thinkingLevel: Type.Optional(Type.Union(thinking.anyOf, { description: "Must be supported by the selected model; discover valid levels with space_status. Omit to use the selected role's thinking level, then the creator's current level; never coerce." })),
-    target: Type.Optional(Type.String({ ...identity, description: "Configured target from space_status; omitted inherits the creator's target." })),
-    cwd: Type.Optional(Type.String({ minLength: 1, maxLength: limits.cwdChars, description: "Set cwd when the child should work in another project or directory on the selected target. Must be absolute. Explicit cwd wins; omitted cwd inherits the creator's cwd on the same target, or uses the selected instance default across targets." })),
-    isolated: Type.Optional(Type.Boolean({ description: "Run in an independent git worktree and generate a patch artifact on session_result. Omit to inherit the role or global derivation setting." })),
+    lifecycle: Type.Optional(Type.Union([Type.Literal("temporary"), Type.Literal("persistent")], { description: "temporary archives on result; persistent stays" })),
+    role: Type.Optional(Type.String({ ...identity, description: `Role id from space_status (default ${DEFAULT_DERIVATION_ROLE})` })),
+    model: Type.Optional(Type.String({ minLength: 1 })),
+    thinkingLevel: Type.Optional(Type.Union(thinking.anyOf)),
+    target: Type.Optional(Type.String({ ...identity })),
+    cwd: Type.Optional(Type.String({ minLength: 1, maxLength: limits.cwdChars, description: "Absolute path" })),
+    isolated: Type.Optional(Type.Boolean({ description: "Git worktree returning patch" })),
     outputSchema: Type.Optional(outputSchema),
   }, { additionalProperties: false });
   const spawnSchema = Type.Object({
-    context: Type.String({ minLength: 1, maxLength: limits.derivedTaskChars, description: "Shared goal, relevant paths, constraints and expected deliverable supplied to every child. Children do not inherit your conversation." }),
-    tasks: Type.Array(taskSchema, { minItems: 1, description: "Independent, self-contained child assignments admitted concurrently in array order. Each task includes its own scope and acceptance criteria." }),
+    context: Type.String({ minLength: 1, maxLength: limits.derivedTaskChars, description: "Shared goal, paths, constraints, deliverable (no parent history)" }),
+    tasks: Type.Array(taskSchema, { minItems: 1 }),
   }, { additionalProperties: false });
   const spawnResultSchema = Type.Object({
     children: Type.Array(Type.Object({ index: Type.Integer({ minimum: 0 }), sessionId: identity, sessionName: Type.String(), taskId: identity }, { additionalProperties: false })),

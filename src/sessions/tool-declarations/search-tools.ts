@@ -5,10 +5,10 @@ import type { ToolDiscovery } from "./discovery-types.ts";
 import type { DeclarationTool } from "./declaration-types.ts";
 
 export function createToolSearch(discovery?: ToolDiscovery) {
-  const parameters = Type.Object({ query: Type.String({ description: "Tool name substring or description keywords." }) }, { additionalProperties: false });
+  const parameters = Type.Object({ query: Type.String() }, { additionalProperties: false });
   return {
     name: "tool_search", label: "Search tools", exposure: "model-only",
-    description: "Search hidden enabled tools by name or description; return their parameters and guidelines without changing declarations.",
+    description: "Search hidden enabled tools by name or description and return their schemas.",
     parameters,
     outputSchema: Type.Object({ tools: Type.Array(Type.Object({
       name: Type.String(), description: Type.String(), parameters: Type.Object({}, { additionalProperties: true }),

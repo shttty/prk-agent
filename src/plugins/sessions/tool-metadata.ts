@@ -1,14 +1,14 @@
 export const DERIVED_TOOL_METADATA = {
   session_spawn: {
     name: "session_spawn",
-    description: "Create sessions for self-contained assignments in tasks[] with shared context. Returns admission only: {children:[{index,sessionId,sessionName,taskId}],errors:[{index,error}]}; errors=[] means every task was admitted, not completed. Use sessionId for all session messaging and management; sessionName is the display label, and taskId identifies the submitted task result. Keep returned identities and never replay accepted tasks or the whole batch after partial admission. Results and abnormal run notices for unfinished children arrive as inbox messages and wake an idle owner. A failure notice leaves the task unfinished: inspect, retry or destroy the child as needed. No polling or confirmation tools are needed.",
+    description: "Spawn child sessions for independent tasks; returns admission {children, errors}. Route by sessionId; retry only failed tasks. Results and failure notices wake you automatically—wait without polling; steer, retry, or destroy failed children.",
   },
   session_result: {
     name: "session_result",
-    description: "Finish your assigned task with summary, optional artifacts and structured output. If assigned outputSchema, output is required and validated before saving or delivery. Include file:line evidence and commands with exit codes. The result is delivered through the parent's inbox; a temporary child is then stopped and archived automatically. No confirmation tool is required. Destroy, transfer or upgrade children you still own first; ordinary assistant replies do not finish the task.",
+    description: "Submit your task result to the parent's inbox (plain replies are not delivered). Cite file:line and commands with exit codes; output is validated against outputSchema. Destroy/transfer owned children first; temporary sessions archive on delivery.",
   },
   session_manage: {
     name: "session_manage",
-    description: "Manage sessions by sessionId: destroy a controlled session and its owned subtree; offer transfer of a child to another sessionId; accept a transfer addressed to you; change a controlled session's project; or, as root only, designate that session as its project's supervisor. child, to and session always identify sessions by sessionId. Control requires an owner-chain ancestor, root, or the target project's supervisor. Accept is authorized only by a pending offer addressed to this session. Transfer preserves creator, task and history; ownership changes only on acceptance.",
+    description: "Destroy a controlled subtree, offer/accept child transfer, set project, or (root only) set supervisor by sessionId. Needs ancestor, supervisor, or root control; accept needs a pending offer to you.",
   },
 };

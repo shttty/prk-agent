@@ -13,11 +13,11 @@ export function createKernelToolDefinition(target: string, codeMode: boolean, ex
   const label = bun ? "Bun (JS/TS)" : "Python";
   const metadata = pythonToolMetadata(target, codeMode);
   const description = bun
-    ? `Execute JavaScript/TypeScript on the retained ${target} Bun kernel. Use top-level await, return/display for results, and globalThis.name to retain values. Use cell.sleep/connect/fetch/resolve/spawn for cancellable waits, and cell.import for prepared packages. Unmanaged waits or blocking code can force retirement of the whole kernel.`
-    : `${metadata.description} Use thread for ordinary synchronous libraries with shared variables; async for cooperative awaits and shared clients/locks (avoid blocking the shared loop); isolated for potentially stuck DNS/native calls and tasks that need no shared objects. Explicit mode wins; otherwise top-level await selects async, then the configured default applies (normally thread). Only isolated accepts inputs and outputs: copy named inputs, return a value, and optionally bind it to the named output on success. Isolated is not a sandbox. Avoid concurrent writes to the same variable. Stopping one cell may also affect peers using the same socket or child process.`;
+    ? `Run JavaScript/TypeScript on the retained ${target} Bun kernel (top-level await, return/display, globalThis for state; cell.sleep/connect/fetch/resolve/spawn for cancellable waits, cell.import for packages; unmanaged blocking can retire the kernel).`
+    : `${metadata.description} Modes: thread (default; shared vars), async (top-level await; shared loop), isolated (separate process for stuck native/DNS; copies inputs/outputs, no sandbox). Stopping a cell may affect other cells using the same subprocess or socket.`;
   return defineTool({
     ...metadata,
-    description: `${description} ${CELL_TITLE_HINT} If yielding is enabled, completion or a checkpoint will wake you; do not poll.`,
+    description: `${description} ${CELL_TITLE_HINT} Yielded cells wake you automatically.`,
     label: `${label} (${target})`,
     promptSnippet: `Execute ${label} code in the retained ${target} kernel`,
     ...(bun ? {} : { promptGuidelines: [`Use Python on the ${target} kernel for calculations and stateful exploration; ordinary input() is unsupported.`] }),

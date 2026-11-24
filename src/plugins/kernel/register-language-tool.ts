@@ -8,7 +8,7 @@ const parameters = Type.Object({ language: Type.Union([Type.Literal("python"), T
 
 export function registerLanguageTool(pi: ExtensionAPI, select: (language: KernelLanguage) => Promise<KernelLanguageChange>) {
   pi.registerTool({ name: "kernel_language", label: "Kernel language", exposure: "model-only", executionMode: "sequential", parameters,
-    description: "Select Python or Bun (JavaScript/TypeScript) for this session only. The kernel must be idle. Changing language discards the current kernel's variables; the next kernel_code starts an empty namespace.",
+    description: "Switch this idle session's kernel between Python and Bun, discarding current variables.",
     prepareArguments(args) {
       if (!Value.Check(parameters, args)) throw new WireError("INVALID_REQUEST", "Expected only language: python or bun.");
       return args;
