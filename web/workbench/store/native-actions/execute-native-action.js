@@ -22,7 +22,7 @@ export async function executeNativeAction(ctx, action, args = {}, { transcript =
     const lightSetting = LIGHT_SETTING_ACTIONS.has(action);
     const value = args[{ model: "model", thinking: "level", "tool-mode": "mode", delegation: "level" }[action]];
     const rollback = lightSetting ? updateLightSetting(ctx, { [LIGHT_SETTING_FIELDS[action]]: value }) : null;
-    if (transcript) upsertNativeFeedback(ctx, { requestId: id, action, status: "running", message: "正在执行…", ...(cancellable ? { cancellable: true } : {}) });
+    if (transcript && action !== "compact") upsertNativeFeedback(ctx, { requestId: id, action, status: "running", message: "正在执行…", ...(cancellable ? { cancellable: true } : {}) });
     patchSession(ctx, { ...(!transcript ? { error: null } : {}), ...(!lightSetting ? { pending: withPending(ctx.state.session.pending, "nativeActionPending", true) } : {}) });
     try {
       const result = await postJson(ctx, nativePath(ctx, name), { requestId: id, action, args });

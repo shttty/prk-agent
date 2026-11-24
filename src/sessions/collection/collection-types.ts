@@ -31,6 +31,7 @@ export interface ManagedSessionSnapshot extends TaskTiming {
   readonly history?: boolean;
   readonly state: SessionState;
   readonly requiresReload?: boolean;
+  readonly compacting?: true;
   readonly kernel?: KernelSnapshot;
   readonly recovery?: SessionRecovery;
   readonly derivation?: DerivedSessionInfo;

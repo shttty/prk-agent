@@ -23,10 +23,11 @@ export const OperationBar = memo(function OperationBar({ actions }) {
   const connected = useWorkbench((state) => state.session.connection === "connected");
   const statusCount = (statusEntries || []).length;
   const runningNative = feedback.findLast((item) => item.status === "running");
+  const compacting = stage === "compacting";
   return (
-    <Group id="operation-bar" hidden={!runningNative && !statusCount && (!busy || working?.visible === false)} className="pi-operation-bar operation-bar" gap={6} wrap="nowrap">
+    <Group id="operation-bar" hidden={!runningNative && !statusCount && (!busy || (!compacting && working?.visible === false))} className="pi-operation-bar operation-bar" gap={6} wrap="nowrap">
               {busy || runningNative ? <WorkingIndicator indicator={busy ? working?.indicator : undefined} /> : null}
-              {cancelling || busy || runningNative ? <Text id="operation-state" size="xs" data-stage={busy ? stage || "waiting" : undefined}>{cancelling ? "正在停止…" : busy ? <AnsiText text={working?.message || stageText || "等待模型响应…"} /> : `正在执行 ${safeText(runningNative?.action) || "原生操作"}…`}</Text> : null}
+              {cancelling || busy || runningNative ? <Text id="operation-state" size="xs" data-stage={busy ? stage || "waiting" : undefined}>{cancelling ? "正在停止…" : busy ? <AnsiText text={(compacting ? stageText : working?.message || stageText) || "等待模型响应…"} /> : `正在执行 ${safeText(runningNative?.action) || "原生操作"}…`}</Text> : null}
               {cancelling ? <Text id="operation-detail" size="xs" c="dimmed">等待执行端确认</Text> : null}
               {runningNative ? <Button type="button" size="compact-xs" variant="subtle" color="red" disabled={!connected || runningNative.cancellable !== true} onClick={() => void actions.cancelNativeAction(runningNative.requestId)}>取消原生操作</Button> : null}
               <ExtensionStatus entries={statusEntries} />

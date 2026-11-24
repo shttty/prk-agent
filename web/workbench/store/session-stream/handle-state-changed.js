@@ -15,7 +15,7 @@ export function handleStateChanged(ctx, event) {
     if (ctx.state.selectedSessionId) {
       const sessionState = snapshot.state === "running" || snapshot.state === "cancel_requested" ? "running" : snapshot.state;
       if (["running", "idle", "sleeping", "waking", "unavailable", "closing", "closed"].includes(sessionState)) {
-        sessions = mergeEntry(ctx, sessions, ctx.state.selectedSessionId, { state: sessionState, sessionId: ctx.state.selectedSessionId });
+        sessions = mergeEntry(ctx, sessions, ctx.state.selectedSessionId, { state: sessionState, compacting: sessionState === "running" && snapshot.operation?.kind === "compact", sessionId: ctx.state.selectedSessionId });
       }
     }
     patch(ctx, { sessions, session: { ...ctx.state.session, snapshot } });

@@ -3,6 +3,11 @@ import type { CancelRequest, CancelResult } from "./cancel-types.ts";
 import { requestCancel } from "./request-cancel.ts";
 
 export async function cancel(ctx: HostContext, request: CancelRequest): Promise<CancelResult> {
+  if (ctx.pendingCompaction?.id === request.operationId) {
+    const operation = ctx.pendingCompaction;
+    operation.userCancelled = true;
+    return { operationId: operation.id, status: "requested", returnedMessages: [], completion: operation.completion.promise };
+  }
   const operation = ctx.active;
   if (!operation || operation.id !== request.operationId) return {
     operationId: request.operationId,

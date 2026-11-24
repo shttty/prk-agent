@@ -150,7 +150,7 @@ export interface NativeContext {
   readonly limits: LimitsOptions;
   readonly sessionOptions: SessionOptions;
   readonly referencesOptions: ReferencesOptions;
-  readonly running: Map<string, { readonly cancel: () => void; readonly action: string }>;
+  readonly running: Map<string, { readonly cancel: () => void | Promise<void>; readonly action: string }>;
   readonly activeRequests: Set<string>;
 }
 

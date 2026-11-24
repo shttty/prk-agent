@@ -5,6 +5,7 @@ import { snapshot } from "./snapshots/get-snapshot.ts";
 import { receivePeer } from "./inbox/receive-peer.ts";
 import { flushPeerInbox } from "./inbox/flush-peer-inbox.ts";
 import { submit } from "./input/submit-input.ts";
+import { compact } from "./operations/compact.ts";
 import { cancel } from "./operations/cancel.ts";
 import { interruptCell } from "./operations/interrupt-cell.ts";
 import { dequeue } from "./operations/dequeue.ts";
@@ -54,11 +55,13 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
     get isIdle() { return isIdle(ctx); },
     hasInFlightCell: () => ctx.kernel?.hasInFlightCell?.() ?? false,
     get startedAt() { return ctx.active?.startedAt; },
+    get operationKind() { return ctx.active?.kind; },
     streamId,
     get state() { return ctx.state; },
     getSnapshot: (includeMessages) => snapshot(ctx, includeMessages),
     ...(options.extensionUi ? { extensionUiAction: (args: Record<string, unknown>) => extensionUiAction(ctx, args) } : {}),
     submit: (request) => submit(ctx, request),
+    compact: (requestId, instructions) => compact(ctx, requestId, instructions),
     receivePeer: (message, delivery) => receivePeer(ctx, message, delivery),
     flushPeerInbox: () => flushPeerInbox(ctx),
     cancel: (request) => cancel(ctx, request),

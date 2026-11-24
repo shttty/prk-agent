@@ -11,7 +11,7 @@
 Gateway 不发布 `resume` 动作，已有会话直接通过其路由选择。
 
 `cancel-native` 使用 `args.requestId` 指原操作；ack data 为 `{acknowledged:true,outcomePending:true}`。
-原 compact/tree request 另行报告实际 outcome。
+tree 的原控制调用返回实际结果。手动压缩结构化调用立即返回 `status:"running",data:{operationId}`，斜线输入返回普通 `send` 接纳回执；两者均以匹配 `operation_completed` 为终态，可用普通 `cancel` 或 `cancel-native` 请求取消。`args.instructions` 和 `/compact` 后缀都是给模型的可选摘要指令。
 
 ## Provider ownership diagnostics
 
@@ -143,7 +143,7 @@ Managed fork 的 authority 细节见 [design notes](../design-notes.md#会话分
 
 ### Session tools and control
 
-工具参数、应答与信封的唯一字段定义见 [session tools and inbox delivery](sessions.md#session-tools-and-inbox-delivery)；包括 `session_send` 的 `delivery/replyTo/expectReply`、结果 receipt 与 `phase:"delivered"`、`session_manage` 的 action 联合。`owner` 是当前父会话，`createdBy` 是最初派出者，转交不改后者；root / supervisor 的查询、设置与持久字段见 [session control roles](sessions.md#session-control-roles)。
+工具参数、应答与信封的唯一字段定义见 [session tools and inbox delivery](sessions.md#session-tools-and-inbox-delivery)；包括 `session_send` 的 `delivery/replyTo/expectReply`、派生运行失败通知、结果 receipt 与 `phase:"delivered"`、`session_manage` 的 action 联合。`owner` 是当前父会话，`createdBy` 是最初派出者，转交不改后者；root / supervisor 的查询、设置与持久字段见 [session control roles](sessions.md#session-control-roles)。
 
 `session_spawn({context:string,tasks:[{label,task,role?,model?,thinkingLevel?,target?,cwd?,isolated?,outputSchema?,lifecycle?}]})` starts independent tasks with shared context. Every label is a required nonempty string; omitted role selects task for every role-driven setting and saves that role on the new child. toolMode is not a task parameter: role > derivation default > host session default selects it. Each task may select its own absolute cwd; selection is defined in [模块约定](native.md#约定). Model/thinking select request > role > creator current value for every lifecycle. Child depth is parent depth + 1 (top-level 0) and must not exceed maxDepth. The result is `{children:[{index,sessionId,sessionName,taskId}],errors:[{index,error}]}`; sessionName is the label and sessionId the sole routing identity. Retain admitted children on partial failure rather than replaying the batch. `session_result({summary,artifacts?,output?})` validates output against the task schema before submitting it.
 

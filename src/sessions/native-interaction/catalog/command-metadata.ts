@@ -20,7 +20,7 @@ export const staticCommands: readonly StaticCommand[] = [
   { name: "login", description: "Credential changes require the dedicated authorized auth flow.", source: "builtin", effect: "external", risk: "sensitive" },
   { name: "logout", description: "Credential removal requires the dedicated authorized auth flow.", source: "builtin", effect: "external", risk: "sensitive" },
   { name: "new", description: "Create and open an independent managed session without replacing the current session or closing its runtime or kernel.", source: "builtin", effect: "session", risk: "low" },
-  { name: "compact", description: "Compact the current SDK context using a real model call.", source: "builtin", arguments: [{ name: "instructions", description: "Optional compaction instructions" }], effect: "context", risk: "model" },
+  { name: "compact", description: "Compact the current SDK context using a real model call.", source: "builtin", arguments: [{ name: "instructions", description: "Optional free-text instructions for the summary (not a turn count)." }], effect: "context", risk: "model" },
   { name: "reload", description: "Reload approved SDK resources while idle.", source: "builtin", effect: "session", risk: "low" },
   { name: "quit", description: "Leave the Web view; never stop the Gateway.", source: "builtin", effect: "presentation", risk: "none" },
   { name: "llama", description: "Native llama.cpp manager is not loaded by this Gateway runtime.", source: "extension", effect: "external", risk: "sensitive" },

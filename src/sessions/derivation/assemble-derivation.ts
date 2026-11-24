@@ -11,6 +11,7 @@ import { transfer } from "./ownership/propose-transfer.ts";
 import { acceptTransfer } from "./ownership/assume-ownership.ts";
 import type { DerivationContext } from "./derivation-state.ts";
 import { destroySession } from "./lifecycle/destroy-session.ts";
+import { notifyFailure } from "./lifecycle/notify-failure.ts";
 import { isChanging } from "./is-changing.ts";
 
 export function createSessionDerivation(env: DerivationEnvironment, schemas: DerivedSessionSchemas = DEFAULT_DERIVED_SCHEMAS) {
@@ -18,6 +19,7 @@ export function createSessionDerivation(env: DerivationEnvironment, schemas: Der
   return {
     spawn: spawn.bind(undefined, ctx),
     submit: submit.bind(undefined, ctx),
+    notifyFailure: notifyFailure.bind(undefined, ctx),
     destroyByAgent: destroyByAgent.bind(undefined, ctx),
     transfer: transfer.bind(undefined, ctx),
     acceptTransfer: acceptTransfer.bind(undefined, ctx),

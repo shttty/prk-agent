@@ -12,6 +12,7 @@ export function lastOperationOutcome({ operation, recentOperations }, busy) {
   const status = safeText(last.status);
   const text = status === "cancelled" || status === "canceled" ? "已停止。"
     : status === "unknown" ? `结果未知${last.error ? `：${safeText(last.error)}` : "：执行端未确认结果。"}`
+      : last.kind === "compact" ? `压缩失败${last.error ? `：${safeText(last.error)}` : "。"}`
       : safeText(last.error) || "执行失败。";
   return { status, text };
 }

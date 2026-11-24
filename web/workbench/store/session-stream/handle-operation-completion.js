@@ -18,10 +18,13 @@ export function handleOperationCompletion(ctx, details, event) {
     let snapshot = ctx.state.session.snapshot;
     let sessions = ctx.state.sessions;
     if (snapshot) {
-      const recentOperations = [...(snapshot.recentOperations || []), { ...completion, operationId }].slice(-MAX_RECENT_OPERATIONS);
-      // A failed or unknown outcome stays on the operation; the session is ready for the next input.
-      snapshot = { ...snapshot, state: "idle", operation: undefined, recentOperations };
-      if (ctx.state.selectedSessionId) sessions = mergeEntry(ctx, sessions, ctx.state.selectedSessionId, { state: "idle", sessionId: ctx.state.selectedSessionId });
+      const recentOperations = [...(snapshot.recentOperations || []).filter((item) => item.operationId !== operationId), { ...completion, operationId }].slice(-MAX_RECENT_OPERATIONS);
+      snapshot = { ...snapshot, recentOperations };
+      // A terminal frame can retire its own operation even if the state_changed frame was missed.
+      if (snapshot.operation?.operationId === operationId) {
+        snapshot = { ...snapshot, state: "idle", operation: undefined };
+        if (ctx.state.selectedSessionId) sessions = mergeEntry(ctx, sessions, ctx.state.selectedSessionId, { state: "idle", compacting: false, sessionId: ctx.state.selectedSessionId });
+      }
     }
     const banner = ctx.state.session.banner?.operationId === operationId ? null : ctx.state.session.banner;
     patch(ctx, { sessions, session: { ...ctx.state.session, operations, localMessages, snapshot, banner, transcriptRevision: ctx.state.session.transcriptRevision + 1 } });

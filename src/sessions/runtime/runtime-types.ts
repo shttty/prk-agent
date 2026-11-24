@@ -3,7 +3,7 @@ import type { ToolDefinition } from "@earendil-works/pi-coding-agent";
 import { createAgentSessionServices } from "@earendil-works/pi-coding-agent";
 import { ModelRuntime } from "@earendil-works/pi-coding-agent";
 import { SessionManager } from "@earendil-works/pi-coding-agent";
-import type { SessionHost } from "../host/host-types.ts";
+import type { OperationCompletionObserver, SessionHost } from "../host/host-types.ts";
 import type { HostedExtensionUI } from "../extension-ui/ui-types.ts";
 import type { SessionOptions } from "../../config/session/session-options.ts";
 import type { ToolMode } from "../../config/session/session-options.ts";
@@ -80,6 +80,7 @@ export interface SessionRuntimeDependencies {
   /** Instance then global maps; lazy resolves each layer before falling through. */
   readonly capabilityLayers?: (instance: string) => readonly CapabilitySwitches[];
   readonly globalCapabilityCatalog?: () => CapabilityCatalog;
+  readonly onOperationCompletion?: OperationCompletionObserver;
   readonly onCapabilityCatalog?: (catalog: CapabilityCatalog) => void;
   readonly targetChannels?: TargetChannels;
   readonly requireEnvironment?: (target: string) => Promise<void>;

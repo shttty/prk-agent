@@ -27,6 +27,7 @@ conversation.host = createSessionHost({
         kernel: ctx.python,
         terminals: ctx.modelTerminals,
         dispose: disposeConversation.bind(undefined, ctx, conversation),
+        ...(ctx.dependencies.onOperationCompletion ? { onOperationCompletion: ctx.dependencies.onOperationCompletion } : {}),
       });
 await bindHostedExtensions(session, conversation.host, extensionUi);
 ctx.registrationFiles = registrationFileVersions(ctx);

@@ -48,6 +48,7 @@ try {
         createKernel: (hooks) => createPythonTool({ target: "namespace-target", python: target.python, cwd: target.root, acquire: target.acquire, processWindow: limits, memoryMax: "4G", memorySwapMax: "0", scoped: true }, hooks) },
       collectionFactory: (...args) => { collection = createSessionCollection(...args); return collection; },
     });
+    await prepareGatewayEnvironment(host, root, "namespace-target");
     const server = await startGateway(host, join(root, "gateway.sock"));
     onCleanup(() => server.close());
     const client = await connectGateway(join(root, "gateway.sock"));
@@ -124,8 +125,16 @@ try {
       fauxAssistantMessage("Previous cells initialized and updated the retained kernel variables."),
       fauxAssistantMessage("Namespace variables remain in the owned kernel after this turn prefix."),
     ]);
+    const compactionCompleted = Promise.withResolvers();
+    const observation = host.session(worker).subscribe((event) => {
+      if (event.type === "operation_completed" && event.details.kind === "compact") compactionCompleted.resolve(event);
+    });
     const compacted = await client.request("nativeAction", { sessionId: worker, requestId: "compact-namespace", action: "compact", args: {} });
-    assert.equal(compacted.status, "completed", JSON.stringify(compacted));
+    assert.equal(compacted.status, "running", JSON.stringify(compacted));
+    const compactedEnd = await compactionCompleted.promise;
+    observation.unsubscribe();
+    assert.equal(compactedEnd.operationId, compacted.data.operationId);
+    assert.equal(compactedEnd.details.status, "completed", JSON.stringify(compactedEnd));
     result = await run("assert greet() == 'Hello world'", "After compaction");
     const compactedVariables = JSON.parse(text(result).split("\n").findLast((line) => line.startsWith("{"))).variables;
     assert(compactedVariables.some((entry) => entry.name === "greet"));

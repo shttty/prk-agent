@@ -98,6 +98,11 @@ export function assembleSessionCollection(ctx: HostContext): void {
         ...(nativeState.scopedModels === undefined ? {} : { scopedModels: nativeState.scopedModels }),
         ...(persisted?.instructions ? { roleInstructions: persisted.instructions } : {}),
         sessions: createSessionsPluginGateway(ctx, sessionId),
+        ...(persisted ? {
+          onOperationCompletion(completion, interruption) {
+            if (!ctx.lifecycle.closing) void ctx.derivation.derivation.notifyFailure(sessionId, completion, interruption);
+          },
+        } : {}),
       };
     },
   });

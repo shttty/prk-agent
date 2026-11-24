@@ -58,7 +58,7 @@ export async function action(ctx: NativeContext, target: NativeTarget, request: 
   }
   if (!command.availability.enabled) return result(request, "unavailable", command.availability.reason ?? `/${request.action} is unavailable.`, { executed: false });
   const requestKey = operationKey(target, request.requestId);
-  if (activeRequests.has(requestKey)) return result(request, "unavailable", "This native request is already active; it was not replayed.", { executed: false, active: true });
+  if (activeRequests.has(requestKey) || running.has(requestKey)) return result(request, "unavailable", "This native request is already active; it was not replayed.", { executed: false, active: true });
   activeRequests.add(requestKey);
   const operation: NativeActionContext = {};
   try {
@@ -85,7 +85,7 @@ export async function action(ctx: NativeContext, target: NativeTarget, request: 
     } else if (request.action === "name") {
       data = await renameSession(target, request);
     } else if (request.action === "compact") {
-      data = await compact(ctx, target, request, operation);
+      return compact(ctx, target, request);
     } else if (request.action === "tree") {
       const navigation = await navigateTree(ctx, target, request, operation);
       if (navigation.cancelled) return result(request, "cancelled", "Native tree navigation was cancelled; the prior branch remains active. Model work already performed is not undone.", navigation);

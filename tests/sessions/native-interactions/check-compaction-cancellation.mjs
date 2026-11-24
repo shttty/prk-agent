@@ -51,16 +51,20 @@ compactProvider.setResponses([async (_context, options) => {
   return fauxAssistantMessage("This summary must not be persisted after cancellation.");
 }]);
 try {
-  const compactPromise = service.action(compactTarget, { sessionId: compactTarget.sessionId, requestId: "compact-original", action: "compact", args: {} });
+  const compactOutcome = Promise.withResolvers();
+  const observer = compactHost.subscribe((event) => { if (event.type === "operation_completed" && event.details.kind === "compact") compactOutcome.resolve(event); });
+  const admitted = await service.action(compactTarget, { sessionId: compactTarget.sessionId, requestId: "compact-original", action: "compact", args: {} });
+  assert.equal(admitted.status, "running");
   await compactProviderEntered.promise;
   const cancellation = await service.action(compactTarget, { sessionId: compactTarget.sessionId, requestId: "cancel-fresh", action: "cancel-native", args: { requestId: "compact-original" } });
   assert.equal(cancellation.status, "completed");
   assert.equal(cancellation.requestId, "cancel-fresh");
   assert.equal(cancellation.data.requestId, "compact-original");
   assert.equal(cancellation.data.outcomePending, true);
-  const compactOutcome = await compactPromise;
-  assert.equal(compactOutcome.status, "cancelled");
-  assert.equal(compactOutcome.data.outcomeUnknown, true);
+  const terminal = await compactOutcome.promise;
+  observer.unsubscribe();
+  assert.equal(terminal.operationId, admitted.data.operationId);
+  assert.equal(terminal.details.status, "cancelled");
   assert.equal(compactManager.getEntries().some((entry) => entry.type === "compaction"), false);
   assert.equal(JSON.stringify(compactManager.buildSessionContext().messages).includes("This summary must not be persisted"), false);
 } finally {

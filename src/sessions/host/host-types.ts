@@ -8,30 +8,14 @@ import type { HostedExtensionUI, HostedExtensionUiSnapshot } from "../extension-
 import type { ExtensionHandlerScope } from "../extension-invocation/invocation-types.ts";
 import type { PeerDelivery, PeerMessage } from "../../../shared/session-messages/message-types.js";
 import type { CancelRequest, CancelResult, KernelInterruptRequest, KernelInterruptResult } from "./operations/cancel-types.ts";
+import type { HostOperationSnapshot, Operation, OperationCompletion, OperationCompletionObserver, OperationKind } from "./operations/operation-types.ts";
+export type { HostOperationSnapshot, Operation, OperationCompletion, OperationCompletionObserver, OperationCompletionStatus, OperationKind } from "./operations/operation-types.ts";
 import type { KernelCellDelivery } from "../history/kernel-cells/delivery-types.ts";
 import type { ModelTerminals } from "../../workspace/model-terminals/model-terminals-types.ts";
 import type { TerminalSummary } from "../../workspace/terminals/terminals-types.ts";
 
 // "sleeping" and "unavailable" are Gateway projections for a session without a runtime; a live host never enters them.
 export type HostState = "idle" | "running" | "cancel_requested" | "sleeping" | "unavailable" | "closing" | "closed";
-export type OperationCompletionStatus = "completed" | "failed" | "cancelled" | "unknown";
-
-export interface OperationCompletion {
-  readonly operationId: string;
-  readonly status: OperationCompletionStatus;
-  readonly requestIds: readonly string[];
-  readonly error?: string;
-  readonly returnedMessages?: readonly string[];
-}
-
-export interface HostOperationSnapshot {
-  readonly operationId: string;
-  /** Start of this admitted run, epoch milliseconds; queued inputs share it. */
-  readonly startedAt: number;
-  readonly state: "accepted" | "running" | "cancel_requested";
-  readonly requestIds: readonly string[];
-}
-
 export interface SessionHostSnapshot {
   readonly sessionId: string;
   readonly streamId: string;
@@ -138,6 +122,7 @@ export interface SessionHost {
   readonly sessionId: string;
   /** Display timestamp for the active admitted run, absent while idle. */
   readonly startedAt?: number;
+  readonly operationKind?: OperationKind;
   /** Host-owned requests and lifecycle work are settled; does not clone conversation history. */
   readonly isIdle?: boolean;
   /** A cell still owns execution or its durable result write; independent of user-turn admission. */
@@ -149,6 +134,7 @@ export interface SessionHost {
   subscribe(listener: (event: SessionHostEvent) => void): SessionHostSubscription;
   extensionUiAction?(args: Record<string, unknown>): Promise<unknown>;
   submit(request: SubmitMessageRequest): Promise<Submission>;
+  compact(requestId: string, instructions?: string): AcceptedSubmission;
   receivePeer(message: PeerMessage, delivery?: PeerDelivery): Promise<PeerReceipt>;
   /** Awaited by the runtime's inline turn_end extension, not by session_send. */
   flushPeerInbox(): Promise<void>;
@@ -166,26 +152,8 @@ export interface SessionHostOptions {
   readonly extensionUi?: HostedExtensionUI;
   readonly extensionHandlers?: ExtensionHandlerScope;
   readonly dispose?: () => Promise<void>;
+  readonly onOperationCompletion?: OperationCompletionObserver;
 }
-
-export type Operation = {
-  id: string;
-  startedAt: number;
-  messageCount: number;
-  requestIds: Set<string>;
-  completion: PromiseWithResolvers<OperationCompletion>;
-  pending: number;
-  cancelled: boolean;
-  userCancelled?: boolean;
-  preservePeerInbox?: boolean;
-  aborting?: Promise<void>;
-  error?: string;
-  aborted: boolean;
-  pythonStarted: boolean;
-  unknown: boolean;
-  cancelReason?: string;
-  returnedMessages: string[];
-};
 
 export interface HostContext {
   options: SessionHostOptions;
@@ -199,6 +167,7 @@ export interface HostContext {
   sequence: number;
   state: HostState;
   active?: Operation;
+  pendingCompaction?: Operation;
   recent: readonly OperationCompletion[];
   closing: boolean;
   closed: boolean;

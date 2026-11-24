@@ -12,6 +12,10 @@ function unknownPythonOutcome(event: Extract<AgentSessionEvent, { type: "tool_ex
 }
 
 export function observeSdkEvents(ctx: HostContext, event: AgentSessionEvent): void {
+  if (event.type === "compaction_start" && event.reason === "manual" && ctx.active?.kind === "compact" && ctx.active.cancelled) {
+    // compact() first awaits its own SDK abort; its controller does not exist until this event.
+    ctx.session.abortCompaction();
+  }
   if (event.type === "message_end" && event.message.role === "assistant" && ctx.active) {
     if (event.message.stopReason === "aborted") ctx.active.aborted = true;
   }

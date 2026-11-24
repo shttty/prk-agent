@@ -60,10 +60,18 @@ test("compact interrupts a running SessionHost turn cleanly and compacts real se
     await turnEntered.promise;
     const target = { sessionId: session.sessionId, streamId: host.getSnapshot().streamId, state: "running", readOnly: false, manager, session, host };
     const service = createNativeInteractionService();
-    const outcome = await service.action(target, { sessionId: session.sessionId, requestId: "req-compact", action: "compact", args: { instructions: "keep facts" } });
-    assert.equal(outcome.status, "completed");
+    const compacted = Promise.withResolvers();
+    const subscription = host.subscribe((event) => {
+      if (event.type === "operation_completed" && event.details.kind === "compact") compacted.resolve(event);
+    });
+    const admission = await service.action(target, { sessionId: session.sessionId, requestId: "req-compact", action: "compact", args: { instructions: "keep facts" } });
+    assert.equal(admission.status, "running");
     const interrupted = await submission.completion;
     assert.equal(interrupted.status, "cancelled");
+    const completion = await compacted.promise;
+    subscription.unsubscribe();
+    assert.equal(completion.operationId, admission.data.operationId);
+    assert.equal(completion.details.status, "completed");
     assert.equal(manager.getEntries().some((entry) => entry.type === "compaction"), true);
   } finally {
     if (host) await host.close();

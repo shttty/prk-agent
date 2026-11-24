@@ -8,7 +8,7 @@ export function renderSessions(identity: SessionIdentity | undefined, delegation
       "Other sessions run beside you. Each has its own context, model, kernel and tools; a child you spawn starts with none of your conversation, so its task must be self-contained.",
       "sessionId is the unique session identity for all session tools; sessionName is only its display label. Use session_list with a sessionId to inspect a controlled session's recent output when needed, not to poll for completion.",
       "You can message a child while it works, and it can message you. session_send delivery: steer lands at its next turn boundary, followUp after its whole run, abort interrupts it.",
-      "A child finishes by session_result. Its result and any messages reach you through your inbox automatically; you are woken if idle. Never sleep or poll for them.",
+      "A child finishes by session_result. Results and abnormal run notices for unfinished children reach your inbox automatically and wake you if idle. A run failure is not a task result; decide whether to retry or destroy the child. Never sleep or poll for results or notices.",
       "A temporary child ends after delivering its result. A persistent child stays until you destroy it, so you can keep sending it follow-up work. Only the user can turn a child into an independent long-lived session; you may suggest it, not do it.",
       "You control your children and their descendants; the root session controls all.",
     ] : []),

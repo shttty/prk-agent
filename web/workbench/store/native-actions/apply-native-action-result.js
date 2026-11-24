@@ -98,7 +98,7 @@ export async function applyNativeActionResult(ctx, result, fallback, { transcrip
           : QUIET_NOTICES[action];
       if (quiet) setNotice(ctx, quiet, "notice");
     }
-    if (transcript) upsertNativeFeedback(ctx, feedback);
+    if (transcript && !(feedback.action === "compact" && feedback.status === "running")) upsertNativeFeedback(ctx, feedback);
     else if (!["completed", "running"].includes(feedback.status)) setError(ctx, feedback.message || "原生操作失败。");
     addActivity(ctx, { title: `原生操作 · ${feedback.status}`, time: new Date().toISOString(), meta: feedback.message || feedback.action, tone: ["completed", "running"].includes(feedback.status) ? "" : "error" });
     return feedback;

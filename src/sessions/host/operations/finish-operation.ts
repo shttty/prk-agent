@@ -40,6 +40,7 @@ export function finish(ctx: HostContext, operation: Operation): void {
   }
   const completion: OperationCompletion = {
     operationId: operation.id,
+    ...(operation.kind ? { kind: operation.kind } : {}),
     status,
     requestIds: [...operation.requestIds],
     ...(publicError && status !== "cancelled" ? { error: publicError } : {}),
@@ -51,6 +52,10 @@ export function finish(ctx: HostContext, operation: Operation): void {
     // A failed or unknown outcome belongs to this operation; the session stays usable for the next input.
     setState(ctx, "idle");
     emit(ctx, "operation_completed", { operationId: operation.id, details: { ...completion } });
+    ctx.options.onOperationCompletion?.(completion, {
+      ...(operation.cancelReason === undefined ? {} : { reason: operation.cancelReason }),
+      ...(operation.cancelInitiatorSessionId === undefined ? {} : { initiatorSessionId: operation.cancelInitiatorSessionId }),
+    });
   }
   operation.completion.resolve(structuredClone(completion));
   if (ctx.inbox.length && !ctx.closing) void flushPeerInbox(ctx);

@@ -1,3 +1,4 @@
+import { object } from "../../../gateway/wire/is-record.ts";
 import { WireError } from "../../../gateway/wire/create-error.ts";
 import type { ExtendedSendRequest, SendMode } from "../../../gateway/wire/wire-types.ts";
 import type { NativeContext, NativeInputAdmission, NativeTarget } from "../native-types.ts";
@@ -62,7 +63,11 @@ export async function send(ctx: NativeContext, target: NativeTarget, request: Ex
         if (parsed.name === "name" && (!parsed.args || parsed.args.length > limits.labelChars || /\p{Cc}/u.test(parsed.args))) {
           return actionFailure(nativeRequest, new WireError("INVALID_REQUEST", `Session name must be 1–${limits.labelChars} characters without control characters.`));
         }
-        return ctx.options.dispatchAction ? ctx.options.dispatchAction(nativeRequest) : action(ctx, current, nativeRequest);
+        const native = await (ctx.options.dispatchAction ? ctx.options.dispatchAction(nativeRequest) : action(ctx, current, nativeRequest));
+        if (native.action === "compact" && native.status === "running" && object(native.data) && typeof native.data.operationId === "string") {
+          return { accepted: true, requestId: native.requestId, operationId: native.data.operationId, sessionId: current.sessionId };
+        }
+        return native;
       }
       if (!command.availability.enabled) return { accepted: false, requestId: request.requestId, error: command.availability.reason ?? `/${command.name} is unavailable.`, executed: false };
     }

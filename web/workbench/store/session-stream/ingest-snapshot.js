@@ -61,6 +61,7 @@ export function ingestSnapshot(ctx, value, observation = false) {
         ...routeSessionRow,
         sessionId: ctx.state.selectedSessionId,
         state: sessionState,
+        compacting: sessionState === "running" && snapshot.operation?.kind === "compact",
       })
       : ctx.state.sessions;
     // A full snapshot without a UI host also retires that host's render and revision.

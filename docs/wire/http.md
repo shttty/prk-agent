@@ -54,6 +54,8 @@ Browser selection fragment：`/#sessionId=SESSION_ID`。
 
 两个 SSE（`/api/sessions/events`、`/api/sessions/:sessionId/events`）的首帧是 `snapshot`，客户端以它为唯一底稿，不先 GET `workbench` 或会话快照。单会话首帧是主动 `subscribe` 响应的转发；后续的轻量 `snapshot` 作为普通 SSE `host` 事件转发，历史由浏览器按锚点主动读取（[WEB-49](../contract.md)）。Gateway 在首帧前拒绝订阅时，响应仍为 200 `text/event-stream`，只发一个 `event: error`，data 为 JSON 错误形状 `{error,code?,details?}`（与 JSON 路由相同，`code` 如 `NOT_FOUND`、`BUSY`），随即结束流（[WEB-50](../contract.md)）；客户端收到后关闭 EventSource，不自动重连。
 
+工作台 SSE 的 `collection` 事件以 `sessionId` 和类型更新非选中会话的行状态：`session_starting` → `starting`、`session_running` → `running`、`session_idle`／`session_awake` → `idle`、`session_sleeping` → `sleeping`、`session_closed` → `closed`。这些事件不携带完整会话行或消息，客户端不另开该会话的 SSE，也不重取工作台（[WEB-51](../contract.md)）。
+
 列表行为 closed 的会话只读一次 `GET /api/sessions/:sessionId/history`：其 `session` 是该会话当前的行，仍 closed 则显示只读历史、不订阅；已被其他观察端恢复则用这一行更新列表并改为订阅，不再先 GET 整份 `workbench` 确认状态。
 
 `POST /api/sessions` 的 `CreatedSession` 就是新会话的列表行与底稿：网页用它选中新会话后只开该会话的 SSE 和读取 native 目录，不再 GET 快照、`workbench` 或角色；创建失败时也不重取列表，Gateway 若实际建成会话，其 `session_derivation_changed` 行事件会带来该行。

@@ -56,7 +56,7 @@
 - `WEB-48` `/new` 必须在源 target/cwd 独立新建；醒着的源须空闲，关闭或休眠的源不得唤醒。Web auto 不得执行 `/new`，plain 必须保留。
 - `WEB-49` 客户端启动、选中与重连必须以订阅首帧快照为唯一底稿，不得先 GET 快照或工作台；仅流已结束时才可重开。
 - `WEB-50` 订阅在首帧前被拒时 SSE 必须只发一个 `error` 事件（JSON 错误形状）并结束，不得改回 HTTP 错误状态。
-- `WEB-51` 集合事件必须只携带变更的会话行或归档组行，客户端必须按行更新（含项目变更的 requiresReload），不得为此重取工作台。
+- `WEB-51` 集合事件只携带变更行或状态；客户端必须按行更新（含 requiresReload），不得重取工作台。非选中行按 sessionId 与生命周期事件类型更新，不另开订阅。
 - `WEB-52` 角色必须随工作台快照与 session_control_changed 的 details 发布，Web 不得另设角色读取端点。
 - `WEB-53` Web 服务必须原样转发，不代浏览器拉页；终端及 yield 活 cell 不得轮询，`activeCells` 按流整体替换。
 - `WEB-54` 轻量设置必须以会话快照为客户端唯一来源，乐观写入与回滚不得同时改目录 current 或工作台行。
@@ -69,6 +69,7 @@
 - `WEB-61` 模型回退快照必须公开原模型、默认模型与原因；网页必须显示提示，确认或显式换模型后清除。
 - `WEB-62` `noSkills` 主动禁用加载的技能不得单独触发 `requiresReload`；新建、唤醒和模型回退快照必须遵守同一规则。
 - `WEB-63` 实例定义、接口、工作台和 `space_status` 必须以 `id` 路由、`label` 显示，拒绝定义 `name`；会话及其余引用仍用 `target`。
+- `WEB-64` 手动压缩只在控制响应中确认接纳与 operationId，不等待模型；终态走同一 operation 事件。活动压缩须可通过 operationId 停止；压缩指令为可选文本，不是轮数。
 ## Gateway ↔ kernel
 - `KER-1` Gateway 回调的名称、参数与校验必须来自 SDK 公开的可调用集合，不得暴露被策略拒绝的工具。
 - `KER-2` REPL 必须独占不继承的协议 fd；唯一 reader 不等用户执行；ready 匹配代次、语言并报实值；执行 stdin 必须 EOF，原始输出不入协议或结果。
@@ -86,7 +87,7 @@
 - `KER-15` PRK 文件模式的远程嵌套 read 必须只携带展示页参数，不得经 Gateway 读取或转发该页正文；插件追加结果必须交还 kernel。
 - `KER-16` 远程写入钩子完成后 kernel 必须在目标机重读并核对写后 SHA-256，由同一文件会话刷新实际修改区段引用，不得复用写前引用。
 - `KER-17` Python files模块必须常驻；原生工具开关只切声明与权限，不得重启kernel、移除模块或清空变量；原生开启时须在文件IO前拒绝PRK文件函数。
-- `KER-18` 子会话结果必须以消息送回创建者或所有者，不得提供 gateway.wait 或定时轮询完成状态。
+- `KER-18` 子会话结果与未交结果的操作异常终态必须通知当前 owner；同一失败至多一次，不重放，不提供 gateway.wait 或轮询。
 - `KER-19` Python不得落盘；forkserver同scope独立exec、逐fork验单线程；pickle各限maxBytes、不出代。按代/cell停已握手组；子进程回收排空才结算。
 - `KER-20` code 回调必须优先传 structuredContent，否则传文本，不得猜测 JSON；PRK 结构结果必须声明 outputSchema，失败在所属语言抛异常。
 - `KER-21` kernel 函数每次调用必须经所属 SDK cell 的 typed permission 回调校验权限；严格字段及名称、限4KiB，取消后不回复。
@@ -219,7 +220,7 @@
 - `ORD-20` 宿主内存与 OOM 计数必须归属同一远程代次；换代必须替换样本，不得跨代累加或用旧样本覆盖新代次。
 - `ORD-21` 工作台行 startedAt 必须为 epoch 毫秒；普通会话来自本次运行准入，子任务与结果必须保留任务开始时间。
 - `ORD-22` 子会话行及结果的 finishedAt 必须为交付或结束的 epoch 毫秒；未结束必须省略，归档不得改写交付时间。
-- `ORD-23` `operation_completed`、tree、reload 后必须推一次轻量快照（换代用新流），带分支锚点，不带消息页或图像。
+- `ORD-23` `operation_completed`、tree、reload 后必须推一次轻量快照（换代用新流），带分支锚点，不带消息页或图像。运行态随同流操作状态及终态更新，不等待分支页；需要持久 entryId 的动作以对应历史页为准。
 ## 断线、重启与换代
 - `LIFE-1` 浏览器断开、关页或只重启 Web 服务不得结束 Gateway 拥有的会话与 kernel，也不得停止 Gateway。
 - `LIFE-2` 观察连接断开不得关闭资源；每个会话、集合与终端的订阅必须各自替换与取消。

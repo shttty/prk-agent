@@ -96,7 +96,7 @@ export function SessionRow({ sessionRow, targets, rows, onSelected, onSessionAct
         <span className="management-session-aside">
           {(asking || askingBelow) && <IconMessageQuestion className="management-ask-mark" data-ask-mark={asking ? "self" : "below"} role="img" aria-label="有问题等待回答" size={14} stroke={2} />}
           <MonitorMarks sessionRow={sessionRow} />
-          {(!projectView || sessionRow.state === "sleeping" || shownState.key === "delivered") && <span className="management-session-state" data-state={shownState.key}>{shownState.label}</span>}
+          {(!projectView || sessionRow.state === "sleeping" || ["delivered", "compacting"].includes(shownState.key)) && <span className="management-session-state" data-state={shownState.key}>{shownState.label}</span>}
         </span>
       </button>
       {/* Long menu: flip to the roomier side and cap to the viewport, scrolling inside (phones). */}

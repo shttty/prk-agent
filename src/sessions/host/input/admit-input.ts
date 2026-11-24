@@ -1,7 +1,7 @@
 import { dispatch } from "./dispatch.ts";
 import { invoke } from "./invoke.ts";
-import type { HostContext, SubmitMessageRequest, RejectedSubmission, AcceptedSubmission, Operation } from "../host-types.ts";
-import { randomUUID } from "node:crypto";
+import type { HostContext, SubmitMessageRequest, RejectedSubmission, AcceptedSubmission } from "../host-types.ts";
+import { createOperation } from "../operations/create-operation.ts";
 import type { PromptOptions } from "@earendil-works/pi-coding-agent";
 import { boundedError } from "../../../diagnostics/session-errors/truncate-error-detail.ts";
 import { describeError } from "../../../diagnostics/session-errors/describe-error.ts";
@@ -14,22 +14,10 @@ import { settle } from "../operations/settle-operation.ts";
 export function admit(ctx: HostContext, request: SubmitMessageRequest, peerPreflight?: PromptOptions["preflightResult"]): RejectedSubmission | (AcceptedSubmission & { invocation: Promise<unknown> }) {
   if (ctx.closing || ctx.reloading) return reject(ctx, request.requestId, "Host is closing or reloading.");
   if (ctx.active?.cancelled) return reject(ctx, request.requestId, "Cancellation is still settling.");
-  if (ctx.session.isCompacting) return reject(ctx, request.requestId, "Session is busy with compaction or branch summarization; wait for idle.");
+  if (ctx.pendingCompaction || ctx.active?.kind === "compact" || ctx.session.isCompacting) return reject(ctx, request.requestId, "Session is busy with compaction or branch summarization; wait for idle.");
   if (ctx.active && !request.queue) return reject(ctx, request.requestId, "queue must be 'steer' or 'followUp' while an operation is active.");
   if (!ctx.active && !ctx.session.isIdle) return reject(ctx, request.requestId, "Session is busy; retry when the SDK reports idle.");
-  const operation: Operation = ctx.active ?? {
-    id: `${ctx.sessionId}:${randomUUID()}`,
-    startedAt: Date.now(),
-    messageCount: ctx.session.messages.length,
-    requestIds: new Set(),
-    completion: Promise.withResolvers(),
-    pending: 0,
-    cancelled: false,
-    aborted: false,
-    pythonStarted: false,
-    unknown: false,
-    returnedMessages: [],
-  };
+  const operation = ctx.active ?? createOperation(ctx);
   const queued = ctx.active !== undefined;
   ctx.active = operation;
   operation.requestIds.add(request.requestId);

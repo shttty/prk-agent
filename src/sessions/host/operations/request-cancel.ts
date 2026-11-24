@@ -7,11 +7,13 @@ import { emit } from "../subscriptions/publish-event.ts";
 import { settle } from "./settle-operation.ts";
 import { retainQueuedPeers } from "../inbox/retain-queued-peers.ts";
 
-export function requestCancel(ctx: HostContext, operation: Operation, reason = "User cancelled the previous run.", preservePeers = false): void {
+export function requestCancel(ctx: HostContext, operation: Operation, reason = "User cancelled the previous run.", initiatorSessionId?: string): void {
+  const preservePeers = initiatorSessionId !== undefined;
   if (operation.cancelled) {
     if (!preservePeers && operation.preservePeerInbox) {
       operation.preservePeerInbox = false;
       operation.cancelReason = reason;
+      delete operation.cancelInitiatorSessionId;
       discardInbox(ctx, reason);
       discardQueued(ctx, operation, reason);
     }
@@ -20,6 +22,7 @@ export function requestCancel(ctx: HostContext, operation: Operation, reason = "
   operation.cancelled = true;
   operation.preservePeerInbox = preservePeers;
   operation.cancelReason = reason;
+  if (initiatorSessionId !== undefined) operation.cancelInitiatorSessionId = initiatorSessionId;
   setState(ctx, "cancel_requested");
   ctx.options.extensionUi?.cancel(operation.userCancelled && !preservePeers ? "operation" : undefined);
   if (!operation.preservePeerInbox) discardInbox(ctx, reason);

@@ -4,7 +4,7 @@ import { emit } from "../subscriptions/publish-event.ts";
 
 export function reload(ctx: HostContext): Promise<void> {
   const kernel = ctx.kernel?.getSnapshot();
-  if (ctx.closing || ctx.active || !ctx.session.isIdle || ctx.session.isCompacting || ctx.session.pendingMessageCount > 0
+  if (ctx.closing || ctx.active || ctx.pendingCompaction || !ctx.session.isIdle || ctx.session.isCompacting || ctx.session.pendingMessageCount > 0
     || ctx.reloading || ctx.kernel?.hasInFlightCell?.() || kernel?.state === "busy" || kernel?.state === "starting") {
     return Promise.reject(new Error("Reload requires an idle host and kernel."));
   }

@@ -11,7 +11,7 @@ import { useAuiState } from "@assistant-ui/react";
 import { contentText } from "../../conversation/content-text.js";
 import { copyLiteral } from "../../clipboard/copy-literal.js";
 import { safeText } from "../../../workbench/payloads/safe-text.js";
-import { PresentationContext } from "../presentation-context.js";
+import { MessageActionState } from "./message-action-state.js";
 import { useFeedback } from "./use-feedback.js";
 import { RERUN_LABELS } from "./RerunDialog.jsx";
 import { RerunDialog } from "./RerunDialog.jsx";
@@ -24,7 +24,7 @@ export function MessageActions({ message, actions }) {
   const [mounted, setMounted] = useState({ feedback: false, menu: false, rerun: false });
   const mount = (overlay) => setMounted((current) => (current[overlay] ? current : { ...current, [overlay]: true }));
   const setFeedback = (text) => { mount("feedback"); setFeedbackText(text); };
-  const { busy, nativePending, hostState, connection } = useContext(PresentationContext);
+  const { busy, nativePending, hostState, connected } = useContext(MessageActionState);
   const [forking, setForking] = useState(false);
   const [retrying, setRetrying] = useState(false);
   const [rerun, setRerun] = useState(null);
@@ -35,7 +35,7 @@ export function MessageActions({ message, actions }) {
   const forkDisabled = forking || nativePending || busy || !entryId;
   // Rerun/edit moves this session or forks it, so it needs an idle live runtime and a persisted, text-only message.
   // A sleeping session wakes on rerun, like on a new message.
-  const liveIdle = ["idle", "sleeping"].includes(hostState) && connection === "connected" && !nativePending;
+  const liveIdle = ["idle", "sleeping"].includes(hostState) && connected && !nativePending;
   const rerunnable = message.role === "user" && !custom.peerMessage && typeof custom.entryId === "string" && typeof custom.rerunText === "string"
     && !(Array.isArray(custom.attachments) && custom.attachments.length) && !(Array.isArray(custom.references) && custom.references.length);
   const rerunTitle = (mode) => liveIdle ? RERUN_LABELS[mode]

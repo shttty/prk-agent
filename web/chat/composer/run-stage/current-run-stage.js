@@ -7,6 +7,7 @@ import { toolTitle } from "../../transcript/tool-calls/tool-title.js";
 export function currentRunStage(state) {
   if (state.session.pending.has("sending")) return { stage: "sending", text: "发送中…" };
   if (!isBusy(state)) return null;
+  if (state.session.snapshot?.operation?.kind === "compact") return { stage: "compacting", text: "压缩中…" };
   const record = state.session.runStage;
   if (record?.stage === "thinking") return { stage: "thinking", text: "思考中…" };
   if (record?.stage === "output") return { stage: "output", text: "输出中…" };

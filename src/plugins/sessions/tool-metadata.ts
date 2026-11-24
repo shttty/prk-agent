@@ -1,7 +1,7 @@
 export const DERIVED_TOOL_METADATA = {
   session_spawn: {
     name: "session_spawn",
-    description: "Create sessions for self-contained assignments in tasks[] with shared context. Returns admission only: {children:[{index,sessionId,sessionName,taskId}],errors:[{index,error}]}; errors=[] means every task was admitted, not completed. Use sessionId for all session messaging and management; sessionName is the display label, and taskId identifies the submitted task result. Keep returned identities and never replay accepted tasks or the whole batch after partial admission. Results arrive automatically as messages and wake an idle parent; no polling or confirmation tools are needed.",
+    description: "Create sessions for self-contained assignments in tasks[] with shared context. Returns admission only: {children:[{index,sessionId,sessionName,taskId}],errors:[{index,error}]}; errors=[] means every task was admitted, not completed. Use sessionId for all session messaging and management; sessionName is the display label, and taskId identifies the submitted task result. Keep returned identities and never replay accepted tasks or the whole batch after partial admission. Results and abnormal run notices for unfinished children arrive as inbox messages and wake an idle owner. A failure notice leaves the task unfinished: inspect, retry or destroy the child as needed. No polling or confirmation tools are needed.",
   },
   session_result: {
     name: "session_result",

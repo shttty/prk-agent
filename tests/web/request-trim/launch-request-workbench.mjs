@@ -1,10 +1,11 @@
-import { mkdtemp, mkdir, rm } from "node:fs/promises";
+import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { pathToFileURL } from "node:url";
 import { ModelRuntime } from "@earendil-works/pi-coding-agent";
 import { fauxProvider } from "@earendil-works/pi-ai";
 import { initializePrkHome } from "../../../src/config/home/initialize-prk-home.ts";
+import { DEFAULT_GATEWAY_OPTIONS } from "../../../src/config/gateway/gateway-options.ts";
 import { parsePrkConfig } from "../../../src/config/document/parse-prk-config.ts";
 import { createGatewayHost } from "../../../src/gateway/host/start-host.ts";
 import { startGateway } from "../../../src/gateway/socket-server/start-listener.ts";
@@ -19,7 +20,7 @@ import { startWebDev } from "../../fixtures/web-dev.mjs";
  * count what one user action really costs. `requests.since(mark, method, path)` counts requests after `mark`; `path`
  * is an exact pathname or a RegExp. `settle()` waits long enough for follow-up requests a handler would start.
  */
-export async function withRequestWorkbench(run) {
+export async function withRequestWorkbench(run, { settings, requestTimeoutMs = DEFAULT_GATEWAY_OPTIONS.requestTimeoutMs } = {}) {
   const root = await mkdtemp(join(tmpdir(), "prk-reqtrim-"));
   const evidence = process.env.PI_TEST_WEB_EVIDENCE || root;
   await mkdir(evidence, { recursive: true });
@@ -27,17 +28,22 @@ export async function withRequestWorkbench(run) {
     let host, gateway, client, web, ui, browser;
     try {
       const { agentDir } = initializePrkHome(root);
+      if (settings) {
+        await mkdir(agentDir, { recursive: true });
+        await writeFile(join(agentDir, "settings.json"), JSON.stringify(settings));
+      }
       const runtime = await ModelRuntime.create({ authPath: join(agentDir, "auth.json"), modelsPath: null, refreshOnCreate: false, allowModelNetwork: false });
-      const provider = fauxProvider({ provider: "reqtrim", models: [{ id: "controlled", reasoning: true }] });
+      const provider = fauxProvider({ provider: "reqtrim", models: [{ id: "controlled", reasoning: true }], tokensPerSecond: 10000 });
       runtime.registerNativeProvider(provider.provider);
       host = await createGatewayHost({ cwd: root, home: root, historyDir: join(root, "history"), model: "reqtrim/controlled", thinkingLevel: "off",
         config: parsePrkConfig({ monitor: { enabled: false }, memory: { review: false }, session: { workerTools: "code" } }),
         targets: parseTargets([{ id: "fixture", label: "Fixture", tags: [], ...config, cwd: root }]),
       }, { runtimeDependencies: { cwd: root, agentDir, model: provider.getModel(), modelRuntime: runtime, thinkingLevel: "off" } });
       const socket = join(root, "g.sock");
-      gateway = await startGateway(host, socket);
-      client = await connectGateway(socket);
-      web = await startWebApplication({ home: root, socket, host: "127.0.0.1", port: 0 });
+      const gatewayOptions = { ...DEFAULT_GATEWAY_OPTIONS, requestTimeoutMs };
+      gateway = await startGateway(host, socket, gatewayOptions);
+      client = await connectGateway(socket, gatewayOptions);
+      web = await startWebApplication({ home: root, socket, host: "127.0.0.1", port: 0, gateway: gatewayOptions });
       ui = await startWebDev(web.server.url);
       const { chromium } = await import(pathToFileURL(resolve(process.env.PI_TEST_PLAYWRIGHT)).href);
       browser = await chromium.launch({ executablePath: process.env.PI_TEST_CHROMIUM, headless: true, args: ["--no-sandbox"] });

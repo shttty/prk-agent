@@ -9,7 +9,7 @@ export async function flushPeerInbox(ctx: HostContext, delivery: "steer" | "foll
     await ctx.flushingInbox;
     return flushPeerInbox(ctx, delivery);
   }
-  if (!ctx.inbox.length || ctx.active?.cancelled || ctx.closing) return;
+  if (!ctx.inbox.length || ctx.pendingCompaction || ctx.active?.kind === "compact" || ctx.active?.cancelled || ctx.closing) return;
   const queued = ctx.active !== undefined;
   const batch: PeerMessage[] = [];
   ctx.inbox = ctx.inbox.filter((entry) => {

@@ -6,6 +6,7 @@ import { fence } from "./binding/fence-host-binding.ts";
 import { isIdle } from "./binding/is-host-idle.ts";
 import { refresh } from "./binding/refresh-host-binding.ts";
 import { extensionUiAction } from "./execute-extension-ui.ts";
+import { requireSource } from "./binding/require-active-source.ts";
 import { cancel } from "./input/cancel-operation.ts";
 import { interruptCell } from "./input/interrupt-cell.ts";
 import { dequeue } from "./input/dequeue-input.ts";
@@ -43,6 +44,7 @@ export function assembleSessionHost(parent: HostContext, sessionId: string): Ses
     extensionUiAction: (args) => extensionUiAction(ctx, args),
     subscribe: (listener) => subscribe(ctx, listener),
     submit: (request) => submit(ctx, request),
+    compact: (requestId, instructions) => requireSource(ctx).compact(requestId, instructions),
     receivePeer: (message, delivery) => receivePeer(ctx, message, delivery),
     flushPeerInbox: () => flushPeerInbox(ctx),
     cancel: (request) => cancel(ctx, request),

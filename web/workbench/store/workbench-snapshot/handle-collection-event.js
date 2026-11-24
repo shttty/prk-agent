@@ -12,12 +12,26 @@ import { normalizeSessionControl } from "../session-control/normalize-session-co
 import { patch } from "../updates/patch.js";
 import { applyTargetEnvironment } from "../targets/apply-target-environment.js";
 import { normalizeEnvironment } from "../../payloads/normalize-environment.js";
+const BACKGROUND_ROW_STATES = new Map([
+  ["session_starting", "starting"],
+  ["session_running", "running"],
+  ["session_idle", "idle"],
+  ["session_sleeping", "sleeping"],
+  ["session_awake", "idle"],
+  ["session_closed", "closed"],
+]);
+
 export function handleCollectionEvent(ctx, current, event) {
       if (ctx.workbenchSource !== current) return;
       const payload = parseEvent(event);
       if (!isRecord(payload)) return;
       if (payload.type === "session_control_changed" && isRecord(payload.details?.sessionControl)) patch(ctx, { sessionControl: normalizeSessionControl(payload.details.sessionControl) });
       if (payload.type === "target_environment_changed") applyTargetEnvironment(ctx, normalizeEnvironment(payload.details?.environment));
+      // The selected row is already driven by its own host stream.
+      const rowState = BACKGROUND_ROW_STATES.get(payload.type);
+      if (rowState && payload.sessionId !== ctx.state.selectedSessionId && ctx.state.sessions.has(payload.sessionId)) {
+        updateSessionRow(ctx, payload.sessionId, { state: rowState, compacting: payload.details?.compacting === true });
+      }
       if (payload.type === "session_closed" && payload.sessionId === ctx.state.selectedSessionId) {
         closeEventSource(ctx);
         updateSessionRow(ctx, payload.sessionId, { state: "closed" });

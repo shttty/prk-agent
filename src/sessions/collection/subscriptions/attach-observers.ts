@@ -28,12 +28,12 @@ export function attachObservers(ctx: CollectionContext, record: SessionRecord, s
         if (record.tombstoned || ctx.closed) return;
         if (event.type === "session_event" && event.details?.sdkType === "session_info_changed") emit(ctx, "session_renamed", record);
         if (!(event.type === "state_changed" && event.details?.state) && event.type !== "host_closed") return;
-        const state = session.host.getSnapshot().state;
+        const state = session.host.state;
         const next = state === "running" || state === "cancel_requested" ? "running" : state;
         if (record.state !== next) {
           record.state = next;
           if (next === "closed") record.tombstoned = true;
-          emit(ctx, `session_${next}`, record);
+          emit(ctx, `session_${next}`, record, next === "running" && session.host.operationKind === "compact" ? { compacting: true } : undefined);
         }
       }).unsubscribe;
     }

@@ -25,9 +25,20 @@ export async function assembleFixture({ home, config, onCleanup, prepareHistory 
   modelRuntime.registerNativeProvider(provider.provider);
   const requests = [], releases = new Set();
   const text = (message) => typeof message?.content === "string" ? message.content : (message?.content ?? []).filter((part) => part.type === "text").map((part) => part.text).join("\n");
-  provider.setResponses(Array.from({ length: 800 }, () => (context) => {
+  let streamStarted = () => {};
+  let failAfter = Promise.resolve();
+  provider.setResponses(Array.from({ length: 800 }, () => (context, options) => {
     const last = context.messages.at(-1), body = text(last);
     requests.push({ tools: getCurrentTools(context.messages), prompt: getCurrentSystemPrompt(context.messages), messages: structuredClone(context.messages) });
+    if (body.includes("\n# Your assignment\nFAIL_DERIVED_TURN\n")) {
+      return failAfter.then(() => fauxAssistantMessage("", { stopReason: "error", errorMessage: `fixture provider failure ${"x".repeat(1000)}` }));
+    }
+    if (body === "ABORT_DERIVED_TURN") {
+      streamStarted();
+      const aborted = fauxAssistantMessage("", { stopReason: "aborted" });
+      if (options.signal.aborted) return aborted;
+      return new Promise((resolve) => options.signal.addEventListener("abort", () => resolve(aborted), { once: true }));
+    }
     if (last?.role === "toolResult") return fauxAssistantMessage("Tool result observed.");
     if (last?.role === "user" && body.startsWith("OBSERVE_TEXT ")) return fauxAssistantMessage(`OBSERVED_${body.slice(13)}`);
     const command = /^SESSION_TOOL (\{.*\})$/s.exec(body);
@@ -102,5 +113,5 @@ export async function assembleFixture({ home, config, onCleanup, prepareHistory 
     await waitForSessionCondition(() => host.state(name).execution?.status === "running" || host.state(name).messages.slice(run.start).some((message) => message.role === "assistant" && message.content?.some((part) => part.type === "toolCall" && part.name === "kernel_code")), "native kernel tool starts");
     return { ...run, release: async () => { await writeFile(release, "release"); releases.delete(release); assert.equal((await run.completion).status, "completed"); await idle(name); } };
   };
-  return { host, client, home, historyDir, modelRuntime, legacy, requests, text, get, idle, submit, call, create, spawn, peers, entries, hold };
+  return { host, client, home, historyDir, modelRuntime, legacy, requests, text, get, idle, submit, call, create, spawn, peers, entries, hold, failAfter: (promise) => { failAfter = promise; }, onStreamStart: (callback) => { streamStarted = callback; } };
 }

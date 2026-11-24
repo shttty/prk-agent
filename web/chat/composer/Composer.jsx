@@ -29,7 +29,7 @@ import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import { useStopTarget } from "../../workbench/subscription/use-stop-target.js";
 /** The composer form; ComposerDock owns its state and passes it as `model`. */
 export function Composer({ actions, model }) {
-  const { submitDraft, busy, commandMenuOpen, candidateOptions, candidateIndex, selectCandidate, setCandidateIndex, setHelpCommand, referenceMenuOpen, references, referenceCandidates, referenceIndex, plainSuggested, commandElsewhere, unknownControl, normalizedComposerText, plainMode, setPlainMode, replaceReference, attach, attachments, attachedReferences, catalogAttachments, status, connected, queueMode, composerText, inputChanged, setExtensionCursor, composingRef, setComposition, uploadFiles, resumable, sleeping, selectedSessionId, uiLoading, handleInputKeyDown, setComposerValue, findCurrentPage, setShortcutsOpen, cancelling, hasDraft, submitting, otherQueue } = model;
+  const { submitDraft, busy, commandMenuOpen, candidateOptions, candidateIndex, selectCandidate, setCandidateIndex, setHelpCommand, referenceMenuOpen, references, referenceCandidates, referenceIndex, plainSuggested, commandElsewhere, unknownControl, normalizedComposerText, plainMode, setPlainMode, replaceReference, attach, attachments, attachedReferences, catalogAttachments, status, connected, queueMode, composerText, inputChanged, setExtensionCursor, composingRef, setComposition, uploadFiles, resumable, sleeping, selectedSessionId, uiLoading, handleInputKeyDown, setComposerValue, findCurrentPage, setShortcutsOpen, cancelling, hasDraft, submitting, otherQueue, compacting } = model;
   const stopTarget = useStopTarget();
   const stopping = useWorkbench((state) => state.session.pending.has("stopping"));
   const canStop = Boolean(stopTarget && connected && !cancelling && !stopping);
@@ -70,7 +70,7 @@ export function Composer({ actions, model }) {
                 onDrop={(event) => { event.preventDefault(); void uploadFiles(event.dataTransfer?.files || []); }}
                 onDragOver={(event) => event.preventDefault()}
                 maxLength={MAX_TEXT}
-                placeholder={resumable ? "发消息即恢复执行环境" : sleeping ? "会话休眠中，发送消息将唤醒" : busy ? `运行中，发送会${QUEUE_LABELS[queueMode]}` : "发消息，/ 调出命令，@ 引用文件"}
+                placeholder={resumable ? "发消息即恢复执行环境" : sleeping ? "会话休眠中，发送消息将唤醒" : compacting ? "压缩中，结束后可发送" : busy ? `运行中，发送会${QUEUE_LABELS[queueMode]}` : "发消息，/ 调出命令，@ 引用文件"}
                 disabled={!selectedSessionId || uiLoading}
                 submitMode="none"
                 spellCheck={false}
@@ -101,9 +101,9 @@ export function Composer({ actions, model }) {
                 </Menu>
                 <Group className="pi-composer-actions" gap={6} wrap="nowrap">
                   {busy || stopTarget?.cell ? <Tooltip label="停止任务" openDelay={400}><ActionIcon id="cancel-operation" className="pi-composer-stop" type="button" variant="filled" radius="xl" size={34} onClick={onStop} disabled={!canStop} aria-label="停止任务"><IconPlayerStopFilled size={14} /></ActionIcon></Tooltip> : null}
-                  {busy
+                  {busy && !compacting
                     ? <Button id="send-message" className={`pi-composer-send is-queue${hasDraft ? "" : " is-idle-hidden"}`} type="submit" radius="xl" size="compact-md" loading={submitting} rightSection={<IconArrowUp size={15} stroke={2} />} disabled={!hasDraft || !selectedSessionId || submitting || uiLoading} aria-label="发送消息" title={`Enter ${QUEUE_LABELS[queueMode]} · Ctrl+Enter ${QUEUE_LABELS[otherQueue]}`} data-queue={queueMode}>{QUEUE_SHORT[queueMode]}</Button>
-                    : <ActionIcon id="send-message" className="pi-composer-send" type="submit" variant="filled" radius="xl" size={34} loading={submitting} disabled={!hasDraft || !selectedSessionId || submitting || uiLoading} aria-label="发送消息" title="发送（Enter）"><IconArrowUp size={18} stroke={2} /></ActionIcon>}
+                    : <ActionIcon id="send-message" className="pi-composer-send" type="submit" variant="filled" radius="xl" size={34} loading={submitting} disabled={compacting || !hasDraft || !selectedSessionId || submitting || uiLoading} aria-label="发送消息" title="发送（Enter）"><IconArrowUp size={18} stroke={2} /></ActionIcon>}
                 </Group>
               </Group>
             </ComposerPrimitive.Root>

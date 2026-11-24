@@ -78,9 +78,10 @@ export function handleHostEvent(ctx, event) {
         const snapshot = details.message.role === "assistant" && details.message.stopReason === "error"
           ? ctx.state.session.snapshot
           : { ...ctx.state.session.snapshot, messages: [...ctx.state.session.snapshot.messages, details.message] };
-        patchSession(ctx, { snapshot, streams });
+        patchSession(ctx, { snapshot, streams }, { displayOnly: details.message.role === "assistant" });
       }
-      patchSession(ctx, { toolRuns: ingestToolEvent(ctx.state.session.toolRuns, details, ctx.state.selectedSessionId || "session", event.operationId, event.timestamp) }, { displayOnly: !["tool_execution_end", "agent_end", "agent_settled", "queue_update", "message_end"].includes(details?.sdkType) });
+      const toolRuns = ingestToolEvent(ctx.state.session.toolRuns, details, ctx.state.selectedSessionId || "session", event.operationId, event.timestamp);
+      if (toolRuns !== ctx.state.session.toolRuns) patchSession(ctx, { toolRuns }, { displayOnly: details.sdkType !== "tool_execution_end" });
       const lifecycle = safeText(details.lifecycleType);
       const sessionId = safeText(event.sessionId);
       const sessionState = lifecycle.replace(/^session_/, "");
