@@ -23,11 +23,12 @@ import { runningTurnGrouping } from "./turns/turn-grouping.js";
 import { TurnGroup } from "./turns/TurnGroup.jsx";
 import { MessageActions } from "./messages/MessageActions.jsx";
 import { PeerMessageHeader } from "./messages/PeerMessageHeader.jsx";
-import { revealKernelCell } from "./tool-calls/kernel-cell/reveal-kernel-cell.js";
+import { SearchMatchContext } from "./search-match-context.js";
 const NO_CUSTOM = {};
 export function MessageView({ message }) {
   const presentationContext = useContext(PresentationContext);
   const actions = presentationContext?.actions;
+  const matchClass = useContext(SearchMatchContext) === message.id ? " pi-search-match" : "";
   const custom = message?.metadata?.custom ?? NO_CUSTOM;
   const peer = message?.role === "user" ? custom.peerMessage : null;
   const completionFailed = ["failed", "unknown"].includes(safeText(custom.completionStatus));
@@ -44,34 +45,34 @@ export function MessageView({ message }) {
   // rendered after a turn that is still running must not add a second "generating" row.
   const duplicatePlaceholder = useAuiState((value) => Boolean(message?.metadata?.isOptimistic) && value.thread.messages.some((item) => item.role === "assistant" && !item.metadata?.isOptimistic && item.status?.type === "running"));
   if (duplicatePlaceholder) return null;
-  if (custom.compaction) return <MessagePrimitive.Root className="message-row pi-message pi-message-system pi-history-compaction system" data-message-id={message.id} data-entry-id={custom.compaction.entryId} data-first-kept-entry-id={custom.compaction.firstKeptEntryId}>
+  if (custom.compaction) return <MessagePrimitive.Root className={`message-row pi-message pi-message-system pi-history-compaction system${matchClass}`} data-message-id={message.id} data-entry-id={custom.compaction.entryId} data-first-kept-entry-id={custom.compaction.firstKeptEntryId}>
     <details>
       <summary onClick={(event) => presentationContext?.preserveDisclosure?.(event.currentTarget.parentElement)}>以上已压缩，模型只看到摘要 · 查看摘要</summary>
       <pre>{custom.compaction.summary}</pre>
     </details>
   </MessagePrimitive.Root>;
-  if (custom.memoryNotice) return <MessagePrimitive.Root className="message-row pi-message pi-message-system system" data-message-id={message.id}>
+  if (custom.memoryNotice) return <MessagePrimitive.Root className={`message-row pi-message pi-message-system system${matchClass}`} data-message-id={message.id}>
     <MemoryNotice notice={custom.memoryNotice} />
   </MessagePrimitive.Root>;
-  if (custom.terminalEvents) return <MessagePrimitive.Root className="message-row pi-message pi-message-system system" data-message-id={message.id}>
+  if (custom.terminalEvents) return <MessagePrimitive.Root className={`message-row pi-message pi-message-system system${matchClass}`} data-message-id={message.id}>
     {custom.terminalEvents.map((event, index) => <NoteAccordion key={index} className="pi-terminal-event" data-kind={event.kind} data-terminal={event.result.name} title={`终端 ${event.result.name}：${event.kind === "quiet" ? `安静了 ${Math.round(event.quiet_ms / 1000)}s` : event.kind === "exit" ? "shell 已退出" : event.result.status === "killed" ? "命令已终止" : `命令结束 exit ${event.result.exit_code}`}`}>
       <Code block className="pi-terminal-event-json">{JSON.stringify(event.result, null, 2)}</Code>
     </NoteAccordion>)}
   </MessagePrimitive.Root>;
-  if (custom.kernelEvent) return <MessagePrimitive.Root className="message-row pi-message pi-message-system system" data-message-id={message.id}>
-    <Text component="a" size="xs" c="dimmed" href={`#kernel-cell-${custom.kernelEvent.cellId}`} data-kind="kernel-event" data-event-kind={custom.kernelEvent.kind} data-event-id={custom.kernelEvent.eventId} data-cell-id={custom.kernelEvent.cellId} data-tool-call-id={custom.kernelEvent.toolCallId} onClick={(event) => revealKernelCell(event, custom.kernelEvent)}>
+  if (custom.kernelEvent) return <MessagePrimitive.Root className={`message-row pi-message pi-message-system system${matchClass}`} data-message-id={message.id}>
+    <Text component="a" size="xs" c="dimmed" href={`#kernel-cell-${custom.kernelEvent.cellId}`} data-kind="kernel-event" data-event-kind={custom.kernelEvent.kind} data-event-id={custom.kernelEvent.eventId} data-cell-id={custom.kernelEvent.cellId} data-tool-call-id={custom.kernelEvent.toolCallId} onClick={(event) => presentationContext?.revealKernelCell(event, custom.kernelEvent)}>
       {custom.kernelEvent.kind === "checkpoint" ? `运行提醒 ${custom.kernelEvent.step}` : `执行结束 · ${custom.kernelEvent.outcome}`}
     </Text>
   </MessagePrimitive.Root>;
   if (custom.extensionNotification) {
     const notification = custom.extensionNotification;
-    return <MessagePrimitive.Root className="message-row pi-message pi-message-system system" data-message-id={message.id}>
+    return <MessagePrimitive.Root className={`message-row pi-message pi-message-system system${matchClass}`} data-message-id={message.id}>
       <Text size="xs" className={`extension-ui-notification is-${notification.type}`} data-notification-id={notification.id} data-notification-type={notification.type} role={notification.type === "error" ? "alert" : "status"}><AnsiText text={notification.message} /></Text>
     </MessagePrimitive.Root>;
   }
   return (
     <MessagePrimitive.Root
-      className={`message-row pi-message pi-message-${message.role} ${message.role}${peer ? " pi-message-peer" : ""}${batchClass}${custom.nativeFeedback ? " pi-native-interaction-card" : ""}${streaming ? " is-streaming" : ""}`}
+      className={`message-row pi-message pi-message-${message.role} ${message.role}${peer ? " pi-message-peer" : ""}${batchClass}${custom.nativeFeedback ? " pi-native-interaction-card" : ""}${streaming ? " is-streaming" : ""}${matchClass}`}
       data-message-id={message.id}
       data-entry-id={message.role === "user" ? custom.entryId : undefined}
       aria-label={custom.nativeFeedback ? "原生操作结果" : peer ? "同伴消息" : message.role === "user" ? "你" : message.role === "assistant" ? "助手" : "系统记录"}

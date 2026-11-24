@@ -15,7 +15,7 @@ import { Stack } from "@mantine/core";
 import { Loader } from "@mantine/core";
 import InlineAlert from "../../design-system/inline-alert/InlineAlert.jsx";
 import { IconArrowDown } from "@tabler/icons-react";
-import { useAuiState } from "@assistant-ui/react";
+import { useAui, useAuiState } from "@assistant-ui/react";
 import { ThreadPrimitive } from "@assistant-ui/react";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import { ExtensionRegion } from "../extension-ui/ExtensionRegion.jsx";
@@ -28,17 +28,16 @@ import { usePresentationValue } from "../transcript/use-presentation-value.js";
 import { lastOperationOutcome } from "../transcript/last-operation-outcome.js";
 import { preserveDisclosure as preserveDisclosureBody } from "../transcript/preserve-disclosure.js";
 import { anchorDisclosure as anchorDisclosureBody } from "../transcript/anchor-disclosure.js";
-import { resetTranscriptSearch as resetTranscriptSearchBody } from "../transcript/reset-transcript-search.js";
 import { notifyTranscriptChange as notifyTranscriptChangeBody } from "../transcript/notify-transcript-change.js";
 import { followTranscript as followTranscriptBody } from "../transcript/follow-transcript.js";
 import { sessionHistoryLoading } from "./session-history-loading.js";
 import { restoreScroll as restoreScrollBody } from "../transcript/restore-scroll.js";
 import { saveScroll as saveScrollBody } from "../transcript/save-scroll.js";
 import { noteScrollIntent as noteScrollIntentBody } from "../transcript/note-scroll-intent.js";
-import { selectSearchMatch as selectSearchMatchBody } from "../transcript/select-search-match.js";
-import { findCurrentPage as findCurrentPageBody } from "../transcript/find-current-page.js";
-import { closeSearch as closeSearchBody } from "../transcript/close-search.js";
-import { markSearchMatch as markSearchMatchBody } from "../transcript/mark-search-match.js";
+import { revealMessage as moveToMessage } from "../transcript/reveal-message.js";
+import { revealKernelCell as moveToKernelCell } from "../transcript/tool-calls/kernel-cell/reveal-kernel-cell.js";
+import { SearchMatchContext } from "../transcript/search-match-context.js";
+import { useTranscriptSearch } from "../transcript/use-transcript-search.js";
 import { TranscriptSearch } from "../transcript/TranscriptSearch.jsx";
 import { PendingQueue } from "../composer/PendingQueue.jsx";
 import { OperationBar } from "../composer/OperationBar.jsx";
@@ -57,6 +56,7 @@ const DOCUMENT_INTENTS = ["keydown", "pointerup", "pointercancel"];
  * only transcript fields; the composer row's parts subscribe to their own, so typing never re-renders it.
  */
 export function ChatSurface({ actions, messageCount, onViewTerminal }) {
+  const aui = useAui();
   const renderedMessageCount = useAuiState((value) => value.thread.messages.length);
   const hasSnapshot = useWorkbench((state) => Boolean(state.session.snapshot));
   const streamId = useWorkbench((state) => state.session.streamId);
@@ -82,14 +82,24 @@ export function ChatSurface({ actions, messageCount, onViewTerminal }) {
   const followRef = useRef(true);
   const [followOutput, setFollowOutput] = useState(true);
   const setFollowing = useCallback((next) => { followRef.current = next; setFollowOutput(next); }, []);
-  const pauseFollowing = useCallback(() => setFollowing(false), [setFollowing]);
   const scrollIntentRef = useRef({ touchY: null, scrollbar: false });
   const disclosureRef = useRef(null);
   const [disclosureRevision, setDisclosureRevision] = useState(0);
   const [newMessages, setNewMessages] = useState(false);
   const [awayFromBottom, setAwayFromBottom] = useState(false);
   const preserveDisclosure = useCallback((node) => { return preserveDisclosureBody({ viewportRef, disclosureRef, setDisclosureRevision, setFollowOutput: setFollowing }, node); }, [setFollowing]);
-  const presentationValue = usePresentationValue({ actions, preserveDisclosure });
+  const revealMessage = useCallback((id, options) => {
+    const viewport = viewportRef.current;
+    setFollowing(false);
+    if (moveToMessage(viewport, id, options)) {
+      lastScrollTopRef.current = viewport.scrollTop;
+      setAwayFromBottom(viewport.scrollHeight - viewport.clientHeight - viewport.scrollTop >= 80);
+    }
+  }, [setFollowing]);
+  const revealKernelCell = useCallback((event, cell) => {
+    moveToKernelCell(event, cell, aui.thread().getState().messages, revealMessage);
+  }, [aui, revealMessage]);
+  const presentationValue = usePresentationValue({ actions, preserveDisclosure, revealKernelCell });
   useLayoutEffect(() => { return anchorDisclosureBody({ disclosureRef, viewportRef, lastScrollTopRef, setAwayFromBottom }); }, [disclosureRevision]);
   const history = useHistoryPagination({ actions, viewportRef, restoringScrollRef, lastScrollTopRef, setFollowing, setAwayFromBottom, scrollReady, messageCount, renderedMessageCount });
   const { loadMore, page: { error: historyError } } = history;
@@ -103,24 +113,15 @@ export function ChatSurface({ actions, messageCount, onViewTerminal }) {
     return () => { for (const type of DOCUMENT_INTENTS) document.removeEventListener(type, noteScrollIntent, true); };
   }, [noteScrollIntent]);
   const presentation = useMemo(() => savedPresentation || NO_PRESENTATION, [savedPresentation]);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchText, setSearchText] = useState("");
-  const [searchMatches, setSearchMatches] = useState([]);
-  const [searchIndex, setSearchIndex] = useState(0);
-  const [searchStatus, setSearchStatus] = useState("");
-  const [searchError, setSearchError] = useState("");
-  const searchRequest = useRef(0);
-  useEffect(() => { return resetTranscriptSearchBody({ searchRequest, setSearchMatches, setSearchStatus, setSearchError }); }, [streamId, snapshotSessionId, historyEnd, history.revision]);
+  const searchModel = useTranscriptSearch({ actions, revealMessage, setFollowing, viewportRef, streamId, sessionId: snapshotSessionId, historyEnd, historyRevision: history.revision });
+  const { searchOpen, open: findCurrentPage, searchMatches, searchIndex } = searchModel;
   const notifyTranscriptChange = useEffectEvent(() => { return notifyTranscriptChangeBody({ scrollReady, hasSnapshot, followRef, searchOpen, lastScrollTopRef, setNewMessages, setAwayFromBottom, viewportRef, transcriptRevision }); });
   useLayoutEffect(() => { notifyTranscriptChange(); }, [streamId, transcriptRevision, renderedMessageCount]);
-  const restoreScroll = useEffectEvent(() => { return restoreScrollBody({ viewportRef, hasSnapshot, sessionId: snapshotSessionId, restoredSessionRef, followRef, streamId, presentationRevision, savedPresentation, scrollReady, renderedMessageCount, messageCount, restoringScrollRef, lastScrollTopRef, presentation, setFollowOutput: setFollowing, setRestoredPresentation, setAwayFromBottom }); });
+  const restoreScroll = useEffectEvent(() => { return restoreScrollBody({ viewportRef, revealMessage: moveToMessage, hasSnapshot, sessionId: snapshotSessionId, restoredSessionRef, followRef, streamId, presentationRevision, savedPresentation, scrollReady, renderedMessageCount, messageCount, restoringScrollRef, lastScrollTopRef, presentation, setFollowOutput: setFollowing, setRestoredPresentation, setAwayFromBottom }); });
   useLayoutEffect(() => restoreScroll(), [messageCount, renderedMessageCount, scrollReady, streamId, presentationRevision, snapshotSessionId]);
   useLayoutEffect(() => followTranscriptBody({ viewportRef, messagesRef, composerOverlays: composerOverlaysRef.current, scrollReady, followRef, searchOpen, disclosureRef, lastScrollTopRef, setAwayFromBottom, setNewMessages }), [scrollReady, followOutput, searchOpen]);
   useLayoutEffect(() => () => actions.flushScroll(), [actions]);
   const saveScroll = useCallback((event) => { return saveScrollBody({ scrollReady, restoringScrollRef, disclosureRef, lastScrollTopRef, followRef, intentRef: scrollIntentRef, setFollowOutput: setFollowing, setAwayFromBottom, setNewMessages, actions }, event); }, [actions, scrollReady, setFollowing]);
-  const selectSearchMatch = useCallback((query, offset = 0) => { return selectSearchMatchBody({ searchRequest, setSearchError, setSearchMatches, setSearchIndex, setSearchStatus, actions, viewportRef, lastScrollTopRef, setAwayFromBottom, setFollowOutput: setFollowing }, query, offset); }, [actions, setFollowing]);
-  const findCurrentPage = useCallback(() => { return findCurrentPageBody({ setSearchOpen, setFollowOutput: setFollowing }); }, [setFollowing]);
-  const closeSearch = useCallback(() => { return closeSearchBody({ searchRequest, setSearchOpen, setSearchText, setSearchMatches, setSearchIndex }); }, []);
   // Sending or clicking Jump-to-bottom follows the transcript to the end, including incoming SDK bubbles.
   const followLatest = useCallback(() => {
     setFollowing(true);
@@ -132,8 +133,6 @@ export function ChatSurface({ actions, messageCount, onViewTerminal }) {
       lastScrollTopRef.current = viewport.scrollTop;
     }
   }, [setFollowing]);
-  useEffect(() => { return markSearchMatchBody({ searchMatches, searchIndex }); }, [searchMatches, searchIndex]);
-  const searchModel = { searchOpen, searchStatus, searchMatches, closeSearch, searchText, setSearchText, selectSearchMatch, searchIndex, searchError };
   return (
     <PresentationContext.Provider value={presentationValue}>
       <Box className="pi-chat">
@@ -145,7 +144,9 @@ export function ChatSurface({ actions, messageCount, onViewTerminal }) {
             onWheel={noteScrollIntent} onTouchStart={noteScrollIntent} onTouchMove={noteScrollIntent} onPointerDown={noteScrollIntent}>
             <Stack id="messages" ref={messagesRef} className="pi-messages messages" gap={8}>
               {history.showPager ? <HistoryPagination page={history.page} loadMore={loadMore} /> : null}
-              <ThreadPrimitive.Messages>{renderMessage}</ThreadPrimitive.Messages>
+              <SearchMatchContext.Provider value={searchMatches[searchIndex] ?? null}>
+                <ThreadPrimitive.Messages>{renderMessage}</ThreadPrimitive.Messages>
+              </SearchMatchContext.Provider>
               {outcome ? <InlineAlert className={`pi-operation-outcome${outcome.status === "cancelled" || outcome.status === "canceled" ? "" : " is-error"}`} color={outcome.status === "cancelled" || outcome.status === "canceled" ? "gray" : "red"} role="status" data-status={outcome.status}>{outcome.text}</InlineAlert> : null}
               <ThreadPrimitive.Empty>
                 {historyLoading
@@ -159,7 +160,7 @@ export function ChatSurface({ actions, messageCount, onViewTerminal }) {
               {/* Not ThreadPrimitive.ScrollToBottom: its isAtBottom misses downward and restored scrolls. */}
               <Button id="new-messages" hidden={!awayFromBottom} data-kind={newMessages ? "new" : "away"} aria-label={newMessages ? undefined : "跳到底部"} className="pi-new-messages" size="compact-sm" variant="default" leftSection={<IconArrowDown size={19} stroke={2.6} />} onClick={followLatest}>{newMessages ? "有新消息 · 跳到最新" : null}</Button>
               {!archived && <>
-                {snapshotSessionId && <BackgroundTasks key={snapshotSessionId} sessionId={snapshotSessionId} actions={actions} onViewTerminal={onViewTerminal} onRevealKernel={pauseFollowing} />}
+                {snapshotSessionId && <BackgroundTasks key={snapshotSessionId} sessionId={snapshotSessionId} actions={actions} onViewTerminal={onViewTerminal} onRevealKernel={revealKernelCell} />}
                 <OperationBar actions={actions} />
               </>}
             </div>

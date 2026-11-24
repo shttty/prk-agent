@@ -7,7 +7,6 @@ import { WorkbenchContext } from "../../workbench/subscription/workbench-context
 import { cellStopKey } from "../../workbench/store/messages/cell-stop-key.js";
 import { formatElapsed } from "../transcript/tool-calls/format-elapsed.js";
 import { useTicker } from "../transcript/tool-calls/use-ticker.js";
-import { revealKernelCell } from "../transcript/tool-calls/kernel-cell/reveal-kernel-cell.js";
 import { interruptTerminal } from "../../workspace/terminal/interrupt-terminal.js";
 import { backgroundTasks } from "./background-tasks.js";
 import { readFoldPreference, saveFoldPreference } from "./fold-preference.js";
@@ -32,7 +31,7 @@ export function BackgroundTasks({ sessionId, actions, onViewTerminal, onRevealKe
   const askId = (task) => prompts?.find((prompt) => prompt.kind === "ask" && prompt.cellId === task.cellId && prompt.kernelId === task.kernelId)?.id;
   const view = (event, task) => {
     if (task.kind === "terminal") { onViewTerminal(sessionId, task); return; }
-    if (!task.waitingForAsk) { revealKernelCell(event, { ...task, sessionId }, onRevealKernel); return; }
+    if (!task.waitingForAsk) { onRevealKernel(event, { ...task, sessionId }); return; }
     const ask = askId(task);
     const card = ask && document.querySelector(`[data-ask-id="${CSS.escape(ask)}"]`);
     card?.focus({ preventScroll: true });
