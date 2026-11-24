@@ -53,9 +53,11 @@ The [install guide](INSTALL.md) covers installing, connecting a model, smoke che
 ```sh
 npm ci && npm --prefix web ci
 npm run check         # TypeScript
-npm run check:unit    # unit tests
-npm run check:quick   # cross-process smoke tests; Python and browser requirements in docs/kernel-recovery.md#test-environment
+npm test             # typecheck, unit tests, Web and contract lint
+npm run check        # also integration, Chromium journeys, and Web build
 ```
+
+For the full check prerequisites, see [test environment](docs/kernel-recovery.md#test-environment).
 
 For frontend work, `PRK_API=http://127.0.0.1:8788 npm --prefix web run dev` starts Vite with hot reload against the API the launcher started.
 

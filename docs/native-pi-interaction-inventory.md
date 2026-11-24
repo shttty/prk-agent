@@ -350,7 +350,7 @@ extension 可注册任意 `KeyId`。原生会诊断与 builtin/其他 extension 
 | 手机触屏 | [模块约定](wire/native.md#约定)；候选、引用移除、busy queue、发送／取消的触摸入口。 |
 | 普通文字 | [模块约定](wire/native.md#约定)；路径、URL、邮箱、Markdown、代码及 plain send。 |
 | session idle/busy | [模块约定](wire/native.md#约定)、[模块约定](configuration.md#约定)。 |
-| read-only/closed history | [REQ-13](contract.md)、[模块约定](wire/sessions.md#约定)、[WEB-16](contract.md)、[LIFE-7](contract.md)、[LIFE-8](contract.md)。 |
+| read-only/closed history | [REQ-13](contract.md)、[模块约定](wire/sessions.md#约定)、[WEB-16](contract.md)、[LIFE-7](contract.md)。 |
 | offline/disconnected | [REQ-9](contract.md)、[REQ-8](contract.md)、[模块约定](wire/native.md#约定)。 |
 | 能力失效 race | [模块约定](wire/native.md#约定)；reload / target close 后的执行前复核。 |
 
@@ -374,7 +374,7 @@ extension 可注册任意 `KeyId`。原生会诊断与 builtin/其他 extension 
 ### V1. 统一能力目录与控制命令入口 — 已实现
 
 - Gateway 目录形状包括 builtin/hidden/dynamic resource metadata、参数、来源、availability/reason、prefix/reference/attachment limits；其当前生成／分派规则见 [模块约定](wire/native.md#约定)。
-- 最终 `check:native:web` 受控浏览器运行通过其实际 catalog/selection/availability 断言；初始 browser child 失败保留在历史 ledger，不覆盖最终运行结果，也不把目录中的每项能力等同于已执行的外部副作用。
+- 当时最终的受控浏览器运行通过其实际 catalog/selection/availability 断言；初始 browser child 失败保留在历史 ledger，不覆盖最终运行结果，也不把目录中的每项能力等同于已执行的外部副作用。
 
 ### V2. session controls — 历史受控集成证据
 
@@ -385,7 +385,7 @@ extension 可注册任意 `KeyId`。原生会诊断与 builtin/其他 extension 
 
 ### V3. composer queue、历史与 IME — 受控浏览器验证通过
 
-- 最终 `tests/web/check-native-web-interactions.mjs` 运行通过实际覆盖的 command selection/send、steer/follow-up、一般队列取回、取消、草稿、tree/copy、desktop/mobile、CDP IME、断连与不重放断言；正常复制另由最终 workbench 运行覆盖。完整输出见当前 verification ledger，初始失败不改记 PASS。
+- 当时最终的原生交互浏览器用例运行通过实际覆盖的 command selection/send、steer/follow-up、一般队列取回、取消、草稿、tree/copy、desktop/mobile、CDP IME、断连与不重放断言；正常复制另由最终 workbench 运行覆盖。完整输出见当前 verification ledger，初始失败不改记 PASS。
 - Terminal synchronization awaits HTTP observation and actual conditions, not Promise truthiness. Closed/history selection reads read-only snapshots without requiring runtime `/state`. Chromium CDP IME coverage does not prove real OS IME compatibility. SDK branch-summary cancellation retains native cancelled/details semantics; incurred work/cost is not undone.
 - requestId、取消／dequeue 与瞬态控制结果规则见 [模块约定](wire/native.md#约定)、[REQ-1](contract.md)、[模块约定](wire/native.md#约定)。原简化方案明确不实现 F4 的精确附件取回。
 - session/changelog/hotkeys/settings 使用有界 payload；tree filter/fold/copy 是展示动作。历史候选的 Clipboard 证据限标准 API；该结论不是当前所有浏览器辅助复制路径的清单。
@@ -409,7 +409,7 @@ extension 可注册任意 `KeyId`。原生会诊断与 builtin/其他 extension 
 
 验证必须分开记录：
 
-- **受控模型/fixture 证据**：当前 design-simplify verification ledger 保留初始失败及最终通过。最终 `check:native:web` 与 `check:web` 已通过；结论限于实际断言覆盖的 SDK/Gateway/浏览器机制，不构成独立接受或外部模型能力证明。
+- **受控模型/fixture 证据**：当前 design-simplify verification ledger 保留初始失败及最终通过。当时最终的两套浏览器用例已通过；结论限于实际断言覆盖的 SDK/Gateway/浏览器机制，不构成独立接受或外部模型能力证明。
 - **外部 provider 证据**：真实 model catalog/auth、compact/token/cost、图片 provider 兼容；必须单独授权，controlled PASS 不替代。
 - **未授权外部副作用**：只验证 capability preflight/confirmation/rejection，不执行认证、发布、shell、import、download 或 trust 变更。
 

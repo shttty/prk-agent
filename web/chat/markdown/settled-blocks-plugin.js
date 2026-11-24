@@ -9,7 +9,7 @@ const EMPTY = { text: "", children: [], start: { line: 1, column: 1, offset: 0 }
  * one exception: the last block can grow into a list item (`2` → `2.`) that joins a list right before it. So the
  * blocks before the last one (and before a list preceding it) are kept, and only the text from the line where the
  * first unsettled block starts is parsed again, positions shifted into the document. The tree equals a full parse of
- * the same text (tests/unit/web/chat/settled-blocks.test.mjs). Each call returns a plugin with its own cache.
+ * the same text. Each call returns a plugin with its own cache.
  */
 export function settledBlocksPlugin() {
   let settled = EMPTY;

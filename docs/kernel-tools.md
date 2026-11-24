@@ -131,8 +131,6 @@ filename = "package_name-1.2.3-py3-none-any.whl"
 - kernel read 发出实际页的 path/offset/limit；远程嵌套 execute 不读文件，仅通知插件，追加结果回到 read 输出。写后目标 hash 与钩子完成后的本地文件比对，实际 diff 刷新展示引用；不从 Gateway 接收文件全文。
 - 传输、换行／EOF、结构化结果与短 hash 限制见 [文件工具 wire 契约](wire/file-tools.md#salted-hashlines)，边界规则见 [KER-13～16、TGT-20～22](contract.md)。
 
-纯库验证：`"$PI_TEST_PYTHON" -m unittest discover -s tests/kernel-tools -p 'test_*.py'`。tests/kernel/check-kernel-hashedit.mjs 合并文件契约、grep/glob、大文件、双REPL编辑与冲突；tests/sessions/check-fileoutlet.mjs 保留插件、本机事件与≥5MiB通道字节场景。
-
 ## 派生会话工具
 
 session_spawn 接收共享 context 与 tasks；每项保存目标、cwd、角色、模型与生命周期，Python 仅由实例选择。子会话不继承父对话；任务必须说明目标、路径、约束及交付物。工具模式由 role/派生配置决定，不接受 task.toolMode。
@@ -154,15 +152,7 @@ print(batch)
 
 使用显式自有 HOME/PRK_HOME、PI_TEST_PYTHON 与制品目录；浏览器用 PI_TEST_PLAYWRIGHT/PI_TEST_CHROMIUM，SHELL=/bin/bash。不得访问生产服务。
 
-```sh
-node tests/kernel/check-gateway-python-values.mjs
-node tests/kernel/check-kernel-tool-modules.mjs
-node tests/sessions/check-capability-switches.mjs
-node tests/web/check-capability-ui.mjs
-SHELL=/bin/bash npm run check:quick
-```
-
-聚焦场景走真实自有 daemon/REPL/Gateway/SDK 与 faux：冷目录零REPL、加载/调用/跨包import、覆盖与配置边界、真实rg分发、依赖错误、即时权限、原生切换保留变量与restart清空内存。受控provider不代表真实模型能力，不运行full。
+[集成检查](kernel-recovery.md#test-environment) 用自有 daemon、REPL、Gateway 与受控 provider 跑 kernel 执行和中断。
 
 
 

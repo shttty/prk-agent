@@ -22,17 +22,13 @@
 以下是旧文列出的验证材料，本文迁移时没有执行。
 
 公开辅助函数名及跟踪、嵌套调用的归属不变：开发套件的宿主跟踪记录文件系统操作尝试；只有真实网关回调创建嵌套开发套件调用。
-当前聚焦入口：tests/kernel-tools/test_hashline_contract.py、tests/kernel/check-kernel-hashedit.mjs（文件契约、grep/glob、大文件、编辑锁与双REPL冲突）、tests/kernel/check-kernel-codemode.mjs（受控provider运行实际提示词示例）。
 合并的 hashedit 运行器中，bash、glob 及场景 cwd 设置同样通过 `createFileKernel().execute()` 驱动真实 SDK 会话，不直接调用 `owner.tool.execute()`；helper 的逐次权限查询需要所属 SDK cell 上下文（[KER-21](../contract.md)）。
 
-搜索场景并入 tests/kernel/check-kernel-hashedit.mjs；PI_TEST_BIN_DIR 可指向自有制品根目录。测试保留真实制品传输与缓存哈希校验，不使用生产制品。
 代码模式的模拟运行器复制了实际模型提示词中先用 `grep`、再编辑的示例；这不是付费模型能力证据。
 
-Glob 场景同样并入 tests/kernel/check-kernel-hashedit.mjs，使用自有真实 REPL 与分发的 rg 制品。
 覆盖递归模式、`Git` 仓库内彼此独立的隐藏项与忽略开关、稳定相对路径、恰好达到上限与超出一项、硬数量及字节上限、特殊文件名、空结果、错误和 `rg` 不可用。
 该验证由完整批次发现，不加入快速批次。
 
-聚焦验证命令：`SHELL=/bin/bash PI_TEST_PYTHON=... node tests/kernel/check-kernel-codemode.mjs`，让受控且不产生付费调用的提供方经真实开发套件、网关与 stdlib runner 路径运行公开辅助函数。
 覆盖续页重建、隐藏项、目录后缀、转义名称、空页与恰好达到上限的页面、默认和硬条目上限、`UTF-8` 输出预算、路径缺失或不是目录、非法边界值。
 不新增快速批次注册。
 
@@ -71,7 +67,6 @@ PRK 文件模式用同名 registerTool 注册 read/edit/write，执行在目标�
 
 open、bash 重定向与子进程写入不经过文件出口；管理 code 档的插件应拦 kernel_code。读内容依赖型插件在远程嵌套 read 中得不到原生页正文，需在 target 自行读盘；只对齐元数据与追加诊断，不宣传全插件透明兼容。插件主动将全文写入诊断不在 PRK 无整文件传输保证内。
 
-验证入口：tests/sessions/check-fileoutlet.mjs（真实 Gateway/daemon/process channel/宿主＋faux，含 ≥5 MiB 字节和本机事件）、check-remote-extension-location.mjs 及合并 hashedit 契约。受控 provider 仅证明机制。
 
 ## S2 工作区目标文件候选
 

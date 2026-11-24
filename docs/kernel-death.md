@@ -20,19 +20,9 @@ There is no server-side polling cadence or automatic kernel replacement policy t
 `kernel.startTimeoutMs` bounds REPL startup; `targetConnection.startTimeoutMs` bounds
 target-host startup, and `targetConnection.requestTimeoutMs` bounds file/probe operations.
 
-## Focused checks
+## Testing
 
-Use explicit owned HOME, PRK_HOME, socket and TMPDIR, with `PI_TEST_PYTHON` set to an
-absolute Python 3.9+ executable:
-
-```sh
-node tests/kernel/check-lifecycle.mjs
-node tests/kernel/check-kernel-state.mjs
-```
-
-These checks use real daemon/process handles and Python execution. They cover interrupt
-retention, unknown outcomes after killing an owned PID, no replay of a recorded side effect,
-fresh namespaces, sibling retention, observer failure isolation, and reentrant closure.
+The [integration layer](kernel-recovery.md#test-environment) runs and interrupts a real Python cell, then verifies that its namespace still works.
 
 ## 约定
 

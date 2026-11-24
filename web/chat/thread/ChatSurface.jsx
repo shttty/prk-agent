@@ -79,6 +79,7 @@ export function ChatSurface({ actions, messageCount, onViewTerminal }) {
   const scrollReady = hasSnapshot && restoredPresentation?.streamId === streamId && restoredPresentation?.revision === presentationRevision;
   const viewportRef = useRef(null);
   const messagesRef = useRef(null);
+  const composerOverlaysRef = useRef(null);
   const restoringScrollRef = useRef(false);
   const restoredSessionRef = useRef(null);
   const lastScrollTopRef = useRef(0);
@@ -118,7 +119,7 @@ export function ChatSurface({ actions, messageCount, onViewTerminal }) {
   useLayoutEffect(() => { notifyTranscriptChange(); }, [streamId, transcriptRevision, renderedMessageCount]);
   const restoreScroll = useEffectEvent(() => { return restoreScrollBody({ viewportRef, hasSnapshot, sessionId: snapshotSessionId, restoredSessionRef, followRef, streamId, presentationRevision, savedPresentation, scrollReady, renderedMessageCount, messageCount, restoringScrollRef, lastScrollTopRef, presentation, setFollowOutput: setFollowing, setRestoredPresentation, setAwayFromBottom }); });
   useLayoutEffect(() => restoreScroll(), [messageCount, renderedMessageCount, scrollReady, streamId, presentationRevision, snapshotSessionId]);
-  useLayoutEffect(() => followTranscriptBody({ viewportRef, messagesRef, scrollReady, followRef, searchOpen, disclosureRef, lastScrollTopRef, setAwayFromBottom, setNewMessages }), [scrollReady, followOutput, searchOpen]);
+  useLayoutEffect(() => followTranscriptBody({ viewportRef, messagesRef, composerOverlays: composerOverlaysRef.current, scrollReady, followRef, searchOpen, disclosureRef, lastScrollTopRef, setAwayFromBottom, setNewMessages }), [scrollReady, followOutput, searchOpen]);
   useLayoutEffect(() => () => actions.flushScroll(), [actions]);
   const saveScroll = useCallback((event) => { return saveScrollBody({ scrollReady, restoringScrollRef, disclosureRef, lastScrollTopRef, followRef, intentRef: scrollIntentRef, setFollowOutput: setFollowing, setAwayFromBottom, setNewMessages, actions }, event); }, [actions, scrollReady, setFollowing]);
   const selectSearchMatch = useCallback((query, offset = 0) => { return selectSearchMatchBody({ searchRequest, setSearchError, setSearchMatches, setSearchIndex, setSearchStatus, actions, viewportRef, lastScrollTopRef, setAwayFromBottom, setFollowOutput: setFollowing }, query, offset); }, [actions, setFollowing]);
@@ -146,7 +147,7 @@ export function ChatSurface({ actions, messageCount, onViewTerminal }) {
           <TranscriptSearch model={searchModel} />
           <ThreadPrimitive.Viewport id="transcript" ref={viewportRef} className="pi-transcript transcript" autoScroll={false} turnAnchor="bottom" scrollToBottomOnInitialize={false} scrollToBottomOnThreadSwitch={false} scrollToBottomOnRunStart={false} onScroll={(event) => { saveScroll(event); loadAtTop(event.currentTarget); }}
             onWheel={noteScrollIntent} onTouchStart={noteScrollIntent} onTouchMove={noteScrollIntent} onPointerDown={noteScrollIntent}>
-            <Stack id="messages" ref={messagesRef} className="pi-messages messages" data-active-composer={!archived || undefined} gap={8}>
+            <Stack id="messages" ref={messagesRef} className="pi-messages messages" gap={8}>
               {history.before ? <Group id="history-pagination" justify="center" gap="xs" data-status={history.page.loading ? "loading" : history.page.error ? "error" : "ready"}>
                 {history.page.error ? <Text size="xs" c="red" role="alert">{history.page.error}</Text> : null}
                 <Button data-action="load-history" size="compact-xs" variant="subtle" loading={history.page.loading} onClick={() => void history.loadMore()}>加载更早的消息</Button>
@@ -163,7 +164,7 @@ export function ChatSurface({ actions, messageCount, onViewTerminal }) {
             </Stack>
           </ThreadPrimitive.Viewport>
           <Box className="pi-composer-wrap">
-            <div className="pi-composer-overlays">
+            <div ref={composerOverlaysRef} className="pi-composer-overlays">
               {/* Not ThreadPrimitive.ScrollToBottom: its isAtBottom misses downward and restored scrolls. */}
               <Button id="new-messages" hidden={!awayFromBottom} data-kind={newMessages ? "new" : "away"} aria-label={newMessages ? undefined : "跳到底部"} className="pi-new-messages" size="compact-sm" variant="default" leftSection={<IconArrowDown size={19} stroke={2.6} />} onClick={followLatest}>{newMessages ? "有新消息 · 跳到最新" : null}</Button>
               {!archived && <>

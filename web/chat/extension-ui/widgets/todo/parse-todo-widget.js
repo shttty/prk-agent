@@ -1,6 +1,6 @@
 
 // Parser for the todo plugin's widget text. The contract is the plugin's docs/widget-format.md (repo
-// prk-todolist); a format change must land here and in tests/fixtures/todo-widget-samples.json together.
+// prk-todolist); keep its emitted format and this parser aligned.
 // Input: the widget's plain-text lines (ANSI already stripped; colours are never read).
 //
 //   Todo 2/5                      header: closed/total of tasks (closed = completed + cancelled)

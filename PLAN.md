@@ -1,5 +1,7 @@
 # Pi SDK Gateway Daemon、Worker 会话与远端 Kernel
 
+现行测试入口见 [测试环境](docs/kernel-recovery.md#test-environment)。旧候选的运行结果是历史记录。
+
 ## PLUGMGR：单一原生插件清单（2026-11-18）
 
 - 全部插件只使用 Pi `agent/settings.json` 的 packages 记录，显式 enabled 与唯一 location（gateway 默认 / host）；旧远程面板、实例列表、location优先数组及文本自动分类退出运行契约，无兼容读写。
@@ -7,7 +9,7 @@
 - 实际provider所有者只在Gateway；包变更保存成功提示restartRequired，重启前保持bootstrap模型和已有会话，普通插件CRUD不碰共享ModelRuntime。
 - host命令执行原handler并复用UI通道；同步prepareArguments等公开同步能力结构化UNSUPPORTED/member，仅该包注册清理。按批准P5，VCC/web等相应host矩阵为N/A，前提是其他包正常且Gateway功能通过，不绕schema或双载。
 - 单帧传输保持新请求BUSY准入；已接受调用的reply/abort等当前帧完成，不丢控制帧、不重放。Gateway和本机/远端独立宿主、真实插件、受控Hindsight注册及web_search direct/kernel归属证据见当时的任务报告（未随仓库发布）。
-- 离线工具 `scripts/migrate-plugin-packages.mjs` 只显式迁移，旧bundle需要经证明的source映射；演练仅自有副本，真实home未迁移。此条取代下方历史的远程包安装/位置契约；最终unit/quick及提交仍须协调授权。
+- 离线工具 `scripts/migrate-plugin-packages.mjs` 只显式迁移，旧bundle需要经证明的source映射；演练仅自有副本，真实home未迁移。此条取代下方历史的远程包安装/位置契约；后续验收及提交仍须协调授权。
 
 ## PRK-PIENV S6：目标环境切换（2026-11-18）
 
@@ -76,7 +78,7 @@
 
 - `edc7b0c` 移除了本机目标扫描与 Gateway home skill 的去重；同一绝对路径同时进入项目与全局候选，目录项自覆盖，导致重载后 `requiresReload` 仍为 true。
 - 恢复 Gateway home skill 的单一全局归属，同时排除重复的本机项目分组；不改变目标项目覆盖、prompt 仅 cwd 或 skill 向上到 git 根的查找规则。
-- 新增 `tests/sessions/check-reload-prompt.mjs`，真实 Gateway／SDK／目标通道重载，单个 skill 最小 fixture 已先红后绿；由 full 自动收录，单跑验收，不增加 quick 耗时。验收结果见当时的任务报告（未随仓库发布）。
+- 新增聚焦用例，真实 Gateway／SDK／目标通道重载，单个 skill 最小 fixture 已先红后绿。验收结果见当时的任务报告（未随仓库发布）。
 
 ## PRK-PILOT：remote-extensions 对象树试点（2026-10-31）
 
@@ -86,14 +88,14 @@
 ## PRK-DEADCODE：目录重构前死代码清理（2026-10-31）
 
 - Knip 分别扫描完整产品入口与含 tests 的入口图，Vulture 扫描目标通道、kernel-tools 与 codemode；动态回调、源码下发入口和配对声明逐项核实后保留，候选处理清单见当时的任务记录（未随仓库发布）。
-- 删除无消费者的导出、死类型／局部校验器和失效 CSS；测试专用 Jupyter 配置发现迁入既有 fixture，hashline 参考值 oracle 迁入 `tests/fixtures/hashline_reference.py`，产品 Session 行为与断言保留。
+- 删除无消费者的导出、死类型／局部校验器和失效 CSS；测试专用 Jupyter 配置发现迁入既有 fixture，hashline 参考值 oracle 迁入当时的测试夹具，产品 Session 行为与断言保留。
 - 仅删除 Web 的 `dockview` 直接依赖声明，运行依赖继续由 `dockview-react` 提供；未发现无运行时消费者的配置键。跨边界行为不变，`docs/contract.md` 无待删除条目。
 - 聚焦测试、桌面／手机实际渲染及最终 quick 结果见当时的任务报告（未随仓库发布）；不跑 full、不 push、不合入或重启 daily。
 
 ## PRK-HOSTSLIM：远程宿主瘦身（2026-10-31）
 
 - 无 target 插件时只加载 Pi 1.4.0 的 tools/event-bus 内部模块，精确版本闸门拒绝未复核版本，不回退整包；有插件时仍用公开包根。沿用不可变 bundle 的完整锁定依赖，不修改 Pi。
-- 聚焦验收 `tests/sessions/check-remote-host-imports.mjs` 以自有包根执行信号验证无插件不执行入口、真实 read/bash、插件总线和版本错误；接缝见 `docs/pi-sdk/README.md`。
+- 当时的聚焦验收以自有包根执行信号验证无插件不执行入口、真实 read/bash、插件总线和版本错误；接缝见 `docs/pi-sdk/README.md`。
 - `remoteHost.runtime` 默认 bun，可切 node；`bunArgs` 默认 `["--smol"]`，`nodeArgs` 仍默认 `["--optimize-for-size"]`。Bun 从 `tools.bun` 按目标平台下发，缺少制品不回退系统运行时；生产制品库不在本任务变更范围。
 - ANS1／ANS2：Node/Bun 统一用公开 Unix socket，移除继承 fd；`$XDG_RUNTIME_DIR`（未设置则 `/tmp`）下短前缀 mkdtemp，单次 accept 后 unlink/关 listener，退出／启动失败 rmtree；不加权限、属主或残留扫描检查。
 - smol 默认值按五轮双 scope 复现中工具宿主的最低边际内存选取；四格内存与热启动、逐项验收和环境失败记录见当时的任务报告（未随仓库发布），不宣称已验证 Bun 1.4.4 或 aarch64。
@@ -133,9 +135,9 @@
 ## PRK-WEBSTATE：网页会话状态容器（2026-10-29）
 
 - Gateway/socket/HTTP/SSE 与网页已接入 `streamId`，移除 HostedExtensionUI `generation`；网页瞬态字段迁入 `state.session`，用户输入继续用既有 session-storage。
-- 忙碌状态按工作台/会话所有者统一为 `pending` Set，目录/候选读取统一 `{value,loading,error}`；根状态 54→17 字段，会话容器 27 字段。四场景复测和 `check:quick` 通过，完整门禁结果以任务报告为准。
-- 真实 Gateway/Jupyter/Chromium＋faux 用例 `tests/web/check-session-stream-state.mjs` 覆盖进程重启、原生重载、乱序帧和 A→B→A；daily 前两项红，候选四项通过。已 rebase `daily 965c3c3`，逐计数器规则集中于 `docs/contract.md` ORD-9～19，拆分 wire 文档不再保留界面 generation 规则。
-- 收尾 `check-contract` 通过（103 条、125/250 行），`check:quick` 通过（45.6 秒）；完整门禁只跑一次，13 红中的两项 tool-bodies 夹具与一项流式停止回归已聚焦转绿，其余 10 项已有或已在 pristine daily 复现，不宣称 full 全绿。停止回归通过宿主状态增量携带权威 operation 投影修复，不放行旧快照或另建执行状态。
+- 忙碌状态按工作台/会话所有者统一为 `pending` Set，目录/候选读取统一 `{value,loading,error}`；根状态 54→17 字段，会话容器 27 字段。四场景复测和 当时的冒烟检查通过，完整门禁结果以任务报告为准。
+- 真实 Gateway/Jupyter/Chromium＋faux 用例覆盖进程重启、原生重载、乱序帧和 A→B→A；daily 前两项红，候选四项通过。已 rebase `daily 965c3c3`，逐计数器规则集中于 `docs/contract.md` ORD-9～19，拆分 wire 文档不再保留界面 generation 规则。
+- 收尾 `check-contract` 通过（103 条、125/250 行），当时的冒烟检查通过（45.6 秒）；旧的全量检查只跑一次，13 红中的两项 tool-bodies 夹具与一项流式停止回归已聚焦转绿，其余 10 项已有或已在 pristine daily 复现，不宣称 full 全绿。停止回归通过宿主状态增量携带权威 operation 投影修复，不放行旧快照或另建执行状态。
 - 分阶段证据、字段对照、完整验收与待决定事项见当时的任务报告（未随仓库发布）。不 push／合入／重启 daily。
 
 ## PRK-REMOTE-EXT：远程扩展正式接入（2026-10-29，功能验收完成）
@@ -154,14 +156,14 @@
 - `kernelTools.files` 默认 align_window=2000、max_edit_bytes=209715200、lock_timeout=10 秒，均走 A 配置边界。edit 上限不影响 read/grep。edit/write 使用目标机 `~/.cache/prk/locks/<sha256(realpath)>.lock` 排他 flock，锁内重读／校验，再同目录同权限临时文件 fsync＋replace；可保留的 uid/gid、BOM／LF/CRLF 保留。whole-write payload 决定 EOF；edit 保持原 EOF，但逻辑结果末行为空时允许补上末尾换行，diff 如实返回逻辑行（PRK-EOFEDIT）。
 - 锁内检查相邻 Vim swap 与 Emacs 锁链接，本机存活 PID 拒绝；残留、不可解析和外机锁不阻塞。Vim 公开格式出处、协作锁边界、短 hash 碰撞和 EOF 空行语义见 [wire 契约](docs/wire/file-tools.md#salted-hashlines)。不另造 epoch、持久身份或恢复状态机。
 - 验证只用标准库真文件、隔离真实 Jupyter／Gateway／faux／浏览器，零付费；先红后改。最终验收前已按用户要求 rebase daily（Pi SDK 1.4.0）并重新真装根目录／web 依赖。逐项结果、2 百万行 RSS、o200k 数字、删除断言覆盖及待用户决定见当时的任务报告（未随仓库发布）。不 push／合入／重启 daily。
-- 最终指定检查全部通过：纯库 45 例、hashedit／grep／filetools-contract／glob／tool-modules／codemode／capability-switches／capability-ui／check:quick。真实 200 万行、54 MB 文件最后 20 行读取 RSS 增加 4096 bytes，peak 增加 0；双 kernel 不同行两处均保留，同一行一个成功一个校验拒绝。quick 45.6 秒，超既定 30 秒目标，未新增 quick 注册或扩大调度修改范围。
+- 最终指定检查全部通过：纯库 45 例、hashedit／grep／filetools-contract／glob／tool-modules／codemode／capability-switches／capability-ui，以及冒烟检查。真实 200 万行、54 MB 文件最后 20 行读取 RSS 增加 4096 bytes，peak 增加 0；双 kernel 不同行两处均保留，同一行一个成功一个校验拒绝。quick 45.6 秒，超既定 30 秒目标，未新增 quick 注册或扩大调度修改范围。
 
 ## PRK-REMOTE-EXT-PROTO：远程扩展宿主原型（2026-10-29，不上线）
 
 - 仅在 `proto/remote-ext-host` 验证工具／会话事件代理：复用 target-channel 隐藏 Jupyter terminal 和 manifest/store 制品；每个 session generation 独立 Node 子进程，原版 `@narumitw/pi-lsp@0.49.11` 在目标机运行。
 - Gateway 原生 Pi 保持会话、权限与事件链权威；按 STEER1 改为远端 `mode='rpc'、hasUI=true`，数据 UI／四种对话框转既有网页，组件能力按 Pi RPC 不支持语义记录日志；`ui.theme` 的公开保真接缝缺口单列报告。同步 getters 限定快照支持范围。无远端命令执行、provider、TUI 或 kernel 写文件合成事件。
 - 分阶段证据与未决项见当时的任务报告（未随仓库发布）。不 push／合并／重启 daily；最终验收前按用户追加指令 rebase daily 的 Pi SDK 1.4.0 并重装两处依赖。
-- 最终已再次 rebase daily（`7a0aa17`，含 `eecc9f0` 文件工具与 Pi SDK 1.4.0），重装 root/web。真实目标通道＋原版 pi-lsp 核心八项通过，真实网页 RPC UI 24 次调用通过（129.34s），独立浏览器 confirm 回传 target=true；check:quick 全过（47.3s，超过 30s 目标，未新增 quick 项）。`ui.theme` 保真公开接缝仍 BLOCKED；正式 Gateway 配置／共享通道生产接线不在本原型内。未实现 kernel 写后合成事件，未恢复旧 prelude。
+- 最终已再次 rebase daily（`7a0aa17`，含 `eecc9f0` 文件工具与 Pi SDK 1.4.0），重装 root/web。真实目标通道＋原版 pi-lsp 核心八项通过，真实网页 RPC UI 24 次调用通过（129.34s），独立浏览器 confirm 回传 target=true；当时的冒烟检查全过（47.3s，超过 30s 目标，未新增 quick 项）。`ui.theme` 保真公开接缝仍 BLOCKED；正式 Gateway 配置／共享通道生产接线不在本原型内。未实现 kernel 写后合成事件，未恢复旧 prelude。
 
 ## PRK-TOOLMOD A：kernel 模块宿主（2026-10-29，含 STEER1／STEER2）
 
@@ -170,7 +172,7 @@
 - SDK 提供 config、tool_bin、Gateway 回调、trace 与 UI-only progress。模块配置为 `kernelTools.<模块名>`，默认配置在 import 边界合并校验；同进程 prelude 重装保留模块与内存，源码／配置变更重启 kernel 生效。二进制依赖复用 manifest/store＋stdin SHA256 下发，不建第二套存储。
 - STEER1：不限制只能标准库；允许成熟 Python 包／二进制依赖。Python wheel 分发本阶段按授权延期，保留声明并明确报该模块不可用；纯 Python wheel、兼容标签、目标缓存及后续复用制品协议方案见 [模块契约](docs/kernel-tools.md)。没有联网 pip 或伪安装成功。
 - A 阶段 STEER2 当时暂停文件工具；现由上方获批 PRK-FILETOOLS 一次性迁移取代。bash/glob/ls/phase/tool_bin/memory/namespace/trace/library 仍不迁移；模型生成工具统一包格式及 staging／转正／使用计数方案仍只写契约。
-- A 的历史验证使用隔离真实 Jupyter／Gateway／faux、工具开关／工具页与 check:quick；不付费、不 push／合入、不重启 daily。历史暂停草稿不作为 B 验收成果。
+- A 的历史验证使用隔离真实 Jupyter／Gateway／faux、工具开关／工具页及冒烟检查；不付费、不 push／合入、不重启 daily。历史暂停草稿不作为 B 验收成果。
 - A 候选验收全部通过：新 tool-modules 真实链路 6.57 秒、capability-switches 5.24 秒、完整 capability-ui（含实例 mock 前置 smoke）142.98 秒、最终 config 6.31 秒；quick 全通过 49.9 秒，超 30 秒目标但未新增 quick 注册／改调度。独立浏览器打开真实自有 UI，验证模块成功／失败目录、错误详情及开关状态；截图与逐次失败／fixture 修正记录见当时的任务报告（未随仓库发布）。仅修正既有 mock 缺失的 monitor history/focus 与 themes/list 契约，未删基线断言。
 
 ## PRK-TERMTAIL A：bash／terminal 返回字段（2026-10-29）
@@ -187,8 +189,8 @@
 
 - 模型 content 复用 `terminal-output.ts`：去 ANSI、CR 进度最后状态、连续重复 ×N／空行折叠、长行及整体头尾截断，再附既有变量摘要／内存行。阈值复用 terminal.outputBytes／longLine*；不增加配置常量。
 - Jupyter 原始捕获仍按 maxOutputChars 有界，但从只保留头改为头＋最新尾；捕获缺口以源 UTF-16 字数接入同一精简器，标记保持原子、不被长行截断吞掉，也不伪造 terminal_read／offset。只在与模型文本不同时附 details.rawOutput（有界 ANSI 原文＋相同摘要），网页显示／懒加载预览优先读它。
-- 新聚焦用例 `tests/web/check-kernel-output.mjs` 走真实 SDK／Gateway／Jupyter／Vite／Chromium＋faux：模型与网页分流、长 traceback 尾、CR／×N／空行、Unicode 长行省略计数、无重复原文、变量与内存后缀、懒加载及刷新后 ANSI 语义色。纯函数追加 CR 原文坐标与有界缺口原子性；不新增 quick 注册，不运行 full、不部署 daily。
-- 候选验收：真实 kernel-output 可见性版 10.84 秒、共享输出纯函数 12/12、累计终端长行／字段／说明 5.18 秒、已修改 Jupyter 捕获用例 12.38 秒均通过；`SHELL=/bin/bash npm run check:quick` 全通过，42.5 秒（超既定 30 秒目标，未新增 quick 注册／调整调度）。完整证据见当时的任务报告（未随仓库发布）；不合入、不 push、不重启 daily。
+- 当时的聚焦用例通过真实 SDK／Gateway／Jupyter／Vite／Chromium＋faux：模型与网页分流、长 traceback 尾、CR／×N／空行、Unicode 长行省略计数、无重复原文、变量与内存后缀、懒加载及刷新后 ANSI 语义色。纯函数追加 CR 原文坐标与有界缺口原子性；不新增 quick 注册，不运行 full、不部署 daily。
+- 候选验收：真实 kernel-output 可见性版 10.84 秒、共享输出纯函数 12/12、累计终端长行／字段／说明 5.18 秒、已修改 Jupyter 捕获用例 12.38 秒均通过；冒烟检查全通过，42.5 秒（超既定 30 秒目标，未新增 quick 注册／调整调度）。完整证据见当时的任务报告（未随仓库发布）；不合入、不 push、不重启 daily。
 
 ## PRK-LS：kernel 目录分页（2026-10-29）
 
@@ -202,7 +204,7 @@
 - 后端仅 `tool_bin('rg')` 的 argv `rg --files --glob`，无 shell／Python／PATH 回退。只列文件，返回相对根的标准化路径；`**` 跨零或多层目录，按 rg `--sort=path` 的稳定逐目录路径顺序，不按 mtime。
 - 隐藏项默认排除、ignore 默认遵守；`.git` 始终排除，不跟随目录 symlink。rg 正向 glob 会覆盖 ignore，因此默认将两个排序 rg 流（glob 命中／遵守 ignore 的清单）增量求交，不自行解析规则；`gitignore=False` 直接 `--no-ignore` 单流。
 - 结果映射为 files/truncated/limit_reached/output_limited，打印逐行路径；默认 100、封顶 1000、50×1024 UTF-8 字节含提示。额外取一项确认真的截断，恰好 limit 项不误报；无结果 files=[]，缺路径／非法模式／无 rg 抛异常。详见 [wire 契约](docs/wire/file-tools.md#glob)。
-- 聚焦用例 `tests/jupyter/check-kernel-glob.mjs` 走隔离真实 Jupyter 与真实 rg，下发复用现有通道；由 full 自动发现，不增加 quick 注册。候选任务不付费、不 push／合入／重启 daily。
+- 当时的聚焦用例通过隔离真实 Jupyter 与真实 rg，下发复用现有通道。候选任务不付费、不 push／合入／重启 daily。
 
 ## PRK-GREP：目录搜索与可编辑锚点（2026-10-29）
 
@@ -210,8 +212,8 @@
 - 命中与上下文现在复用 `prk_tools.files` 的稀疏 hashline 展示表，实际返回行可直接 edit，未返回行不授权。结果按文件分组，结构为 files/path/lines 及 number/ref/text/match/truncated/omitted_chars，聚合 matches/truncated/limit_reached/output_limited，详见 [wire 契约](docs/wire/file-tools.md#hashline-grep)。
 - context 封顶 10，默认 100 命中、limit 封顶 1000；渲染总量 50 KiB（含文件头／标记／提示），单行显示前 2000 字符并标省略数，仍保留整行引用。达到上限即停止，不另扫剩余数量、不做 count/files/type、多行或伪分页。
 - 旧 prelude `18-anchor-grep.py` 已删除；适配模块拥有 rg 进程，纯 hashline 库只格式化并登记命中。BOM／CRLF 与 read 一致，裸 CR 是行内容；晚出现 NUL 的候选文件也不返回引用，不建全文身份表或搜索缓存。
-- 验证用隔离真实 Jupyter、仓库外真实 rg 15.2.0 资产、现有 tool_bin 分块下发及 SHA256 比对；faux SDK/Gateway 执行实际模型说明中的 grep→edit 示例。新用例 `tests/jupyter/check-kernel-grep.mjs` 由 full 自动发现，不新增 quick 注册；本任务只跑新用例、指定 hashedit/codemode 及 check:quick，不付费、不 push／合入／重启 daily。
-- 候选验证全部通过：新 grep 真实 kernel 9.03 秒，hashedit 9.05 秒，codemode 18.00 秒，check:quick 49.5 秒（指定检查同批运行）；quick 超过 30 秒目标，保持原调度并报告。完整证据与保守取舍见当时的任务报告（未随仓库发布）。
+- 验证用隔离真实 Jupyter、仓库外真实 rg 15.2.0 资产、现有 tool_bin 分块下发及 SHA256 比对；faux SDK/Gateway 执行实际模型说明中的 grep→edit 示例。当时只跑新用例、指定 hashedit/codemode 与冒烟检查，不付费、不 push／合入／重启 daily。
+- 候选验证全部通过：新 grep 真实 kernel 9.03 秒，hashedit 9.05 秒，codemode 18.00 秒，冒烟检查 49.5 秒（指定检查同批运行）；quick 超过 30 秒目标，保持原调度并报告。完整证据与保守取舍见当时的任务报告（未随仓库发布）。
 
 ## PRK-ARTIFACTS：远程工具制品管理（2026-10-29）
 
@@ -219,7 +221,7 @@
 - 固定 `<PRK home>/assets/store/<sha256>` 内容寻址及 `assets/manifest.json`（工具→当前版本/版本→平台→sha256、大小、添加时间）；不提交二进制。第一版成为当前，后续上传不自动切换；同版本可补另一平台，不覆盖既有平台。原子发布清单，删除时保留其他工具/版本共享的内容。
 - `tool_bin` 每次读当前清单，仍走真实 kernel stdin；chunk 固定 hash，切版不混读，目标缓存按 hash 复用。移除旧 `codemode.binDir` 与旧布局读取；显式 `scripts/import-tool-artifacts.mjs --home DIR --version imported` 离线导入，整树预检且保留旧文件，不做启动时隐式迁移。
 - `artifacts.maxUploadBytes` 默认 209715200（200 MiB），独立于 HTTP JSON 上限。API 与 Gateway 使用同一 home、一个 API 写者；导入不可与 API 写操作并发，不加跨进程持久锁或启动垃圾回收。
-- 聚焦验收入口 `tests/web/check-tool-artifacts.mjs`，真实隔离 Gateway/Jupyter/Vite/浏览器＋受控 provider，覆盖上传/切版/回滚/导入、目标 SHA256、输入/大小/当前删除拒绝及共享/孤儿 blob 清理。零付费调用，不 push/合入/重启 daily。
+- 聚焦验收使用真实隔离 Gateway/Jupyter/Vite/浏览器＋受控 provider，覆盖上传/切版/回滚/导入、目标 SHA256、输入/大小/当前删除拒绝及共享/孤儿 blob 清理。零付费调用，不 push/合入/重启 daily。
 
 ## PRK-HASHEDIT 历史（已由 PRK-FILETOOLS 取代）
 
@@ -232,7 +234,7 @@
 - Color.js 解析独立 CSS 颜色，拒绝未知键、非法值、依赖页面上下文的 currentColor/var()；错误给具体键。预览返回 WCAG 2.1 AA <4.5 的正文、次要文字、行号、注释及 diff 增删行文字／行号／高亮对比度；透明色按 sRGB 合成，提示不阻止保存。
 - 设置「通用→主题」提供列表、选用、JSON 粘贴／选文件、局部预览、AA 提示、下载、确认删除。浏览器 `pi-worker-color-theme` 只存选用 id，原 `pi-worker-theme` 继续存浅深／跟随系统；快捷明暗按钮返回内置主题。删除当前自定义主题回同 mode 内置主题，不覆盖其他设备选择。
 - 主题由 Mantine resolver 写入 CSS，代码高亮和终端沿用同一 token；不复制主题文件到浏览器持久存储。`FoldMore` 改有边框按钮，手机触摸高度至少 40px；bash 配置文案为次要样式 `timeout Ns`，嵌套 ×N 单独保持中性色，失败工具名仍红。
-- 验收入口 `tests/web/check-themes.mjs`（真实 SDK/Gateway/Jupyter/Vite/Chromium＋faux，无付费调用，full 自动发现，不加入 quick），配色回归沿用 `check-tool-bodies.mjs`，内置对比度断言不变。
+- 验收使用真实 SDK/Gateway/Jupyter/Vite/Chromium 与 faux；保留既有配色和内置对比度断言。
 
 ## PRK-MONHIST：实例监控历史与自定义指标（2026-10-29）
 
@@ -240,7 +242,7 @@
 - 网页打开卡片、刷新、切会话先取 `monitorHistory`，随后接实时点；同实例不同会话共享历史，采样使用 Gateway 时间戳。
 - 自定义指标使用实例配置 `customMetrics` 列表 `{name,command,interval_s,parse,unit?,chart?}`，`parse` 仅 `number`／`json:<点路径>`，图形仅折线。只在卡片展开租约有效期间经目标机通道执行；命令有超时与输出上限，失败逐项显示，不改写内置指标为配置。设置页只读展示，编辑走配置文件。
 - 本任务不 push、不合入、不重启 daily；真实 Jupyter 目标通道与 faux 验收，零付费模型调用。
-- 验收入口：`tests/monitor/check-monitor-history.mjs`（实例共享、短窗口淘汰）、`tests/monitor/check-custom-metrics.mjs`（真实通道解析／错误／租约与计数）、`tests/web/check-monitor-history-real.mjs`（真实 Gateway／HTTP／Vite／Chromium，桌面及手机刷新／切会话／折线／关闭停止、设置列表与保存保留）。截图由 `PI_TEST_WEB_EVIDENCE` 指定目录。手机抽屉打开时暂隐藏监控浮层，选完会话恢复并重取历史，避免浮层挡住会话行。
+- 验收覆盖实例共享、短窗口淘汰、真实通道解析／错误／租约与计数，以及在真实 Gateway／HTTP／Vite／Chromium 中的桌面及手机刷新、切会话、折线、关闭停止、设置列表与保存保留。截图由 `PI_TEST_WEB_EVIDENCE` 指定目录。手机抽屉打开时暂隐藏监控浮层，选完会话恢复并重取历史，避免浮层挡住会话行。
 
 ## PRK-LINEOFFSET：省略字数与原文续读位置（2026-10-29）
 
@@ -254,7 +256,7 @@
 - pattern 只从静态单条 grep/rg 类命令取，支持引号、转义、positional／`-e`／`--regexp` 和已知带值选项；不增模型关键词参数。动态 shell／复合命令、未知选项、pattern 文件、反选和非 JavaScript 可表达正则保守只留头尾。原搜索命令的执行不变。
 - 配置 `terminal.longLineThresholdChars=2000`、`longLineHeadChars=80`、`longLineTailChars=80`、`longLineContextChars=40`（每侧）；正整数 UTF-16 长度，不切半个码点。长行省略置 `truncated=true`，仍受 `outputBytes` 总预算限制。
 - 完整归一化终端文本与 `total_bytes` 不变，继续走 `terminal_read(command, offset)` UTF-8 原文分页；`raw` 屏幕旁路、Python `bash()` 原始数据与 Pi 原生本机 bash 不变，不新造 `full_output_path` 或输出持久化。原生 bash 是否另接精简、是否需要输出文件留待用户决定。
-- 验证入口 `tests/workspace/check-terminal-output.mjs`（纯函数）与 `tests/workspace/check-terminal-long-lines.mjs`（真实 SDK／Jupyter＋faux、三处命中、cat、精确原文分页、code 回调及 raw Python bash）；不改 `web/`／`tests/web/`，不新增 quick 注册，不调用付费模型、不部署或重启 daily。
+- 当时用纯逻辑及真实 SDK／Jupyter＋faux 验证三处命中、cat、精确原文分页、code 回调及 raw Python bash；未改前端及原浏览器用例，不新增 quick 注册，不调用付费模型、不部署或重启 daily。
 
 
 - 2026-10-28（PRK-REDTESTS-A）：无运行宿主的归档快照不再附带 memory 待确认机制遗留的空 `extensionUi`；Web 收到不含 UI 宿主的权威快照时清空旧 UI、渲染和 revision。closed／sleeping 会话保持可输入，发送继续沿既有恢复／唤醒路径；不改变 composer 禁用条件。
@@ -266,7 +268,7 @@
 - 前端复用现有工具行／`FoldMore`：展开行显示预览，点击展开全文才取数；页面内按 sessionId＋toolCallId＋版本缓存，请求合并，加载失败保留预览并可重试。查询当前页显式补齐工具全文后搜索；diff、ask 记录和嵌套摘要从完整 result 渲染。HTML／JSONL 导出、复制、重发／回退／分叉继续使用原生完整内容路径。
 - STEER1：展开控件按 1024 进制显示 B／KB／MB；不足 1 KB 保留整数字节，KB／MB 固定一位小数。仅网页文案换算，wire/API 和 `data-total-bytes` 保留原始字节数；测试读取 data 属性，不按文案断言。
 - 插件渲染器仍以原始 SDK 内容渲染，未取全文的工具出站节点不发送；`toolContentExpandedIds` 与原有行打开状态分开。大 malformed-JSON `argumentsError` 同样按需读取。
-- 聚焦验证：`tests/web/check-lazy-tool-content.mjs` 使用隔离 SDK／Gateway／Jupyter／Vite／Chromium＋faux，覆盖大／小 snapshot/live、API、模型／历史不变、展开缓存复制搜索、diff／嵌套及休眠／关闭／归档；完整验收仅该用例和 `check:quick`，不跑 full、不部署 daily。
+- 聚焦验证：用例使用隔离 SDK／Gateway／Jupyter／Vite／Chromium＋faux，覆盖大／小 snapshot/live、API、模型／历史不变、展开缓存复制搜索、diff／嵌套及休眠／关闭／归档；当时只跑了该用例和旧的冒烟检查、不部署 daily。
 
 
 ## PRK-SKILLSCAN：`.agents/skills` 扫描规则与支持文件清单（2026-10-28）
@@ -274,7 +276,7 @@
 - 目录内扫描改用 OpenCode `skill-scan.ts` 规则：BFS，根目录 depth=0、最多到 6；忽略点目录及 node_modules／venv／__pycache__；遇到 SKILL.md 仅收该文件并停止下钻，只有根层散 `.md` 可以成为 skill。
 - 目标全局／实例／项目 `.agents/skills` 使用同一规则；Gateway 从 Pi 结果中过滤不合规则的条目，漏收的 home 根层 `.md` 通过既有 `resources_discover` → `skillPaths` 补充。PRK 共享库、package 和 PRK home 来源不变，cwd 向上至 git root 的目录来源规则不变。
 - Pi 同名去重可能先把全局条目压到 collision diagnostics，再被 PRK 的 SDK 项目来源过滤一起丢掉。通过公开 `skillsOverride`／`loadSkills` 解析 diagnostics 已给出的 Gateway home 文件路径，交还现有来源优先级选择，不另扫目录、不复制元数据解析或维护影子状态。
-- 聚焦回归沿用 `tests/sessions/check-target-skills.mjs`，比较 Gateway home、目标 home 与项目目录的同构 fixture 集合，覆盖根层 Markdown、子目录散文档、终止下钻、深度 6／7 与忽略目录；使用真实 Jupyter／SDK 与 faux，不调用付费模型。
+- 聚焦回归沿用 当时的用例，比较 Gateway home、目标 home 与项目目录的同构 fixture 集合，覆盖根层 Markdown、子目录散文档、终止下钻、深度 6／7 与忽略目录；使用真实 Jupyter／SDK 与 faux，不调用付费模型。
 - `skill_read` 成功读取已加载 skill 的 SKILL.md 入口后，在 SDK 正文／分页／截断结果末尾附 base directory 和 `<skill_files>`，同目录递归文件按绝对路径排序后最多取 10 个；目标机通过 channel `skills.files`，Gateway 用本机文件系统，只列路径、不读支持文件内容。忽略 OpenCode 的固定目录，保留普通隐藏支持文件；排除入口自身，按本任务明确契约保留 `sub/SKILL.md`。
 - 支持文件（包括被父 skill 覆盖的 `sub/SKILL.md`）与根层非 SKILL.md skill 读取不附清单；direct 文本和 code-mode structured output 一致。「成功读取正文才计使用」及现有按会话去重逻辑不变。聚焦回归同时覆盖本地／目标读取、排序取前 10、忽略目录、分页与非入口读取。
 
@@ -283,7 +285,7 @@
 
 - Gateway 按实例名在内存保存最近一次成功发现的目标 home `.agents/skills`，不存项目目录、不落盘。会话创建／唤醒／重载的既有 discover 成功后提取 home 组更新；`GET /api/capabilities?instance=<名>` 只在未缓存时发现一次，之后直接复用（含空目录结果）。
 - `POST /api/capabilities/refresh` 接受 `{}` 或 `{instance:"<名>"}`，拒绝多余字段。前者保留全局目录刷新行为，后者只重扫实例 home 并返回实例层视图；失败沿用 `instanceError` 并保留上一份成功结果。实例删除或连接 URL／token／cwd／local 改动（含 reloadTargets）清除此实例缓存。
-- 验证沿用 `tests/sessions/check-target-skills.mjs` 的真实本机 Jupyter＋隔离 HOME＋faux：重复 GET 不重扫、手动刷新、新建／重载会话复用且不泄漏项目、连接编辑／删除同名重建失效及 body 严格校验；先红后绿，再跑 `check:quick`。不改前端、不付费调用、不跑 full／related／额外浏览器、不部署／重启 daily。
+- 验证沿用 当时用例的真实本机 Jupyter＋隔离 HOME＋faux：重复 GET 不重扫、手动刷新、新建／重载会话复用且不泄漏项目、连接编辑／删除同名重建失效及 body 严格校验；先红后绿，再跑冒烟检查。不改前端、不付费调用、不跑 full／related／额外浏览器、不部署／重启 daily。
 
 ## PRK-SKILLS3-BE：skill 三级来源与实例默认（2026-10-28）
 
@@ -294,7 +296,7 @@
 - 共享记录和 `skill_manage` create 必填 scope，无默认或迁移：`global`／`instance:<实例名>`／`project:<projectId>`；模型自行判断可移植性。新增 patch `section:"scope"` 与 `skillsScope`／`POST /api/skills/:name/scope`，只校验格式。会话仅注入匹配范围的共享条目，改动后重载生效。
 - 开关三层：全局 `session.capabilities` ＜ 实例 `instances[].capabilities` ＜ 会话稀疏覆盖；有效值为会话覆盖 ?? 实例默认 ?? 全局默认 ?? true。实例表可选、格式校验同全局；会话 `defaultEnabled` 为实例层生效值，恢复默认回到实例层。
 - `GET /api/capabilities?instance=<实例名>` 返回全局目录＋经共享 target-channel lease 发现的该实例 home，不含会话项目；条目的 configured=实例层生效值、defaultEnabled=全局默认、overridden=实例表是否存在。不可达或未知实例返回其余目录和 `instanceError`。`POST /api/capabilities {instance,id,enabled:boolean|null}` 原子更新该实例稀疏表，null 删除一项，保留配置其它字段，并沿用既有机制更新该实例醒着会话的 `requiresReload`；连接编辑／删除 API 不变。
-- 验证限制：一个真实本机 fixture＋临时 HOME＋faux 聚焦用例与 `check:quick`；不跑 full／related／额外浏览器测试、不调用付费模型、不测远端机、不部署或重启 daily。用户另批准仅在 `scripts/check-quick.mjs` 注册该聚焦用例。
+- 验证限制：一个真实本机 fixture＋临时 HOME＋faux 聚焦用例与当时的冒烟检查；不跑 full／related／额外浏览器测试、不调用付费模型、不测远端机、不部署或重启 daily。
 
 - 2026-10-28（PRK-NORECONNECT）：移除对话顶部的 `#connection-status` 重连提示及 App 内专用变量；连接状态继续由侧栏 `#management-connection-status` 展示。保留 `#connection-banner`、断线重试按钮和 store 重连状态；两个既有浏览器重连用例改等侧栏 `data-status="connecting"`，并断言旧提示不存在。
 
@@ -352,14 +354,14 @@
 - 分层提示一句一层：如何工作的规矩、边界、授权和工作偏好进 control；user 只记本人事实，通用事实进 memory，机器事实进 instance；某类任务的流程、判断、坑、偏好／纠正进 skill；可再次调用的确定性函数进 tool，理由必填；任务进度、一次性脚本、当前状态都不存。autoTools／autoSkills 继续各自控制对应主动引导。
 - `memory.enabled` 默认 true；关闭不注入、不提供 memory／gateway.memory、不复盘，保留文件。`session.soulFile` 整块取代原 soul 配置键，默认仍为空，无兼容别名。所有启动配置变更需重启 Gateway；真实配置由上线方改键，本任务不触碰。
 - 设置的「记忆」入口与 Skills 同类，tab 为规矩／用户／记忆／实例；可增改删、显示用量，control 超推荐标黄。实例删除不删除记忆，页面标「已删除实例」并提供人工删除。
-- 验收只用真实 Pi SDK、隔离 Gateway／Jupyter fixture、faux provider 的实际 payload 与真实浏览器；只跑 `tests/sessions/check-memory.mjs`、`tests/web/check-memory-ui.mjs` 与 check:quick，control 不落盘只做一次撤修复变红。不付费调用、不 push、不合 daily、不重启 daily、不碰真实 PRK home。
-- 2026-10-29（PRK-HUMANCOUNT）：移除按 `message_end` 的 user role 计数；同伴 `agent_send` 经 `source:"extension"` 不计，Gateway 内部 `sendCustomMessage` 通知也不计，独立 review loop 不经过主会话 input。`tests/sessions/check-memory.mjs` 用真实 SDK＋隔离 Gateway／Jupyter＋faux 验证间隔 2 下两条同伴不触发、两条真人触发、真人 steer／followUp 计数，以及 custom 通知和复盘自身不污染计数；不按文本推断、不加影子队列。
+- 验收只用真实 Pi SDK、隔离 Gateway／Jupyter fixture、faux provider 的实际 payload 与真实浏览器；只跑 当时的用例 与 当时的用例，control 不落盘只做一次撤修复变红。不付费调用、不 push、不合 daily、不重启 daily、不碰真实 PRK home。
+- 2026-10-29（PRK-HUMANCOUNT）：移除按 `message_end` 的 user role 计数；同伴 `agent_send` 经 `source:"extension"` 不计，Gateway 内部 `sendCustomMessage` 通知也不计，独立 review loop 不经过主会话 input。当时的用例 用真实 SDK＋隔离 Gateway／Jupyter＋faux 验证间隔 2 下两条同伴不触发、两条真人触发、真人 steer／followUp 计数，以及 custom 通知和复盘自身不污染计数；不按文本推断、不加影子队列。
 
 ## 2026-10-26 PRK-KMEM-R1：kernel 内存反馈与 working set
 
 - 系统提示词仅增加 `The kernel runs inside a cgroup.`，不写具体上限或 meminfo 提示。遥测与 Gateway 快照保留 `current`，新增 `workingSet = max(0, current - memory.stat.inactive_file)`；监控 Kernel 数字、内存条与 `monitor.memoryAlertPercent` 告警均改用 working set，避免把 inactive file cache 算作压力。
 - 每次 `kernel_code` 结果末尾附 `[kernel memory 0.2/4.0 GiB]`（working set / memoryMax，一位小数、MiB/GiB 自适应）；正数 `oomKill` 追加 ` · OOM N`。只用该 execute request 内 `post_run_cell` 的明确终样本，与结果同次交付；没有就省略，不读上个 cell 的 snapshot。只改模型工具结果文本，不另加 Web UI。
-- 验收按 PRK-KMEM-STEER-1 收窄：一个真实 SDK＋隔离 Gateway/Jupyter/cgroup＋faux provider 聚焦用例覆盖 prompt、200 MiB 分配后的结果尾行与 page cache 区分；监控一条浏览器数值来源断言及桌面／手机截图；撤尾行一次必须变红，再跑 `check:quick`。不跑相关 full、不付费调用、不合入／重启 daily、不碰真实 PRK home。
+- 验收按 PRK-KMEM-STEER-1 收窄：一个真实 SDK＋隔离 Gateway/Jupyter/cgroup＋faux provider 聚焦用例覆盖 prompt、200 MiB 分配后的结果尾行与 page cache 区分；监控一条浏览器数值来源断言及桌面／手机截图；撤尾行一次必须变红，再跑冒烟检查。不跑相关 full、不付费调用、不合入／重启 daily、不碰真实 PRK home。
 
 ## 2026-10-26 PRK-LOCALTOOLS-R2：回复中切换模型与思考强度
 
@@ -426,7 +428,7 @@
 - `skill_manage` 的写入契约已由上方 R3 结构化接口取代；新建进 staging，归档先人工恢复再编辑。单一应用边界校验名称、目录内路径、符号链接与结果 frontmatter；`SKILL.md` 只由 create／patch 生成。**经验必须带依据**：name／description／when-to-use／evidence 均保留必填校验；依据记录具体任务／会话、用户纠正、失败或观察结果，不做语义打分、不得编造。
 - worker 主动沉淀提示、工具理由必填与两个独立开关以 R6 决策为准；一次性脚本、进度和当前状态不存。
 - 网页入口放设置对话框，沉淀工具与 Skills 各自打开管理对话框，不增加 workspace 面板。列表／详情显示状态、手动、会话数与最近使用；skill 另显示适用情况、依据，正文来自 SDK `parseFrontmatter(...).body`。沿用工具 HTTP/wire 形状增加 skills list／promote／demote／archive／restore／delete；无兼容接口。
-- 验证入口：`tests/sessions/check-skill-library.mjs` 为真实 SDK＋隔离 Gateway/HTTP＋Jupyter fixture＋faux model 集成；`check-skill-lifecycle.mjs` 以原生 loader 返回值覆盖配置、闲置、容量、人工免疫与持久化。路径校验、staging、新增依据校验分别临时撤除，保留对应红／恢复绿证据；受控 provider 不代表真实模型主动学习效果。完整验收与提交由本轮 director 收口。
+- 验证入口：当时的用例 为真实 SDK＋隔离 Gateway/HTTP＋Jupyter fixture＋faux model 集成；`check-skill-lifecycle.mjs` 以原生 loader 返回值覆盖配置、闲置、容量、人工免疫与持久化。路径校验、staging、新增依据校验分别临时撤除，保留对应红／恢复绿证据；受控 provider 不代表真实模型主动学习效果。完整验收与提交由本轮 director 收口。
 
 ## 2026-10-26 PRK-UNIFY-R1：main 合入 worker、统一 worker 工具模式
 
@@ -500,8 +502,8 @@
   5. 主题：`theme.fg` 的 49 个前景 token、`theme.bg` 的 7 个背景 token，以及 `bold`、`italic`、`underline`、`inverse`、`strikethrough`。
 - 完备性怎么证明：用例表在类型上绑定 Pi 的声明（如 `satisfies Record<keyof ExtensionUIContext, …>`、`Record<ThemeColor, …>`、`Record<ThemeBg, …>`），漏掉一项或升级 Pi 后新增成员时类型检查直接失败；pi-tui 导出的组件用脚本对照其 `index.d.ts` 核对。TUI 侧在 tmux 中启动原生 Pi，逐个用例触发并抓屏留证。
 - 主题隔离用例：TUI 主题怎么变都不影响网页（见下节“主题与网页”）。用 `pi-cc-extensions`（minuque，把 Pi 改成 Claude Code 外观，2026-10 月下载约 7.9 万，1.0.1）作被测主题插件，装进测试用 agent 目录，不装日常 PRK home；Pi 1.1.0 下已在独立 agent 目录实测正常装载。它覆盖面广，正好当捣乱样本：自带 `cc-dark`／`cc-light` 主题，`setFooter`、`setHeader`、`setWidget`、`custom()`、`onTerminalInput`，`registerMarkdownTransformer`；工具行与助手消息的样式不走公开的 `registerToolRenderer`，而是给 Pi 交互模式的 `ToolExecutionComponent`、`AssistantMessageComponent` 原型打补丁（替换 `getCallRenderer`／`getResultRenderer`／`getRenderShell`），且仅在 `ctx.mode === "tui" && ctx.hasUI` 时启用；还会直接往 `tui.terminal.write` 写鼠标跟踪序列（`\x1b[?1003h` 等）、给组件原型的 `handleMouse` 打补丁。PRK 不实例化这两个交互模式组件，预期这些原型补丁在 PRK 里没有效果（推测，待实测）。TUI 侧先用它跑一遍 probe 用例确认能正常装载；PRK 侧对比装与不装、切换 `cc-dark`／`cc-light`／`system` 时网页的显示。
-- 位置：probe 位于 `tests/fixtures/pi-ui-probe/`，按 Pi package 结构，不装进 PRK home 的日常 agent。
-- 验证：`npm run check:ui-probe` 绑定声明并对照组件导出，已纳入 `check:quick`。原生 Pi 1.1.0 的无主题插件与带 `pi-cc-extensions@1.0.1` 两组 TUI 用例，以及 `cc-dark`／`cc-light`／`system` 抓屏见当时的实测证据（未随仓库发布）。Image 在 tmux 中仅显示官方 fallback，像素显示未验证；CC 原型样式覆盖真实工具行的差异已留证。网页候选的隔离与限制见下一节，不改记历史 TUI 证据。
+- 位置：probe 位于 当时的用例，按 Pi package 结构，不装进 PRK home 的日常 agent。
+- 验证：当时的用例 绑定声明并对照组件导出，已纳入当时的冒烟检查。原生 Pi 1.1.0 的无主题插件与带 `pi-cc-extensions@1.0.1` 两组 TUI 用例，以及 `cc-dark`／`cc-light`／`system` 抓屏见当时的实测证据（未随仓库发布）。Image 在 tmux 中仅显示官方 fallback，像素显示未验证；CC 原型样式覆盖真实工具行的差异已留证。网页候选的隔离与限制见下一节，不改记历史 TUI 证据。
 
 ## 2026-10-12 插件 UI 网页承载候选（有界实现），2026-10-13 code 模式 worker 普通插件工具放行（已实现）
 
@@ -520,7 +522,7 @@
 - 组件数据读取例外（G1）：允许集中、只读读取 Pi 1.1.0 普通 JS 运行时组件数据字段（如 `Text/Markdown.text`、`SelectList.items/filteredItems/selectedIndex`、`SettingsList.items/onChange/onCancel`）；`filteredItems` 承载原生 `setFilter` 后的列表，不能从原始 items 猜测筛选状态。不修改上游对象，不复制私有业务逻辑。该边界版本耦合，升级须重验。
 - KeybindingsManager 例外（恢复票已批准）：Pi 1.1.0 root 只导出 coding-agent 类型，但安装目录 `dist/core/keybindings.js` 有真实类。`extension-ui.ts` 通过 `getPackageDir()` + file URL 集中只读导入，并 `create(当前 agentDir)` 传给 custom/editor 工厂；严格检查版本为 `1.1.0`，升级需重验。不用 pi-tui manager 强转，不改全局 manager／原型。旧“用户选择该工厂路径 BLOCKED”记录错误，已纠正。
 - 读不出结构的交互组件（只实现 `render`／`handleInput`、不由内置组件组成）：先只读显示 render 结果并提供取消按钮，取消时调 `done` 结束。
-- 验证入口：历史 `npm run check:extension-ui` 经真实 Pi SDK→Gateway→Unix socket→HTTP native/SSE；`npm run check:extension-ui:web` 增加桌面／手机真实 Vite+Chromium。它们按各自原有会话模型验收，不证明当前 worker-only cutover；`--cc --browser` 加载 CC 负样本，不承载其私有 get* 原型补丁。PASS 只对应各命令实际断言；测试打印的 BLOCKED 不记成功覆盖。
+- 验证入口：历史 当时的用例 经真实 Pi SDK→Gateway→Unix socket→HTTP native/SSE；当时的用例 增加桌面／手机真实 Vite+Chromium。它们按各自原有会话模型验收，不证明当前 worker-only cutover；`--cc --browser` 加载 CC 负样本，不承载其私有 get* 原型补丁。PASS 只对应各命令实际断言；测试打印的 BLOCKED 不记成功覆盖。
 - 具体 BLOCKED：原 probe `tui-settings-list` 的 `getSettingsListTheme()` 和 Pi `ExtensionInputComponent`／`ExtensionSelectorComponent` 构造函数访问未初始化的上游全局 `theme`，真实命令报 `Theme not initialized. Call initTheme() first.`。不通过调用 `initTheme()` 修改全局来消除错误。自行传入 theme 的原生 SettingsList 可经 custom/widget 正常承载；该缺口不扩展成 custom/editor 整体禁用。
 - 待决定或未验：`onTerminalInput`、`registerShortcut` 的 Web 输入政策（本轮不新增 raw key 转发／手机虚拟按键）；OSC 8 链接的呈现政策（现剥掉序列，只显示链接文字）；纯装饰覆盖的选择策略；多页面 owner/disconnect 的产品语义（不造 lease）；图片像素／kitty 探针保持停止；终端列宽与网页字体的 CJK 对齐、完整 mouse／IME／硬件光标／terminal.write 不能宣称等价。
 - 已装插件的影响（PRK home 5 个包已查）：`pi-web-access` 在有 `uiContext` 后 `hasUI` 为真，`/` 命令中的 `ui.select` 会真实弹出；模型显式请求 `workflow: "summary-review"` 时会在 Gateway 主机执行 `xdg-open`。`pi-cliproxyapi-provider` 的 fast-footer 在 `tui` 下给 Pi 交互模式的 `FooterComponent` 原型打补丁，PRK 不实例化该组件，无效果。`pi-vcc`、`pi-compaction-recall` 只用 `notify`。
@@ -559,7 +561,7 @@ This branch-specific role policy, cwd selection, target default, and SDK/Jupyter
 - **前端** `web/` 是独立 npm 包（自己的 `package.json`、lock、`node_modules`），React/Mantine/assistant-ui/字体/Vite 等只在这里声明；根包只留后端依赖，删除 `build:web`/`preweb`。加 `@vitejs/plugin-react`（Fast Refresh）。去掉 `style-nonce` meta 与 Mantine `getStyleNonce`。字体仍是 npm 本地打包，`assetsInlineLimit: 0` 保留。
 - **代理**：`web/vite.config.js` 的 dev 与 preview 都把 `/api` 代理到 `PRK_API`（默认 `http://127.0.0.1:8787`），`changeOrigin`；只有等于页面自身 origin 的 `Origin` 才改写为后端 origin（`bypass` 钩子里同步改），其他 Origin 原样转发，后端照常拒绝跨站修改。
 - **侧栏去掉“历史”折叠**：回收站已承担删除语义、已关闭会话可恢复；原来只折叠顶层已关闭会话、子会话已关闭却留在树里，规则不一致。已关闭/已结束的顶层行排在可运行行之后同列显示，保留空心点、状态文字和变淡外观；树关系不变。
-- **测试**：`tests/fixtures/web-dev.mjs` 为每个测试后端起一个真实 Vite dev 子进程，页面打开它，直连 HTTP 的边界检查仍打 API。重启 API 的测试（native 断线重连、history、idle、workbench、model-live、recovery）让 API 回到原端口、前端保持运行。`web-server-smoke` 改为验证 API-only。浏览器测试不再需要先构建。
+- **测试**：当时的用例 为每个测试后端起一个真实 Vite dev 子进程，页面打开它，直连 HTTP 的边界检查仍打 API。重启 API 的测试（native 断线重连、history、idle、workbench、model-live、recovery）让 API 回到原端口、前端保持运行。`web-server-smoke` 改为验证 API-only。浏览器测试不再需要先构建。
 - **本机启动**：`.runtime/start-tmux.sh`（gitignored）改为 `prk` 的 jupyter / gateway / api（127.0.0.1:8788）/ ui（Vite，监听私网 Tailscale 地址的 8787 端口，`PRK_API=http://127.0.0.1:8788`）四个窗口，页面仍在 8787。2026-09-30 已切换：原 `web` 窗口换成 `api` + `ui`，gateway / jupyter 未重启。
 - 下方历史章节里“`npm run web` 先构建 dist”“运行浏览器验收前先 `npm run build:web`”“Node 托管 `web/dist` 并注入 CSP nonce”的说法均被本节取代。
 - 验证：`tsc --noEmit`；`cd web && npm run build`（字体为独立 woff2，CSS 无 `data:font`）；`web-server-smoke`（API-only）；浏览器 server / workbench / native / history / derived / idle / machine / recovery 八组经 Vite dev 全部 PASS；`check-target-reload`、`check-history-protocol`、`check-recovery-protocol` PASS；mock-harness `session-tree`、`ui-tour` 浅深色与手机截图目视正常、没有“历史”分组。真实 Gateway + Vite 代理探针：同源 GET 与 SSE 通；外来 Origin、`null`、无 Origin 的修改请求、`Sec-Fetch-Site: cross-site` 均 403；API 停止时 502，同端口重启后恢复。
@@ -597,14 +599,14 @@ This branch-specific role policy, cwd selection, target default, and SDK/Jupyter
 - 关闭：销毁时 kernel 关不掉会复位运行记录、在 kernel 绑定上写明“可能残留”、照常进回收站；空闲休眠时 worker 关不掉同样标记后照常休眠。更正：此前说“休眠失败会每秒重试刷日志”不对——休眠标记在关闭前已写入，不会重试；原来的问题只是没有标记、并发出一次 `session_sleep_failed`。
 - 工作区：Jupyter 文件接口返回 404 时报“工作目录在目标上不存在”；绝对路径经 `os.chdir` 失败时按 `FileNotFoundError`／`NotADirectoryError` 给出同样明确的报错。强行换环境先释放已关闭的运行绑定（`WorkerCollection.forget`），再写入新选择并新建 kernel；失败时恢复原选择。换环境的说明通过 SDK `sendCustomMessage`（不触发新一轮）写入当前上下文。
 - 网页：左侧栏按当前管理者挂树（同一分组内才挂，见上一节更正），默认展开、可折叠，临时会话单行更小、带虚线“临时”标记；删除弹出受影响的树（运行中标“将被中断”，已升级／已交接的列为保留）；侧栏底部“回收站”按组恢复或二次确认后彻底删除；已结束和休眠的执行会话菜单与恢复提示里有“换到新的执行环境…”，复用新建会话的实例、kernel、目录选择。
-- 验证：`tsc --noEmit`、`build:web`；`check-derived-sessions`（新增连带、预览、`agent_list` 排除回收站、回收站跨重启、恢复后根脱离依赖、网页删除同一连带、彻底删除）、`check-gateway-history`（删除运行中会话进回收站、文件保留、彻底删除才删文件）、`check-recovery-protocol`（换环境参数）、新增 `check-workspace-retarget`（真实 Jupyter：工作目录被删明确报错、失败恢复原选择、换目录和换目标后在新位置运行、说明写入、重启后保留，已挂入 `check:recovery`）、`check-idle-resume`、`check-agent-messaging`、`check-main-space`、`check-gateway-workers`、`check-history-protocol`、`check-worker-lifecycle` 均通过；`check-web-history` 按新语义改为删除进回收站后再彻底删除；假数据场景 `session-tree` 桌面浅色／深色与手机截图目视确认。`check-recovery-runtime` 在改动前的 HEAD 上同样失败（测试替身缺 `getContextUsage`），与本轮无关，未修。
+- 验证：`tsc --noEmit`、`build:web`；`check-derived-sessions`（新增连带、预览、`agent_list` 排除回收站、回收站跨重启、恢复后根脱离依赖、网页删除同一连带、彻底删除）、`check-gateway-history`（删除运行中会话进回收站、文件保留、彻底删除才删文件）、`check-recovery-protocol`（换环境参数）、新增 `check-workspace-retarget`（真实 Jupyter：工作目录被删明确报错、失败恢复原选择、换目录和换目标后在新位置运行、说明写入、重启后保留）、`check-idle-resume`、`check-agent-messaging`、`check-main-space`、`check-gateway-workers`、`check-history-protocol`、`check-worker-lifecycle` 均通过；`check-web-history` 按新语义改为删除进回收站后再彻底删除；假数据场景 `session-tree` 桌面浅色／深色与手机截图目视确认。`check-recovery-runtime` 在改动前的 HEAD 上同样失败（测试替身缺 `getContextUsage`），与本轮无关，未修。
 - 未覆盖：kernel 关不掉的残留标记路径、已提交结果的子会话实际进入休眠，只有代码与类型检查，没有专门测试。
 
 ## 2026-09-29 Agent 间通信：历史行为与真实模型实测
 
 - 历史实现曾向 main 与 worker 注册 `agent_list`、`agent_send`；真实模型场景直接创建了两个 worker。其消息头、队列、回复抑制和验收结果仅描述当时实现，不构成当前工具策略或 worker-only cutover 的验证。
 - 空闲休眠合入后：`agent_send` 投递经 `host.submit` → `admitInput` → `wake`，与用户输入唤醒休眠会话同一路径。按代码，发给休眠会话会先唤醒再投递；目前没有测试覆盖，不算已验证。已明确结束的会话仍返回错误。
-- 历史受控 provider 测试记录：`node tests/sessions/check-agent-messaging.mjs` 在 `8f43112` 合并后重跑通过（忙碌时被提问、空闲被唤醒回信、补充要求、错误路径）；这些结果不证明当前实现。
+- 历史受控 provider 测试记录：当时的用例 在 `8f43112` 合并后重跑通过（忙碌时被提问、空闲被唤醒回信、补充要求、错误路径）；这些结果不证明当前实现。
 - 真实模型实测（`clp/gpt-6-luna`，thinking low；脚本与证据（transcripts、summary、运行日志）为当时的本地产物，未随仓库发布）：临时 agentDir 只带认证、模型配置和 cliproxy provider，不加载 QQ、权限、herdr 等扩展；历史和 cwd 在临时目录，kernel 用 Jupyter fixture。两个 worker 直接由 Gateway 创建，不经 main 派生。
   - 做对了：分析方用 `agent_list` 按标签找到“Data keeper”，按 UUID `agent_send` 提问；对方正在跑 20 秒的 Python，回执 `queued`，Python 没被打断、结果正确，提问在工具结束后并入同一操作；对方带正确 `replyTo` 作答；分析方被唤醒（`delivered`），写出行数和空值数都正确的说明；对方也完成了自己的任务。
   - 问题：答完之后两边互相道谢／确认了 5 个来回，共 11 次 `agent_send`，其中 9 次是纯确认；分析方每收到一次确认就把说明重写一遍，直到一条“无需进一步操作”后才停。工具说明里“不要回复纯确认消息”对这个模型不起作用，而每条消息末尾“要回答请调用 agent_send…”的提示反而在邀请回复。这是调查文档中“来回互发没有硬性刹车”的实证。
@@ -633,7 +635,7 @@ This branch-specific role policy, cwd selection, target default, and SDK/Jupyter
 ## 2026-09-22 功能目录迁移
 
 - 按下方“精简项目布局”归类现有文件；只更新导入、资源定位、测试子进程／Python 路径和 npm 命令，不改变业务语义。公共 `src/main.ts`、`web/main.jsx` 与 `scripts/jupyter-server.py` 入口保持不变，不留旧路径转发层。
-- 验收入口已迁到 `tests/`；当前可运行命令以 `package.json` 为准。历史审计段与冻结候选／旧回执保留各自当时的路径和结果。
+- 当前可运行命令以 `package.json` 为准。历史审计段与旧回执保留其验收结果。
 - 本轮类型检查、Web 构建、CLI help、SDK／host、Gateway transport、history、main／派生、target reload、Jupyter fixture／spec、kernel recovery 和 native-web 均通过；浏览器实际覆盖桌面与 390px 手机，provider 为受控响应，不代表外部模型或生产部署验收。
 - 现有业务配置、依赖锁与上游安装不变；Web／Gateway／本地 Jupyter 服务保持停止。本轮不提交、推送、部署。
 
@@ -643,8 +645,8 @@ This branch-specific role policy, cwd selection, target default, and SDK/Jupyter
 - 会话连续空闲默认 30 分钟后释放运行时及自有 worker kernel，Gateway 本身继续运行。正在执行、原生队列未清空、压缩或仍承担未完成派生任务责任的会话不回收；浏览历史和事件订阅不延长执行资源寿命。
 - 黄色“休眠”与显示断线、明确结束分开。历史、原生会话身份和配置保留；新消息唤醒原会话后仅提交本次输入，不重放旧任务。worker 唤醒创建空 kernel，Python 内存变量不保留；已结束会话不会自动复活，唤醒失败保留休眠身份并报告错误。
 - 事件序号属于具体 runtime，不跨休眠重建比较。重新连接的权威快照重建序号基线；旧连接与非当前会话事件仍受连接／路由身份检查约束。
-- `npm run check:idle` 使用真实 SDK 与隔离 Jupyter、受控 provider，将空闲阈值缩短为 800ms，覆盖实际 kernel 回收／新建、浏览及重启不重放、关闭不复活、失败保留历史、忙碌／排队／未完成子任务保护。设置 `PI_TEST_PLAYWRIGHT` 与 `PI_TEST_CHROMIUM` 时额外验证连续两轮浏览器休眠唤醒、第二轮显示连接中断及每条消息单次提交。
-- 本轮通过类型检查、Web 构建、`check:native:sdk`、`check:host`、`check:main`、含浏览器的 `check:idle` 和 `check:native:web`。另现场查看重建后预览的桌面与 390px touch 页面，验证黄色休眠、跨端续聊及无横向溢出。属于隔离 SDK／Jupyter／浏览器验收，不代表真实手机移动网络或外部模型验收；未重启生产入口。
+- 用例使用真实 SDK 与隔离 Jupyter、受控 provider，将空闲阈值缩短为 800ms，覆盖实际 kernel 回收／新建、浏览及重启不重放、关闭不复活、失败保留历史、忙碌／排队／未完成子任务保护。设置 `PI_TEST_PLAYWRIGHT` 与 `PI_TEST_CHROMIUM` 时额外验证连续两轮浏览器休眠唤醒、第二轮显示连接中断及每条消息单次提交。
+- 本轮通过类型检查、Web 构建、旧检查、旧检查、旧检查、含浏览器的 旧检查 和 旧检查。另现场查看重建后预览的桌面与 390px touch 页面，验证黄色休眠、跨端续聊及无横向溢出。属于隔离 SDK／Jupyter／浏览器验收，不代表真实手机移动网络或外部模型验收；未重启生产入口。
 
 ## 2026-09-22 前端交互与回复分叉
 
@@ -708,14 +710,14 @@ This branch-specific role policy, cwd selection, target default, and SDK/Jupyter
 - R29 已移除 `scripts/local-sdk.ts` 对全局 console 的重写。公开 `runRpcMode(runtime)` 负责进入 RPC 后的 stdout JSONL 输出；SDK 0.85.1 的 `rpc-mode.d.ts` 无 logger／输出参数，公开 index 未导出其内部 output guard。runtime 创建及 ambient extension 加载发生在 runner 之前，因此初始化日志的 stdout 隔离仍是 **BLOCKED**，不能声称所有 RPC 库日志均走 stderr。可行选择是请求上游提供初始化前的公开输出配置；不复制私有 guard、不改扩展／provider／全局对象来绕过。无模型的 `get_state` 检查只能证明其实际运行环境，不能证明任意扩展初始化输出安全。
 - Session owner 静态交接仍报告 R01 内部 preflight 依赖、R02 summary/send 原子准入公开能力及 R20 只读 manager-only 导出能力缺口；这些不是本轮完成项。Root 的初始集中运行是证据而非最终条目验收；其中 TypeScript 类型检查（`npm run check`）和 SDK resource/export 检查失败，正处于有界返工且尚未最终复验。model scope 上限、SDK 资源定位、active export 等候选修复仍不因局部通过而闭合。
 - Lifecycle owner 的静态审查早于 Root 初始集中运行；ledger 只记录各入口的初始结果，不关闭仍 pending 的矩阵项。R08/R19 remain **BLOCKED**: the installed native SDK fork has no metadata filter, and its unchanged `copyContext` path can copy task/control metadata. R21 strict corruption parsing remains **BLOCKED**: the SDK parser silently skips malformed records or repairs newlines, so the existing strict wrapper is retained.
-- Owner 报告中的 `node scripts/check-conversation-responsibility.mjs` 当时未执行；Root 随后在初始集中运行中执行并通过。单独的 Python/public-client smoke 仍不证明 deterministic wedge guarantee，故其仍为 **BLOCKED**。Root 的 `check:native:web` 初始浏览器子路径失败，后续 browser clauses 未运行；clipboard `check:web` 也实际失败，用户已暂缓进一步 clipboard 返工。Parent **non-document code/metadata** changes are limited to `package.json`, `package-lock.json`, `scripts/recovery-browser-fixture.mjs`, and `scripts/local-sdk.ts`; PLAN.md and the two documentation files are reviewed separately here, so this is not a claim that the total candidate scope is four files. The input-candidate comparison shows no old dependency version/integrity drift, but this is not runtime acceptance.
+- Owner 报告中的 `node scripts/check-conversation-responsibility.mjs` 当时未执行；Root 随后在初始集中运行中执行并通过。单独的 Python/public-client smoke 仍不证明 deterministic wedge guarantee，故其仍为 **BLOCKED**。Root 的 旧检查 初始浏览器子路径失败，后续 browser clauses 未运行；clipboard 旧检查 也实际失败，用户已暂缓进一步 clipboard 返工。Parent **non-document code/metadata** changes are limited to `package.json`, `package-lock.json`, `scripts/recovery-browser-fixture.mjs`, and `scripts/local-sdk.ts`; PLAN.md and the two documentation files are reviewed separately here, so this is not a claim that the total candidate scope is four files. The input-candidate comparison shows no old dependency version/integrity drift, but this is not runtime acceptance.
 
 ## 历史：2026-09-21 多类会话候选（已由统一 worker 模型取代）
 
 This candidate's role-specific routes, permissions, tool defaults, project presentation, derivation and lifecycle are not current product contracts. Its initial verification status remains in the historical verification ledger (not published with this repository); those assertions do not accept or verify the current unified worker contract.
 ## 原生 Pi 交互能力接入：全量盘点与 Web 候选（2026-09-21，初始集中验证未最终接受）
 
-- 当前安装的 `@earendil-works/pi-coding-agent` 0.85.1 由 Gateway 持有唯一 `AgentSession`、`SessionHost` 与 JSONL；Web 不创建第二套 SDK、历史或调度器。`scripts/check-native-interactions.mjs` 与 `scripts/check-native-web-interactions.mjs` 是 Root 初始集中运行的 SDK/browser 验收入口；`check:native:sdk` 初始通过，而 `check:native:web` 在完成桌面与 390px touch 条款前失败，因此不记最终浏览器验收通过。
+- 当前安装的 `@earendil-works/pi-coding-agent` 0.85.1 由 Gateway 持有唯一 `AgentSession`、`SessionHost` 与 JSONL；Web 不创建第二套 SDK、历史或调度器。`scripts/check-native-interactions.mjs` 与 `scripts/check-native-web-interactions.mjs` 是 Root 初始集中运行的 SDK/browser 验收入口；旧检查 初始通过，而 旧检查 在完成桌面与 390px touch 条款前失败，因此不记最终浏览器验收通过。
 
 - 本次候选已接入原生命令目录、参数补全、目标文件引用、浏览器附件、队列/取消、会话树和 `new/resume/clone` 的 Web 候选路径；仍不实现 Session Search、任意工作中会话通信、OpenViking 迁移。UI 回复分叉已按 2026-09-22 的明确要求补入，见本文开头。信任、登录、登出、分享、导入、shell、模型下载和 Gateway/worker 销毁等敏感权限仍按能力目录拒绝并显示原因；初始集中验证没有改变这些边界，最终 PASS、提交和集成仍由 Smart Cascade Root 在有界返工与复验完成后决定。
 - 27 条原生命令全部有去向：23 条 Pi builtin，加上 native CLI `/llama` catalog entry，以及隐藏 dispatch `debug/arminsayshi/dementedelves`（前端目录因此呈现 24 个安全/受限命令条目与 3 个 hidden dispatch）。目录、来源、参数候选和可用状态来自 Gateway catalog；动态 extension、skill、prompt template 逐项显示资源状态，当前 worker 装配保持禁用时显示真实 disabled 原因，不伪造执行。
@@ -724,7 +726,7 @@ This candidate's role-specific routes, permissions, tool defaults, project prese
 - `/`、`@`、未知 slash 与普通文本有明确候选/逃逸路径；`!`/`!!` 的 shell 类前缀在当前 Gateway 仍是权限禁用并显示原因，不把 Gateway 主机当执行位置。未知 slash 点击“普通文本”后才作为普通 prompt 发送。桌面键盘候选导航与显式发送、source inspect/remove/replace、队列 steer/follow-up/dequeue、普通取消和 native branch-summary cancel 均由可见 control 完成；IME composition 的 Enter 在 idle/busy 都不会误提交，手机不依赖硬件键盘。
 - 忙碌、steer/follow-up、clearQueue 与取消沿用 SDK；公开 idle/compaction 轻量检查不是跨客户端原子准入。一般 dequeue 只恢复 SDK 返回的文本，不推断 requestId／附件精确关联，F4 明确不实现。cancel-native 只确认取消请求，原操作的 SDK 结果才是终态；费用不回滚。tree/read/copy/filter/fold 只读展示不追加 JSONL、不推进 leaf；真实 tree navigation/summary/label 保留原生效果。
 - 当前固定边界：Session Search、任意 session 通信、OpenViking migration 是明确延期；share/login/logout/trust/import/debug/shell/llama/model-download 等 permission-sensitive/external effects 不从聊天执行。`compact`/branch summary 真实调用 model，可能产生 token/cost；普通 read-only 命令不调用模型。失败、BUSY、INVALID_REQUEST、unknown outcome、closed/read-only history 都由 Gateway result/history 显示，不能把错误降级为普通模型回复。
-- 可重复入口为 `npm run check:native:sdk` 与 `npm run check:native:web`；浏览器测试自己启动 `web/` 的 Vite dev（见 2026-09-30 前后端拆分），不需要先构建。Web 检查要求 `PI_TEST_PYTHON`（Jupyter fixture Python）、`PI_TEST_PLAYWRIGHT`（Playwright module）和 `PI_TEST_CHROMIUM`（Chromium executable）；自有 fixture 模式需 unset（不是置空）`JUPYTER_URL`、`JUPYTER_TOKEN`、`PI_TEST_WEB_HOST`。监听使用 loopback `127.0.0.1` 与 owned Unix Gateway socket；`TMPDIR` 必须足够短，使完整 socket path 不超过 100 bytes。受控 provider 只证明本地交互/协议/历史语义，不是外部模型成本或质量证据；external provider/live model 需要明确授权、凭据和单独预算，不能由 controlled PASS 推断。
+- 当时的原生 SDK 与浏览器检查分别执行；浏览器测试自己启动 `web/` 的 Vite dev（见 2026-09-30 前后端拆分），不需要先构建。Web 检查要求 `PI_TEST_PYTHON`（Jupyter fixture Python）、`PI_TEST_PLAYWRIGHT`（Playwright module）和 `PI_TEST_CHROMIUM`（Chromium executable）；自有 fixture 模式需 unset（不是置空）`JUPYTER_URL`、`JUPYTER_TOKEN`、`PI_TEST_WEB_HOST`。监听使用 loopback `127.0.0.1` 与 owned Unix Gateway socket；`TMPDIR` 必须足够短，使完整 socket path 不超过 100 bytes。受控 provider 只证明本地交互/协议/历史语义，不是外部模型成本或质量证据；external provider/live model 需要明确授权、凭据和单独预算，不能由 controlled PASS 推断。
 - Browser run 写入自有 temporary evidence directory，保留 desktop/phone screenshots 与 JSON manifest 并打印目录；没有 product hash router，worker 始终通过 `data-worker` sidebar selection helper 选取，closed/history selection 等待读取只读快照而不是 enabled composer。
 
 ### 前端交互要求与实际证据
@@ -782,7 +784,7 @@ This candidate's role-specific routes, permissions, tool defaults, project prese
 instructions = "只读检查指定内容，给出有依据的结果，不修改目标文件。"
 ```
 - JSONL 记录创建来源、当前管理者、任务、生命周期、模型及 thinking、结果与确认；Gateway 重启后保留这些记录，不自动重放任务或静默重建 kernel。接收者不在线时保留结果，通知未受理会有日志，恢复后可用 `session_children` 查询并明确确认；不会因为通知失败自动销毁。
-- `npm run check:derived` 使用真实 Pi SDK 工具调用与 Jupyter、受控模型响应验证嵌套派生、变量隔离、结果确认、权限与持久历史。设置 `PI_TEST_DERIVED_BROWSER=1`，并提供既有 Playwright/Chromium 路径时同时运行手机 UI 验收；这不等于真实外部模型质量验收，也不等于生产已激活。
+- 用例使用真实 Pi SDK 工具调用与 Jupyter、受控模型响应验证嵌套派生、变量隔离、结果确认、权限与持久历史。设置 `PI_TEST_DERIVED_BROWSER=1`，并提供既有 Playwright/Chromium 路径时同时运行手机 UI 验收；这不等于真实外部模型质量验收，也不等于生产已激活。
 
 ### 仍不扩展的范围
 
@@ -803,7 +805,7 @@ instructions = "只读检查指定内容，给出有依据的结果，不修改�
 - 删除已退出运行链的六个旧 DOM 前端模块及 Marked、DOMPurify 直接依赖。Vite 构建产物位于 `web/dist`；`npm run web` 自动先构建，直接运行 `node src/main.ts web` 前须执行 `npm run build:web`。
 - 输入区空闲时不显示排队和停止按钮；执行时显示相应控制。消息菜单支持复制和引用；编辑、重新生成、分支切换仅保留禁用入口，未宣称 Gateway 已实现这些能力。
 - 修正工具输出流式更新时的阅读位置、独立展示状态更新相互覆盖，以及切换会话时原生自动滚底覆盖保存位置的问题。先等待消息渲染并恢复位置，再允许原生跟随滚动；加载中的临时滚动不写回保存状态。
-- 验收通过：`npm run check`、`npm run build:web`、`npm run check:web:server`、`check-web-workbench.mjs`、`check-machine-sessions.mjs`、`check-web-history.mjs` 和启用浏览器的 `check-kernel-recovery.mjs`。覆盖真实 SDK/Gateway/Jupyter、流式输出、同环境会话隔离、重启与恢复、只读历史、桌面与 390px 窄屏、焦点返回及无横向溢出；截图和结构化证据为当时的任务产物，未随仓库发布。模型部分使用受控 provider，不冒充真实外部模型调用。
+- 验收通过：`npm run check`、`npm run build:web`、当时的用例、`check-web-workbench.mjs`、`check-machine-sessions.mjs`、`check-web-history.mjs` 和启用浏览器的 `check-kernel-recovery.mjs`。覆盖真实 SDK/Gateway/Jupyter、流式输出、同环境会话隔离、重启与恢复、只读历史、桌面与 390px 窄屏、焦点返回及无横向溢出；截图和结构化证据为当时的任务产物，未随仓库发布。模型部分使用受控 provider，不冒充真实外部模型调用。
 - 另以浏览器直接检查最终构建的桌面和手机抽屉布局。用户随后明确授权提交上线；正式部署仅重启 8787 网页服务加载新构建，Gateway 保持原进程，QQ 入口不动。
 - 上线后按用户确认移除全部全局新建入口，只保留机器标题旁的“＋”：单环境直接创建，多环境才弹出仅限本机的环境选择。空白页提示从机器旁新建，无配置时仍提供添加环境入口。机器视图直接显示会话，删除 `default / office` 环境入口及重复位置副标题；项目视图仍保留跨机器位置提示。桌面与手机回归覆盖直接创建、同机选择范围和实际创建归属；既有会话不迁移、不删除。
 
@@ -832,7 +834,7 @@ Pi 是普通 npm SDK 依赖，我们开发自己的应用，不 fork Pi、不把
 
 **当前实施顺序：** 先完成网页的机器短 hostname 显示、按机器分组的可折叠会话树和 Markdown 回复渲染，再处理 Gateway 接入与会话恢复。此次记录不构成架构迁移或服务重启授权；不为现有独立 Web 宿主临时另建持久化体系。当前 Web worker 使用 `SessionManager.inMemory(...)`，没有本地会话文件，刷新重连仅在宿主进程存活期间保留上下文；更新服务前须说明会话及 kernel 状态丢失的影响，不能把聊天历史恢复与 Python 变量恢复混为一谈。
 
-**网页修复验收（2026-09-18）：** 机器短 hostname 展示、机器→会话折叠树、Markdown 回复渲染已实现；新增直接依赖 Marked 与 DOMPurify，资源本地提供。`npm run check`、`npm run check:web:server`、`npm run check:web` 通过，覆盖同机分组、折叠状态保留、Markdown 结构及不安全内容过滤，并复验桌面/手机、会话隔离、重连、取消和自有资源清理。截图为当时的任务产物，未随仓库发布。这是隔离的真实浏览器/SDK/Jupyter、受控 provider 验收；本轮未调用外部模型，未重启现有网页服务，未提交。现有内存会话保持原状，线上仍是旧页面；服务切换须先确认可放弃现有会话及 kernel 状态。
+**网页修复验收（2026-09-18）：** 机器短 hostname 展示、机器→会话折叠树、Markdown 回复渲染已实现；新增直接依赖 Marked 与 DOMPurify，资源本地提供。`npm run check`、当时的用例 通过，覆盖同机分组、折叠状态保留、Markdown 结构及不安全内容过滤，并复验桌面/手机、会话隔离、重连、取消和自有资源清理。截图为当时的任务产物，未随仓库发布。这是隔离的真实浏览器/SDK/Jupyter、受控 provider 验收；本轮未调用外部模型，未重启现有网页服务，未提交。现有内存会话保持原状，线上仍是旧页面；服务切换须先确认可放弃现有会话及 kernel 状态。
 
 **随后上线确认（2026-09-18）：** 用户明确授权“上线提交重启”。网页与此前多会话改动已提交为 `c979620`；原网页宿主正常退出后，以相同模型、扩展及私网监听参数启动为受管后台进程 `pi-remote-kernel-web`（当前控制连接不在 Herdr 面板内，未控制原面板）。地址仍为原私网地址的 8787 端口。线上新会话与真实模型 Markdown 回复已通过浏览器验收，机器节点显示本机主机名。旧内存会话按授权清空；Jupyter Server 原进程保留，QQ 未操作。此条取代上一条“尚未上线”的阶段状态；Gateway 接入和会话持久化仍未实现。
 
@@ -903,7 +905,7 @@ pi-remote-kernel/
     app/                  # 应用壳、store、events 与会话展示状态
     chat/                 # 对话、剪贴板与聊天样式
     management/           # 实例和会话管理界面
-  tests/
+  test/
     gateway/
     sessions/
     workers/
@@ -1056,7 +1058,7 @@ Pi 默认看到一次 `python` 工具调用，Python 内部 read/edit 不会自�
 - `npm run check` 通过。`src/main.ts` 使用公开 SDK 创建 runtime，默认接官方 TUI；`--mode rpc` 接官方 RPC，不是 CLI 子进程或复制的界面/dispatcher。
 - 在独立 HOME、agent 目录与工作目录中，以 `PI_OFFLINE=1` 启动本应用，实测 `get_state → new_session → get_state` 全部成功，新旧 session ID 不同；`get_commands` 也正常响应。
 - TUI 已通过真实 PTY 验证：启动显示官方界面，`/session` 输出会话信息，空输入区 `Ctrl+D` 正常退出（exit 0）；模式切换后 RPC `get_state` 成功。帮助、无效参数/模式和非终端 TUI 诊断均已执行验证。
-- 已接入会话级 `python` 工具与本地认证 Jupyter Server，Python 依赖由项目 `uv.lock` 固定（Jupyter Server 2.21.1、ipykernel 7.3.0）。实测变量保留、Python 异常、提交前取消、中断后继续使用、禁用 stdin、输出截断、已删除 kernel 不重建以及所属 kernel 清理；保留可重跑检查 `tests/jupyter/check-jupyter.mjs`。
+- 已接入会话级 `python` 工具与本地认证 Jupyter Server，Python 依赖由项目 `uv.lock` 固定（Jupyter Server 2.21.1、ipykernel 7.3.0）。实测变量保留、Python 异常、提交前取消、中断后继续使用、禁用 stdin、输出截断、已删除 kernel 不重建以及所属 kernel 清理；保留了当时的执行证据。
 - 已通过真实模型 `clp/gpt-5.6-luna` 的两次 Python 调用验证 `41 → 42`，并通过实际 RPC `new_session` 验证旧 kernel 关闭。测试用 RPC 进程、隔离配置与临时凭据副本已清理。本地 Jupyter Server 保留运行；仍未实现 Hash Edit 或新增 RPC 方法。
 - 生产 Pi/OMP、QQ、OpenViking 的安装指向与运行进程未修改；没有执行全局安装或 npm link。
 - 上述 TUI/RPC 是历史进程内路径；应用由 Gateway 持有会话，attach 只作客户端。
@@ -1070,11 +1072,11 @@ Gateway 经受管 worker runtime 创建实际 SDK 会话和 kernel；`createSess
 - **重连**：同步 `subscribe(listener)` 先注册再返回快照及 sequence；按 sequence 取之后的事件，不需要持久 replay。事件按递增序号（包括重入回调）交付，unsubscribe 只断开观察。快照包含 SDK 当前 messages 视图的拷贝、当前 kernel、当前操作和最近 **64** 个终态；不维护第二份对话/持久 job journal。缓存内重复 requestId 拒绝；过期/未确认 ID 的结果是未知，不得自动重发副作用请求。
 - **取消**：针对指定 operationId，覆盖当前 SDK drain；clearQueue 后 abort，`requested` 只是确认请求。终态区分 completed/failed/cancelled/unknown；文本变换使排队请求无法可靠匹配时保守 unknown。若 kernel 操作已开始，SDK abort 本身不能证明远端无副作用，终态保守 unknown。取消不是回滚，也不关闭 worker runtime/kernel；安全时可继续下一次请求。
 - **生命周期**：reload 只允许 host idle，不重建 worker/kernel；reload 失败只报错，状态不变。host.close 先关准入，等待迟到 preflight/执行、取消与生命周期操作收束，尝试所有自有资源清理后发布 `host_closed`（清理未确认时 `failureCount>0` 并抛出同一错误，状态仍为 closed）；重复 close 保留同一结果。任意永不返回的第三方 input handler 可能延迟关闭，SDK 无通用强制终止该 JavaScript handler 的能力。
-- **证据入口**：`npm run check:host` 覆盖 SDK 异步准入、队列、输入处理、终态、stream 与扩展重载。生产 worker 与认证 Jupyter 的真实调用链由独立 Gateway、worker 和 kernel 检查覆盖；受控 provider 不代表外部模型能力。
+- **证据入口**：当时的用例 覆盖 SDK 异步准入、队列、输入处理、终态、stream 与扩展重载。生产 worker 与认证 Jupyter 的真实调用链由独立 Gateway、worker 和 kernel 检查覆盖；受控 provider 不代表外部模型能力。
 
 ### Private daemon / attach（传输已由 Root 接受；最终累计候选仍待独立核验）
 
-`npm run check:transport` 同时执行协议边界检查及独立启动的真实 daemon/CLI：两 socket 共用 SDK main/worker 身份，A 在 Python sleep 中断连而 B 继续观察，重连取得 messages/终态，保留变量/文件 41→42，显式 cancel 抵达真实 worker 后复用同一 kernel，reload/worker close/shutdown 保持归属。SDK provider 在该检查中受控，不把它冒充最终 live-model connected-client 验收。
+当时的用例 同时执行协议边界检查及独立启动的真实 daemon/CLI：两 socket 共用 SDK main/worker 身份，A 在 Python sleep 中断连而 B 继续观察，重连取得 messages/终态，保留变量/文件 41→42，显式 cancel 抵达真实 worker 后复用同一 kernel，reload/worker close/shutdown 保持归属。SDK provider 在该检查中受控，不把它冒充最终 live-model connected-client 验收。
 
 协议检查不再要求目录/socket 的 lstat、owner/mode/symlink 拒绝；已有活 endpoint 拒绝启动，死 socket 不阻塞重启。同步重入 snapshot-first handoff、非法/重复/未知方法、分块 UTF-8/字节限制、并发上限及慢客户端断开继续保留。订阅/断连不取消；send acceptance 与 operation terminal 分离。连接丢失或请求超时只报告 unknown，客户端无自动重发/重连。终态仅保留 host 的 64 条；大于 8 MiB 的完整快照明确拒绝，不返回伪完整历史。详见 `docs/wire/transport.md`。
 
@@ -1082,13 +1084,13 @@ Gateway 经受管 worker runtime 创建实际 SDK 会话和 kernel；`createSess
 
 上述历史实测保留为历史，不替代当前候选的验收。重启后初次检查未发现可用 Jupyter 配置，`127.0.0.1:18888` 连接被拒绝。用户随后明确授权测试脚本启动/停止自己创建的临时认证 loopback Jupyter：使用临时端口、隔离的 runtime/config/cwd 与项目管理的 Python 环境，不重启或修改既有服务。显式外部 `JUPYTER_URL` / `JUPYTER_TOKEN` 仍属于外部所有者；测试只清理自己创建的 kernel，绝不停止该服务。SDK 受控 provider 的测试或模型注册成功不能替代真实 host → worker → kernel 验收。
 
-当前候选的两项窄修复分别有独立回归：临时 prefix 的 kernelspec 在 ServerApp 初始化后的公开 manager 上固定，并与安装返回目录核对（`tests/jupyter/check-jupyter-spec.py` 验证竞争 spec；fixture 检查实际 `sys.executable/sys.prefix`）；首次 kernel info 延迟时，在原有 10 秒总预算内接受迟到的官方 initial info 或唯一一次已验证的 metadata probe，关闭/取消/超时后不提交代码（`npm run check:kernel-close`）。默认 launcher prefix 行为不变；受管本地实例显式传入 `--fixed-token-source .runtime/workers-office.json`，只读取现有 owner-only 配置中唯一 `name: default` 条目的 token，缺失、非法 JSON、错误结构或非法 token 直接失败，不回退随机 token。
+当前候选的两项窄修复分别有独立回归：临时 prefix 的 kernelspec 在 ServerApp 初始化后的公开 manager 上固定，并与安装返回目录核对（当时的用例 验证竞争 spec；fixture 检查实际 `sys.executable/sys.prefix`）；首次 kernel info 延迟时，在原有 10 秒总预算内接受迟到的官方 initial info 或唯一一次已验证的 metadata probe，关闭/取消/超时后不提交代码（当时的用例）。默认 launcher prefix 行为不变；受管本地实例显式传入 `--fixed-token-source .runtime/workers-office.json`，只读取现有 owner-only 配置中唯一 `name: default` 条目的 token，缺失、非法 JSON、错误结构或非法 token 直接失败，不回退随机 token。
 
 **未解释的历史风险**：attempt4 曾出现低频 worker beta 启动缺失 info reply，原因尚未查明；不能把上述修复归因为该历史故障的已证实解决。attempt5 的一次有效、有界、仅消息元数据的诊断执行了 20 对实际 SDK alpha/beta workers（40 次 kernel 分配），全部初始 info 请求均匹配服务端接收/转发、reply 和客户端接收/settlement，未复现故障；自有 kernel 集合归零，服务与临时目录已回收。此前一次诊断因 instrumentation 的 trait 方法名冲突无效，单独保留，不算产品故障或成功证据。未追加压力循环、失败重试、kernel 替换或传输切换。当前候选的完整检查与 Root 独立复验仍需分别报告；未复现不等于证明间歇故障不存在。
 
 ### 历史启动与检查记录（已被 worker-only 合同取代）
 
-- 以下旧候选曾记录多类会话、其启动顺序与检查入口；不再作为当前操作指引或 cutover 验收。当前 Gateway／worker 创建与 attach 命令见 [wire/API 文档](docs/wire/transport.md)，实例 target、kernelspec 与 cwd 规则见[机器配置](docs/machine-session-management.md)，恢复与关闭见[kernel 恢复](docs/kernel-recovery.md)。旧检查入口不适用于当前合同。
+- 以下旧候选曾记录多类会话及其启动顺序；不再作为当前操作指引或 cutover 验收。当前 Gateway／worker 创建与 attach 命令见 [wire/API 文档](docs/wire/transport.md)，实例 target、kernelspec 与 cwd 规则见[机器配置](docs/machine-session-management.md)，恢复与关闭见[kernel 恢复](docs/kernel-recovery.md)。旧检查入口不适用于当前合同。
 
 ### 独立 Web 启动与本轮验收
 
@@ -1129,19 +1131,18 @@ cwd = "/absolute/owned/beta"
 
 **2026-09-18 前端更新：** 主界面只保留会话列表、连续对话和固定输入框。工具调用按 `toolCallId` 与结果配对，依照 assistant 内容块的位置就地显示；同名工具不会按名称或数组位置配对。工具卡默认折叠，展开查看输入和实时/最终输出，保留展开状态与输出阅读位置。session/事件序号、断开和关闭操作、运行记录收进“会话详情”；执行中才显示停止与忙时投递选项，异常和结果未知仍明确提示。右上角提供明暗切换，默认跟随系统，手动选择仅以 `pi-worker-theme` 保存到浏览器 localStorage。
 
-本次已重新通过 `npm run check:web` 的实际 SDK/Jupyter/受控浏览器检查，包括连续轮次的工具顺序、流式输出滚动、重连、取消和资源清理。另在常驻网页通过真实模型完成“文字 → Python 42 → 文字 → Python 100 → 文字”，验证重载后调用/结果对应不变、明暗偏好保留及桌面/390px 手机布局；乱序结果与旧实时事件覆盖问题另用浏览器内渲染样例验证。没有新增前端依赖，也没有更改模型或执行协议。
+本次已重新通过 当时用例的实际 SDK/Jupyter/受控浏览器检查，包括连续轮次的工具顺序、流式输出滚动、重连、取消和资源清理。另在常驻网页通过真实模型完成“文字 → Python 42 → 文字 → Python 100 → 文字”，验证重载后调用/结果对应不变、明暗偏好保留及桌面/390px 手机布局；乱序结果与旧实时事件覆盖问题另用浏览器内渲染样例验证。没有新增前端依赖，也没有更改模型或执行协议。
 
 Web 不是 Gateway socket 的浏览器代理。HTTP 默认 loopback；仅显式私网 IP（RFC1918/Tailscale 或 loopback）可绑定，拒绝 wildcard/public/DNS 名称。精确 Host/Origin 与跨站请求限制防护不等于用户认证。没有 TLS、浏览器登录或多租户隔离，所有能接触监听端点的受信单用户网络参与者可操作 worker；不要公网暴露、端口转发或当作公共服务。实例 token 仍省略，插件配置秘密值仍遮罩且不提供原值揭示，公开工作台列表不新增 token；会话与工具输出由发布层原样传递，可能含敏感内容。详见 [wire 文档的 Web 边界](docs/wire/http.md#independent-web-workbench)。
 
 #### 检查入口与前提（Root 已完成初始集中运行；累计候选仍未最终接受）
 
-- Node >=22.19、`npm ci --ignore-scripts` 后：`npm run check`；`npm run check:web:server`；`node src/main.ts --help`。
-- 实际 SDK/受控 provider/Jupyter：`node tests/workers/check-independent-worker.mjs`、`node tests/jupyter/check-kernel-state.mjs`、`npm run check:host`、`npm run check:workers:lifecycle`、`npm run check:kernel-close`、`npm run check:transport`（包括 `tests/gateway/check-gateway-contract.mjs`）、`npm run check:jupyter:fixture`、`node tests/jupyter/check-jupyter.mjs`。
-- Python 公共客户端 smoke／spec 回归：`"$PI_TEST_PYTHON" tests/jupyter/check-shell-wakeup.py`、`"$PI_TEST_PYTHON" tests/jupyter/check-jupyter-spec.py`。解释器须来自锁定环境，含 Jupyter/ipykernel 与官方修复；不修改既有 `.venv`。`check-shell-wakeup.py` 只验证公开 client 的 shell execute request/reply 交付；不声称 IOPub idle 完成或上游 ROUTER 已消耗 edge 的确定性前提，因此 R26 deterministic wedge 仍为 **BLOCKED**，不能把 public smoke 当作等价验收；fixture 通过 `PI_TEST_PYTHON` 指定现有解释器，缺失则明确不可运行；成对外部 `JUPYTER_URL`/`JUPYTER_TOKEN` 仅在所有者明确配置时使用，绝不停止外部服务。同机共享测试临时文件系统是前提。
-- 受控浏览器（Root 初始 `check:web` 与 `check:native:web` 均未形成完整通过；后续浏览器条款未运行）：`PI_TEST_PLAYWRIGHT=/absolute/path/to/playwright-core/index.mjs PI_TEST_CHROMIUM=/absolute/path/to/chromium PI_TEST_WEB_EVIDENCE=/absolute/owned/evidence npm run check:web`，并设置上述 `PI_TEST_PYTHON`。没有内置下载/真实模型 fallback；缺少浏览器依赖明确失败。真实 Chromium 1440×1000 与 390×844、实际 SDK/Jupyter，只有 provider 响应受控。变量/文件 41、断开并关闭页面后重新打开、原 session/kernel 写入并返回 42、live output、cancel/reuse、隔离、确认关闭及 sentinel 清理均为验收目标，不是当前回执。
-- 真实外部模型入口包括 `node tests/workers/check-independent-worker.mjs --live --model PROVIDER/MODEL --home DIR --extension PATH`、`npm run check:gateway:live -- --model ...`。它们会调用外部模型，需要明确授权；旧 CLI/host 检查不能替代 Web 浏览器验收。
+- Node >=22.19、`npm ci --ignore-scripts` 后：`npm run check`；当时的用例；`node src/main.ts --help`。
+- Python 公共客户端 smoke／spec 回归：当时的用例。解释器须来自锁定环境，含 Jupyter/ipykernel 与官方修复；不修改既有 `.venv`。`check-shell-wakeup.py` 只验证公开 client 的 shell execute request/reply 交付；不声称 IOPub idle 完成或上游 ROUTER 已消耗 edge 的确定性前提，因此 R26 deterministic wedge 仍为 **BLOCKED**，不能把 public smoke 当作等价验收；fixture 通过 `PI_TEST_PYTHON` 指定现有解释器，缺失则明确不可运行；成对外部 `JUPYTER_URL`/`JUPYTER_TOKEN` 仅在所有者明确配置时使用，绝不停止外部服务。同机共享测试临时文件系统是前提。
+- 当时的受控浏览器验收未完整通过，后续条款未运行；目标包括 1440×1000 与 390×844、断开后续接、变量复用、显式取消与归属隔离。
+- 真实外部模型调用另需明确授权。
 - 早期外部模型调用确曾被拒绝，`live-command-denied.txt` 作为历史失败证据保留。后续同会话授权与独立验证已完成，最终以 `final-limited-delivery-receipt.json` 的 LIMITED_ACCEPTED 为准：独立 worker/网页通过，旧 host-live 未通过且被用户仅就本次有限交付豁免，不改记为 PASS。
-- `check:web` 仍是受控 provider 检查，没有真实模型模式。真实浏览器验收使用实际 `web` 服务；手机尺寸验证不等于蜂窝网络或远端机器部署验证。本计划不替代对应回执与实际输出。
+- 旧检查 仍是受控 provider 检查，没有真实模型模式。真实浏览器验收使用实际 `web` 服务；手机尺寸验证不等于蜂窝网络或远端机器部署验证。本计划不替代对应回执与实际输出。
 
 ### 当前 Gateway 与本地实例指引
 
@@ -1157,12 +1158,7 @@ Web 不是 Gateway socket 的浏览器代理。HTTP 默认 loopback；仅显式�
 
 `pyproject.toml` 要求 PyPI 的 `ipykernel>=7.4.0`，`uv.lock` 锁定 7.4.0。7.4.0（2026-09-29）包含官方 PR [#1529](https://github.com/ipython/ipykernel/pull/1529)（提交 `c7422704`，shell reply 经 ZMQStream 发送；旧版 raw ROUTER reply 路径会搁置请求）；用 GitHub compare 核对过该提交是 v7.4.0 的祖先（behind 0）。此前锁的是该提交的 GitHub archive，安装时要访问 GitHub；换成 PyPI 正式版后，锁里不再有 GitHub 来源，不能访问 GitHub 的机器也能 `uv sync --frozen`。
 
-从锁构建新的自有环境（不要指向正在运行服务的环境），再用它跑带真实 Jupyter 的浏览器套件：
-
-```sh
-UV_PROJECT_ENVIRONMENT=/absolute/path/to/new-owned-env uv sync --frozen --no-config --python /path/to/python3
-PI_TEST_PYTHON=/absolute/path/to/new-owned-env/bin/python npm run check:web
-```
+当时以新建的锁定环境验证，未采用运行中服务的环境。
 
 没有能复现上游 ROUTER 搁置前提的测试，R26 的 deterministic wedge 保证仍为 **BLOCKED**，不记 PASS。
 
@@ -1180,25 +1176,7 @@ Gateway 使用启动 cwd 作为会话目录，公开 SDK loader 保留正常资�
 
 ### 同机真实 Gateway 验收入口（历史路径，不是 Web live 证明）
 
-```sh
-# 先按上节从最终 lock 准备新环境；旧 .venv 的版本字符串不能证明采用了修复。
-export PI_TEST_PYTHON=/absolute/path/to/new-owned-env/bin/python
-export PYTHONDONTWRITEBYTECODE=1
-npm run check:gateway:live -- --help
-npm run check:gateway:live -- --model PROVIDER/MODEL --home /path/to/prk-home --extension /path/to/prk-home/agent/provider/index.ts
-# 所有可用层次分别执行，受控 provider 检查不替代真实模型调用：
-npm run check
-npm run check:host
-npm run check:workers:lifecycle
-npm run check:kernel-close
-npm run check:transport
-npm run check:jupyter:fixture
-node tests/jupyter/check-jupyter.mjs
-"$PI_TEST_PYTHON" tests/jupyter/check-shell-wakeup.py
-"$PI_TEST_PYTHON" tests/jupyter/check-jupyter-spec.py
-```
-
-`tests/gateway/check-gateway-live.mjs` 独立启动实际 CLI daemon、两个真实 socket 客户端和实际 attach CLI；使用显式真实模型，不加载受控 provider、不自动 fallback。main 委派 worker 后，Python 写入变量/文件 41 并继续执行，检测真实文件进度且确认同一 operation/worker 为 running 才断开 A，不用任意等待冒充执行证据。B 观察终态，A 重连原 session；第二次实际 CLI 模型请求使同一 worker/kernel 的变量和文件变成 42，官方认证 kernel 连接独立断言变量值。随后单独测试长 Python 的显式 cancel、终态及复用；远端副作用不确定时终态 `unknown` 是诚实结果，不声称回滚或重放。每次模型操作总预算 180 秒；失败路径经 fixture `onCleanup` 与 `finally` 回收自有资源。
+当时的受控实测独立启动实际 CLI daemon、两个真实 socket 客户端和实际 attach CLI；使用显式真实模型，不加载受控 provider、不自动 fallback。main 委派 worker 后，Python 写入变量/文件 41 并继续执行，检测真实文件进度且确认同一 operation/worker 为 running 才断开 A，不用任意等待冒充执行证据。B 观察终态，A 重连原 session；第二次实际 CLI 模型请求使同一 worker/kernel 的变量和文件变成 42，官方认证 kernel 连接独立断言变量值。随后单独测试长 Python 的显式 cancel、终态及复用；远端副作用不确定时终态 `unknown` 是诚实结果，不声称回滚或重放。每次模型操作总预算 180 秒；失败路径经 fixture `onCleanup` 与 `finally` 回收自有资源。
 
 2026-09-17 此入口已用批准的 `clp/gpt-5.6-luna` 和从最终 lock 创建的只读 adopted Python 环境实测通过上述链路。shutdown 前仍保有自有 kernel；shutdown reply 仅证实 host close，测试另等 daemon 正常退出及 socket/bind 路径移除，然后核对 Server 启动身份、原 kernel 集合及额外非 Gateway 所属 sentinel kernel 仍可执行。最后仅删除测试自有 sentinel、fixture Server 与临时文件。本轮临时 Server 的外部初始 kernel 数为 0，因此额外 sentinel 是非空归属隔离证据，不声称观察了未配置的生产 Server。显式外部 `JUPYTER_URL`/`JUPYTER_TOKEN` 可沿用同一入口，外部 Server 永不由 fixture 停止；现有服务/QQ/OMP/OpenViking 未修改。
 

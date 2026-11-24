@@ -26,9 +26,9 @@
 
 ### 终端验证材料
 
-D7前local/office原版close反例保留于当时的任务记录（未随仓库发布），不是D7候选结论。新验收入口`tests/workspace/check-pty-d7.mjs local|office`记录正常close、杀transport wrapper、Gateway SIGKILL及自然exit；独立observer核对普通job消失、nohup/disown-h保留，测试owner最终只清记录身份。
+D7前local/office原版close反例保留于当时的任务记录（未随仓库发布），不是D7候选结论。当时的验收记录正常close、杀transport wrapper、Gateway SIGKILL及自然exit；独立observer核对普通job消失、nohup/disown-h保留，测试owner最终只清记录身份。
 
-旧 `tests/workspace/check-terminal-restore.mjs` 验证的是 Jupyter 持久接回，不作为新 PTY 生命周期证据。浏览器掉线保留与 Gateway 掉线不接回必须分开验收；不能一并删除前者。
+旧终端恢复用例验证的是 Jupyter 持久接回，不作为新 PTY 生命周期证据。浏览器掉线保留与 Gateway 掉线不接回必须分开验收；不能一并删除前者。
 
 ### 模型终端的展示与运行说明
 

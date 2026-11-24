@@ -61,7 +61,7 @@
 
 - 目录就是对象：子系统 → 对象 → 对象内部按职责划分（如 `connection/`、`dispatch/`）。根层只放子系统和进程入口。
 - 一个方法一个文件，文件名就是动作。只在内部使用的小函数跟着唯一的调用方走，不单独导出。
-- 单个代码文件（src/、web/、tests/、scripts/ 下的源码和测试）有效行不超过 200（空行和注释不算）。改到已经超标的文件时，把它拆到 200 以内；这属于本次改动的一部分，不算「顺手改无关代码」。文档（*.md）不受此限。
+- 单个代码文件（src/、web/、test/、scripts/ 下的源码和测试）有效行不超过 200（空行和注释不算）。改到已经超标的文件时，把它拆到 200 以内；这属于本次改动的一部分，不算「顺手改无关代码」。文档（*.md）不受此限。
 - 名字要有领域含义；禁用 `utils`、`helpers`、`common`、`misc`、`lib`、`core`、`base`、`impl`、`manager`。
 - `index` 不承载逻辑；装配入口命名为 `assemble-<对象>`。
 - 同一个领域概念只定义一处，放在它所属的子系统，别处 import，不复制。跨子系统使用时，走所属子系统的公开层，不伸进别的子系统内部。
@@ -83,10 +83,9 @@
 
 ## 验收与任务交接
 
-- 测试分层：普通改动补充并运行相关单元用例，交付前跑 `npm run check:unit` 一次；unit 层只测纯逻辑，不启动外部进程、网络、daemon、kernel 或浏览器。合入 `daily` 的默认检查为 tsc、Web lint、Web build 和 `check:unit`，合完立即在本机 daily 生效。
-- IO／跨边界改动另加 smoke（现有 `npm run check:quick`，ship 使用 `--smoke`）：包括 wire protocol、target channel、host process、HTTP/SSE、kernel、浏览器渲染和启动顺序。验收方读取最终 diff，选择覆盖受影响边界的相关 integration，不把全部集成测试塞进 unit。smoke 需要显式指定 `PI_TEST_PYTHON`、`PI_TEST_PLAYWRIGHT` 和 `PI_TEST_CHROMIUM`，取值见 [测试环境](docs/kernel-recovery.md#test-environment)。
-- 测试预算：只改任务要求的地方，不顺手改写无关代码和文档。新行为加聚焦用例；已有测试只改修复后真会失败的断言，本来就能过的不收紧。撤修复看变红只做一次。过程中只跑与本次改动直接相关的单元用例，不每次改动都跑整层；交付前跑相关单元用例和 `check:unit` 各一次，跨边界再加一次 smoke。相关 integration、慢测试与截图矩阵由验收方按 diff 选择。任务书已写明的诊断当事实用，不重新诊断。
-- `npm run check:full` 只在定 0.1 版本时跑；实现方不跑，daily 合入、普通 main 合入和定时任务都不触发 full。full 需要 `PI_TEST_PYTHON`、`PI_TEST_PLAYWRIGHT`、`PI_TEST_CHROMIUM`（缺少会拒跑）。
+- 修 bug 默认补纯逻辑单元用例；单元不启动进程、网络、内核或浏览器。跨边界回归放集成层；只为关键用户旅程回归加 Chromium 用例。
+- 单元 ≤30 秒、集成 ≤3 分钟、浏览器 ≤5 分钟；新增用例超预算时先合并或删除旧用例。集成与浏览器使用隔离的真实服务及受控 provider。
+- 实现方运行 `npm test`（类型、单元、Web lint、契约 lint，<1 分钟）和受影响的层；合并前必须跑 `npm run check`（再加集成、浏览器、Web build，<10 分钟）。[测试环境和按层运行](docs/kernel-recovery.md#test-environment)。付费验收单独授权，不走这两个入口。
 - 测试通过不能证明越界实现合理；验证前先检查是否违反上述边界。发现既有越界代码时指出具体位置并停止扩建，不借本文件自行大范围删除或重构。
 - 验收必须使用真实调用路径。受控 provider 只能证明其实际覆盖的机制，不能冒充真实模型能力；区分产品缺陷、测试脚本缺陷与缺少前提，不弱化断言或修改上游来制造 PASS。
 - 返工必须保留完整累计补丁与证据，核对实际最终文件，不能只凭子任务声称“已保留”。新的候选或隔离任务开始前必须读取本文件；无法携带这些约束时不得继续派发。

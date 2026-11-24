@@ -1,12 +1,10 @@
 #new-messages.pi-new-messages {
   position: absolute;
   right: 0;
-  bottom: calc(100% + .25rem);
-  left: 0;
+  bottom: calc(100% + .35rem);
   width: fit-content;
   height: 2.5rem;
   min-height: 2.5rem;
-  margin-inline: auto;
   padding-inline: .95rem;
   border: 1px solid var(--pi-line-strong);
   border-radius: 999px;

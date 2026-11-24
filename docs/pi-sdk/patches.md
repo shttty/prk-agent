@@ -28,4 +28,4 @@
 - 工厂成功才提交 provider 变更；providerOnly 在普通 runtime 变更与 flag 提交前，丢弃没有允许注册 provider 的实例及其 SDK 总线订阅。不承诺回滚插件自己的 JS、timer 或文件副作用。所有权与手写优先规则属于 PRK，见 [模型配置](../configuration.md)。
 - 包来源来自 Pi 资源元数据，非 package 来源使用扩展路径作为身份；不以源码文本猜测 provider。策略错误同时保存在资源错误与运行期 runner 错误事件中。
 - 启动检查：`src/application/sdk-brand/assert-provider-policy.ts` 实际加载隔离工厂，核对注册／注销均被拒绝、命令保留和非 provider 丢弃；任一行为不符拒绝启动。版本或源码锚点不符时补丁脚本拒绝，升级时须重审所有修改。
-- 聚焦验证：`tests/sessions/check-provider-policy.mjs` 使用真实 SDK、真实包加载及内置 faux provider，覆盖双重载、加载期及绑定后注销、结构化错误、保留注册、已有模型流和非 provider 总线订阅清理。
+- 当时的聚焦验证使用真实 SDK、真实包加载及内置 faux provider，覆盖双重载、加载期及绑定后注销、结构化错误、保留注册、已有模型流和非 provider 总线订阅清理。

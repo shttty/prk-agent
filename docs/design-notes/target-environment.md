@@ -91,15 +91,6 @@ kernel 的 `memoryMax`、`memorySwapMax` 与 `telemetryIntervalMs` 仍由全局�
 - daemon 被 SIGKILL 本身无法执行清理，不能与 transport EOF/SSH 断开混为一谈。D7 让现有每次启动的 Python launcher 保留为短命根、fork Node/Bun；根不加载插件，Linux 父死信号触发其停止已验证的本次 scope，或无 scope 时清本 PGID，覆盖 Pi 同步卡死。rootPid 与实际 Pi pid 分开；根清理时自杀不冒充 Pi OOM/退出码。
 - 本次只实测 Linux x64、本机 /bin/sh 与 office /bin/bash；不外推 dash/busybox、跨 UID、macOS/Windows、静默黑洞或真实 sudo 密码失败。
 
-## 可重复验收入口
+## 验证
 
-设置 `PI_TEST_PYTHON` 后运行 `node tests/target-environment/check-connection.mjs local`、
-`... shell`、`check-command.mjs`、`check-failures.mjs` 和 `check-disconnect.mjs local`。
-office 模式另设置完整原始 `PI_TEST_SSH`，运行 `check-connection.mjs office` 与
-`check-disconnect.mjs office`。fixture 只在自有临时 HOME/PRK_HOME/目标路径创建资源，
-不读写实例配置或启动现有服务；认证用例的 fake-auth 是显式标记的受控环境变量程序，不是真实 sshpass/密码认证证据。
-
-连接 harness 保留其原始证明范围；新增 `check-runtime-channel.mjs local` / `office` 走完整
-process 目标 runtime、消费窗口和断链路径，不代替 S3/S4 或 scope 清理验收。
-
-`node tests/target-environment/check-host-cleanup.mjs local` / `office` 使用独立 observer，覆盖 scoped/unscoped 的正常末租约关闭、wrapper 断链、独立自有 Gateway 子进程 SIGKILL；检查根、宿主、普通/nohup 后代以及 scope 内 setsid 后代退出，并以真实 SDK kernel 变量和另一宿主证明归属隔离。无 scope 仅保证本 PGID，不声称清理主动脱组进程。断链后的 Gateway 可能以真实 exit 1 报 kernel `UNAVAILABLE/details.closed=true`：它不能跨失效连接自证清理，与 observer 已证物理退出分别记录；正常关闭仍要求 exit 0。
+[集成检查](../kernel-recovery.md#test-environment) 用自有本机和 loopback 目标验证部署与文件流，不依赖生产目标或凭据。

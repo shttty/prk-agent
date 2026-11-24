@@ -111,11 +111,4 @@ Cancellation reports cumulative `returnedMessages` and may emit a hidden `gatewa
 Admission, discard and cancellation boundaries: [模块约定](../wire/sessions.md#约定), [REQ-1](../contract.md)、[模块约定](../wire/native.md#约定).
 Input-extension limitations and cancellation uncertainty are recorded in [design notes](../design-notes.md).
 
-Paid acceptance requires separate explicit authorization and never belongs to deterministic gates. Use a caller-prepared credential copy, not the real PRK/Pi home, with explicit owned HOME/PRK_HOME and PI_TEST_PYTHON:
-
-```sh
-node tests/sessions/check-agent-duplex-live.mjs --model PROVIDER/MODEL --home /path/to/COPY
-node tests/sessions/check-agent-duplex-live.mjs --model PROVIDER/MODEL --home /path/to/COPY --cancel
-```
-
-The script replaces only the copy's instances.toml with an owned local daemon/Python fixture and selects session.workerTools=direct, preserving other global settings. The copy remains modified. Three-agent checks cover six questions/replies, exact-once delivery, routing and completion; cancel checks cover busy unconsumed backlog and one next-run notice without replay. These do not establish model answer quality or cover delivered-but-unprocessed/refused-flush classes.
+Paid acceptance requires separate explicit authorization and a caller-prepared credential copy; it does not run in the [deterministic checks](../kernel-recovery.md#test-environment).

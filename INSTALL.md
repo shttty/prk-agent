@@ -194,3 +194,5 @@ pid 和日志在 `.runtime/prk/`。每个组件在自己的进程组里，`stop`
 | Python 解释器不可用或版本低于 3.9 | 检查目标实例的 Python 绝对路径和目标机上的实际版本；在网页实例设置测试连接并重新选择解释器。 |
 | 实例环境下发报 `No current … artifact` | 源码安装请先导入第 2 步的工具制品，确保平台匹配；已有制品请检查该工具的当前版本。 |
 | 实例提示待补配置 | 在实例设置填写无人值守连接命令并测试，再选择 Python；local 只需 Python。交互密码、OTP 和 MFA 菜单不受支持。 |
+
+For contributor checks, see the [test environment](docs/kernel-recovery.md#test-environment).

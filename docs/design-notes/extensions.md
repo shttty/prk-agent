@@ -5,7 +5,7 @@
 
 - 配置描述（`description`）只校验结构，不验证插件是否实际读取某个键；插件更新不修改描述。模型只登记说明或读取，操作者写值；插件在会话重载或网关重启后读取值，没有自动重启。`pluginConfig*` 只登记 Gateway-host 文件，不是目标机插件配置编辑接口；远程安装列表使用独立的包管理路由。
 - 嵌套工具调用不产生独立工具结果消息；依赖自身结果消息恢复的插件，需要其公开的嵌套调用持久化契约。
-`prk-todolist` 的 `todo_list` 用 `pi.appendEntry()` 快照保留列表，嵌套调用后原生资源重载仍可恢复；证据入口为 `PI_TEST_TODO_PACKAGE=<本地 prk-todolist 包目录> node tests/kernel/check-kernel-codemode.mjs`。项目没有补建影子存储，也不读取或迁移老插件快照。
+`prk-todolist` 的 `todo_list` 用 `pi.appendEntry()` 快照保留列表，嵌套调用后原生资源重载仍可恢复。项目没有补建影子存储，也不读取或迁移老插件快照。
 - 原文第 `290` 行说父项不渲染 `nestedCalls`；源码 `web/chat/tool-text/nested-summary.js`、`web/chat/transcript/tool-calls/body/NestedCalls.jsx` 已有父项摘要。实时嵌套事件仍不建独立行，不能把前一句当作禁止父项摘要。
 - 托管模式的 `tui` 是 `Pi 1.1.0` 的兼容标签，不代表终端能力对等；深浅色主题资源使用 `additionalThemePaths`。
 已批准且带版本检查的 `coding-agent` 快捷键内部导入集中在 `extension-ui.ts`，并传入会话的 `agentDir`；没有全局 `initTheme` 或上游原型覆盖。
@@ -27,7 +27,7 @@
 
 #### 约定
 
-- `npm run check:unit` 使用 Node 原生 `node:test`，按可用 CPU 核数并发运行 `tests/unit/`；目录镜像 `src/`，不需要 Python、Jupyter、浏览器、模型或新增测试依赖。
+- `npm test` 的单元层使用 Node 原生 `node:test`，不依赖 Python、浏览器或模型。
 - 单元测试只直接调用 codec、包合并／位置解析／指纹、注册元数据校验和 catalog 聚合等纯函数；不造 `ctx`、mock 或 IO。catalog 聚合保留扩展入口与注册顺序，后续空入口不得清空先前命令；真实加载、发布与跨进程生命周期继续由既有集成测试覆盖。
 - remote-extensions 的对象上下文与领域类型集中在各对象已有 `*-types.ts`；host/memory 的 JSDoc 形状改为 `host-types.ts`／`memory-types.ts`，不再部署空类型模块。方法从同一对象的唯一类型文件导入一次；跨对象与 SDK 类型仍直接指向定义方，不建类型转发壳。codec 的 `.mjs` 实现保留配套 `.d.mts` 声明。
 - 源码注释只说明隐含约束、接入偏离或反直觉行为；不再复述文件名、装配动作或迁移前闭包。
@@ -68,9 +68,7 @@
 - 原生 read/edit 的整文件内存读写都在目标机；Gateway 只接收所需页、图片或差异，不来回搬整文件。Pi 自身输出限制和既有扩展帧限制生效，不套用 PRK hashline 的 200 MiB 文件限制。
 - Linux aarch64 仅承载既有平台合同，本轮不做实机验证。faux 验收只证明真实调用路径机制，不代表付费模型能力。
 
-验证入口：SHELL=/bin/bash PI_TEST_PYTHON=... node tests/sessions/check-native-remote.mjs；自有 Gateway/daemon、faux 与 bwrap 目标命名空间。保留七工具、参数准备、PNG、插件拦截、普通/嵌套正文、files 权限互斥、5 MiB 双向帧、离线rg/fd、缺fd拒绝和同会话开关场景；不读取生产制品，不加入quick。
 
-执行生命周期入口：tests/sessions/check-remote-tool-lifecycle.mjs，真实 Pi/faux、daemon/process channel/宿主，保留6秒执行及事件钩子、自带timeout、abort后PID退出/宿主复用与慢shutdown清理；不加入quick。
 
 ## 已实施设计：远程宿主按会话合并、独立 scope 与钩子停止
 
@@ -92,9 +90,8 @@
 - Gateway的 `location:"local"` handler使用公开resource loader `extensionsOverride`返回PRK自有handler投影；不修改SDK Extension／Map／原型。AsyncLocalStorage只携带当前PRK SDK调用的取消信号，与ctx/event/lifetime信号合并；投影在调用时与abort赛跑，Pi保持唯一排序、事件错误、队列及历史权威。动态pi.on/unsubscribe仍以原注册表为准。
 - 会话关闭／重载／Gateway 关停先取消已经在途的钩子。随后新发出的 session_shutdown 是独立控制事件，沿原生 SDK 等待其正常清理，不继承已退休回合的取消；若该控制 handler 已挂起，再次取消会与其结果赛跑。远程 shutdown 保留控制期限并在 SDK runtime.dispose 之前完成；不保存失效 ctx 来绕过上游守卫。Gateway 目录探测绑定其 lifetime signal。
 
-验证入口：`tests/sessions/check-remote-host-scope.mjs`（共享进程／总线、独立内存上限、真实 OOM、setsid 清理与 kernel 连续性）、`check-hook-stop.mjs`（本机／远程停止、迟到结果、同步死循环换代、6 秒钩子）、`check-local-hook-abort.mjs`（公开 loader 接缝及动态注册）。均为隔离真实路径＋faux，不代表付费模型能力；累计证据见任务报告。
+历史验收覆盖共享进程／总线、独立内存上限、真实 OOM、setsid 清理与 kernel 连续性；也覆盖本机／远程停止、迟到结果、同步死循环换代、6 秒钩子、公开 loader 接缝及动态注册。均为隔离真实路径＋faux，不代表付费模型能力；累计证据见任务报告。
 
-pi-env入口为 tests/target-environment/check-pi-host.mjs、check-gateway-host.mjs、check-lazy-host.mjs、check-resources.mjs、check-monitor.mjs。Gateway联合入口验证真实process REPL的typed文件回调、原生开关、target hook及abort后变量保留；生产默认装配也使用同一模块。
 `check-host-cleanup.mjs local`／`office`另外覆盖D7正常close、wrapper断链、独立Gateway SIGKILL及同步卡死的scope／PGID清理，并保留独立kernel变量和其他宿主。物理退出由独立observer证明；Gateway断链后无法自证kernel清理的结构化UNAVAILABLE另行记录，不吞错误。非Linux父死清理未保证。
 
 ### 不做

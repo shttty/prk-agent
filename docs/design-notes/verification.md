@@ -18,15 +18,7 @@
 所链接的 2026-09-22 验证账本记录了更早的多类型设计与实际运行的断言；它作为历史证据保留，不代表当前仅工作单元契约的验收。
 早期失败仍是历史证据；这些结果既不解决远程调用的公开组装能力缺口，也不构成独立验收或整体完成状态 `RUN_COMPLETE`。
 
-受控提供方的可复现入口（本次未执行）：
-
-```sh
-npm run check:native:sdk
-npm run check:native:web
-npm run check:gateway:workers
-npm run check:history
-npm run check:recovery
-```
+当前检查入口见 [测试环境](../kernel-recovery.md#test-environment)。
 
 权威结果为当时的任务产物 `verification-results.json`（未随仓库发布）。
 它记录早期多类型设计的原生开发套件、原生网页、工作台、历史、恢复、派生会话及生命周期运行；实际运行的断言仍属历史，不声称已验收当前仅工作单元契约。
@@ -37,9 +29,8 @@ npm run check:recovery
 严格解析器、过滤式分支、持久崩溃前缀回执与替换回滚不再是当前验收契约。
 普通剪贴板复制仍使用标准 `Clipboard API` 并报告实际成败；不要求为强制权限拒绝另做工程。
 
-浏览器检查在每个测试后端前启动自己的 `web/` 下 `Vite` 开发服务器（`tests/fixtures/web-dev.mjs`），因此必须先安装网页依赖；无需构建。
-浏览器检查需要已有的 `PI_TEST_PYTHON`、`PI_TEST_PLAYWRIGHT`、`PI_TEST_CHROMIUM`；使用测试自有的回环环境时，取消设置 `JUPYTER_URL`、`JUPYTER_TOKEN`、`PI_TEST_WEB_HOST`。
-`TMPDIR` 须足够短，使完整的 `Unix` 套接字路径不超过 100 字节。`PI_TEST_WEB_EVIDENCE` 选择保留的证据。
+浏览器检查在每个测试后端前启动自己的 `web/` 下 `Vite` 开发服务器（`test/fixtures/browser/open-workbench.mjs`），因此必须先安装网页依赖；无需构建。
+依赖与隔离方式见 [测试环境](../kernel-recovery.md#test-environment)。
 受控提供方结果只证明实际执行的路径，不能证明真实外部模型的质量、成本、凭据或副作用；外部提供方运行需要明确授权。
 本地通过不授权部署。
 

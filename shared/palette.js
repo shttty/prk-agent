@@ -3,7 +3,7 @@
 //   scales — Mantine palettes (10 shades, light to dark). Mantine computes contrast from them in JS, so they must be
 //            real colours; `accent` and `gray` back the virtual colours of the same name, `dark` is Mantine's dark scale.
 // Swapping a theme = replacing this object; theme.js derives the rest (Mantine's variables, the --pi-* CSS variables).
-// Text-bearing tokens must reach WCAG AA 4.5 on every surface; scripts/dev/look-shots.mjs prints the check.
+// Text-bearing tokens must reach WCAG AA 4.5 on every surface.
 
 export const palette = {
   // Light (2026-10-17, "D"): the session sidebar sits flat on a hue-free canvas, chat / workspace / terminal are white

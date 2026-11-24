@@ -98,7 +98,7 @@
 
 PRK-HOSTSLIM 的 `src/remote-extensions/host/extension-loading/load.mjs` 在 load 时才选择导入：无插件时通过 `import.meta.resolve` 只解析根入口位置，不执行它；读取同包 `package.json` 的精确版本后，以绝对 file URL 导入上述 tools／event-bus。存在插件仍导入完整包根入口，并仅在该路径初始化 jiti。两条路径的七工具都从所选 namespace 取同一组原装工厂，不包装 execute。`bundle/build-native-tool-host.ts` 的递归包复制包含整个 Pi `dist` 及 npm 解析出的依赖闭包，因此保留这些内部文件与 renderer／config 等实际依赖，不另裁剪上游。
 
-聚焦回归入口：`SHELL=/bin/bash PI_TEST_PYTHON=... node tests/sessions/check-remote-host-imports.mjs`（需 Linux、可用 systemd user manager、cgroup-v2 memory controller 和 Bun；可用 `PI_TEST_BUN_BINARY` 指定测试二进制）。Node／Bun 均通过真实 Unix socket load 和原生 read/bash，检查自有 fixture 包根执行信号；无插件不执行入口，插件对照写信号且真实加载插件／事件总线，版本 1.4.1 明确拒绝且不回退。fixture 仅重导出只读安装的 Pi 内部实现，不修改上游、不注入 loader、不猴子补丁。
+当时的隔离验证使用 Linux、systemd user manager、cgroup-v2 memory controller 和 Bun。Node／Bun 均通过真实 Unix socket load 和原生 read/bash，检查自有 fixture 包根执行信号；无插件不执行入口，插件对照写信号且真实加载插件／事件总线，版本 1.4.1 明确拒绝且不回退。fixture 仅重导出只读安装的 Pi 内部实现，不修改上游、不注入 loader、不猴子补丁。
 
 `pi-tui/dist` **不是零差异**：184 个旧文件中 21 个改变（含 source maps），无新增文件。变化是 Markdown 的 CJK emphasis／未闭合公式与表格、autocomplete 对 regex 字符转义、Rex 能力及终端退出恢复；TUI 新增退出恢复内部成员，PRK 不启动终端 TUI。组件公开导出集合未变，原有 UI 能力边界不扩大。
 

@@ -4,7 +4,7 @@ History browsing follows [REQ-13](contract.md). Durable execution selection cont
 
 ## Sending is the way back
 
-Operation outcomes `failed` / `unknown` and subsequent input are governed by [REQ-9](contract.md)、[REQ-8](contract.md). Runtime recovery on the next message is [LIFE-7](contract.md)、[LIFE-8](contract.md); unavailable starts and not-submitted input are [REQ-10](contract.md).
+Operation outcomes `failed` / `unknown` and subsequent input are governed by [REQ-9](contract.md)、[REQ-8](contract.md). Runtime recovery on the next message is [LIFE-7](contract.md); unavailable starts and not-submitted input are [REQ-10](contract.md).
 
 Unavailable recovery returns `recovery:{status:"unavailable",message,code?}`; connection failures preserve `TARGET_UNREACHABLE`. Runtime failures refuse input with `submitted:false`. Pending instance configuration returns `INVALID_REQUEST` with `details:{submitted:false,configurationIssue:{code,message}}`; history and sleeping settings remain usable without connecting. Missing cwd, target and interpreter failures never redirect execution.
 
@@ -14,7 +14,7 @@ The Gateway request is `recoverSession {sessionId, mode, target?, cwd?}`; HTTP u
 
 | Mode / result | Contract |
 | --- | --- |
-| `auto` | [LIFE-7](contract.md)、[LIFE-8](contract.md) |
+| `auto` | [LIFE-7](contract.md) |
 | `new` | [LIFE-9](contract.md)、[模块约定](kernel-recovery.md#约定) |
 | `unavailable` | [REQ-10](contract.md) |
 
@@ -34,51 +34,22 @@ Close requests with unconfirmed owned-kernel cleanup return `UNAVAILABLE` with `
 
 Gateway or target-connection loss invalidates old execution handles and namespaces. The next explicit input may create a fresh REPL; it never adopts the previous process or replays uncertain input. While the Gateway still tracks the retired generation, it refuses to start a replacement without proof that the old owned generation has exited. A disconnected snapshot is not proof.
 
-## Focused verification
-
-`npm run check:recovery` uses the real Pi SDK, an owned target fixture and a controlled provider. It checks same-Gateway continuity, Gateway loss with fresh namespace on explicit input, uncertain side effects without replay, and normal-stop cleanup while an independently owned sentinel remains usable. Set `PI_TEST_PYTHON` to an existing Python 3.9+ executable and use an isolated HOME/PRK_HOME; never use production services.
-
-`tests/sessions/check-failed-recovery.mjs` covers provider failure without losing the live session/namespace, REPL death yielding unknown, subsequent fresh execution without replay, missing-cwd refusal without submitting input, and saved-model fallback. Optional browser checks use `PI_TEST_PLAYWRIGHT` and `PI_TEST_CHROMIUM`; they are controlled-provider mechanism checks, not paid-model acceptance.
-
-`tests/web/check-web-model-live.mjs` exercises two sessions through the browser: Web-only restart preserves the live Gateway namespaces; Gateway SIGKILL preserves readable history but explicit execution gets new empty namespaces. Fresh tool-result IDs distinguish actual execution from retained history. Its `--controlled` mode uses the existing zero-paid provider fixture.
-
-## Session spawn benchmark
-
-`scripts/bench/session-spawn.mjs` is an opt-in, zero-paid benchmark using the embedded Gateway, Pi SDK, owned daemons/REPLs, process channel and faux provider. It is not registered in quick/full. Run with an isolated HOME/PRK_HOME and `SHELL=/bin/bash`:
-
-```sh
-env SHELL=/bin/bash \
-  PI_TEST_PYTHON=/path/to/existing/python \
-  node scripts/bench/session-spawn.mjs --out /tmp/prk-spawn-bench
-```
-
-Default: five measured samples and five simultaneously retained idle children per local/remote × code/direct × native off/on scenario, plus twenty sequential execute/destroy cycles. Remote native-on adds five target-cache-hot samples; its cold samples clear only the owned fixture's target artifact cache. Gateway bundle preparation happens before timing. `--scenario remote/code/on` selects one scenario; `--smoke` reduces counts to one and is not a benchmark result. `--help` defines clocks, RSS attribution, transfer byte accounting and output files.
-
-Current PRK only applies `session.localTools:true` defaults to `local:true` targets. Remote spawn cannot request native tools, so remote native-on is explicitly measured as spawn → idle → `local-tools` → reload → task; its actual first request remains native-off, and its first post-reload request is reported separately. This benchmark does not change that product behavior. The remote target is another owned loopback fixture, not a real network-latency measurement.
-
-Raw JSON includes per-sample clocks, context component sizes, kernel scope memory, host process RSS, artifact hashes/bytes, process-exit checks and RSS trajectories. `summary.json` contains count/median/max. Gateway RSS includes the in-process benchmark harness and ordinary SDK history/catalog/archive retention; no forced GC is used. Host cgroup memory can belong to a shared scope and must not be attributed to one host; use the recorded host PID's RSS. Twenty-cycle RSS growth alone does not establish a leak.
-
-
 ## Test environment
 
-Install the checkout's locked dependencies with `npm ci && npm --prefix web ci`. Both `npm run check:quick` and `npm run check:full` require:
+`npm test` runs typechecking, pure Node unit tests, Web lint and contract lint. Install the checkout dependencies first: `npm ci && npm --prefix web ci`.
+
+`npm run check` also runs real Gateway/SDK integration tests, Chromium journeys and the Web build. In a Linux user session, make `bun`, `rg` and `fd` available on `PATH` and set:
 
 ```sh
 export PI_TEST_PYTHON=/absolute/path/to/python3
 export PI_TEST_PLAYWRIGHT=/absolute/path/to/node_modules/playwright-core/index.mjs
 export PI_TEST_CHROMIUM=/absolute/path/to/chromium
+npm run check
 ```
 
-Use an existing Python 3.9+ interpreter and a compatible Chromium binary. Install Playwright separately from PRK's dependencies; `PI_TEST_PLAYWRIGHT` points to its ESM entry and `PI_TEST_CHROMIUM` to the executable, not the browser directory. `check:quick` runs controlled-provider and mock-browser checks. `check:full` is reserved for release verification; live-model checks have separate entry points and may incur provider charges.
+The runner creates isolated HOME, PRK_HOME and TMPDIR for its layers. Use a short, owned TMPDIR so Gateway socket paths fit, and keep access to the user systemd bus. Integration uses owned local and loopback targets, not a production machine. Playwright is installed separately; `PI_TEST_PLAYWRIGHT` names the ESM entry, not its directory.
 
-Run the smoke suite in a Linux user session with a working systemd user manager and delegated cgroup v2 memory controller: the restart check starts its own user units, and the instance-Python check requires a real scope. When isolating `HOME`, keep access to the user bus (`XDG_RUNTIME_DIR` / `DBUS_SESSION_BUS_ADDRESS`). Native deployment fixtures also need real `bun`, `rg` and `fd` executables on `PATH`, or explicit `PI_TEST_BUN_BINARY`, `PI_TEST_RG_BINARY` and `PI_TEST_FD_BINARY` paths.
-
-Use owned fixtures and isolated state, not an existing Gateway, browser session, or user home.
-
-- Remote fixtures named `office` take `PI_TEST_SSH`: the full non-interactive SSH command up to and including a test-owned host. Do not use a production target.
-- `check-plugin-host-commands.mjs` and `check-real-plugin-catalog.mjs` use a prepared, isolated `PI_TEST_PLUGIN_AGENT`. Set `PI_TEST_TASTE_PACKAGE` to the owned package's absolute path for the commands check, or `PI_TEST_HINDSIGHT_SOURCE` to the memory plugin's exact `source` in the fixture settings for the catalog check.
-- `check-managed-python-live.mjs` requires an isolated `PRK_HOME` and, if set, `PI_TEST_ARTIFACT_HOME` under `$TMPDIR/uvenv-1/` (or `/tmp/uvenv-1/` when `TMPDIR` is unset).
-
+For one related layer, run `node --test 'test/integration/**/*.test.mjs'` or `node --test 'test/browser/**/*.test.mjs'` with the same owned environment and `SHELL=/bin/bash`. For one file, pass its path instead. Faux provider responses exercise the real SDK and transport without calling a paid model. For an explicitly authorized paid smoke, start an owned Gateway with the chosen `--model PROVIDER/MODEL`, then manually submit a prompt with `node src/main.ts attach --home /absolute/owned/prk-home --socket /absolute/owned/gateway.sock send --session SESSION_ID --message "Verify the selected model"`. This command is never part of `npm run check`.
 
 ## 约定
 

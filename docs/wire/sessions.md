@@ -184,7 +184,7 @@ SDK custom records 承载 target、cwd、model、thinking、project、toolMode�
 - 系统提示词主题各有自己的渲染目录：运行时主题在 `src/sessions/runtime/prompt/<topic>/`，`sessions` 在 `src/plugins/sessions/prompt/`；各自的公开 `context_with_system` 钩子只把非空内容写入同名 `sections`，内容以同名 XML 标签包裹，不保留总括能力节。
 - `src/plugins/sessions/assemble-sessions-plugin.ts` 是进程内 Pi 扩展工厂，由 `extensionFactories` 对所有顶层、派生及远程目标会话加载，公开 `registerTool` 注册五工具并在 `turn_end` flush 所属收件箱；其他运行时钩子留在独立 runtime 工厂，不留 peer-inbox 空壳。
 - `SessionsGateway` 只暴露 schemas／消息参数配置及绑定调用：`spawn`、`submit`、`destroy`、`transfer`、`accept`、`setProject`、`setSupervisor`、`list`、`send`、`identity`；Gateway 在 `create-sessions-plugin-gateway.ts` 注入，插件不 import 其他对象内部。运行时闭包提供 `enabled`、`callableTools`、`delegation`、`flushInbox`，只投影当前状态，不另存身份、控制权或队列。
-- 会话工具的声明与隐藏摘要块放在 `space_status` 之后，保持既有模型输入顺序；仅按插件来源重排 SDK 公开 inventory 的展示副本，不修改注册或 exposure。插件的 sessions 节在 runtime 主题之后写入，正文不变；严格 HTTP 捕获回归为 `tests/sessions/check-sessions-plugin.mjs`。
+- 会话工具的声明与隐藏摘要块放在 `space_status` 之后，保持既有模型输入顺序；仅按插件来源重排 SDK 公开 inventory 的展示副本，不修改注册或 exposure。插件的 sessions 节在 runtime 主题之后写入，正文不变。
 - `sessions` 的 spawn 机制按可调用 `session_spawn` 开关输出；原 delegation 档位只附于无 owner 的顶层会话。子会话保留机制与身份，不输出档位或替代的派活倾向；特殊多层派活由 role／skill 配置。子身份独立于单工具 spawn 开关，即使没有 spawn 能力也保留；关闭整个会话插件组则省略整节。
 - 子身份深度沿当前 `owner` 链计算（顶层为 0），父名称取当前 owner 的 label，缺失时用原生 sessionId；不另存深度、父名称或第二套会话状态。
 - 终端完整用法只放在 `terminal_*` 工具的 description，经 `tool_search`／`gateway.describe` 发现；工具隐藏时只有摘要与既有 guidelines 进入 `tool_catalog`，完整 description 不进入系统提示词节，不另建 terminal 节或重复参数说明。

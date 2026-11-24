@@ -53,9 +53,11 @@ scripts/prk.sh start
 ```sh
 npm ci && npm --prefix web ci
 npm run check         # TypeScript 检查
-npm run check:unit    # 单元测试
-npm run check:quick   # 跨进程冒烟测试，Python 和浏览器的要求见 docs/kernel-recovery.md#test-environment
+npm test             # 类型、单元测试、Web 和契约 lint
+npm run check        # 再跑集成、Chromium 旅程及 Web 构建
 ```
+
+完整检查的依赖见[测试环境](docs/kernel-recovery.md#test-environment)。
 
 改前端时，可以用 `PRK_API=http://127.0.0.1:8788 npm --prefix web run dev` 起一个带热更新的 Vite，连到启动脚本拉起的 API。
 

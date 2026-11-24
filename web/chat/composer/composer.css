@@ -1,34 +1,35 @@
 .pi-composer-wrap {
+  --pi-composer-inset: 1.75rem;
   --pi-composer-area: calc(100% - var(--pi-monitor-room, 0px));
   position: relative;
   left: calc(var(--pi-monitor-room, 0px) / -2);
   flex: 0 0 auto;
   width: min(clamp(var(--pi-thread-min), var(--pi-composer-area) * var(--pi-thread-share), var(--pi-thread-max)), var(--pi-composer-area));
   margin: 0 auto;
-  padding: 0 1.75rem max(1rem, env(safe-area-inset-bottom));
-}
-
-.pi-composer-wrap::before {
-  position: absolute;
-  right: 0;
-  bottom: 100%;
-  left: 0;
-  height: 2.5rem;
-  pointer-events: none;
-  content: "";
-  background: linear-gradient(to top, var(--pi-bg), transparent);
+  padding: 0 var(--pi-composer-inset) max(1rem, env(safe-area-inset-bottom));
 }
 
 /* Status appears above the composer without resizing the scrollport. Candidate menus still open over it. */
 .pi-composer-overlays {
   position: absolute;
-  inset: auto 1.75rem calc(100% + .35rem);
+  inset: auto var(--pi-composer-inset) 100%;
   z-index: var(--pi-z-raised);
   display: flex;
   flex-direction: column;
   gap: .35rem;
   pointer-events: none;
 }
+
+/* The same ramp ends at the top of the feedback, or at the composer when there's no feedback. */
+.pi-composer-overlays::before {
+  position: absolute;
+  inset: calc(-1 * var(--pi-composer-fade)) calc(-1 * var(--pi-composer-inset)) 0;
+  z-index: var(--pi-z-underlay);
+  content: "";
+  background: linear-gradient(to bottom, transparent, var(--pi-bg) var(--pi-composer-fade));
+}
+
+.pi-composer-overlays:has(> :not([hidden], #new-messages)) { padding-bottom: .35rem; }
 
 .pi-composer-overlays > * { pointer-events: auto; }
 
@@ -176,6 +177,5 @@
 /* ── "/" command menu: name, one-to-two line summary, corner button for details. ── */
 
 @media (max-width: 700px) {
-  .pi-composer-wrap { padding-inline: .6rem; }
-  .pi-composer-overlays { inset-inline: .6rem; }
+  .pi-composer-wrap { --pi-composer-inset: .6rem; }
 }

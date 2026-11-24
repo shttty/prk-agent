@@ -36,12 +36,13 @@
      (--pi-overlay) with this behind it. */
   --pi-glass: blur(22px) saturate(1.5);
 
-  /* Layer table: every hand-written z-index reads one of these (a lint in check:quick forbids bare numbers elsewhere).
+  /* Layer table: every hand-written z-index reads one of these.
      Each fixed region of the workbench (session sidebar, chat column, workspace pane, editor area, directory tree,
      terminal dock) clips its own content (overflow: hidden) and, except the chat column (it holds a position:fixed
      overlay that must keep its global layer), is its own stacking context (isolation: isolate). So the LOCAL layers
      below only compete with siblings inside one region; only the cross-region ones compete with other regions.
      Mantine menus/selects/tooltips/modals are portaled and use Mantine's own --mantine-z-index-* (modal 200, popover 300). */
+  --pi-z-underlay: -1;        /* local: behind content inside an isolated stacking context */
   --pi-z-raised: 1;           /* local: lift a control above its siblings (tree toggle on a session row) */
   --pi-z-handle: 3;           /* local: splitter handles over the content they sit between */
   --pi-z-sheet: 4;            /* local: phone directory sheet / desktop popover tree over the editor, inside the workspace pane */

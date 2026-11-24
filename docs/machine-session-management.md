@@ -42,7 +42,7 @@ Project membership shape is `{projectId,projectName}` in SDK metadata. `PATCH /a
 
 ## Lifecycle and deployment boundary
 
-Gateway/Web ownership and operation failure: [LIFE-1](contract.md), [REQ-9](contract.md)、[REQ-8](contract.md). History browsing, normal shutdown/wake and explicit recovery: [REQ-13](contract.md)、[模块约定](wire/sessions.md#约定), [LIFE-3](contract.md)、[LIFE-4](contract.md), [LIFE-7](contract.md)、[LIFE-8](contract.md).
+Gateway/Web ownership and operation failure: [LIFE-1](contract.md), [REQ-9](contract.md)、[REQ-8](contract.md). History browsing, normal shutdown/wake and explicit recovery: [REQ-13](contract.md)、[模块约定](wire/sessions.md#约定), [LIFE-3](contract.md)、[LIFE-4](contract.md), [LIFE-7](contract.md).
 
 The session API's explicit target and absolute-cwd requirements are [模块约定](kernel-recovery.md#约定), [模块约定](configuration.md#约定).
 

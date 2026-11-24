@@ -114,12 +114,10 @@
 
 第一版接收方输入是带来源 envelope 的用户消息，忙碌积压以 `[agent-messages]` 合并。当前使用 `[session-messages]`，格式与解析分别位于 `shared/session-messages/format-peer-messages.js`、`parse-peer-messages.js`；Web 同伴卡片与 Gateway 共用解析器，不改变 SDK 投递语义。原第一版的普通用户气泡是当时呈现；2026-09-29 补充记录见下方。
 
-原聚焦测试入口：`tests/sessions/check-agent-messaging.mjs`。
-
 **已验证（2026-09-28）：**
 
 - 已运行 `tsc --noEmit`，通过；
-- 已运行 `node tests/sessions/check-agent-messaging.mjs`，退出码 0。环境是真实 Pi SDK 执行循环、真实 Jupyter fixture kernel，以及受控 faux provider。
+- 当时的同伴消息集成用例退出码为 0。环境是真实 Pi SDK 执行循环、真实 Jupyter fixture kernel，以及受控 faux provider。
 
 测试确认了这些行为：
 
