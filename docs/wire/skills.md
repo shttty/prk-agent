@@ -1,12 +1,12 @@
 # Native skill library 与来源目录
 
-规则：[模块约定](skills.md#约定)、[模块约定](tools.md#约定)、[模块约定](skills.md#约定)。
+规则：[KER-1](../contract.md)、[模块约定](skills.md#约定)、[模块约定](tools.md#约定)。
 ## Shared native skill library
 
 Native files：`<PRK home>/skills/<name>/SKILL.md`。
 Lifecycle metadata：`<PRK home>/skills/library.json`。
 
-`skill_manage` 接受以下互斥形状：
+`skill_manage` 声明一个平铺对象。`action`、`name` 总是必填；其余字段按下表必填，不接受其他动作的字段。
 
 | Action | Fields | Result |
 | --- | --- | --- |
@@ -17,7 +17,7 @@ Lifecycle metadata：`<PRK home>/skills/library.json`。
 | `delete` | `{action,name}` | `{deleted:name}` |
 
 `patch.section`：`description|whenToUse|evidence|procedure|pitfalls|verification|scope`。
-String sections 使用 string `value`；procedure / pitfalls / verification 使用 string arrays。
+String sections 使用 string `value`；procedure / pitfalls / verification 使用 string arrays。`value` 沿用对应章节的长度约束。
 生成文档章节：When to use / Procedure / Pitfalls / Verification / Evidence。
 API `whenToUse` / `evidence` 对应 frontmatter `when-to-use` / `evidence`。
 

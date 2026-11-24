@@ -53,14 +53,15 @@ export default function MemoryDialog({ actions }) {
     } finally { if (current === generation.current) setBusy(false); }
   };
   const save = () => {
-    const { old_text, content, ...scope } = editor;
-    void mutate("/memory/change", { ...scope, action: old_text === undefined ? "add" : "replace", content, ...(old_text === undefined ? {} : { old_text }) });
+    const { target, old_text, content, ...scope } = editor;
+    const operation = old_text === undefined ? { target, action: "add", content } : { target, action: "replace", content, old_text };
+    void mutate("/memory/change", { ...scope, operations: [operation] });
   };
   const remove = () => {
-    const { old_text, target: _target, ...scope } = deletion;
+    const { old_text, target, ...scope } = deletion;
     void mutate(old_text === undefined ? "/memory/delete-instance" : "/memory/change", old_text === undefined
-      ? { instance: deletion.instance, confirm: true }
-      : { target: deletion.target, ...scope, action: "remove", old_text });
+      ? { instance: scope.instance, confirm: true }
+      : { ...scope, operations: [{ target, action: "remove", old_text }] });
   };
 
   const active = tab ?? listing.layers[0]?.name ?? CONFIG_TAB;

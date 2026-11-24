@@ -1,12 +1,12 @@
 # Gateway 文件记忆
 
-规则：[模块约定](memory.md#约定)。
+规则：[REQ-44](../contract.md)、[模块约定](memory.md#约定)。
 ## Model API
 
 Direct tool：`memory`；code mode：`gateway.memory(...)`。
-Request 为单个 `{target,action,content?,old_text?}`，或 `{operations:[...]}`。
+Request 为 `{operations:[{target,action,content?,old_text?}, ...]}`，单次修改也用非空数组。
 `target`：`localmemory.toml` 里配置的层名（默认 `control|user|memory|instance|project`）；`action`：`add|replace|remove`。
-`content` 为 add/replace 的完整新 entry；`old_text` 是 replace/remove 的 nonblank exact substring selector。
+`add` 仅需 `content`，`replace` 需 `content` 和 `old_text`，`remove` 仅需 `old_text`；不接受多余字段。`content` 是完整新条目，`old_text` 是用于定位的非空精确子串。
 Model 的 instance 层取调用会话的绑定目标，project 层取会话所属项目；无项目时 project 层不可写。
 
 ## Operator routes
@@ -14,7 +14,7 @@ Model 的 instance 层取调用会话的绑定目标，project 层取会话所�
 | Wire method | HTTP POST route | Parameters | Result |
 | --- | --- | --- | --- |
 | `memoryList` | `/api/memory/list` | `{}` | `MemoryListing` |
-| `memoryChange` | `/api/memory/change` | Single operation or `operations`, plus optional `instance` / `project` selecting the scoped file | Same listing after direct operator mutation, including explicit-only layers |
+| `memoryChange` | `/api/memory/change` | `{operations,instance?,project?}`; `instance` / `project` select the scoped file | Same listing after direct operator mutation, including explicit-only layers |
 | `memoryDeleteInstance` | `/api/memory/delete-instance` | `{instance:string,confirm:true}` | Same listing after deleting that instance's file in every instance-scoped layer |
 | `memoryConfigGet` | `/api/memory/config/get` | `{file:"shared"\|"override"}` | `LayerConfigView` of `localmemory.toml` or `prk-localmemory-override.toml` |
 | `memoryConfigSave` | `/api/memory/config/save` | `{file, document:object, hash:string}` | Saved `LayerConfigView`; `CONFLICT` when the file's hash no longer matches, `INVALID_REQUEST` when the document would not parse (shared: alone and merged with PRK's override; override: merged) |

@@ -4,7 +4,7 @@
 - `GEN-3` 传输必须限连接、帧、缓冲及未消费请求数和字节，满时拒绝或有界等；取消非消费确认。PTY daemon无界入队风险已接受，入队非消费；PRK逐终端串行限输入。
 - `GEN-7` 路由身份必须来自路径；请求体与查询不得携带未声明的路由参数。
 - `GEN-8` Gateway 辅助会话必须使用中立 PRK home，不得把启动目录的项目资源发布到全局清单。
-- `GEN-9` 会话在进程内外必须只使用 Pi 原生 `sessionId` 标识，不得生成或接受第二个会话路由身份。
+- `GEN-9` 进程内外必须只使用 Pi 原生会话身份；`session_manage` 各 action 均用 `sessionId` 指定管理对象，不得另发会话身份。
 - `GEN-10` Gateway 必须仅发布内置、models.json 与按 packages 顺序识别的 provider 所有者模型，手写同名 ID 必须优先且不得合并。
 - `GEN-11` 会话provider不得改共享模型；已有所有者无操作确认，其余结构化拒绝。host预检必须独立短命进程，不建会话、运行hooks或双载。
 - `GEN-12` Gateway必须独占provider所有权；争用须拒绝，所有者变更提示重启；重启前保留模型与会话，普通CRUD不得改共享模型。
@@ -71,7 +71,7 @@
 - `WEB-63` 实例定义、接口、工作台和 `space_status` 必须以 `id` 路由、`label` 显示，拒绝定义 `name`；会话及其余引用仍用 `target`。
 - `WEB-64` 手动压缩的控制应答必须只确认接纳及 operationId，不等模型；终态走操作事件，按 ID 停止；可选指令为文本而非轮数。
 ## Gateway ↔ kernel
-- `KER-1` Gateway 回调的名称、参数与校验必须来自 SDK 公开的可调用集合，不得暴露被策略拒绝的工具。
+- `KER-1` 回调必须沿用 SDK 可调用工具的声明与校验，不得暴露禁用工具；`skill_manage` 须按 action/section 校验平铺参数。
 - `KER-2` REPL 必须独占不继承的协议 fd；唯一 reader 不等用户执行；ready 匹配代次、语言并报实值；执行 stdin 必须 EOF，原始输出不入协议或结果。
 - `KER-3` 状态与输出须按cell路由；无主诊断仅入本代有界缓冲。同步/异步回调均限本cell活期；ask仅暂停本项硬限及提醒。匹配准入帧前不得yield或写open；准入非消费确认。
 - `KER-4` 回调随cell取消且匹配代/cell/request，撤权/ask、丢迟答。取消/回复块同流各留一位等消费；取消不得重投；取消/停用非退出。仅原宽限内确证纯定时等待可限额延时一次。
@@ -192,12 +192,12 @@
 - `REQ-35` 隔离必须从目标仓库 HEAD 创建 detached worktree，保留 cwd 仓库内相对路径；不得留下子会话分支。
 - `REQ-36` 隔离元数据必须平铺记录 isolated/repoRoot/worktreeRoot/baseCommit；session_result 必须先生成 patch。
 - `REQ-37` 非空 patch 必须附于 result 和父收件箱，字段为 path/bytes/stats；绝对路径必须去重加入 artifacts，空改动不得产物。
-- `REQ-38` 模型侧会话工具必须统一使用原生 sessionId 标识会话，不得发布第二身份。
 - `REQ-39` `session_list` 精简列表必须包含调用者，仅其有 `self:true`；与 `space_status` 一样只发布为真的 `root`/`supervisor`。
 - `REQ-40` 定向 session_list 必须只允许自身、owner 链祖先、同项目 supervisor 或 root 读取目标。
 - `REQ-41` 定向 session_list 必须读取最新权威消息与执行中输出，并限制最近条数与单条文本长度。
 - `REQ-42` 派生配置与目录必须保留可覆盖的 task/small 内置角色；session_spawn 省略 role 时必须选 task。
-- `REQ-43` 模型终端输入工具必须只发布 `terminal_textsend` 与 `terminal_keysend`，不得保留旧工具别名。
+- `REQ-43` 模型终端输入工具必须只发布 `terminal_textsend` 与 `terminal_keysend`，不得保留旧工具别名；开关必须用 `terminal_set`。
+- `REQ-44` `memory` 与 `memoryChange` 必须接收非空 `operations`；按 action 整批校验字段，任一项非法不得写入。
 - `ORD-1` 必须仅在计数器不会重来的同一身份内比较序号与修订号。
 - `ORD-2` 必须在计数器可能重新开始时同时改变其所属身份。
 - `ORD-3` 必须在客户端遇到身份变化时整体丢弃旧身份状态，并以新身份快照为底重新接收增量。

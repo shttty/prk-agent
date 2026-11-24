@@ -25,12 +25,26 @@ test("SDK kernel cell runs, interrupts at its own identity, and keeps the REPL u
   assert.equal(result.outcome, "aborted");
   assert.equal((await f.complete(id, await call(f, id, "kernel_code", { code: "print(seed + 1)" }))).status, "completed");
   assert.match(text(f.state(id).messages.findLast((message) => message.role === "toolResult")), /42/);
+
+  const save = await call(f, id, "kernel_code", { code: 'print(gateway.memory(operations=[{"action":"add", "target":"user", "content":"Fixture entry"}])["message"])' });
+  assert.equal((await f.complete(id, save)).status, "completed");
+  assert.match(text(f.state(id).messages.findLast((message) => message.role === "toolResult")), /Saved; do not repeat this update/);
+  const edited = await f.request("memoryChange", { operations: [
+    { action: "replace", target: "user", old_text: "Fixture entry", content: "Updated fixture entry" },
+  ] });
+  assert.deepEqual(edited.memories.find((item) => item.target === "user").entries, ["Updated fixture entry"]);
 });
 
 test("model terminal foreground command settles with exit status and output", async (t) => {
   const f = await gatewayFixture(t, { config: { session: { workerTools: "direct", capabilities: { "lazy:group:tools:package:<inline:terminals>": false } } } });
   await f.deploy();
   const id = await f.create();
+  assert.equal((await f.complete(id, await call(f, id, "terminal_textsend", { text: "" }))).status, "completed");
+  const setting = await call(f, id, "terminal_set", { quiet_notify: false, output_brake: false });
+  assert.equal((await f.complete(id, setting)).status, "completed");
+  const switched = f.state(id).messages.findLast((message) => message.role === "toolResult");
+  assert.equal(switched.isError, false, text(switched));
+  assert.deepEqual(JSON.parse(text(switched)), { name: "main", quiet_notify: false, output_brake: false });
   const receipt = await call(f, id, "terminal_textsend", { text: "printf 'verification-output\\n'; false", yield_s: 3 });
   assert.equal((await f.complete(id, receipt)).status, "completed");
   const result = f.state(id).messages.findLast((message) => message.role === "toolResult");

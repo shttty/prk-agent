@@ -51,7 +51,7 @@ Storage/writer boundary: [模块约定](../wire/memory.md#约定); write publica
 Prompt snapshot and retained orphan files: [模块约定](../wire/memory.md#约定).
 
 The `memory` tool belongs to `group:tools:package:<inline:memory>`; direct-mode declaration follows its ordinary lazy settings, while code mode calls `gateway.memory(...)`. The deployment policy in [tool declaration lazy loading](../configuration.md#tool-declaration-lazy-loading) keeps it lazy through a stored global group setting, not a plugin code default.
-Request: `{target,action,content?,old_text?}` or `{operations:[...]}`; `target` is a configured layer name; actions: `add`, `replace`, `remove`. The tool description and the `<memory>` section are generated from the layers.
+Send `{operations:[...]}` even for one change. Each operation names a configured `target` and an `action`: `add` needs `content`, `replace` needs `content` and `old_text`, and `remove` needs `old_text`. The tool description and the `<memory>` section are generated from the layers.
 Batch matching, budgets and immediate saving: [模块约定](../wire/memory.md#约定); persistence: [模块约定](../wire/memory.md#约定).
 
 Background reviews use the current session model and context with only `memory` available, restricted to `review = true` layers.

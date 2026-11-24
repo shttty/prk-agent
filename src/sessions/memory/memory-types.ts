@@ -1,11 +1,13 @@
-import type { Static } from "typebox";
-import type { MEMORY_OPERATION_SCHEMA } from "./memory-schema.ts";
 import type { LayerScope, LayerSettings } from "./layers/layer-types.ts";
 import type { LayerConfigFile, LayerConfigView } from "./layers/read-layer-config.ts";
 
 /** A configured layer name. */
 export type MemoryTarget = string;
-export type MemoryOperation = Static<typeof MEMORY_OPERATION_SCHEMA>;
+export type MemoryOperation = { target: MemoryTarget } & (
+  | { action: "add"; content: string }
+  | { action: "replace"; content: string; old_text: string }
+  | { action: "remove"; old_text: string }
+);
 /** Who writes and for which session scope; review may only write `review` layers. */
 export interface MemoryContext extends LayerScope { sessionId: string; source: "model" | "review" | "human" }
 export interface MemoryUsage { target: MemoryTarget; instance?: string; project?: string; chars: number; limit: number; soft: boolean; overLimit: boolean }

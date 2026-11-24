@@ -23,8 +23,6 @@ export async function send(ctx: ModelTerminalsContext, input: TerminalSend, sign
       if (input.restart) await close(ctx, name);
       const entry = await open(ctx, name, false, input.restart && previous && previous.owner !== "model" ? "human" : undefined);
       checkSignal(signal);
-      if (input.quiet_notify !== undefined) entry.quietNotify = input.quiet_notify;
-      if (input.output_brake !== undefined) entry.outputBrake = input.output_brake;
       if (input.restart && input.text === "") return result(ctx, entry);
       if (entry.integration === "unavailable") {
         if (timeoutMs > 0) throw new WireError("UNAVAILABLE", "Hard timeout requires command-level shell tracking; no input was sent.");

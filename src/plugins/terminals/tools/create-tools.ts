@@ -32,8 +32,6 @@ export function createTerminalTools(terminals: () => ModelTerminals): ToolDefini
         yield_s: yieldSeconds,
         timeout_s: Type.Optional(Type.Number({ exclusiveMinimum: 0, description: "Hard limit: Ctrl-C then rebuild" })),
         restart: Type.Optional(Type.Boolean({ description: "Recreate (human: user request only)" })),
-        quiet_notify: Type.Optional(Type.Boolean({ description: "Wake on silence (off: ssh/REPL)" })),
-        output_brake: Type.Optional(Type.Boolean({ description: "Ctrl-C on limit (false: logs)" })),
       }, { additionalProperties: false }),
       outputSchema: resultSchema,
       execute: sendText(ctx),
@@ -52,7 +50,11 @@ export function createTerminalTools(terminals: () => ModelTerminals): ToolDefini
     }),
     defineTool({
       ...TERMINAL_TOOL_METADATA.terminal_set, label: "Terminal set",
-      parameters: Type.Object({ name, quiet_notify: Type.Optional(Type.Boolean()), output_brake: Type.Optional(Type.Boolean()) }, { additionalProperties: false }),
+      parameters: Type.Object({
+        name,
+        quiet_notify: Type.Optional(Type.Boolean({ description: "Wake on silence (off: ssh/REPL)" })),
+        output_brake: Type.Optional(Type.Boolean({ description: "Ctrl-C on limit (false: logs)" })),
+      }, { additionalProperties: false }),
       outputSchema: Type.Object({ name: Type.String(), quiet_notify: Type.Boolean(), output_brake: Type.Boolean(), note: Type.Optional(Type.String()) }, { additionalProperties: false }),
       execute: configureTerminal(ctx),
     }),

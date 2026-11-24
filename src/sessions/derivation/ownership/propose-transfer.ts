@@ -15,7 +15,7 @@ export async function transfer(ctx: DerivationContext, actor: string, child: str
       validateOwner(ctx, child, owner);
       if (owner === state.owner) throw new Error("The selected session is already this child's parent.");
       save(ctx, child, { ...state, pendingOwner: owner });
-      await ctx.env.deliver(actor, owner, `[会话转交请求 / child=${childId} / from=${actor}]\n任务：${state.task}\n调用 session_manage({action:"accept",child:${JSON.stringify(childId)}}) 接受；接受前父会话仍为 ${state.owner}。`);
+      await ctx.env.deliver(actor, owner, `[会话转交请求 / child=${childId} / from=${actor}]\n任务：${state.task}\n调用 session_manage({action:"accept",sessionId:${JSON.stringify(childId)}}) 接受；接受前父会话仍为 ${state.owner}。`);
       return { pendingOwner: owner };
     });
   }

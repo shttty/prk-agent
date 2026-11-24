@@ -1,10 +1,9 @@
-import { Value } from "typebox/value";
 import { mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { parseFrontmatter } from "@earendil-works/pi-coding-agent";
 import { WireError } from "../../../gateway/wire/create-error.ts";
 import type { SkillLibraryContext, SkillLibraryEntry, SkillManageRequest } from "../skill-types.ts";
-import { manageSchema } from "../tools/skill-schema.ts";
+import { validateSkillChange } from "../tools/validate-skill-change.ts";
 import { SKILL_SECTIONS } from "../skill-constants.ts";
 import { age } from "../lifecycle/age-records.ts";
 import { path as resolveOwnedPath } from "./resolve-owned-path.ts";
@@ -18,8 +17,8 @@ import { frontmatter as parseSkillFrontmatter } from "./parse-frontmatter.ts";
 import { bound } from "../lifecycle/enforce-capacity.ts";
 import { list } from "../catalog/list.ts";
 
-export function manage(ctx: SkillLibraryContext, request: SkillManageRequest): { skill: SkillLibraryEntry } | { deleted: string } {
-  if (!Value.Check(manageSchema, request)) throw new Error("Invalid skill_manage request: use structured create fields or patch section/value with the declared types and limits; required text cannot be blank.");
+export function manage(ctx: SkillLibraryContext, input: SkillManageRequest): { skill: SkillLibraryEntry } | { deleted: string } {
+  const request = validateSkillChange(input);
   age(ctx);
   const path = resolveOwnedPath(ctx, request.name, request.action === "write_file" || request.action === "remove_file" ? request.path : "SKILL.md");
   const existing = ctx.records.find((item) => item.name === request.name);

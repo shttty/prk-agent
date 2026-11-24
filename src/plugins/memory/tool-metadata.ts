@@ -11,7 +11,7 @@ export function describeMemoryTool(layers: readonly LayerSpec[] | undefined): st
     "Save cross-task facts for future sessions (snapshot frozen; task procedures go to skills).",
     ...(explicit.length ? [`Write ${explicit.join("/")} only on explicit user instruction to set/change a rule.`] : []),
     "Never store secret values—keep value-free semantic facts.",
-    "old_text matches one entry; if full, prune+add in one batch.",
+    "Use operations even for one change. old_text matches one entry; if full, prune+add in one batch.",
     `Targets: ${targets}.`,
   ].join(" ");
 }

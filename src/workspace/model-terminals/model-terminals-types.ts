@@ -21,7 +21,7 @@ export type TerminalResult = {
   total_bytes: number;
 };
 export type TerminalNotice = { kind: "done" | "quiet" | "exit" | "warning"; quiet_ms?: number; result: TerminalResult };
-export interface TerminalSend { text: string; name?: string; yield_s?: number; timeout_s?: number; restart?: boolean; quiet_notify?: boolean; output_brake?: boolean }
+export interface TerminalSend { text: string; name?: string; yield_s?: number; timeout_s?: number; restart?: boolean }
 export interface TerminalKey { keys: string; name?: string; yield_s?: number }
 export interface TerminalRead { name?: string; raw?: boolean; command?: string; offset?: number; yield_s?: number }
 export interface TerminalSet { name?: string; quiet_notify?: boolean; output_brake?: boolean }

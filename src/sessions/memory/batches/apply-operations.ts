@@ -1,7 +1,6 @@
-import { Value } from "typebox/value";
 import { WireError } from "../../../gateway/wire/create-error.ts";
-import type { MemoryStoreContext, MemoryContext, MemoryResult, MemoryOperation, FileEdit } from "../memory-types.ts";
-import { MEMORY_REQUEST_SCHEMA } from "../memory-schema.ts";
+import type { MemoryStoreContext, MemoryContext, MemoryResult, FileEdit } from "../memory-types.ts";
+import { validateOperations } from "./validate-operations.ts";
 import { MEMORY_ENTRY_DELIMITER } from "../memory-constants.ts";
 import { readStoreSettings } from "../layers/read-store-settings.ts";
 import { plan } from "./plan-operations.ts";
@@ -10,15 +9,8 @@ import { usage as measureUsage } from "../capacity/measure-usage.ts";
 
 export function apply(ctx: MemoryStoreContext, request: unknown, context: MemoryContext): MemoryResult {
   if (!ctx.enabled && context.source !== "human") throw new WireError("INVALID_REQUEST", "Memory is disabled.");
-  if (!Value.Check(MEMORY_REQUEST_SCHEMA, request)) {
-    throw new WireError("INVALID_REQUEST", "Invalid memory request. Supply one {target,action,content?,old_text?} or a non-empty operations array; add/replace require content and replace/remove require old_text.");
-  }
+  const operations = validateOperations(request);
   const settings = readStoreSettings(ctx);
-  const operations: MemoryOperation[] = ("operations" in request ? request.operations : [request]).map((operation) => {
-    const content = operation.content?.trim();
-    if (content?.includes(MEMORY_ENTRY_DELIMITER)) throw new WireError("INVALID_REQUEST", "A memory entry cannot contain the entry delimiter (newline, §, newline). No operations were applied.");
-    return { ...operation, ...(content === undefined ? {} : { content }) };
-  });
   const planned = plan(settings, operations, context);
   const edits = new Map<string, FileEdit>();
   for (const document of planned.documents) {

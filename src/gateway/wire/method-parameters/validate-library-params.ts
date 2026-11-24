@@ -27,7 +27,7 @@ export function validateLibraryParams(value: { method: string }, p: Record<strin
   } else if (value.method === "memoryList") {
     if (!keys(p, [])) return invalid();
   } else if (value.method === "memoryChange") {
-    if (!keys(p, ["instance", "project", "target", "action", "content", "old_text", "operations"])
+    if (!keys(p, ["instance", "project", "operations"]) || !("operations" in p)
       || (p.instance !== undefined && !routingIdentifier(p.instance, limits)) || (p.project !== undefined && !routingIdentifier(p.project, limits))) return invalid();
     // MemoryStore validates the operation once, shared with model tools and human edits.
   } else if (value.method === "memoryDeleteInstance") {
