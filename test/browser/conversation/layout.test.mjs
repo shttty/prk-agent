@@ -52,8 +52,15 @@ test("composer and viewport stay put through send, wait, thinking, output, tool 
   } finally { gate.resolve(); release.resolve(); }
 });
 
-test("typing in a long conversation does not render its existing message rows", async (t) => {
-  const f = await browserFixture(t, { init: async (page) => { await installMessageRenderCounter(page); await page.clock.install(); } });
+test("typing and settlement do not rerender existing message action rows", async (t) => {
+  const release = Promise.withResolvers();
+  t.after(() => release.resolve());
+  const f = await browserFixture(t, { init: async (page) => { await installMessageRenderCounter(page); await page.clock.install(); },
+    answer: async ({ messages }) => {
+      if (messages.filter((message) => message.role === "user").length > 52) await release.promise;
+      return fauxAssistantMessage("Controlled reply.");
+    },
+  });
   const id = await f.create();
   for (let i = 0; i < 52; i++) {
     assert.equal((await f.complete(id, await f.send(id, `Historical question ${i} **formatted**`))).status, "completed");
@@ -77,4 +84,18 @@ test("typing in a long conversation does not render its existing message rows", 
   assert(compose.length > 0, "counter must observe composer renders while typing");
   const history = compose.filter((event) => event.MessageView || event.MessageActions);
   assert.deepEqual(history, [], "typing must not cause commits in existing history");
+
+  await f.page.clock.resume();
+  try {
+    const receipt = await f.send(id, "Observe control settlement");
+    const retry = '[data-action="retry-message"]';
+    await f.page.locator(`${retry}:disabled`).first().waitFor({ state: "attached" });
+    await f.page.evaluate(() => window.__messageRenders.reset());
+    release.resolve();
+    assert.equal((await f.complete(id, receipt)).status, "completed");
+    await f.page.locator(idle).waitFor();
+    await f.page.locator(`${retry}:not(:disabled)`).first().waitFor({ state: "attached" });
+    const settled = await f.page.evaluate(() => window.__messageRenders.read());
+    assert(settled.every((event) => (event.MessageActions ?? 0) <= 2), JSON.stringify(settled));
+  } finally { release.resolve(); }
 });

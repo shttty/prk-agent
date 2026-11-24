@@ -3,6 +3,7 @@
   min-height: 0;
   flex: 1;
   overflow-y: auto;
+  overflow-anchor: none;
   overscroll-behavior: contain;
   scroll-padding-bottom: var(--pi-transcript-tail);
   padding-right: var(--pi-monitor-room, 0px);
@@ -13,6 +14,8 @@
   margin: 0 auto;
   padding: 2rem var(--pi-thread-pad) var(--pi-transcript-tail);
 }
+
+.pi-history-pagination { block-size: 1.375rem; }
 
 .pi-messages-empty {
   padding: 3.5rem 1rem;

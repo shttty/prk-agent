@@ -8,7 +8,7 @@ import { Button } from "@mantine/core";
 export const RERUN_LABELS = { retry: "退回并重发", edit: "改了重发" };
 
 /**
- * Asks where 从这里重来 / 改了重发 should happen: back up this session (default) or fork a new one. MessageActions mounts
+ * Asks where 从这里重来 / 改了重发 should happen: back up this session (default) or fork a new one. The rerun control mounts
  * it on first use; it opens one render after mounting because Mantine records the element to return focus to only
  * when `opened` changes.
  */

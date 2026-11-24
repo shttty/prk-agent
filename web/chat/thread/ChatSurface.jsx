@@ -21,7 +21,7 @@ import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import { ExtensionRegion } from "../extension-ui/ExtensionRegion.jsx";
 import { ExtensionToasts } from "../extension-ui/ExtensionToasts.jsx";
 import { ExtensionUI } from "../extension-ui/ExtensionUI.jsx";
-import { MessageActionState } from "../transcript/messages/message-action-state.js";
+import { HistoryPagination } from "../transcript/HistoryPagination.jsx";
 import { PresentationContext } from "../transcript/presentation-context.js";
 import { MessageView } from "../transcript/MessageView.jsx";
 import { usePresentationValue } from "../transcript/use-presentation-value.js";
@@ -70,10 +70,6 @@ export function ChatSurface({ actions, messageCount, onViewTerminal }) {
   const operation = useWorkbench((state) => state.session.snapshot?.operation);
   const recentOperations = useWorkbench((state) => state.session.snapshot?.recentOperations);
   const { busy } = useBusy();
-  const hostState = useWorkbench((state) => state.session.snapshot?.state);
-  const nativePending = useWorkbench((state) => state.session.pending.has("nativeActionPending"));
-  const connected = useWorkbench((state) => state.session.connection === "connected");
-  const messageActionState = useMemo(() => ({ busy, hostState, nativePending, connected }), [busy, hostState, nativePending, connected]);
   const outcome = lastOperationOutcome({ operation, recentOperations }, busy);
   const [restoredPresentation, setRestoredPresentation] = useState(null);
   const scrollReady = hasSnapshot && restoredPresentation?.streamId === streamId && restoredPresentation?.revision === presentationRevision;
@@ -145,16 +141,11 @@ export function ChatSurface({ actions, messageCount, onViewTerminal }) {
           <ExtensionRegion actions={actions} placement="header" />
           <ExtensionToasts />
           <TranscriptSearch model={searchModel} />
-          <ThreadPrimitive.Viewport id="transcript" ref={viewportRef} className="pi-transcript transcript" autoScroll={false} turnAnchor="bottom" scrollToBottomOnInitialize={false} scrollToBottomOnThreadSwitch={false} scrollToBottomOnRunStart={false} onScroll={(event) => { saveScroll(event); loadAtTop(event.currentTarget); }}
+          <div id="transcript" ref={viewportRef} className="pi-transcript transcript" onScroll={(event) => { saveScroll(event); loadAtTop(event.currentTarget); }}
             onWheel={noteScrollIntent} onTouchStart={noteScrollIntent} onTouchMove={noteScrollIntent} onPointerDown={noteScrollIntent}>
             <Stack id="messages" ref={messagesRef} className="pi-messages messages" gap={8}>
-              {history.before ? <Group id="history-pagination" justify="center" gap="xs" data-status={history.page.loading ? "loading" : history.page.error ? "error" : "ready"}>
-                {history.page.error ? <Text size="xs" c="red" role="alert">{history.page.error}</Text> : null}
-                <Button data-action="load-history" size="compact-xs" variant="subtle" loading={history.page.loading} onClick={() => void history.loadMore()}>加载更早的消息</Button>
-              </Group> : null}
-              <MessageActionState.Provider value={messageActionState}>
-                <ThreadPrimitive.Messages>{renderMessage}</ThreadPrimitive.Messages>
-              </MessageActionState.Provider>
+              {history.showPager ? <HistoryPagination page={history.page} loadMore={loadMore} /> : null}
+              <ThreadPrimitive.Messages>{renderMessage}</ThreadPrimitive.Messages>
               {outcome ? <InlineAlert className={`pi-operation-outcome${outcome.status === "cancelled" || outcome.status === "canceled" ? "" : " is-error"}`} color={outcome.status === "cancelled" || outcome.status === "canceled" ? "gray" : "red"} role="status" data-status={outcome.status}>{outcome.text}</InlineAlert> : null}
               <ThreadPrimitive.Empty>
                 {historyLoading
@@ -162,7 +153,7 @@ export function ChatSurface({ actions, messageCount, onViewTerminal }) {
                   : <Text className="pi-messages-empty messages-empty" c="dimmed" ta="center">想让它做点什么？</Text>}
               </ThreadPrimitive.Empty>
             </Stack>
-          </ThreadPrimitive.Viewport>
+          </div>
           <Box className="pi-composer-wrap">
             <div ref={composerOverlaysRef} className="pi-composer-overlays">
               {/* Not ThreadPrimitive.ScrollToBottom: its isAtBottom misses downward and restored scrolls. */}

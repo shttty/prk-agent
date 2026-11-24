@@ -1,4 +1,4 @@
-import { useCallback, useEffectEvent, useLayoutEffect, useRef } from "react";
+import { useCallback, useEffectEvent, useLayoutEffect, useRef, useState } from "react";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import { visiblePresentationAnchor } from "./presentation/visible-presentation-anchor.js";
 import { findPresentationAnchor } from "./presentation/find-presentation-anchor.js";
@@ -9,14 +9,18 @@ export function useHistoryPagination({ actions, viewportRef, restoringScrollRef,
   const streamId = useWorkbench((state) => state.session.streamId);
   const sessionId = useWorkbench((state) => state.selectedSessionId);
   const pending = useRef(null);
+  const [prepending, setPrepending] = useState(null);
   const loadMore = useCallback(async () => {
     if (!scrollReady || !before || page.loading || pending.current) return;
     setFollowing(false);
     await actions.loadHistoryPage(() => {
       const viewport = viewportRef.current;
-      if (viewport) pending.current = { streamId, sessionId, revision: revision + 1, anchor: visiblePresentationAnchor(viewport), scrollTop: viewport.scrollTop, height: viewport.scrollHeight };
+      if (viewport) {
+        pending.current = { streamId, sessionId, revision: revision + 1, anchor: visiblePresentationAnchor(viewport), scrollTop: viewport.scrollTop, height: viewport.scrollHeight };
+        setPrepending({ sessionId, streamId, renderedMessageCount });
+      }
     });
-  }, [actions, before, page.loading, pending, revision, scrollReady, sessionId, streamId, setFollowing, viewportRef]);
+  }, [actions, before, page.loading, pending, renderedMessageCount, revision, scrollReady, sessionId, streamId, setFollowing, viewportRef]);
   const restorePrepend = useEffectEvent(() => {
     const saved = pending.current;
     const viewport = viewportRef.current;
@@ -36,10 +40,13 @@ export function useHistoryPagination({ actions, viewportRef, restoringScrollRef,
       restore();
       restoringScrollRef.current = false;
       pending.current = null;
+      setPrepending(null);
       actions.noteScroll(() => viewport.isConnected ? { scrollTop: viewport.scrollTop, anchor: visiblePresentationAnchor(viewport) } : null);
     });
     return () => { cancelAnimationFrame(frame); restoringScrollRef.current = false; };
   });
   useLayoutEffect(() => restorePrepend(), [revision, messageCount, renderedMessageCount, streamId, sessionId]);
-  return { before, page, revision, loadMore };
+  // The final cursor can disappear before the runtime renders its prepended ids.
+  const showPager = Boolean(before || (prepending?.sessionId === sessionId && prepending?.streamId === streamId && prepending?.renderedMessageCount === renderedMessageCount));
+  return { before, showPager, page, revision, loadMore };
 }

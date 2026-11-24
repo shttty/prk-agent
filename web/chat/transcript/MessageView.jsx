@@ -24,10 +24,11 @@ import { TurnGroup } from "./turns/TurnGroup.jsx";
 import { MessageActions } from "./messages/MessageActions.jsx";
 import { PeerMessageHeader } from "./messages/PeerMessageHeader.jsx";
 import { revealKernelCell } from "./tool-calls/kernel-cell/reveal-kernel-cell.js";
+const NO_CUSTOM = {};
 export function MessageView({ message }) {
   const presentationContext = useContext(PresentationContext);
   const actions = presentationContext?.actions;
-  const custom = message?.metadata?.custom || {};
+  const custom = message?.metadata?.custom ?? NO_CUSTOM;
   const peer = message?.role === "user" ? custom.peerMessage : null;
   const completionFailed = ["failed", "unknown"].includes(safeText(custom.completionStatus));
   const status = message?.role === "assistant" && message.status?.type === "incomplete"
@@ -88,7 +89,7 @@ export function MessageView({ message }) {
         </> : null}
         {status ? <Text className={`message-status pi-message-status${status.includes("未知") || completionFailed ? " is-error" : ""}`} size="xs">{status}</Text> : null}
       </Box>
-      {message.role === "user" || (message.role === "assistant" && !custom.nativeFeedback) ? <MessageActions message={message} actions={actions} /> : null}
+      {message.role === "user" || (message.role === "assistant" && !custom.nativeFeedback) ? <MessageActions role={message.role} custom={custom} content={message.content} actions={actions} /> : null}
     </MessagePrimitive.Root>
   );
 }
