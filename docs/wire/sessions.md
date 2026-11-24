@@ -182,6 +182,7 @@ SDK custom records 承载 target、cwd、model、thinking、project、toolMode�
 - 每个对象自身的具名类型集中定义在唯一的领域 `*-types.ts` 中，方法文件一次导入所需的对象类型；类型文件不作再导出壳。运行类保留在实现入口，实例接口在类型文件定义。
 - 200 行上限按有效行计算，不计空行、注释与 import；依赖仍通过普通 import 明示，不为缩行隐藏到上下文中。
 - 系统提示词主题各有自己的渲染目录：运行时主题在 `src/sessions/runtime/prompt/<topic>/`，`sessions` 在 `src/plugins/sessions/prompt/`；各自的公开 `context_with_system` 钩子只把非空内容写入同名 `sections`，内容以同名 XML 标签包裹，不保留总括能力节。
+- `<skills>` 使用 Pi 筛选及转义后的目录；任务匹配时的先读要求与本次请求可用的 `skill_read` 路径紧挨目录。代码模式按 kernel 语言发回调读法，直接模式按声明发直接或按需调用读法；缺少路径只保留目录。`<skill_tools>` 只放共享库写入指引。
 - `src/plugins/sessions/assemble-sessions-plugin.ts` 是进程内 Pi 扩展工厂，由 `extensionFactories` 对所有顶层、派生及远程目标会话加载，公开 `registerTool` 注册五工具并在 `turn_end` flush 所属收件箱；其他运行时钩子留在独立 runtime 工厂，不留 peer-inbox 空壳。
 - `SessionsGateway` 只暴露 schemas／消息参数配置及绑定调用：`spawn`、`submit`、`destroy`、`transfer`、`accept`、`setProject`、`setSupervisor`、`list`、`send`、`identity`；Gateway 在 `create-sessions-plugin-gateway.ts` 注入，插件不 import 其他对象内部。运行时闭包提供 `enabled`、`callableTools`、`delegation`、`flushInbox`，只投影当前状态，不另存身份、控制权或队列。
 - 会话工具的声明与隐藏摘要块放在 `space_status` 之后，保持既有模型输入顺序；仅按插件来源重排 SDK 公开 inventory 的展示副本，不修改注册或 exposure。插件的 sessions 节在 runtime 主题之后写入，正文不变。
