@@ -66,15 +66,14 @@ test("typing and settlement do not rerender existing message action rows", async
     assert.equal((await f.complete(id, await f.send(id, `Historical question ${i} **formatted**`))).status, "completed");
   }
   await f.open(id);
-  await f.page.locator("#messages .pi-message-user[data-entry-id]").first().waitFor();
-  await f.page.locator('[data-action="load-history"]').evaluate((button) => button.click());
-  await f.page.waitForFunction(() => document.querySelectorAll("#messages .pi-message-user[data-entry-id]").length === 52);
+  await f.page.locator("#new-messages").evaluate((button) => button.click());
+  await f.page.locator('#messages .pi-message-user[data-entry-id]').filter({ hasText: "Historical question 51" }).waitFor();
   const input = f.page.locator("#composer");
   await input.focus();
   await f.page.clock.pauseAt((await f.page.evaluate(() => Date.now())) + 500);
   await f.page.clock.runFor(32);
   const setupRenders = await f.page.evaluate(() => window.__messageRenders.read().reduce((sum, commit) => sum + (commit.MessageView ?? 0), 0));
-  assert(setupRenders >= 52, `counter must observe setup renders, got ${setupRenders}`);
+  assert(setupRenders >= 5, `counter must observe setup renders, got ${setupRenders}`);
   await f.page.evaluate(() => window.__messageRenders.reset());
   await input.pressSequentially("Compose without touching history");
   assert.equal(await input.inputValue(), "Compose without touching history");

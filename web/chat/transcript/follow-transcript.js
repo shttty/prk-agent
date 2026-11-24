@@ -1,5 +1,5 @@
 /** Keeps the transcript pinned while following, and updates awayFromBottom across all viewport, message and composer feedback resizes. */
-export function followTranscript({ viewportRef, messagesRef, composerOverlays, scrollReady, followRef, searchOpen, disclosureRef, lastScrollTopRef, setAwayFromBottom, setNewMessages }) {
+export function followTranscript({ pin, viewportRef, messagesRef, composerOverlays, scrollReady, followRef, searchOpen, disclosureRef, lastScrollTopRef, setAwayFromBottom, setNewMessages }) {
   if (!scrollReady || typeof ResizeObserver !== "function") return undefined;
   const viewport = viewportRef.current;
   const messages = messagesRef.current;
@@ -12,7 +12,7 @@ export function followTranscript({ viewportRef, messagesRef, composerOverlays, s
     }
     if (disclosureRef.current) return;
     if (followRef.current && !searchOpen) {
-      viewport.scrollTop = viewport.scrollHeight;
+      pin();
       lastScrollTopRef.current = viewport.scrollTop;
       setAwayFromBottom?.(false);
       setNewMessages?.(false);

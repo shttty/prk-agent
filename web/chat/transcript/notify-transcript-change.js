@@ -1,5 +1,5 @@
 
-export function notifyTranscriptChange({ scrollReady, hasSnapshot, followRef, searchOpen, lastScrollTopRef, setNewMessages, setAwayFromBottom, viewportRef, transcriptRevision }) {
+export function notifyTranscriptChange({ pin, scrollReady, hasSnapshot, followRef, searchOpen, lastScrollTopRef, setNewMessages, setAwayFromBottom, viewportRef, transcriptRevision }) {
     if (!scrollReady) {
       if (!hasSnapshot) { setNewMessages(false); setAwayFromBottom(false); }
       return;
@@ -7,7 +7,7 @@ export function notifyTranscriptChange({ scrollReady, hasSnapshot, followRef, se
     const viewport = viewportRef.current;
     if (!viewport) return;
     if (followRef?.current && !searchOpen) {
-      viewport.scrollTop = viewport.scrollHeight;
+      pin();
       if (lastScrollTopRef) lastScrollTopRef.current = viewport.scrollTop;
       setAwayFromBottom(false);
       setNewMessages(false);

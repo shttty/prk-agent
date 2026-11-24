@@ -1,37 +1,30 @@
 // `savedPresentation`: the saved scroll/anchor of this session (null = none); `presentation` is it or the defaults.
-export function restoreScroll({ viewportRef, revealMessage, hasSnapshot, sessionId, restoredSessionRef, followRef, streamId, presentationRevision, savedPresentation, scrollReady, renderedMessageCount, messageCount, restoringScrollRef, lastScrollTopRef, presentation, setFollowOutput, setRestoredPresentation, setAwayFromBottom }) {
-    const viewport = viewportRef.current;
-    if (!viewport || !hasSnapshot || scrollReady || renderedMessageCount !== messageCount) return undefined;
-    restoringScrollRef.current = true;
-    const sameSession = restoredSessionRef.current === sessionId;
-    const following = sameSession && followRef.current;
-    restoredSessionRef.current = sessionId;
-    const restored = { streamId, revision: presentationRevision };
-    const desiredTop = sameSession ? (following ? viewport.scrollHeight : viewport.scrollTop)
-      : savedPresentation && Number.isFinite(presentation.scrollTop) ? presentation.scrollTop : viewport.scrollHeight;
-    const restore = () => {
-      if (!viewport.isConnected) return;
-      if (sameSession || !revealMessage(viewport, presentation.anchor?.key, { offset: presentation.anchor?.offset })) {
-        viewport.scrollTop = desiredTop;
-      }
+export function restoreScroll({ viewportRef, listRef, hasSnapshot, sessionId, restoredSessionRef, followRef, streamId, presentationRevision, savedPresentation, scrollReady, renderedMessageCount, messageCount, restoringScrollRef, lastScrollTopRef, presentation, setFollowOutput, setRestoredPresentation, setAwayFromBottom }) {
+  const viewport = viewportRef.current;
+  const list = listRef.current;
+  if (!viewport || !list || !hasSnapshot || scrollReady || renderedMessageCount !== messageCount) return undefined;
+  restoringScrollRef.current = true;
+  const sameSession = restoredSessionRef.current === sessionId;
+  let frame;
+  const finish = () => {
+    frame = requestAnimationFrame(() => {
       if (lastScrollTopRef) lastScrollTopRef.current = viewport.scrollTop;
       const away = Boolean(savedPresentation) && viewport.scrollHeight - viewport.clientHeight - viewport.scrollTop >= 80;
       setFollowOutput(sameSession ? followRef.current : !away);
       setAwayFromBottom(away);
-    };
-    restore();
-    if (typeof window.requestAnimationFrame !== "function") {
+      restoredSessionRef.current = sessionId;
       restoringScrollRef.current = false;
-      setRestoredPresentation(restored);
-      return undefined;
-    }
-    const frame = window.requestAnimationFrame(() => {
-      restore();
-      restoringScrollRef.current = false;
-      setRestoredPresentation(restored);
+      setRestoredPresentation({ streamId, revision: presentationRevision });
     });
-    return () => {
-      window.cancelAnimationFrame(frame);
-      restoringScrollRef.current = false;
-    };
+  };
+  if (sameSession || !list.revealMessage(presentation.anchor?.key, { offset: presentation.anchor?.offset, onReveal: finish })) {
+    if (sameSession ? followRef.current : !savedPresentation || !Number.isFinite(presentation.scrollTop)) list.pin();
+    else if (!sameSession) list.scrollTo(presentation.scrollTop);
+    finish();
   }
+  return () => {
+    cancelAnimationFrame(frame);
+    list.cancelReveal();
+    restoringScrollRef.current = false;
+  };
+}
