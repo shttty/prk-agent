@@ -128,17 +128,6 @@
 
 .pi-message-system .pi-markdown { font-size: .86rem; }
 
-.pi-message.is-streaming .pi-markdown > p:last-child::after {
-  display: inline-block;
-  width: .5em;
-  height: 1.05em;
-  margin-left: 3px;
-  vertical-align: -.18em;
-  border-radius: 1px;
-  content: "";
-  background: var(--pi-accent);
-  animation: pi-blink var(--pi-motion-loop) steps(1) infinite;
-}
 
 .pi-message-actions {
   position: relative;

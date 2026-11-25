@@ -71,8 +71,6 @@
 
 .pi-markdown th { background: var(--pi-surface-2); font-weight: 600; text-align: left; }
 
-/* Streaming reply: a caret at the end of the last paragraph. */
-
 .pi-markdown .code-toolbar {
   display: flex;
   align-items: center;

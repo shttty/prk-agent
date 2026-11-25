@@ -87,5 +87,4 @@
 
 /* Colours: shared/palette.js; theme.js writes them as --pi-* per colour scheme. */
 
-@keyframes pi-blink { 50% { opacity: 0; } }
 @keyframes pi-spin { to { transform: rotate(360deg); } }
