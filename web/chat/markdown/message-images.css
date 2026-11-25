@@ -1,0 +1,19 @@
+.pi-message-image {
+  display: inline-block;
+  max-inline-size: 100%;
+  vertical-align: middle;
+}
+
+.pi-message-image img {
+  display: block;
+  max-inline-size: min(100%, 36rem);
+  max-block-size: 24rem;
+  border-radius: var(--mantine-radius-sm);
+  object-fit: contain;
+}
+
+.pi-markdown .pi-image-placeholder {
+  color: var(--pi-muted);
+  font-size: 0.875em;
+  overflow-wrap: anywhere;
+}

@@ -18,7 +18,7 @@ export function assembleFiles(options: TargetFilesOptions): TargetFiles {
   return {
     list: (context: TargetFileContext, path = context.cwd) => withOperation(state, context, (op) => list(op, path)),
     upload: (context, path, overwrite, wireChunkBytes) => streamUpload(state, context, path, overwrite, wireChunkBytes),
-    download: (context, path, wireChunkBytes) => download(state, context, path, wireChunkBytes),
+    download: (context, path, wireChunkBytes, inlineImage) => download(state, context, path, wireChunkBytes, inlineImage),
     read: (context: TargetFileContext, path: string, format?: WorkspaceFileFormat) => withOperation(state, context, (op) => read(op, path, format)),
     write: (context: TargetFileContext, request: Parameters<typeof write>[1]) => withOperation(state, context, (op) => write(op, request)),
     create: (context: TargetFileContext, request: Parameters<typeof create>[1]) => withOperation(state, context, (op) => create(op, request)),

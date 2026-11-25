@@ -1,3 +1,4 @@
+import { posix } from "node:path";
 import { WireError } from "../../gateway/wire/create-error.ts";
 import type { FilesState, TargetFileContext, FileDownload } from "./files-types.ts";
 import { absolutePath } from "../target-paths/absolute-path.ts";
@@ -8,21 +9,24 @@ import { request } from "./request.ts";
 import { formatMetadata } from "./format-metadata.ts";
 import { readChunk } from "./read-chunk.ts";
 
-export async function* download(state: FilesState, context: TargetFileContext, path: string, wireChunkBytes: number): FileDownload {
-  absolutePath(path);
+export async function* download(state: FilesState, context: TargetFileContext, path: string, wireChunkBytes: number, inlineImage = false): FileDownload {
   const { options } = state;
   const maxChunk = Math.min(options.workspace.fileChunkBytes, wireChunkBytes);
   if (maxChunk < 1) throw new WireError("TOO_LARGE", "Gateway frame budget is too small for a file download.");
   const scope = await acquireOperation(state, context);
   try {
+    const resolved = inlineImage && !path.startsWith("/")
+      ? (path.startsWith("~/") ? posix.join(scope.lease.info.home, path.slice(2)) : posix.join(context.cwd, path))
+      : path;
+    absolutePath(resolved);
     // Only a target operation has a deadline; time waiting for the browser to drain is not a target failure.
     const run = <T>(work: () => Promise<T>) => withDeadline(scope.lease, options.targetConnection.requestTimeoutMs, work);
     const [op, opened] = await run(async () => {
       const op = await prepareOperation(options, scope.lease, context.cwd);
-      return [op, await request(op, "open", { path, noFollow: false })] as const;
+      return [op, await request(op, "open", { path: resolved, noFollow: false })] as const;
     });
     try {
-      const { name, size, type } = formatMetadata(opened.json.info, path);
+      const { name, size, type } = formatMetadata(opened.json.info, resolved);
       if (type !== "file" && type !== "notebook") throw new WireError("INVALID_REQUEST", "Only regular files can be downloaded.");
       if (size === null || !Number.isSafeInteger(size) || size < 0) throw new WireError("HOST_ERROR", "Invalid target file length.");
       yield { name, size };

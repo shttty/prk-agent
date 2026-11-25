@@ -10,6 +10,8 @@ import test from "node:test";
 import { until } from "../../fixtures/until.mjs";
 import { gatewayFixture } from "../../fixtures/gateway/assemble-gateway.mjs";
 
+import { verifyInlineImages } from "./verify-inline-images.mjs";
+
 const requestTimeoutMs = 600;
 const uploadIdleTimeoutMs = 1500;
 
@@ -46,6 +48,7 @@ for (const remote of [false, true]) {
     }
     assert.equal(offset, bytes.length);
     assert(chunks > 1);
+    await verifyInlineImages(t, f, base, bytes, remote);
     const clash = await upload(destination, Buffer.from("replacement"));
     assert.equal(clash.status, 409);
     assert.equal((await clash.json()).code, "CONFLICT");

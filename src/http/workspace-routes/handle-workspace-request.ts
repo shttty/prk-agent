@@ -8,6 +8,7 @@ import { readJsonBody } from "../request/read-json-body.ts";
 import { nativeRequest } from "../request/validate-wire-params.ts";
 import { responseJson } from "../responses/write-json.ts";
 import { uploadFile } from "./upload-file.ts";
+import { viewImage } from "./view-image.ts";
 import { downloadFile } from "./download-file.ts";
 import { gatewayFailure } from "../request/translate-gateway-failure.ts";
 
@@ -16,6 +17,7 @@ export async function handleWorkspaceRequest(ctx: RequestContext, request: Incom
 
       if (request.method !== workspaceRoute.verb) throw new HttpError(405, "Request method is not supported.");
       const sessionId = decodeRouteIdentity(limits, workspaceRoute.sessionId);
+      if (workspaceRoute.method === "filesImage") return viewImage(ctx, request, response, sessionId, query);
       if (workspaceRoute.method === "filesUpload") return uploadFile(ctx, request, response, sessionId, query);
       if (workspaceRoute.method === "filesDownload") return downloadFile(ctx, request, response, sessionId);
       const body = workspaceRoute.verb === "POST" ? await readJsonBody(http, request) : {};

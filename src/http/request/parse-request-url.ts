@@ -34,6 +34,7 @@ export function routePath(limits: LimitsOptions, request: IncomingMessage, origi
       nativeRequest(limits, { instance: parsed.searchParams.get("instance") }, "capabilitiesList");
       return parsed;
     }
+    if (request.method === "GET" && workspaceHttpRoute(parsed.pathname)?.method === "filesImage") return parsed;
     const route = routeSessionPath(limits, parsed.pathname);
     if (request.method === "GET" && route?.action === "history-page") return parsed;
     if (request.method === "GET" && route?.action === "tool-content") {

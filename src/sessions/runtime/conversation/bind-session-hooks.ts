@@ -2,6 +2,7 @@ import { getCurrentTools } from "@earendil-works/pi-ai";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { toolEnabled } from "../capabilities/is-tool-enabled.ts";
 import { renderNativeTools } from "../prompt/native-tools/render.ts";
+import { renderReplyImages } from "../prompt/reply-images/render.ts";
 import { renderSkills } from "../prompt/skills/render.ts";
 import type { ConversationContext, RuntimeContext } from "../runtime-state.ts";
 import { localEnabled } from "../configuration/read-native-tools.ts";
@@ -35,6 +36,7 @@ export function bindSessionHooks(ctx: RuntimeContext, conversation: Conversation
       sections: {
         ...message.sections,
         ...(project === undefined ? {} : { project }),
+        reply_images: renderReplyImages(),
         native_tools: nativeTools ? `<native_tools>\n${nativeTools}\n</native_tools>` : null,
         skills: skillPrompt ? `<skills>\n${skillPrompt}\n</skills>` : null,
       },

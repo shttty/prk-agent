@@ -38,7 +38,7 @@ export type FileUpload = AsyncGenerator<UploadMetadata | undefined, undefined, B
 
 export interface TargetFiles {
   upload(context: TargetFileContext, path: string, overwrite: boolean, wireChunkBytes: number): FileUpload;
-  download(context: TargetFileContext, path: string, wireChunkBytes: number): FileDownload;
+  download(context: TargetFileContext, path: string, wireChunkBytes: number, inlineImage?: boolean): FileDownload;
   list(context: TargetFileContext, path?: string): Promise<FileListing>;
   read(context: TargetFileContext, path: string, format?: WorkspaceFileFormat): Promise<FileRead>;
   write(context: TargetFileContext, request: { path: string; content: string; format: "text"; expectedLastModified?: string }): Promise<WorkspaceFileMetadata>;

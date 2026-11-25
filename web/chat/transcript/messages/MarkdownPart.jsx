@@ -7,18 +7,22 @@ import { MarkdownSyntaxHighlighter } from "../../markdown/MarkdownSyntaxHighligh
 import { settledBlocksPlugin } from "../../markdown/settled-blocks-plugin.js";
 import { markdownPlugins } from "./markdown-plugins.js";
 import { CodeHeader } from "./CodeHeader.jsx";
-export function MarkdownPart({ text, status }) {
+export function MarkdownPart({ text, status, allowImages = true }) {
   // One parser cache per text part: while it streams, only its last block is parsed again.
   const [plugins] = useState(() => [...markdownPlugins, settledBlocksPlugin()]);
   return (
     <MarkdownTextPrimitive
       className="pi-markdown markdown"
       smooth={status?.type === "running"}
-      urlTransform={safeUrl}
+      urlTransform={transformUrl}
       remarkPlugins={plugins}
-      components={{ a: SafeLink, img: SafeImage, CodeHeader, SyntaxHighlighter: MarkdownSyntaxHighlighter }}
+      components={{ a: SafeLink, img: allowImages ? SafeImage : HiddenImage, CodeHeader, SyntaxHighlighter: MarkdownSyntaxHighlighter }}
     >
       {text}
     </MarkdownTextPrimitive>
   );
 }
+
+function HiddenImage() { return null; }
+
+function transformUrl(value, key) { return key === "src" ? value : safeUrl(value); }

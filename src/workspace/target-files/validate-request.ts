@@ -9,15 +9,18 @@ export function validateRequest(method: string, value: unknown, limits: LimitsOp
   if (typeof p.sessionId !== "string" || !p.sessionId || p.sessionId.length > limits.identityChars || /[\p{Cc}]/u.test(p.sessionId)) return invalid();
   if (typeof p.target !== "string" || !p.target || p.target.length > limits.identityChars || /[\p{Cc}]/u.test(p.target)) return invalid();
   const fields: Record<string, string[]> = {
-    filesList: ["path"], filesDownload: ["path"], filesUpload: ["path", "overwrite"], filesRead: ["path", "format"], filesWrite: ["path", "content", "format", "expectedLastModified"],
+    filesList: ["path"], filesDownload: ["path", "inlineImage"], filesUpload: ["path", "overwrite"], filesRead: ["path", "format"], filesWrite: ["path", "content", "format", "expectedLastModified"],
     filesCreate: ["path", "type", "content", "format"], filesRename: ["path", "newPath"], filesCopy: ["path", "toDir"], filesDelete: ["path"],
   };
   const allowed = fields[method];
   if (!allowed || Object.keys(p).some((key) => key !== "sessionId" && key !== "target" && !allowed.includes(key))) return invalid();
+  if (p.inlineImage !== undefined && p.inlineImage !== true) return invalid();
   for (const field of ["path", ...(method === "filesRename" ? ["newPath"] : method === "filesCopy" ? ["toDir"] : [])]) {
     if (method === "filesList" && p[field] === undefined) continue;
     if (typeof p[field] !== "string" || p[field].length > limits.cwdChars) return invalid();
-    absolutePath(p[field]);
+    if (p.inlineImage === true && !p[field].startsWith("/")) {
+      if (!p[field] || /[\\\p{Cc}]/u.test(p[field]) || (p[field].startsWith("~") && !p[field].startsWith("~/"))) return invalid();
+    } else absolutePath(p[field]);
   }
   if (method === "filesUpload" && typeof p.overwrite !== "boolean") return invalid();
   if (p.format !== undefined && p.format !== "text" && (method !== "filesRead" || p.format !== "base64")) return invalid();

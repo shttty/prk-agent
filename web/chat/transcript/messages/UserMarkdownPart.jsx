@@ -32,7 +32,7 @@ export function UserMarkdownPart({ text, status }) {
   return (
     <>
       <div ref={contentRef} className={`pi-user-message-content${expanded ? " is-expanded" : ""}${overflowing && !expanded ? " is-collapsed" : ""}`}>
-        <MarkdownPart text={text} status={status} />
+        <MarkdownPart text={text} status={status} allowImages={false} />
       </div>
       {overflowing ? <Button className="pi-user-expand" variant="subtle" size="compact-xs" type="button" onClick={toggleExpanded} aria-expanded={expanded}>{expanded ? "收起" : "显示更多"}</Button> : null}
     </>

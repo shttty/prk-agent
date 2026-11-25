@@ -3,11 +3,10 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { safeUrl } from "./safe-url.js";
 import { SafeLink } from "./SafeLink.jsx";
-import { SafeImage } from "./SafeImage.jsx";
 import { MarkdownCode } from "./MarkdownCode.jsx";
 export const plugins = [remarkGfm];
 
-export const components = { a: SafeLink, img: SafeImage, code: MarkdownCode };
+export const components = { a: SafeLink, img: () => null, code: MarkdownCode };
 
 /** Static markdown in the transcript's `.pi-markdown` style (the ask dialog's option previews). */
 export function StaticMarkdown({ text, className = "" }) {
