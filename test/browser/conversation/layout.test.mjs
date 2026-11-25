@@ -23,6 +23,18 @@ test("composer and viewport stay put through send, wait, thinking, output, tool 
     await f.open(id);
     await f.page.evaluate(() => document.fonts.ready);
     await f.page.locator("#composer").fill("Check layout");
+    const captureRing = async (phase) => {
+      const input = f.page.locator("#composer");
+      await input.blur();
+      const box = await f.page.locator("#composer-form").boundingBox();
+      const clip = { x: Math.round(box.x + box.width / 2), y: Math.round(box.y) - 2, width: 48, height: 2 };
+      const unfocused = await f.page.screenshot({ clip, animations: "disabled" });
+      await input.focus();
+      const focused = await f.page.screenshot({ clip, animations: "disabled" });
+      if (process.env.PI_TEST_WEB_EVIDENCE) await f.page.screenshot({ path: `${process.env.PI_TEST_WEB_EVIDENCE}/composer-${phase}.png`, animations: "disabled" });
+      return !focused.equals(unfocused);
+    };
+    const idleRing = await captureRing("idle");
     const geometry = () => f.page.evaluate(() => ["#composer", "#composer-form", "#transcript"].map((selector) => {
       const { x, y, width, height } = document.querySelector(selector).getBoundingClientRect();
       return [x, y, width, height];
@@ -39,6 +51,8 @@ test("composer and viewport stay put through send, wait, thinking, output, tool 
     gate.resolve();
     await f.page.locator(stage("waiting")).waitFor();
     await unchanged("waiting");
+    const waitingRing = await captureRing("waiting");
+    assert.deepEqual({ idleRing, waitingRing }, { idleRing: true, waitingRing: true }, "focus must paint the ring above the composer while idle and waiting");
     release.resolve();
     await f.page.locator(stage("thinking")).waitFor();
     await unchanged("thinking");
