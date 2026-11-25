@@ -49,7 +49,7 @@ export function catalog(ctx: NativeContext, target: NativeTarget): NativeCatalog
     { name: "reference-candidates", effect: "read", risk: "none", enabled: !target.readOnly, ...(!target.readOnly ? {} : { reason: "Only a writable session can browse its configured target." }) },
     { name: "reference-read", effect: "read", risk: "none", enabled: !target.readOnly, ...(!target.readOnly ? {} : { reason: "Only a writable session can read its configured target." }) },
     { name: "tree-read", effect: "read", risk: "none", enabled: true },
-    { name: "tree-label", effect: "session", risk: "low", enabled: !target.readOnly && target.state !== "sleeping", ...(!target.readOnly && target.state !== "sleeping" ? {} : { reason: "Tree labels require an active idle session." }) },
+    { name: "tree-label", effect: "session", risk: "low", enabled: !target.readOnly, ...(!target.readOnly ? {} : { reason: "Tree labels require a writable session." }) },
     { name: "tree-filter", effect: "presentation", risk: "none", enabled: true },
     { name: "tree-fold", effect: "presentation", risk: "none", enabled: true },
     { name: "tree-copy", effect: "presentation", risk: "none", enabled: true },

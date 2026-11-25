@@ -62,7 +62,11 @@ export function Composer({ actions, model }) {
                 data-status={status}
                 data-queue={queueMode}
                 value={composerText}
-                onChange={inputChanged}
+                onFocus={sleeping ? actions.wakeSession : undefined}
+                onChange={(event) => {
+                  if (sleeping) void actions.wakeSession();
+                  inputChanged(event);
+                }}
                 onSelect={(event) => setExtensionCursor(event.currentTarget.selectionStart)}
                 onCompositionStart={() => { composingRef.current = true; setComposition(true); }}
                 onCompositionEnd={() => { composingRef.current = false; setComposition(false); }}
@@ -70,7 +74,7 @@ export function Composer({ actions, model }) {
                 onDrop={(event) => { event.preventDefault(); void uploadFiles(event.dataTransfer?.files || []); }}
                 onDragOver={(event) => event.preventDefault()}
                 maxLength={MAX_TEXT}
-                placeholder={resumable ? "发消息即恢复执行环境" : sleeping ? "会话休眠中，发送消息将唤醒" : compacting ? "压缩中，结束后可发送" : busy ? `运行中，发送会${QUEUE_LABELS[queueMode]}` : "发消息，/ 调出命令，@ 引用文件"}
+                placeholder={resumable ? "发消息即恢复执行环境" : sleeping ? "会话休眠中，输入时自动唤醒" : compacting ? "压缩中，结束后可发送" : busy ? `运行中，发送会${QUEUE_LABELS[queueMode]}` : "发消息，/ 调出命令，@ 引用文件"}
                 disabled={!selectedSessionId || uiLoading}
                 submitMode="none"
                 spellCheck={false}

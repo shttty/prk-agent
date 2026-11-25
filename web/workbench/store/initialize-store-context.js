@@ -18,6 +18,7 @@ ctx.state = initialState();
   ctx.renderStartedAt = 0;
   ctx.displayNotifyCancel = null;
   ctx.toolContentRequests = new Map();
+  ctx.wakeRequests = new Map();
   ctx.noticeTimer = undefined;
   ctx.scrollSample = null;
   ctx.scrollTimer = undefined;

@@ -48,8 +48,7 @@ export async function selectSession(ctx, name, { snapshot = null } = {}) {
         patchSession(ctx, { connection: "disconnected", banner: null });
         return true;
       }
-      // The subscription's first snapshot is the base. Opening a session only reads it: a sleeping one stays asleep
-      // until an explicit send, which the Gateway wakes as part of admitting the input.
+      // The subscription's first snapshot is the base. Opening a session only reads it; composing or sending can wake it.
       openEventSource(ctx, name, token);
       return true;
     } catch (error) {

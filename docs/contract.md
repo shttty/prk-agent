@@ -164,10 +164,10 @@
 - `REQ-7` 未确认请求的后续处理必须以重连后的权威快照为准。
 - `REQ-8` 输入、模型请求、`kernel_code` 执行，以及 send、cancel、closeSession、shutdown 都不得自动重放。
 - `REQ-9` `failed` 与 `unknown` 必须保留为操作结果，SDK 空闲后会话必须回到 idle。
-- `REQ-10` 运行时启动失败必须以 `submitted:false` 拒绝该输入并给出原因，会话记录必须仍可读取。
+- `REQ-10` 需醒态的命令必须与普通输入共用唤醒准入，再按实态执行；启动失败必须以 `submitted:false` 拒绝并给原因，保留会话可读。
 - `REQ-11` shutdown 应答不得代替对进程退出与端点移除的观察。
 - `REQ-12` 进度与流式增量不得累加成最终结果；思考增量必须带 `details.part:"thinking"` 发布，客户端不得并入正文。
-- `REQ-13` 观察类请求不得唤醒会话、分配 kernel、启动采集或调用模型。
+- `REQ-13` 观察不得唤醒、分配 kernel、启动采集或调用模型。休眠输入框聚焦或输入须发 wake，在途或已确认不得重复，失败须可见。
 - `REQ-14` 换target/cwd必须用`recoverSession:new`并给target；Python REPL与模型终端共用实例Python≥3.9或托管venv。
 - `REQ-15` `recoverSession`的`auto`不得更换target/cwd；待补配置执行必须以submitted:false及configurationIssue拒绝。
 - `REQ-16` 远程扩展调用、事件与反向回调不得在超时、断线或进程退出后自动重放。

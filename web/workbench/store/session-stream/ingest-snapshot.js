@@ -23,6 +23,9 @@ export function ingestSnapshot(ctx, value, observation = false) {
       if (!changedStream) snapshot = mergeLoadedHistory(previous, snapshot);
     }
     if (changedStream) {
+      const name = ctx.state.selectedSessionId;
+      const wakeWaitingForSnapshot = ctx.wakeRequests.get(name);
+      if (wakeWaitingForSnapshot && wakeWaitingForSnapshot !== snapshot.streamId) ctx.wakeRequests.delete(name);
       flushScroll(ctx);
       persistCurrentSession(ctx);
       const connection = ctx.source ? "connected" : ctx.state.session.connection;

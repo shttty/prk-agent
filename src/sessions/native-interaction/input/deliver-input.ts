@@ -74,7 +74,7 @@ export async function send(ctx: NativeContext, target: NativeTarget, request: Ex
     return admitSdk ? admitSdk(submit) : submit(current);
   };
 
-  // Resolve known builtins before SDK admission; settings and runtime-only refusals must not wake history.
+  // Known builtins use native action admission, which wakes only commands that need an active runtime.
   if (mode === "auto" && parsed.kind !== "text") {
     const command = parsed.name ? findCommand(target, parsed.name) : undefined;
     if (parsed.name === "new" || command?.source === "builtin") return deliver(target, admit);

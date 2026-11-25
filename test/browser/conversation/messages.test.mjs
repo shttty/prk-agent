@@ -11,13 +11,37 @@ const input = "#composer";
 
 test("send, observe streamed output, stop, then retry and edit from the original message", async (t) => {
   let calls = 0;
-  const f = await browserFixture(t, { rate: 40, answer() {
+  const f = await browserFixture(t, { config: { session: { workerTools: "direct", idleTimeoutMs: 1_500 } }, rate: 40, answer() {
     calls++;
     return fauxAssistantMessage(calls === 1 ? "Streaming verification ".repeat(300) : "Ready again");
   } });
   const id = await f.create();
+  await until(async () => (await f.request("state", { sessionId: id })).state === "sleeping", "sleep before browsing");
+  let wakeRequests = 0;
+  const wakePath = `**/api/sessions/${id}/wake`;
+  const wakeGate = Promise.withResolvers();
+  await f.page.route(wakePath, async (route) => {
+    wakeRequests++;
+    await wakeGate.promise;
+    await route.continue();
+  });
   await f.open(id);
-  await f.page.locator(input).fill("Original question");
+  const composer = f.page.locator(input);
+  try {
+    await f.page.locator(`${input}[data-status="sleeping"]`).waitFor();
+    assert.equal(wakeRequests, 0, "viewing a sleeping session must not wake it");
+    await composer.focus();
+    await until(() => wakeRequests === 1, "composer focus posts wake");
+    await composer.blur();
+    await composer.focus();
+    await composer.fill("Original question");
+    wakeGate.resolve();
+    await f.page.locator(`${input}[data-status="idle"]`).waitFor();
+    assert.equal(await composer.inputValue(), "Original question", "wake keeps the typed draft");
+    await composer.blur();
+    await composer.focus();
+    assert.equal(wakeRequests, 1, "repeated focus or typing must not duplicate wake");
+  } finally { wakeGate.resolve(); }
   await f.page.locator(send).click();
   await f.page.locator('#operation-state[data-stage="output"]').waitFor();
   await f.page.locator("#messages").getByText(/Streaming verification/).first().waitFor();

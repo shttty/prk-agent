@@ -45,11 +45,11 @@ Catalog 中的 SDK `thinkingLevels` 是当前模型支持值。
 醒着时四项轻量设置（model / thinking / tool-mode / delegation）只乐观更新会话快照的同名字段（网页的唯一来源，[WEB-54](../contract.md)），不占用 nativeActionPending；以 POST completed data 确认，失败或非 completed 回滚对应字段。休眠时不写乐观值或 POST 完成值，只接收服务端推送快照。
 设置类操作（四项轻量设置与 local-tools / capabilities / dequeue / tree / reload）完成后，网页不串行 GET 完整会话或目录：开关与能力由 Gateway 推送的会话快照和 `session_capabilities_changed` 触发的一次目录刷新更新；dequeue 的队列由 `queue_update` 更新；tree 完成后与 reload 后 Gateway 各推送一次轻量 `snapshot` host event，reload 换流时即新流快照；网页切换流，历史锚点变更时主动读取对应历史页。
 
-休眠设置保存后不创建 SDK 会话或 kernel；Gateway 推送的新会话快照提供当前 model、thinkingLevel、toolMode、delegation、localTools、scopedModels。模型与范围必须来自当前可用模型清单，思考档必须由所选模型支持；非法值不追加条目。compact、reload、export、tree-label 仍需先唤醒。
+休眠设置保存后不创建 SDK 会话或 kernel；Gateway 推送的新会话快照提供当前 model、thinkingLevel、toolMode、delegation、localTools、scopedModels。模型与范围必须来自当前可用模型清单，思考档必须由所选模型支持；非法值不追加条目。
 
 休眠时只换模型且未另选思考档，保留已保存的 thinkingLevel，并用公开 `clampThinkingLevel` 按新模型能力裁剪；不连接目标机读取偏好。醒着时仍由 Pi `setModel` 选择目标模型偏好、SDK 全局默认或当前值；两条路径不强求相同偏好选择。
 
-内建斜线设置与结构化 nativeAction 共用 Gateway 原生准入；休眠时 `/model`、`/thinking`、`/scoped-models` 不走 SDK 输入唤醒，`/compact`、`/reload`、`/export` 仍拒绝。未知命令及扩展、技能、模板保留原 SDK 输入准入与覆盖优先级。
+内建斜线命令与结构化 nativeAction 共用 Gateway 原生准入；`compact`、`reload`、`settings`、`tree` 与 `tree-label` 在休眠时先按输入准入唤醒，再按实际运行时状态执行（[REQ-10](../contract.md)）。`model`、`thinking`、`scoped-models` 仍直接在休眠记录中执行，`export` 不为导出唤醒。未知命令及扩展、技能、模板保留原 SDK 输入准入与覆盖优先级。
 
 ### 保存的模型不可用
 

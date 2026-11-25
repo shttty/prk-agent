@@ -44,6 +44,7 @@ export function createWorkbenchActions(ctx) {
     unarchive: ctx.bound.unarchive,
     purgeArchive: ctx.bound.purgeArchive,
     recoverSession: ctx.bound.recoverSession,
+    wakeSession: ctx.bound.wakeSession,
     getTarget: ctx.bound.getTarget,
     inspectTarget: ctx.bound.inspectTarget,
     browseTarget: ctx.bound.browseTarget,

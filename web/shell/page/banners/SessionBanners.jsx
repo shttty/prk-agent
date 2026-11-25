@@ -38,7 +38,7 @@ export const SessionBanners = memo(function SessionBanners({ actions, onBottom }
   // a plain closed session keeps its existing reconnect/retarget controls in the menu and topbar.
   const showUnavailable = unavailable && notice?.kind !== "send-rejected";
   const retry = connectionFailed ? <Button id="retry-connection" variant="default" size="xs" disabled={sending} onClick={() => void actions.reconnect()}>重试连接</Button> : null;
-  const reload = <Button id="reload-capabilities" size="compact-xs" variant="default" disabled={status !== "idle" || nativePending} onClick={() => void actions.executeNativeAction("reload", {}, { transcript: false })}>重载</Button>;
+  const reload = <Button id="reload-capabilities" size="compact-xs" variant="default" disabled={!connected || !["idle", "sleeping"].includes(status) || nativePending} onClick={() => void actions.executeNativeAction("reload", {}, { transcript: false })}>重载</Button>;
   const items = [
     banner ? <Alert key="connection" id="connection-banner" data-kind={notice?.kind} data-stage={notice?.stage} data-code={notice?.code} data-submitted={notice?.submitted === undefined ? undefined : String(notice.submitted)} color={notice?.tone === "error" ? "red" : "gray"} icon={<IconInfoCircle size={18} />} role="status" withCloseButton={Boolean(error)} closeButtonLabel="关闭错误提示" onClose={actions.clearError}>
       <BannerRow actions={retry}>

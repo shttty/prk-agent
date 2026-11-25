@@ -9,10 +9,10 @@ import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 export function SessionResources({ actions }) {
   const [reloading, setReloading] = useState(false);
   const catalog = useWorkbench((state) => state.session.nativeCatalog?.value);
-  const idle = useWorkbench((state) => state.session.snapshot?.state === "idle" && state.session.connection === "connected" && !state.session.pending.has("nativeActionPending"));
+  const ready = useWorkbench((state) => ["idle", "sleeping"].includes(state.session.snapshot?.state) && state.session.connection === "connected" && !state.session.pending.has("nativeActionPending"));
   const resources = Array.isArray(catalog?.resources) ? catalog.resources : [];
   const reloadCommand = (catalog?.commands || []).find((command) => command?.name === "reload" && command.source === "builtin");
-  const reloadEnabled = Boolean(reloadCommand) && reloadCommand.availability?.enabled !== false && reloadCommand.enabled !== false && idle;
+  const reloadEnabled = Boolean(reloadCommand) && reloadCommand.availability?.enabled !== false && reloadCommand.enabled !== false && ready;
   if (!reloadCommand && !resources.length) return null;
   const reload = () => {
     setReloading(true);
@@ -31,7 +31,7 @@ export function SessionResources({ actions }) {
       })}
       {reloadCommand ? <Group gap="sm" wrap="nowrap" align="center">
         <Button id="reload-resources" size="compact-xs" variant="default" leftSection={<IconRefresh size={13} stroke={1.8} />} disabled={!reloadEnabled} loading={reloading} onClick={reload}>重新加载</Button>
-        <Text size="xs" c="dimmed">{idle ? "改了设置、扩展、技能或模板后重新读取。" : "会话空闲时可以重新加载。"}</Text>
+        <Text size="xs" c="dimmed">{ready ? "改了设置、扩展、技能或模板后重新读取。" : "会话空闲时可以重新加载。"}</Text>
       </Group> : null}
     </Stack>
   </section>;

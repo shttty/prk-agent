@@ -70,6 +70,7 @@ import { unarchive } from "./session-management/unarchive.js";
 import { purgeArchive } from "./session-management/purge-archive.js";
 import { mutateArchive } from "./session-management/mutate-archive.js";
 import { recoverSession } from "./session-management/recover-session.js";
+import { wakeSession } from "./session-management/wake-session.js";
 import { getTarget } from "./targets/get-target.js";
 import { inspectTarget } from "./targets/inspect-target.js";
 import { browseTarget } from "./targets/browse-target.js";
@@ -160,6 +161,7 @@ export function createWorkbenchStore({ apiRoot = API_ROOT } = {}) {
     purgeArchive: (...args) => purgeArchive(ctx, ...args),
     mutateArchive: (...args) => mutateArchive(ctx, ...args),
     recoverSession: (...args) => recoverSession(ctx, ...args),
+    wakeSession: () => wakeSession(ctx),
     getTarget: (...args) => getTarget(ctx, ...args),
     inspectTarget: (...args) => inspectTarget(ctx, ...args),
     browseTarget: (...args) => browseTarget(ctx, ...args),
