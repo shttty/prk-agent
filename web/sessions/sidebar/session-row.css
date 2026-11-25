@@ -31,6 +31,7 @@
   text-align: left;
   cursor: pointer;
 }
+.management-session-select[data-action="select-session"] { grid-template-columns: var(--tree-marker-width) minmax(0, 1fr); }
 .management-session-select:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: -2px; }
 .management-session-menu {
   position: absolute;
@@ -53,21 +54,21 @@
   display: grid;
   row-gap: 1px;
 }
-.management-session-copy strong,
-.management-session-copy span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.management-session-title {
+.management-session-title,
+.management-session-meta {
   display: flex;
   align-items: center;
-  column-gap: 4px;
+  gap: 4px;
   min-width: 0;
 }
-.management-session-title > .pi-role-badges,
-.management-session-title > .mantine-Badge-root { flex: 0 0 auto; }
-.management-session-title :is(.pi-role-badge, .management-session-capability) {
+.management-session-title > .management-session-aside {
+  flex: none;
+  margin-inline-start: auto;
+}
+.management-session-title > .management-session-aside:empty { display: none; }
+.management-session-title > .mantine-Badge-root,
+.management-session-meta > .mantine-Badge-root { flex: none; }
+.management-session-meta :is(.pi-role-badge, .management-session-capability) {
   height: 15px;
   padding-inline: 4px;
   border: 1px solid color-mix(in srgb, currentColor 59%, transparent);
@@ -78,23 +79,33 @@
   font-weight: 500;
   letter-spacing: 0;
 }
-.management-session-title [data-role="root"] {
+.management-session-meta [data-role="root"] {
   background: color-mix(in srgb, currentColor 6%, transparent);
   color: var(--pi-accent-strong);
 }
-.management-session-title [data-role="supervisor"] { color: var(--pi-ok); }
+.management-session-meta [data-role="supervisor"] { color: var(--pi-ok); }
 .management-session-copy strong {
-  min-width: 0;
   color: var(--pi-ink);
   font-size: 13.5px;
   font-weight: 500;
 }
-.management-session-copy > span:not(.mantine-Badge-root, .management-session-title),
+.management-session-copy strong,
+.management-session-location,
+.management-session-copy > span:not(.management-session-title, .management-session-meta) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.management-session-location,
+.management-session-copy > span:not(.management-session-title, .management-session-meta) {
+  color: var(--pi-sidebar-dim);
+  font-size: 11.5px;
+}
 .management-session-state {
   color: var(--pi-muted);
   font-size: 11.5px;
 }
-.management-session-copy > span:not(.mantine-Badge-root, .management-session-title) { color: var(--pi-sidebar-dim); }
 .management-session-derivation { color: var(--pi-accent-strong) !important; }
 .management-session-state { white-space: nowrap; }
 .management-tree-node {

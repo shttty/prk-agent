@@ -83,16 +83,18 @@ export function SessionRow({ sessionRow, targets, rows, onSelected, onSessionAct
         <span className="management-session-copy">
           <span className="management-session-title">
             <strong>{sessionLabel}</strong>
+            {pendingOwner ? <Badge component="span" variant="light" color="gray" size="xs" tt="none" radius="sm" className="management-session-pending" data-pending-owner={pendingOwner}>待接收</Badge> : null}
+            <span className="management-session-aside">
+              {stateBelow && <span data-descendant-state={stateBelow.key} role="img" aria-label={`子会话：${stateBelow.label}`} title={`子会话：${stateBelow.label}`}><StatusDot tone={stateBelow.tone} size={6} /></span>}
+              <MonitorMarks sessionRow={sessionRow} />
+              {(!projectView || sessionRow.state === "sleeping" || ["delivered", "compacting", "blocked", "stopped", "background", "done"].includes(shownState.key)) && <span className="management-session-state" data-state={shownState.key}>{shownState.label}</span>}
+            </span>
+          </span>
+          <span className="management-session-meta">
             <RoleBadges {...roles} />
             {child ? <Badge component="span" variant="outline" color="gray" size="xs" tt="none" radius="sm" className="management-session-capability" data-kind="child">子会话</Badge> : null}
-            {pendingOwner ? <Badge component="span" variant="light" color="gray" size="xs" tt="none" radius="sm" className="management-session-pending" data-pending-owner={pendingOwner}>待接收</Badge> : null}
+            <span className="management-session-location">{location}</span>
           </span>
-          <span>{location}</span>
-        </span>
-        <span className="management-session-aside">
-          {stateBelow && <span data-descendant-state={stateBelow.key} role="img" aria-label={`子会话：${stateBelow.label}`} title={`子会话：${stateBelow.label}`}><StatusDot tone={stateBelow.tone} size={6} /></span>}
-          <MonitorMarks sessionRow={sessionRow} />
-          {(!projectView || sessionRow.state === "sleeping" || ["delivered", "compacting", "blocked", "stopped", "background", "done"].includes(shownState.key)) && <span className="management-session-state" data-state={shownState.key}>{shownState.label}</span>}
         </span>
       </button>
       {/* Long menu: flip to the roomier side and cap to the viewport, scrolling inside (phones). */}
