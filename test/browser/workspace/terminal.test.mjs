@@ -60,22 +60,27 @@ test("Chromium terminal IME lays out inside xterm, commits Chinese and interrupt
 });
 
 test("file tree menu downloads the target file rather than a text preview", async (t) => {
-  const f = await browserFixture(t);
+  const f = await browserFixture(t, { viewport: { width: 1920, height: 1000 } });
   const name = "payload.bin";
   const path = join(f.cwd, name);
   const bytes = randomBytes(4 * 1024 ** 2);
   await writeFile(path, bytes);
   await f.open(await f.create());
+  await f.page.locator("#monitor-card").waitFor();
   await openWorkspace(f.page);
   const tree = f.page.locator("#toggle-tree");
   if (await tree.isVisible() && await tree.getAttribute("aria-pressed") !== "true") await tree.click();
   await f.page.locator(`#files-panel li[data-path="${path}"] .pi-files-line`).click({ button: "right" });
+  assert.equal(await f.page.locator("#monitor-card").isVisible(), false, "the open file tree must not cover the monitor");
   const pending = f.page.waitForEvent("download");
   await f.page.locator('[data-action="download"]').click();
   const downloaded = await pending;
   assert.equal(downloaded.suggestedFilename(), name);
   assert.equal(await downloaded.failure(), null);
   assert((await readFile(await downloaded.path())).equals(bytes));
+  await f.page.locator("#toggle-monitor").click();
+  await f.page.locator('#toggle-workspace[aria-expanded="false"]').waitFor();
+  await f.page.locator("#monitor-card").waitFor();
 });
 
 test("cursor blink preference survives disabling and restoring animations", async (t) => {

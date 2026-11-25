@@ -149,7 +149,7 @@ export default function App({ store }) {
   const filesOpen = Boolean(workspaceSessionId) && editorOpen.sessionId === workspaceSessionId && editorOpen.open;
   // Monitor panel: desktop at the right of the chat column, unfolded from the pill at its top corner (folded is saved
   // layout), phone a sheet on demand.
-  const { monitorNarrow, monitorUnfolded, toggleMonitor } = useMonitorFold({ mobile, fit: mobile ? null : { chat: chatWidth }, chrome, monitorPeek, sessionRow, monitorSheet, sidebarOpen, setMonitorPeek, workspaceOpen, setMonitorSheet });
+  const { monitorNarrow, monitorUnfolded, toggleMonitor } = useMonitorFold({ mobile, fit: mobile ? null : { chat: chatWidth }, chrome, monitorPeek, sessionRow, monitorSheet, sidebarOpen, setMonitorPeek, workspaceOpen: workspaceShown, setMonitorSheet });
   const monitorPlace = !sessionRow ? "" : targetLabel || sessionRow.target || "";
   // Keyed per session: its chart history (samples received while shown) starts over for another session.
   const monitorPanel = monitorUnfolded ? <Suspense fallback={null}><MonitorPanel key={sessionRow.sessionId} actions={actions} sessionRow={sessionRow} mobile={mobile} place={monitorPlace} onOpenDiff={openMonitorDiff} onSelectSession={selectMonitorChild} /></Suspense> : null;
@@ -165,7 +165,7 @@ export default function App({ store }) {
   return <div className="workbench" id="app-shell" ref={shell} data-desktop-stage={!mobile && sessionRow ? "" : undefined} style={{ "--pi-card-gap": `${CARD_GAP}px`, ...(fit?.session ? { "--pi-sidebar-width": `${fit.session}px` } : {}) }}>
     <AskAlert onOpen={selectSession} />
     {!mobile && <aside className="desktop-sidebar" hidden={!sessionBarOpen} aria-label="实例与会话列表">{sidebar}</aside>}
-    <ChromeMotion mobile={mobile} sidebar={!mobile && sessionBarOpen} monitor={monitorUnfolded} pane={mobile && workspaceShown} />
+    <ChromeMotion mobile={mobile} sidebar={!mobile && sessionBarOpen} monitor={monitorUnfolded} pane={mobile && workspaceShown} workspace={workspaceShown} />
     {!mobile && sessionBarOpen ? <div className="pi-splitter is-x is-session" id="session-splitter" aria-label="调整会话栏宽度" {...sessionSplitter} /> : null}
     <Drawer opened={mobile && sidebarOpen} keepMounted onClose={() => setSidebarOpen(false)} title="实例与会话" closeButtonProps={{ "aria-label": "关闭会话列表" }} size={300} classNames={{ body: "mobile-sidebar-body" }}>
       {mobile && sidebar}
