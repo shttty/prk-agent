@@ -4,6 +4,7 @@ export interface HttpOptions {
   readonly connectionsMax: number;
   readonly streamsMax: number;
   readonly requestTimeoutMs: number;
+  readonly uploadIdleTimeoutMs: number;
   readonly headersTimeoutMs: number;
   readonly heartbeatMs: number;
   readonly streamTimeoutMs: number;
@@ -21,6 +22,7 @@ export const DEFAULT_HTTP_OPTIONS: HttpOptions = Object.freeze({
   connectionsMax: 64,
   streamsMax: 24,
   requestTimeoutMs: 120_000,
+  uploadIdleTimeoutMs: 60_000,
   headersTimeoutMs: 15_000,
   heartbeatMs: 15_000,
   streamTimeoutMs: 0,

@@ -3,6 +3,7 @@ import type { IncomingMessage } from "node:http";
 import type { ServerResponse } from "node:http";
 import { API_HEADERS } from "../../request/response-constants.ts";
 import { HttpError } from "../../request/create-error.ts";
+import { enforceBodyDeadline } from "./enforce-body-deadline.ts";
 import { routePath } from "../../request/parse-request-url.ts";
 import { validateBrowserRequest } from "../validate-browser-request.ts";
 import { handleArtifactRequest } from "../../artifact-routes/handle-artifact-request.ts";
@@ -41,6 +42,9 @@ export async function handleRequest(ctx: ListenerContext, request: IncomingMessa
     const path = url.pathname;
     const mutation = request.method === "POST" || request.method === "PATCH" || request.method === "DELETE";
     validateBrowserRequest(ctx, request, mutation);
+    const workspaceRoute = workspaceHttpRoute(path);
+    const streamingUpload = request.method === "POST" && (path === "/api/artifacts/upload" || workspaceRoute?.method === "filesUpload");
+    if (!streamingUpload) enforceBodyDeadline(ctx.http, request, response);
 
     if (path === "/api/session-control/root" || path === "/api/session-control/supervisor") {
       await handleSessionControlRequest(ctx, request, response, url);
@@ -139,7 +143,6 @@ export async function handleRequest(ctx: ListenerContext, request: IncomingMessa
       return;
     }
 
-    const workspaceRoute = workspaceHttpRoute(path);
     if (workspaceRoute) {
       await handleWorkspaceRequest(ctx, request, response, workspaceRoute, url.searchParams);
       return;

@@ -15,7 +15,7 @@
 | `terminalCloseTimeoutMs` | 3000 | Positive timer; terminal cleanup confirmation budget, not proof of death. |
 
 Workspace file/terminal shapes: [Gateway transport](../wire/workspace.md#files-and-terminal-shapes).
-Target file deadlines use `targetConnection.requestTimeoutMs` (default 10000 ms); timeout retires the owned shared generation and reports unknown effects without replay. For file transfers, this deadline applies to individual target operations, not time waiting for HTTP to supply or drain bytes. Explicit workspace uploads and downloads have no whole-file byte limit. Gateway frames and HTTP request lifetimes still have their own budgets. Terminal setup deadlines are separate.
+Target file deadlines use `targetConnection.requestTimeoutMs` (default 10000 ms); timeout retires the owned shared generation and reports unknown effects without replay. For file transfers, this deadline applies to individual target operations, not time waiting for HTTP to supply or drain bytes. Explicit workspace uploads and downloads have no whole-file byte limit. Uploads use `http.uploadIdleTimeoutMs` and per-chunk Gateway/target deadlines, not a total time budget. The download form has the ordinary request body deadline; the streamed download response does not. Terminal setup deadlines are separate.
 PTY 启动与清理使用 workspace.terminalStartTimeoutMs / terminalCloseTimeoutMs，单次输入用 terminalInputBytes；Gateway/HTTP/SSE 原有限额仍适用。
 Option changes: [模块约定](../wire/targets.md#约定)、[模块约定](../configuration.md#约定); transport implementation: [design notes](../design-notes.md).
 

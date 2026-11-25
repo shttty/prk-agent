@@ -24,6 +24,7 @@ Success：HTTP 200 `{tools,maxUploadBytes}`，tools 为 [configuration](../confi
 | hash mismatch / invalid input | 400 |
 | missing version | 404 |
 | duplicate version/platform / current deletion | 409 |
+| stalled request body | 408 |
 | upload cap | 413 |
 | content type / compression | 415 |
 | sanitized filesystem failure | 500 |

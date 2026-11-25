@@ -19,7 +19,8 @@
 | `port` | 8787 | **port**; API-only Web listener. |
 | `connectionsMax` | 64 | **positive**; HTTP connection cap. |
 | `streamsMax` | 24 | **positive**; simultaneous SSE stream cap, shared with terminal WebSockets (one Gateway connection each). |
-| `requestTimeoutMs` | 120000 | **timer**; request deadline. |
+| `requestTimeoutMs` | 120000 | **timer**; fixed budget to receive a non-upload request body once its headers have arrived. Incoming bytes do not extend this budget; incomplete bodies receive 408 and the connection closes. Does not limit response streaming. |
+| `uploadIdleTimeoutMs` | 60000 | **timer**; maximum wait for the next workspace/artifact upload body bytes or a workspace chunk acknowledgement. No whole-upload deadline. One minute tolerates brief network interruptions without keeping abandoned transfers open indefinitely. A shorter Gateway or target operation deadline still applies. |
 | `headersTimeoutMs` | 15000 | **timer**; header deadline. |
 | `heartbeatMs` | 15000 | **timer**; SSE heartbeat and terminal WebSocket ping interval. |
 | `streamTimeoutMs` | 0 | Integer 0..2147483647 milliseconds; zero disables stream timeout. |

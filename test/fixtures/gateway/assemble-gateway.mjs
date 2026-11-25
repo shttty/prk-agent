@@ -48,8 +48,9 @@ export async function gatewayFixture(t, { answer, remote = false, web = false, r
     }
     return answer?.(context, options) ?? fauxAssistantMessage("Controlled reply.");
   }));
+  const parsed = parsePrkConfig({ monitor: { enabled: false }, memory: { review: false }, targetCacheRoot: join(root, "target"), session: { workerTools: "direct" }, ...config }, { instances });
   const host = await createGatewayHost({ cwd, home: root, model: `${model.provider}/${model.id}`, thinkingLevel: "off",
-    config: parsePrkConfig({ monitor: { enabled: false }, memory: { review: false }, targetCacheRoot: join(root, "target"), session: { workerTools: "direct" }, ...config }, { instances }),
+    config: parsed,
   }, { runtimeDependencies: { cwd, agentDir: agent, model, modelRuntime, thinkingLevel: "off" } });
   let listener;
   cleanup.push(() => listener ? listener.close() : host.close());
@@ -59,9 +60,9 @@ export async function gatewayFixture(t, { answer, remote = false, web = false, r
   cleanup.push(() => client.disconnect());
   let url;
   if (web) {
-    const adapter = await connectWebGateway({ socket, home: root });
+    const adapter = await connectWebGateway({ socket, home: root, http: parsed.http });
     cleanup.push(() => adapter.close());
-    const server = await startWebServer(adapter, { host: "127.0.0.1", port: 0, home: root });
+    const server = await startWebServer(adapter, { host: "127.0.0.1", port: 0, home: root, http: parsed.http });
     cleanup.push(() => server.close());
     url = server.url;
   }

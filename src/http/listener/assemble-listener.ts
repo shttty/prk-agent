@@ -24,9 +24,8 @@ export function assembleListener(gateway: WebGatewayClient, options: WebServerOp
   validateWebAddress(host, port);
 
   const responses = new Set<ServerResponse>();
-  const server = createServer((request, response) => acceptRequest(ctx, request, response));
-  server.requestTimeout = http.requestTimeoutMs;
-  server.headersTimeout = http.headersTimeoutMs;
+  const server = createServer({ requestTimeout: 0, headersTimeout: http.headersTimeoutMs },
+    (request, response) => acceptRequest(ctx, request, response));
 
   const done = Promise.withResolvers<void>();
   const ctx: ListenerContext = { gateway, http, limits, artifacts, gatewayRestart, home, host, port, responses, server, done, origin: "", authority: "", stopping: false, closing: undefined, terminalSockets: undefined };

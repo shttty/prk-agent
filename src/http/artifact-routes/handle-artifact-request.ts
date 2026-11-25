@@ -28,7 +28,7 @@ export async function handleArtifactRequest(ctx: RequestContext, request: Incomi
             const input = artifactUploadRequest(url);
             if (request.headers["content-type"]?.split(";", 1)[0]?.trim().toLowerCase() !== "application/octet-stream") throw new HttpError(415, "Artifact uploads require application/octet-stream.");
             if (request.headers["content-encoding"] !== undefined && request.headers["content-encoding"] !== "identity") throw new HttpError(415, "Compressed request bodies are not supported.");
-            staged = await stageArtifactUpload(home, artifactUploadBody(request, contentLength(http, request, artifacts.maxUploadBytes)), artifacts.maxUploadBytes);
+            staged = await stageArtifactUpload(home, artifactUploadBody(request, contentLength(http, request, artifacts.maxUploadBytes), http.uploadIdleTimeoutMs), artifacts.maxUploadBytes);
             manifest = await gateway.call("artifactsUpload", { ...input, source: staged });
           } else {
             const input = artifactVersionRequest(await readJsonBody(http, request));
@@ -42,7 +42,6 @@ export async function handleArtifactRequest(ctx: RequestContext, request: Incomi
         throw gatewayFailure(error, "Artifact storage operation failed.");
       } finally {
         if (staged) await rm(staged, { force: true });
-        if (path === "/api/artifacts/upload" && !request.complete && !request.destroyed) request.resume();
       }
       return;
     

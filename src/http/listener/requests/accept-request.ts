@@ -9,6 +9,7 @@ import { ArtifactError } from "../../../artifacts/upload-error/create-artifact-e
 
 export function acceptRequest(ctx: ListenerContext, request: IncomingMessage, response: ServerResponse): void {
     if (ctx.responses.size >= ctx.http.connectionsMax) {
+      response.setHeader("Connection", "close");
       responseJson(ctx.http, response, 503, { error: "Too many active web connections." });
       return;
     }
@@ -23,6 +24,7 @@ export function acceptRequest(ctx: ListenerContext, request: IncomingMessage, re
       const status = error instanceof HttpError || error instanceof ArtifactError ? error.status : error instanceof WireError ? 400 : 500;
       if (!known) console.error(`[${new Date().toISOString()}] Web request failed; inspect the current Gateway session state.`);
       try {
+        if (!request.complete || status === 408) response.setHeader("Connection", "close");
         responseJson(ctx.http, response, status, { error: known ? error.message : "Web operation failed; inspect current session and kernel state before retrying.",
           ...(error instanceof HttpError && error.code ? { code: error.code, ...(error.details ? { details: error.details } : {}) } : {}) });
       } catch {
