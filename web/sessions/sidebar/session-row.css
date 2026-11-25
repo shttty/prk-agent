@@ -22,7 +22,8 @@
   grid-template-columns: var(--tree-marker-width) minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--tree-label-gap);
-  padding: 4px 38px 4px var(--tree-caret-width);
+  padding-block: 4px;
+  padding-inline: calc(var(--tree-indent) + var(--tree-caret-width)) 38px;
   border: 0;
   border-radius: inherit;
   background: transparent;
@@ -49,7 +50,6 @@
 .management-status-dot { justify-self: center; }
 .management-session-copy {
   min-width: 0;
-  margin-inline-start: var(--tree-indent);
   display: grid;
   row-gap: 1px;
 }
@@ -61,18 +61,16 @@
 }
 .management-session-title {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   column-gap: 4px;
   min-width: 0;
 }
 .management-session-title > .pi-role-badges,
 .management-session-title > .mantine-Badge-root { flex: 0 0 auto; }
-.management-session-title .pi-role-badge,
-.management-session-title .management-session-capability {
-  height: 14px;
-  padding: 0;
-  border: 0;
+.management-session-title :is(.pi-role-badge, .management-session-capability) {
+  height: 15px;
+  padding-inline: 4px;
+  border: 1px solid color-mix(in srgb, currentColor 59%, transparent);
   background: transparent;
   color: var(--pi-sidebar-dim);
   font-family: inherit;
@@ -80,6 +78,11 @@
   font-weight: 500;
   letter-spacing: 0;
 }
+.management-session-title [data-role="root"] {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+  color: var(--pi-accent-strong);
+}
+.management-session-title [data-role="supervisor"] { color: var(--pi-ok); }
 .management-session-copy strong {
   min-width: 0;
   color: var(--pi-ink);
@@ -94,7 +97,6 @@
 .management-session-copy > span:not(.mantine-Badge-root, .management-session-title) { color: var(--pi-sidebar-dim); }
 .management-session-derivation { color: var(--pi-accent-strong) !important; }
 .management-session-state { white-space: nowrap; }
-/* The tree indents the copy, not the controls or the right-side state. */
 .management-tree-node {
   position: relative;
   min-width: 0;
@@ -120,7 +122,7 @@
   z-index: var(--pi-z-raised);
   top: 0;
   bottom: 0;
-  inset-inline-start: 0;
+  inset-inline-start: var(--tree-indent);
   width: var(--tree-caret-width);
   height: 28px;
   margin-block: auto;

@@ -36,8 +36,7 @@ export function SessionRow({ sessionRow, targets, rows, onSelected, onSessionAct
   const temporary = sessionRow.derivation?.lifecycle === "temporary";
   const child = Boolean(sessionRow.derivation);
   const shownState = rowState(sessionRow);
-  // A child session managed from another instance (or project) still reads as a child: indented, tagged, and its
-  // manager named in the row's title.
+  // Show an implied parent for a child managed from another instance or project, with the manager in the tooltip.
   const remoteOwner = depth === 0 ? visibleOwner(sessionRow, sessions) : "";
   const remoteOwnerLabel = remoteOwner ? sessionLabelById(sessions, remoteOwner) : "";
   const children = depth < MAX_TREE_DEPTH ? tree.childrenOf.get(sessionRow.sessionId) || [] : [];
@@ -79,7 +78,7 @@ export function SessionRow({ sessionRow, targets, rows, onSelected, onSessionAct
       {children.length > 0 && <button type="button" className="management-tree-toggle" data-action="toggle-session-children" aria-expanded={expanded} aria-label={`${expanded ? "折叠" : "展开"}${sessionLabel}的子会话`} onClick={() => tree.toggle(sessionRow.sessionId)}>
         <IconChevronRight size={12} stroke={2.2} aria-hidden="true" />
       </button>}
-      <button type="button" className="management-session-select" data-action="select-session" onClick={() => onSelected(sessionRow.sessionId)} aria-current={selected ? "true" : undefined} title={[cwd ? `工作目录：${cwd}` : "", remoteOwnerLabel ? `由 ${remoteOwnerLabel} 管理` : "", pendingOwner ? `待 ${sessionLabelById(sessions, pendingOwner)} 接收` : "", !cwd && !remoteOwnerLabel ? derivation : ""].filter(Boolean).join("\n")}>
+      <button type="button" className="management-session-select" data-action="select-session" onClick={() => onSelected(sessionRow.sessionId)} aria-current={selected ? "true" : undefined} title={[sessionLabel, cwd ? `工作目录：${cwd}` : "", remoteOwnerLabel ? `由 ${remoteOwnerLabel} 管理` : "", pendingOwner ? `待 ${sessionLabelById(sessions, pendingOwner)} 接收` : "", !cwd && !remoteOwnerLabel ? derivation : ""].filter(Boolean).join("\n")}>
         <StatusDot className="management-status-dot" data-session-dot="" tone={shownState.tone} size={temporary ? 5 : 7} />
         <span className="management-session-copy">
           <span className="management-session-title">
