@@ -1,6 +1,7 @@
 /* Session sidebar frame: brand, the create / instances buttons, the view switch, the list heading and the footer.
    One visual language for the whole column: controls are surface + line on the flat sidebar, hover and the current
-   item are neutral fills (--pi-sidebar-hover / --pi-sidebar-active), and every corner is --pi-radius-sm or a pill. */
+   item are neutral fills (--pi-sidebar-hover / --pi-sidebar-active). Small controls (buttons, the view switch, icon
+   buttons, counts, badges) are pills; session and project rows round like the inputs (Mantine's default radius). */
 .management-sidebar {
   width: 100%;
   min-width: 0;
@@ -14,8 +15,9 @@
   /* Secondary text (row location, list and group headings): a step above --pi-faint so it keeps AA (4.5:1) on the
      sidebar and on a hovered or current row in both schemes. */
   --pi-sidebar-dim: color-mix(in srgb, var(--pi-faint) 40%, var(--pi-muted));
+  --sidebar-row-radius: var(--mantine-radius-default);
 }
-.management-sidebar .mantine-ActionIcon-root { border-radius: var(--pi-radius-sm); color: var(--pi-muted); }
+.management-sidebar .mantine-ActionIcon-root { border-radius: var(--pi-radius-pill); color: var(--pi-muted); }
 .management-sidebar .mantine-ActionIcon-root:where(:hover, [aria-expanded="true"]):not(:disabled) { background: var(--pi-sidebar-active); color: var(--pi-ink); }
 .management-brand {
   display: flex;
@@ -53,9 +55,9 @@
 }
 .management-sidebar-heading .mantine-Button-root {
   height: 34px;
-  padding-inline: 12px;
+  padding-inline: 14px;
   border: 1px solid transparent;
-  border-radius: var(--pi-radius-sm);
+  border-radius: var(--pi-radius-pill);
   background: transparent;
   color: var(--pi-ink-2);
   font-size: 13px;
@@ -71,11 +73,11 @@
 .management-sidebar-heading .management-primary-action:not(:disabled):hover { border-color: var(--pi-faint); background: var(--pi-surface); }
 .management-view-switch {
   padding: 3px;
-  border-radius: var(--pi-radius-sm);
+  border-radius: var(--pi-radius-pill);
   background: var(--pi-sidebar-hover);
 }
 .management-view-switch .mantine-SegmentedControl-indicator {
-  border-radius: calc(var(--pi-radius-sm) - 3px);
+  border-radius: var(--pi-radius-pill);
   background: var(--pi-surface);
   box-shadow: inset 0 0 0 1px var(--pi-line-strong);
 }
@@ -103,7 +105,7 @@
   gap: 2px;
   min-height: 36px;
   margin-top: 8px;
-  padding: 8px 2px 0 8px;
+  padding: 8px 2px 0 12px;
   border-top: 1px solid var(--pi-line);
 }
 .management-sidebar-footer .management-connection-dot,

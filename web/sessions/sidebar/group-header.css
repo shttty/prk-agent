@@ -13,7 +13,7 @@
 .management-drop-ungrouped {
   padding: 8px 10px;
   border: 1px dashed var(--pi-line-strong);
-  border-radius: var(--pi-radius-sm);
+  border-radius: var(--pi-radius-pill);
 }
 .management-drop-zone-label {
   color: var(--pi-muted);
@@ -24,8 +24,9 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  padding-inline-end: 2px;
-  border-radius: var(--pi-radius-sm);
+  margin-inline-end: 2px;
+  padding-inline: var(--tree-row-inset, 6px) 4px;
+  border-radius: var(--sidebar-row-radius);
   transition: background var(--pi-motion-fast) ease;
 }
 .management-group-header-row:hover,
@@ -38,7 +39,7 @@
   align-items: center;
   padding: 0;
   border: 0;
-  border-radius: var(--pi-radius-sm);
+  border-radius: var(--sidebar-row-radius);
   background: none;
   color: var(--pi-sidebar-dim);
   text-align: left;
