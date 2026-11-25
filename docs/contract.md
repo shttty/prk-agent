@@ -229,7 +229,7 @@
 - `LIFE-5` Gateway异常退出后旧执行handle必须失效；后台cell须从SDK分支对账，不得认领旧namespace、重跑或补发唤醒。
 - `LIFE-7` 会话或 kernel 失效后必须只在明确新请求准入时建空 REPL；观察不得建 REPL，不接回旧 kernel，不重放。
 - `LIFE-9` 只重建 kernel 时必须保留会话身份、会话记录与保存的执行选择。
-- `LIFE-10` 同代共用一次清理，结算后只释放一次租约；未确认报 `closed:true`、`cleanup:unconfirmed` 及所属身份；旧代未证实退出不得启新代。
+- `LIFE-10` 同代必须共用清理，结算后仅释一次租约；未确认报 `closed:true`、`cleanup:unconfirmed`、所属身份，禁止换代；Z/X 不算存活。
 - `LIFE-11` 浏览器断开或会话休眠必须保留仍属活 Gateway 与目标连接的终端；观察重订阅不得创建替代 PTY。
 - `LIFE-12` Gateway 停止必须关闭人工及模型终端；目标连接失效必须退休旧代次，不得接回或补发输入。
 - `LIFE-13` 显式关闭、会话结束或shell自然退出必须结束终端及未主动脱离job；nohup/disown/setsid/tmux等脱离进程保留。

@@ -6,7 +6,7 @@ import { until } from "../../fixtures/until.mjs";
 
 const call = (f, id, name, args) => f.send(id, `TOOL ${JSON.stringify({ name, args })}`);
 
-test("a real child kernel exit notifies the owner only once per failed generation", async (t) => {
+test("a child kernel failure notifies the owner once per generation and SIGKILL allows a clean replacement", async (t) => {
   const f = await gatewayFixture(t);
   await f.deploy();
   const owner = await f.create("Owner");
@@ -26,11 +26,13 @@ test("a real child kernel exit notifies the owner only once per failed generatio
     (parsePeerMessages(text(message)) ?? []).filter(({ sender, body }) => sender === child && body.startsWith("[派生会话运行失败 / child=")))
     .map((message) => ({ ...message, failure: JSON.parse(message.body.split("\n")[1]) }))
     .filter(({ failure }) => failure.kernelId !== undefined);
-  const start = async () => {
-    const receipt = await call(f, child, "kernel_code", { code: "print('kernel ready')", mode: "thread" });
+  const lastResult = () => f.state(child).messages.findLast((message) => message.role === "toolResult");
+  const start = async (code = "print('kernel ready')") => {
+    const receipt = await call(f, child, "kernel_code", { code, mode: "thread" });
     assert.equal((await f.complete(child, receipt)).status, "completed");
-    const output = text(f.state(child).messages.findLast((message) => message.role === "toolResult"));
-    assert.match(output, /^kernel ready$/m);
+    const result = lastResult();
+    assert.equal(result?.isError, false, text(result));
+    assert.match(text(result), /^kernel ready$/m);
     const kernel = f.state(child).kernel;
     assert.equal(kernel.state, "idle");
     assert(kernel.kernelId);
@@ -60,4 +62,15 @@ test("a real child kernel exit notifies the owner only once per failed generatio
     assert.deepEqual(failure, { type: "failed", sessionId: child, sessionName: label, kernelId,
       kernelState: "unavailable", summary: "Invalid kernel event." });
   }
+  const killed = await start("import os\nold_generation_marker = True\nprint('kernel ready')\nprint(os.getpid())");
+  const pid = Number(text(lastResult()).match(/^([0-9]+)$/m)?.[1]);
+  assert(pid > 1, "runner must report a valid PID");
+  process.kill(pid, "SIGKILL");
+  await until(() => unavailable.includes(killed), "SIGKILL retires the runner generation");
+  assert.notEqual(await start("assert 'old_generation_marker' not in globals()\nprint('kernel ready')"), killed);
+  const notice = await until(() => notices().find(({ failure }) => failure.kernelId === killed), "owner receipt for SIGKILL");
+  assert.equal(notice.expectReply, false);
+  assert.equal(notice.failure.kernelState, "unavailable");
+  await until(() => !f.state(owner).operation, "owner idle after the SIGKILL notice");
+  assert.deepEqual(notices().map(({ failure }) => failure.kernelId), [...failedGenerations, killed]);
 });

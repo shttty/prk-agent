@@ -39,7 +39,17 @@ def populated(group):
     return count == "1"
 
 
-def exists(pid):
+def live_pgid(process):
+    try:
+        stat = (process / "stat").read_bytes()
+    except (FileNotFoundError, ProcessLookupError):
+        return None  # Process exited before its stat could be read.
+    # comm is parenthesized and may itself contain whitespace and parentheses.
+    state, _, pgid = stat.rsplit(b") ", 1)[1].split(maxsplit=3)[:3]
+    return None if state in (b"Z", b"X") else int(pgid)
+
+
+def has_live_process(pid):
     if not pid:
         return False
     try:
@@ -48,7 +58,13 @@ def exists(pid):
         return False
     except PermissionError:
         return True
-    return True
+    if sys.platform != "linux":
+        return True
+    # Linux kill(0) also succeeds for zombies, which cannot keep executing.
+    proc = Path("/proc")
+    if pid > 0:
+        return live_pgid(proc / str(pid)) is not None
+    return any(live_pgid(process) == -pid for process in proc.iterdir() if process.name.isdecimal())
 
 
 def confirm_stop(daemon_pgid, runner_pid, runner_pgid, scope, seconds, poll):
@@ -58,7 +74,7 @@ def confirm_stop(daemon_pgid, runner_pid, runner_pgid, scope, seconds, poll):
     group = None
     checked_after_launch_exit = False
     while time.monotonic() < deadline:
-        daemon_alive = exists(-daemon_pgid)
+        daemon_alive = has_live_process(-daemon_pgid)
         if scope and group is None and not checked_after_launch_exit:
             # Startup can be stopped before ready or before systemd has registered
             # the scope. A missing scope counts only after the launcher is gone.
@@ -67,7 +83,8 @@ def confirm_stop(daemon_pgid, runner_pid, runner_pgid, scope, seconds, poll):
             if group is not None:
                 # Retain the actual ControlGroup path even if systemd unloads the unit.
                 subprocess.run(["systemctl", "--user", "stop", scope], capture_output=True)
-        if not daemon_alive and not exists(runner_pid) and not exists(-runner_pgid) and not populated(group):
+        if (not daemon_alive and not has_live_process(runner_pid)
+                and (runner_pgid == daemon_pgid or not has_live_process(-runner_pgid)) and not populated(group)):
             return
         time.sleep(poll)
     raise RuntimeError("Owned kernel scope or process group did not empty")
