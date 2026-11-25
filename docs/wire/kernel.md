@@ -5,7 +5,7 @@
 规则：[KER-1](../contract.md)、[KER-2](../contract.md)、[模块约定](kernel.md#约定)、[REQ-12](../contract.md)、[模块约定](kernel.md#约定)、[模块约定](native.md#约定)、[KER-4](../contract.md)、[KER-5](../contract.md)。
 ### Execution and callbacks
 
-Python 执行工具 `kernel_code {code,title?,reset?,yield_s?,mode?,inputs?,outputs?}` 在 `code` / `direct` 两个工具档共用实现。`mode` 如提供，只接受 `thread`、`async`、`isolated` 字符串；`null`、布尔值和旧布尔字段均拒绝。`inputs` 是主 namespace 中要复制的变量名列表，`outputs` 是成功后可选的单个绑定名，两者仅在实际选中 `isolated` 时接受，不改变选路。是否 yield 由全局 `kernel.asyncExecution` 独立决定；关闭时忽略 `yield_s`。
+Python 执行工具 `kernel_code {code,title?,reset?,yield_s?,mode?,inputs?,outputs?}` 在 `code` / `direct` 两个工具档共用实现。`mode` 如提供，只接受 `thread`、`async`、`isolated` 字符串；`null`、布尔值和旧布尔字段均拒绝。`inputs` 是主 namespace 中要复制的变量名列表，`outputs` 是成功后可选的单个绑定名，工具入口将 `inputs:[]`、`outputs:""` 视为未提供（Bun 同样接受这两个空值）；非空值仅在实际选中 `isolated` 时接受，不改变选路。是否 yield 由全局 `kernel.asyncExecution` 独立决定；关闭时忽略 `yield_s`。
 Bun 的 `kernel_code` 只接受 `{code,title?,reset?,yield_s?}`。切换语言用独立的 model-only 工具 `kernel_language {language:"python"|"bun"}`，不能经 `gateway.*` 调用；它与 [native action](native.md#kernel-language) 共用内核准入和持久化。下一次模型请求使用所选语言的 schema、说明和提示词。
 异步前台等待先到期时，模型正文为 JSON `{status:"running",cell_id,output,truncated,image_count,note}`，`details` 为 `{toolCallId,kernelId,startedAt,language}`（时间为 epoch ms）。预览只含有界普通输出；不占用变量摘要，不附图块。`cell_end` 先到则仍等图片规范化并返回原终态形状。yield、read、ask 和停止中均不释放执行位；该项结果冻结后才可补位，无需等待通知送达。
 `reset:true` 可在满位时请求：先退休旧代并等待清理确认与结果冻结、落账，再重载当前语言的 prelude / library；`code:""` 只重启，否则只在新代执行一次。成功工具结果的 `details.reset`（若有旧代）给出旧 `kernelId`、`reason`、`cause` 及 `affectedCells`；若新代码 yield，首个 running 结果也携带该回执。清理未确认时不执行代码。
