@@ -4,13 +4,23 @@ import { rowState } from "../../../web/sessions/sidebar/labels/row-state.js";
 import { childrenSummary } from "../../../web/monitor/readings/children-summary.js";
 import { processSummary } from "../../../web/monitor/readings/process-summary.js";
 
-test("folded monitor sections summarize children by sidebar state and background processes by total", () => {
-  const rows = [{ state: "running" }, { state: "running", compacting: true }, { state: "idle", blocked: true },
-    { state: "idle", derivation: { phase: "delivered" } }, { state: "starting" }, { state: "idle", background: true }];
-  assert.deepEqual(childrenSummary(rows.map((row) => ({ state: rowState(row) }))).map(({ key, count }) => [key, count]),
-    [["blocked", 1], ["running", 3], ["background", 1], ["delivered", 1]]);
-  const process = (pid, depth, ownership, cpuPercent, rssBytes) => ({ pid, depth, ownership, cpuPercent, rssBytes, command: "x", kind: "kernel" });
-  assert.deepEqual(processSummary([process(1, 0, "root", 50, 900), process(2, 1, "infrastructure", 9, 900), process(3, 1, "detached", 7, 100),
-    process(4, 2, "unknown", null, 40), process(5, 1, "detached", 5, 200)]), { count: 3, detached: 2, cpuPercent: 12, rssBytes: 340 });
-  assert.equal(processSummary([process(3, 1, "managed", null, 1)]).cpuPercent, null);
+const summarize = (rows) => childrenSummary(rows.map((row) => ({ state: rowState(row) })));
+const process = (pid, depth, ownership, cpuPercent, rssBytes) => ({ pid, depth, ownership, cpuPercent, rssBytes, command: "x", kind: "kernel" });
+
+test("child summary is one line in sidebar priority, states with none left out", () => {
+  const { counts, text } = summarize([{ state: "running" }, { state: "running", compacting: true }, { state: "idle", stopped: true },
+    { state: "idle", derivation: { phase: "delivered" } }, { state: "starting" }, { state: "running", blocked: true }, { state: "idle", background: true }]);
+  assert.equal(text, "1 个等待 · 1 个出错 · 3 个运行中 · 1 个后台运行 · 1 个已交付");
+  assert.deepEqual([counts.running, counts.delivered], [3, 1]);
+  assert.equal(summarize([{ state: "running" }, { state: "idle", derivation: { phase: "submitted" } }, { state: "idle", derivation: { phase: "delivered" } }]).text,
+    "1 个运行中 · 2 个已交付");
+  assert.equal(summarize([{ state: "idle", derivation: { phase: "delivered" } }]).text, "1 个已交付");
+});
+
+test("process summary totals the background processes in one line", () => {
+  const summary = processSummary([process(1, 0, "root", 50, 900), process(2, 1, "infrastructure", 9, 900), process(3, 1, "detached", 7, 100 << 20),
+    process(4, 2, "unknown", null, 40 << 20), process(5, 1, "detached", 5, 200 << 20)]);
+  assert.deepEqual([summary.count, summary.detached, summary.cpuPercent], [3, 2, 12]);
+  assert.equal(summary.text, "3 个 · 2 个脱管 · CPU 12% · 内存 340 MB");
+  assert.equal(processSummary([process(3, 1, "managed", null, 1 << 20)], true).text, "1+ 个 · CPU — · 内存 1.0 MB");
 });

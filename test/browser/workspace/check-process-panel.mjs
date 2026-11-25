@@ -32,6 +32,7 @@ processes = [subprocess.Popen(["sleep", "60"]) for _ in range(24)]`;
       assert(await page.locator("#monitor-machine").isVisible());
       assert(await process.isVisible());
       assert(await section.evaluate((node) => node.scrollWidth === node.clientWidth), `monitor fits ${width}px ${colorScheme}`);
+      assert(await section.locator(".pi-monitor-summary").evaluate((node) => node.getClientRects().length === 1 && node.offsetHeight < 2 * parseFloat(getComputedStyle(node).lineHeight)), `summary is one line at ${width}px`);
     }
   }
   const stop = await f.send(id, `TOOL ${JSON.stringify({ name: "kernel_code", args: { code: "for child in processes:\n    child.terminate()\n    child.wait()" } })}`);

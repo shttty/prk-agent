@@ -79,19 +79,15 @@
 .pi-monitor-child-state { color: var(--pi-muted); font-size: 11.5px; white-space: nowrap; }
 .pi-monitor-window .pi-monitor-age { margin-top: 0; }
 
-/* Child sessions and background processes fold under their heading, which keeps a one-line summary; open, the list
-   scrolls inside its own height. Which ones are open: FoldSection.jsx. */
-.pi-monitor-fold { flex: 1 1 auto; min-width: 0; display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; margin: -3px -6px; padding: 3px 6px; border: 0; border-radius: var(--pi-radius-sm); background: transparent; color: inherit; font: inherit; letter-spacing: inherit; text-align: left; cursor: pointer; }
+/* Child sessions and background processes fold under their heading, which keeps a one-line muted summary cut with an
+   ellipsis; open, the list scrolls inside its own height. Which ones are open: FoldSection.jsx. */
+.pi-monitor-fold { flex: 1 1 auto; min-width: 0; display: flex; align-items: baseline; gap: 8px; margin: -3px -6px; padding: 3px 6px; border: 0; border-radius: var(--pi-radius-sm); background: transparent; color: inherit; font: inherit; letter-spacing: inherit; text-align: left; cursor: pointer; }
 .pi-monitor-fold:hover, .pi-monitor-fold:focus-visible { background: var(--pi-hover); }
-.pi-monitor-fold-icon { flex: none; align-self: center; margin-inline-end: -4px; color: var(--pi-muted); transition: transform .15s ease; }
+.pi-monitor-fold-icon { flex: none; align-self: center; margin-inline-end: -4px; color: var(--pi-faint); transition: transform .15s ease; }
 .pi-monitor-fold[aria-expanded="true"] .pi-monitor-fold-icon { transform: rotate(90deg); }
+.pi-monitor-fold-title { flex: none; }
+.pi-monitor-fold .pi-monitor-summary { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pi-monitor-section[data-open="false"] h3, #monitor-processes[data-count="0"] h3 { margin-bottom: 0; }
-.pi-monitor-fold .pi-monitor-summary { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px 9px; min-width: 0; }
-.pi-monitor-summary-part { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
-/* Child states are told apart by their dots; process figures need a separator. */
-#monitor-processes .pi-monitor-summary-part + .pi-monitor-summary-part::before { content: "·"; margin-inline-end: 5px; color: var(--pi-faint); }
-#monitor-processes .pi-monitor-summary { column-gap: 5px; }
-.pi-monitor-summary-part[data-process-owner="detached"] { color: var(--pi-danger); }
 .pi-monitor-children, .pi-monitor-processes { max-height: min(240px, 34dvh); overflow-y: auto; overscroll-behavior: contain; }
 .pi-monitor-processes { margin: 0; padding: 0; list-style: none; }
 .pi-monitor-process-grid { display: grid; grid-template-columns: 7.5ch minmax(0, 1fr) 4ch 7ch; gap: 5px; align-items: baseline; padding-block: 3px; color: var(--pi-ink); font-size: 11.5px; font-variant-numeric: tabular-nums; }
