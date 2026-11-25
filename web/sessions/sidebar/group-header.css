@@ -1,0 +1,86 @@
+/* Group headers: an instance (instances view) or a project folder (projects view), with drop targets for moving a
+   session between projects. The archive dialog reuses the header and its caret. */
+.management-group { margin: 2px 0 8px; }
+.management-group[data-droppable="true"] {
+  border-radius: var(--pi-radius-sm);
+  transition: background var(--pi-motion-fast) ease, outline-color var(--pi-motion-fast) ease;
+}
+.management-group[data-drop-target="true"] {
+  background: var(--pi-sidebar-hover);
+  outline: 1.5px dashed var(--pi-faint);
+  outline-offset: -1px;
+}
+.management-drop-ungrouped {
+  padding: 8px 10px;
+  border: 1px dashed var(--pi-line-strong);
+  border-radius: var(--pi-radius-sm);
+}
+.management-drop-zone-label {
+  color: var(--pi-muted);
+  font-size: 12px;
+  text-align: center;
+}
+.management-group-header-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-inline-end: 2px;
+  border-radius: var(--pi-radius-sm);
+  transition: background var(--pi-motion-fast) ease;
+}
+.management-group-header-row:hover,
+.management-group-header-row:focus-within { background: var(--pi-sidebar-hover); }
+.management-group-header {
+  min-width: 0;
+  min-height: 30px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--pi-radius-sm);
+  background: none;
+  color: var(--pi-sidebar-dim);
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: .02em;
+  cursor: pointer;
+}
+.management-group-header:hover,
+.management-group-header:focus-visible { color: var(--pi-ink-2); }
+.management-group-header:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: -2px; }
+.management-group-header > span:where(:not(.management-count, .management-local-badge)) {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.management-group-header > :where(.management-count, .management-local-badge, [data-descendant-state]) { flex: none; margin-inline-start: 6px; }
+.management-group-caret {
+  width: var(--tree-caret-width, 24px);
+  flex: none;
+  color: var(--pi-faint);
+  transition: transform var(--pi-motion-slow) var(--pi-motion-ease-spring);
+}
+.management-group-header[aria-expanded="true"] .management-group-caret { transform: rotate(90deg); }
+.management-group-children { min-width: 0; }
+/* Projects view: the folder is the top level of the tree, so it carries the most weight. */
+[data-group-kind="project"] .management-group-header {
+  color: var(--pi-ink);
+  font-size: 13px;
+  letter-spacing: 0;
+}
+.management-project-folder { flex: none; width: var(--tree-marker-width); margin-inline-end: var(--tree-label-gap); color: var(--pi-muted); }
+[data-group-kind="project"] .management-group-name { flex: 0 1 auto; }
+@media (min-width: 48.01em) and (hover: hover) and (pointer: fine) {
+  [data-group-kind="project"] .management-group-header-row:not(:hover):not(:focus-within) .mantine-ActionIcon-root:not([aria-expanded="true"]) {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+@media (max-width: 48em), (hover: none) {
+  .management-group-header { min-height: 36px; }
+}

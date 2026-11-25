@@ -17,6 +17,7 @@
   --pi-radius: 13px;
   --pi-radius-lg: 18px;
   --pi-radius-xl: 22px;
+  --pi-radius-pill: 999px; /* counts, badges, toggles: fully round ends */
   /* The reading column (messages, composer) grows with the chat area on wide screens instead of leaving wide empty
      margins: this share of the area, within min..max, centered. */
   --pi-thread-min: 760px;

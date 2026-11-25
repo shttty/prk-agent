@@ -73,7 +73,7 @@ export function SessionRow({ sessionRow, targets, rows, onSelected, onSessionAct
       data-delta={deltaLabel(sessionRow) ?? undefined}
       data-dragging={dragging ? "true" : undefined}
       aria-current={selected ? "true" : undefined}
-      className={`management-session-row${selected ? " is-selected" : ""}${CLOSED_STATES.has(sessionRow.state) ? " is-closed" : ""}${temporary ? " is-temporary" : ""}${dragging ? " is-dragging" : ""}`}
+      className={`management-session-row${selected ? " is-selected" : ""}${CLOSED_STATES.has(sessionRow.state) ? " is-closed" : ""}${temporary ? " is-temporary" : ""}${child ? " is-child" : ""}${dragging ? " is-dragging" : ""}`}
     >
       {children.length > 0 && <button type="button" className="management-tree-toggle" data-action="toggle-session-children" aria-expanded={expanded} aria-label={`${expanded ? "折叠" : "展开"}${sessionLabel}的子会话`} onClick={() => tree.toggle(sessionRow.sessionId)}>
         <IconChevronRight size={12} stroke={2.2} aria-hidden="true" />

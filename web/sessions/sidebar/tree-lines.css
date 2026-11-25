@@ -1,0 +1,63 @@
+/* The project → session → child-session tree: each level indents one step; a 1px guide runs down the caret column of
+   the level that owns the branch. A row's own fill starts at its indent, so it never covers an ancestor's guide. */
+.management-sidebar {
+  --tree-step: 20px;
+  --tree-caret-width: 24px;
+  --tree-marker-width: 16px;
+  --tree-label-gap: 6px;
+  --tree-guide-start: calc((var(--tree-caret-width) - 1px) / 2);
+}
+.management-tree-node {
+  position: relative;
+  min-width: 0;
+  --tree-indent: calc(var(--tree-depth, 0) * var(--tree-step) + var(--tree-project-offset, 0px) + var(--tree-owner-offset, 0px));
+}
+.management-group-children.management-tree-branch { --tree-project-offset: var(--tree-step); }
+.management-remote-owner-branch { --tree-owner-offset: var(--tree-step); }
+.management-tree-branch { position: relative; }
+.management-tree-branch::after {
+  content: "";
+  position: absolute;
+  z-index: var(--pi-z-raised);
+  inset-block: 2px;
+  inset-inline-start: calc(var(--tree-guide-start) + var(--tree-indent, 0px));
+  border-inline-start: 1px solid var(--pi-line-strong);
+  pointer-events: none;
+}
+.management-remote-owner-branch::after { inset-inline-start: calc(var(--tree-guide-start) + var(--tree-project-offset, 0px)); }
+.management-tree-toggle {
+  position: absolute;
+  z-index: var(--pi-z-raised);
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: var(--tree-caret-width);
+  height: 24px;
+  margin-block: auto;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--pi-radius-sm);
+  background: transparent;
+  color: var(--pi-faint);
+  cursor: pointer;
+}
+.management-tree-toggle:hover { color: var(--pi-ink); }
+.management-tree-toggle:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: 0; }
+.management-tree-toggle svg { transition: transform var(--pi-motion-slow) var(--pi-motion-ease-spring); }
+.management-tree-toggle[aria-expanded="true"] svg { transform: rotate(90deg); }
+/* Temporary child: a short dashed tick from the parent's guide instead of a full row weight. */
+.management-session-row.is-temporary::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  inset-inline-start: calc(var(--tree-guide-start) + max(0px, var(--tree-indent) - var(--tree-step)) - var(--tree-indent));
+  width: 5px;
+  border-top: 1px dashed var(--pi-line-strong);
+}
+/* Closed sessions sink below the open ones, after a dashed rule. */
+.management-group-children > .management-tree-node:not(:has(> .is-closed)) + .management-tree-node:has(> .is-closed) {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px dashed var(--pi-line-strong);
+}

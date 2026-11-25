@@ -1,29 +1,30 @@
+/* One session in the sidebar: status dot, title line (name, then state and monitor marks on the right), meta line
+   (role and kind badges, location). Hover and the current session are neutral fills; the current title also turns
+   semibold. Child sessions are a size smaller than their parent. */
 .management-session-row {
   position: relative;
   min-width: 0;
-  margin: 1px 0;
-  border-radius: calc(var(--pi-radius-sm) / 2);
+  margin-block: 1px;
+  margin-inline-start: var(--tree-indent, 0px);
+  border-radius: var(--pi-radius-sm);
   transition: background var(--pi-motion-fast) ease;
 }
 .management-session-row:hover,
-.management-session-row:focus-within { background: color-mix(in srgb, var(--pi-hover) 45%, transparent); }
-.management-session-row.is-selected { background: var(--pi-sidebar-selected); }
-:root[data-mantine-color-scheme="light"] .management-session-row.is-selected { background: var(--pi-selected); }
+.management-session-row:focus-within { background: var(--pi-sidebar-hover); }
+.management-session-row.is-selected { background: var(--pi-sidebar-active); }
 .management-session-row[draggable="true"] .management-session-select { cursor: grab; }
 .management-session-row.is-dragging { opacity: .48; }
 .management-session-row.is-dragging .management-session-select { cursor: grabbing; }
-/* Closed rows read quieter by their hollow dot and a muted title, never by opacity (that took the location line to 2.6:1). */
-.management-session-row.is-closed .management-session-copy strong { color: var(--pi-muted); }
 .management-session-select {
   width: 100%;
   min-width: 0;
-  min-height: 28px;
+  min-height: 30px;
   display: grid;
   grid-template-columns: var(--tree-marker-width) minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--tree-label-gap);
-  padding-block: 4px;
-  padding-inline: calc(var(--tree-indent) + var(--tree-caret-width)) 38px;
+  padding-block: 5px;
+  padding-inline: var(--tree-caret-width, 24px) 38px;
   border: 0;
   border-radius: inherit;
   background: transparent;
@@ -33,26 +34,22 @@
 }
 .management-session-select[data-action="select-session"] { grid-template-columns: var(--tree-marker-width) minmax(0, 1fr); }
 .management-session-select:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: -2px; }
+.management-status-dot { justify-self: center; }
 .management-session-menu {
   position: absolute;
-  top: 0;
-  right: 5px;
-  bottom: 0;
+  inset-block: 0;
+  right: 4px;
   margin-block: auto;
-  color: var(--pi-muted);
   opacity: 0;
   transition: opacity var(--pi-motion-fast) ease;
 }
-.management-session-row:hover .management-session-menu,
-.management-session-row:focus-within .management-session-menu,
-.management-session-row.is-selected .management-session-menu,
+.management-session-row:is(:hover, :focus-within, .is-selected) .management-session-menu,
 .management-session-menu[aria-expanded="true"] { opacity: 1; }
 @media (hover: none) { .management-session-menu { opacity: 1; } }
-.management-status-dot { justify-self: center; }
 .management-session-copy {
   min-width: 0;
   display: grid;
-  row-gap: 1px;
+  row-gap: 2px;
 }
 .management-session-title,
 .management-session-meta {
@@ -61,34 +58,20 @@
   gap: 4px;
   min-width: 0;
 }
-.management-session-title > .management-session-aside {
-  flex: none;
-  margin-inline-start: auto;
-}
+.management-session-title { min-height: 18px; }
+.management-session-title > .management-session-aside { flex: none; margin-inline-start: auto; padding-inline-start: 6px; }
 .management-session-title > .management-session-aside:empty { display: none; }
-.management-session-title > .mantine-Badge-root,
-.management-session-meta > .mantine-Badge-root { flex: none; }
-.management-session-meta :is(.pi-role-badge, .management-session-capability) {
-  height: 15px;
-  padding-inline: 4px;
-  border: 1px solid color-mix(in srgb, currentColor 59%, transparent);
-  background: transparent;
-  color: var(--pi-sidebar-dim);
-  font-family: inherit;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0;
-}
-.management-session-meta [data-role="root"] {
-  background: color-mix(in srgb, currentColor 6%, transparent);
-  color: var(--pi-accent-strong);
-}
-.management-session-meta [data-role="supervisor"] { color: var(--pi-ok); }
+:is(.management-session-title, .management-session-meta) > .mantine-Badge-root { flex: none; }
 .management-session-copy strong {
   color: var(--pi-ink);
-  font-size: 13.5px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 450;
+  line-height: 18px;
 }
+.management-session-row.is-child .management-session-copy strong { color: var(--pi-ink-2); font-size: 12.5px; }
+.management-session-row.is-selected .management-session-copy strong { color: var(--pi-ink); font-weight: 600; }
+/* Closed rows read quieter by their hollow dot and a muted title, never by opacity (that took the location line to 2.6:1). */
+.management-session-row.is-closed .management-session-copy strong { color: var(--pi-muted); }
 .management-session-copy strong,
 .management-session-location,
 .management-session-copy > span:not(.management-session-title, .management-session-meta) {
@@ -101,68 +84,19 @@
 .management-session-copy > span:not(.management-session-title, .management-session-meta) {
   color: var(--pi-sidebar-dim);
   font-size: 11.5px;
+  line-height: 16px;
 }
 .management-session-state {
   color: var(--pi-muted);
-  font-size: 11.5px;
+  font-size: 11px;
+  line-height: 18px;
+  white-space: nowrap;
 }
 .management-session-derivation { color: var(--pi-accent-strong) !important; }
-.management-session-state { white-space: nowrap; }
-.management-tree-node {
-  position: relative;
-  min-width: 0;
-  --tree-indent: calc(var(--tree-depth, 0) * var(--tree-step) + var(--tree-project-offset, 0px) + var(--tree-owner-offset, 0px));
-}
-.management-group-children.management-tree-branch { --tree-project-offset: var(--tree-step); }
-.management-remote-owner-branch { --tree-owner-offset: var(--tree-step); }
-.management-tree-branch { position: relative; }
-.management-tree-branch::after {
-  content: "";
-  position: absolute;
-  z-index: var(--pi-z-raised);
-  inset-block: 0;
-  inset-inline-start: calc(var(--tree-guide-start) + var(--tree-indent, 0px));
-  border-inline-start: 1px solid var(--tree-guide);
-  pointer-events: none;
-}
-.management-remote-owner-branch::after {
-  inset-inline-start: calc(var(--tree-guide-start) + var(--tree-project-offset, 0px));
-}
-.management-tree-toggle {
-  position: absolute;
-  z-index: var(--pi-z-raised);
-  top: 0;
-  bottom: 0;
-  inset-inline-start: var(--tree-indent);
-  width: var(--tree-caret-width);
-  height: 28px;
-  margin-block: auto;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 0;
-  border-radius: var(--pi-radius-sm);
-  background: transparent;
-  color: var(--pi-faint);
-  cursor: pointer;
-}
-.management-tree-toggle:hover { color: var(--pi-ink-2); }
-.management-tree-toggle:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: 0; }
-.management-tree-toggle svg { transition: transform var(--pi-motion-slow) var(--pi-motion-ease-spring); }
-.management-tree-toggle[aria-expanded="true"] svg { transform: rotate(90deg); }
-.management-session-row.is-temporary { margin: 1px 0; }
-.management-session-row.is-temporary::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  inset-inline-start: calc(var(--tree-guide-start) + max(0px, var(--tree-indent) - var(--tree-step)));
-  width: 5px;
-  border-top: 1px dashed var(--pi-line-strong);
-}
-.management-session-row.is-temporary .management-session-select { padding-block: 4px; }
+.management-session-row.is-temporary .management-session-select { padding-block: 3px; }
 .management-session-row.is-temporary .management-session-copy { row-gap: 0; }
-.management-session-row.is-temporary .management-session-copy strong { color: var(--pi-ink-2); font-size: 12.5px; font-weight: 500; }
+.management-session-row.is-temporary .management-session-copy strong { color: var(--pi-ink-2); font-size: 12px; }
 .management-session-row.is-temporary .management-session-state { font-size: 10.5px; }
 @media (max-width: 700px) {
-  .management-session-select { padding-block: 10px; }
+  .management-session-select { padding-block: 8px; }
 }

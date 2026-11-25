@@ -16,6 +16,8 @@ export const palette = {
       "sidebar": "#F7F7F8",
       "tree": "#FFFFFF", // file-tree column + its collapsed rail (matches chat card bg)
       "sidebar-selected": "#FFFFFF",
+      "sidebar-hover": "#F0F0F2", // neutral fills of the session sidebar: hovered row, current row (hue-free, text keeps AA)
+      "sidebar-active": "#E5E5E8",
       "surface": "#FFFFFF",
       "surface-2": "#F0F0F2",
       "overlay": "rgb(255 255 255 / 86%)",
@@ -86,6 +88,8 @@ export const palette = {
       "sidebar": "#2A2F3A",
       "tree": "#2E3440", // file-tree column + its collapsed rail (matches chat card bg)
       "sidebar-selected": "#3A4858",
+      "sidebar-hover": "#30353F", // neutral fills of the session sidebar: hovered row, current row
+      "sidebar-active": "#3A3F49",
       "surface": "#353C4A",
       "surface-2": "#3B4252",
       "overlay": "rgb(55 62 76 / 88%)",
