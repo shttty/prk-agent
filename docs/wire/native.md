@@ -94,7 +94,7 @@ Remote native names：同样七个工具，在目标宿主执行；使用同一 
 `changes` 必须非空且 ID 不重复；旧单值写入形状一律拒绝。先校验整批结构、目录归属、锁定状态及最终有效状态，再一次性保存：全局一个 config.toml 写入，实例一个 instances.toml 写入，会话一个 gateway-native-session-state custom entry。任意条目无效时整批拒绝，文件、会话覆盖与生效状态均不变；成功只刷新一次 loadout 并返回一次原有 settings/catalog。`null` 删除该层显式键（全局也可重置为默认），不会写入 TOML；实例不支持本机工具总开关。终端配置仍单独使用 `{terminal}`，不得混入批量能力写入。
 Entries：`configured,enabled,loaded,overridden,defaultEnabled,groupEnabled,locked?,available?`。`loaded` 表示已注册／已发现，关闭项仍可为 true，不等同于可声明或可执行。
 Catalog / native current / live snapshot：`requiresReload`，字段形状不变；只反映资源注册变化（装卸插件、插件／skill 文件及远程包变化），启用、分组、原生和懒加载开关均不置 true。
-`session.noSkills:true` 时，全局目录保留的技能可以是 `loaded:false`；这是主动禁用加载，不构成待重载资源。新建、普通唤醒和模型回退均不应仅因此置 `requiresReload:true`。
+目录中被 `noSkills`、`noExtensions` 或扩展工具准入策略排除的条目仍可显示 `loaded:false`；仅有这处差异不构成待重载资源。新建、普通唤醒和模型回退均遵守此规则。
 Instance discovery failure 可附 `instanceError:string`；defaults 始终是 global-default table。
 注册文件版本来自公开 SDK 入口／skill 路径与注册 settings 字段。Gateway 文件用 mtime/size 比较；远程在创建基线及显式 `action:"capabilities",args:{}` 时经已有 `skills.registration {paths,settings}` 查询，最多 4096 项、请求／结果各 256 KiB，返回 `versions:[[path,version],...]`。目标只返回 stat 版本与 settings 的 packages/extensions/skills 投影，不传正文。同步快照报告最近观测值；写开关不等待远程查询，不因目标暂不可达阻止关闭权限。
 

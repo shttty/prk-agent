@@ -20,7 +20,6 @@ import { getLocalTools } from "./tools/get-local-tools.ts";
 import { setLocalTools } from "./tools/set-local-tools.ts";
 import { setCapabilities } from "./capabilities/set-capabilities.ts";
 import { refreshCapabilities } from "./capabilities/refresh-capabilities.ts";
-import { getRequiresReload } from "./capabilities/requires-reload.ts";
 import { reload } from "./lifecycle/reload.ts";
 import { close } from "./lifecycle/close.ts";
 import type { RuntimeContext } from "./runtime-state.ts";
@@ -35,6 +34,13 @@ export async function createSessionRuntime(target: ExecutionTarget, dependencies
   await initializeRuntime(ctx);
   ctx.active = await createConversation(ctx).catch(cleanupStartFailure.bind(undefined, ctx));
   ctx.closePromise = undefined;
+  let observedReload = false;
+  const observedCatalog = capabilityCatalog.bind(undefined, ctx, (pending, describe) => {
+    if (pending && !observedReload) {
+      console.error(`[${new Date().toISOString()}] Session ${ctx.sessionManager.getSessionId()}: requiresReload ${JSON.stringify(describe())}`);
+    }
+    observedReload = pending;
+  });
   return {
     get session(): AgentSession { return getSession(ctx); },
     get host(): SessionHost { return getHost(ctx); },
@@ -48,12 +54,12 @@ export async function createSessionRuntime(target: ExecutionTarget, dependencies
     setDelegation: setDelegation.bind(undefined, ctx),
     get localTools(): boolean { return getLocalTools(ctx); },
     setLocalTools: setLocalTools.bind(undefined, ctx),
-    capabilityCatalog: capabilityCatalog.bind(undefined, ctx),
+    capabilityCatalog: observedCatalog,
     setCapabilities: setCapabilities.bind(undefined, ctx),
     refreshCapabilities: refreshCapabilities.bind(undefined, ctx),
     refreshToolDeclarations: refreshToolDeclarations.bind(undefined, ctx),
     refreshRegistration: refreshRegistration.bind(undefined, ctx),
-    get requiresReload(): boolean { return getRequiresReload(ctx); },
+    get requiresReload(): boolean { return observedCatalog().requiresReload; },
     reload: reload.bind(undefined, ctx),
     close: close.bind(undefined, ctx),
   };
