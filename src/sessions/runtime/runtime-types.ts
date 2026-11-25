@@ -81,6 +81,7 @@ export interface SessionRuntimeDependencies {
   readonly capabilityLayers?: (instance: string) => readonly CapabilitySwitches[];
   readonly globalCapabilityCatalog?: () => CapabilityCatalog;
   readonly onOperationCompletion?: OperationCompletionObserver;
+  readonly onKernelFailure?: PythonToolHooks["onFailure"];
   readonly onCapabilityCatalog?: (catalog: CapabilityCatalog) => void;
   readonly targetChannels?: TargetChannels;
   readonly requireEnvironment?: (target: string) => Promise<void>;

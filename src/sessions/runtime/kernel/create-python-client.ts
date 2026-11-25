@@ -27,6 +27,7 @@ export async function createPythonClient(ctx: RuntimeContext): Promise<PythonToo
     kernelCapabilities: kernelCapabilities.bind(undefined, ctx),
     libraryEntries: libraryEntries.bind(undefined, ctx),
     onToolCatalog: onToolCatalog.bind(undefined, ctx),
+    onFailure: ctx.dependencies.onKernelFailure,
     prelude: (scoped) => kernelPrelude({
       codemode: ctx.codemodeOptions,
       trace: ctx.dependencies.traceOptions ?? DEFAULT_TRACE_OPTIONS,

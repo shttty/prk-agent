@@ -1,21 +1,27 @@
+import type { KernelFailure } from "../../../kernel/kernel-types.ts";
+import type { OperationCompletionObserver } from "../../host/host-types.ts";
 import type { DerivationContext } from "../derivation-state.ts";
 import { info } from "../metadata/read-info.ts";
-import type { OperationCompletionObserver } from "../../host/host-types.ts";
 
-export async function notifyFailure(ctx: DerivationContext, sessionId: string, completion: Parameters<OperationCompletionObserver>[0], interruption: Parameters<OperationCompletionObserver>[1]): Promise<void> {
-  if (completion.status === "completed" || ctx.closing.has(sessionId)) return;
+export async function notifyFailure(ctx: DerivationContext, sessionId: string,
+  failure: Parameters<OperationCompletionObserver>[0] | KernelFailure, interruption?: Parameters<OperationCompletionObserver>[1]): Promise<void> {
+  const kernel = "kernelId" in failure;
+  if (ctx.closing.has(sessionId) || (!kernel && failure.status === "completed")) return;
   try {
     const child = info(ctx, sessionId);
-    if (!child?.owner || child.result || child.owner === interruption.initiatorSessionId) return;
+    if (!child?.owner || child.result || child.owner === interruption?.initiatorSessionId) return;
     const sessionName = ctx.env.get(sessionId).label;
-    const fallback = completion.status === "unknown" ? "Execution outcome is unknown."
-      : completion.status === "cancelled" ? "The run was cancelled." : "The run failed.";
-    const text = (completion.error ?? interruption.reason ?? fallback).replace(/\s+/g, " ").trim() || fallback;
+    const fallback = kernel ? "The kernel became unavailable."
+      : failure.status === "unknown" ? "Execution outcome is unknown."
+      : failure.status === "cancelled" ? "The run was cancelled." : "The run failed.";
+    const reason = kernel ? failure.reason : failure.error ?? interruption?.reason;
+    const text = (reason instanceof Error ? reason.message : String(reason ?? fallback)).replace(/\s+/g, " ").trim() || fallback;
     const summary = text.length > 500 ? `${text.slice(0, 499).toWellFormed()}…` : text;
-    await ctx.env.deliver(sessionId, child.owner, `[派生会话运行失败 / child=${sessionId}]\n${JSON.stringify({
-      sessionId, sessionName, operationId: completion.operationId, type: completion.status, summary,
-    })}`);
+    const detail = kernel ? { kernelId: failure.kernelId, kernelState: failure.state, type: "failed" }
+      : { operationId: failure.operationId, type: failure.status };
+    await ctx.env.deliver(sessionId, child.owner, `[派生会话运行失败 / child=${sessionId}]\n${JSON.stringify({ sessionId, sessionName, ...detail, summary })}`);
   } catch (error) {
-    ctx.env.log(`Failure notification for derived operation ${completion.operationId} could not be admitted; it will not be replayed.`, error);
+    const subject = kernel ? `kernel ${failure.kernelId}` : `operation ${failure.operationId}`;
+    ctx.env.log(`Failure notification for derived ${subject} could not be admitted; it will not be replayed.`, error);
   }
 }

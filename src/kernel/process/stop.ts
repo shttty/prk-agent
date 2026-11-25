@@ -16,7 +16,14 @@ export function stop(ctx: KernelContext, process: KernelProcess,
   void (async () => {
     const retirement = retire(ctx, process, reason, request);
     // Loss is unknown even if we subsequently prove there is nothing left to clean up.
-    if (!request) retirement.settle(false);
+    if (!request) {
+      retirement.settle(false);
+      const { state } = ctx.snapshot;
+      if (ctx.process === process && (state === "unavailable" || state === "failed")) {
+        try { ctx.hooks.onFailure?.({ kernelId: process.generation, state, reason }); }
+        catch (error) { console.error(`[${new Date().toISOString()}] [kernel] Failure notification for ${process.generation} failed:`, error); }
+      }
+    }
     let failed = false;
     let failure: unknown;
     try { await confirmStop(ctx, process); }

@@ -10,6 +10,7 @@ import type { CellMode, KernelExecutionPolicy } from "./kernel-options.ts";
 import type { RunnerCellState } from "./protocol/event-schema.ts";
 import type { TargetLease } from "../target-channel/lease/lease-types.ts";
 import type { BunPackages } from "./process/bun-package-root.ts";
+import type { KernelFailure } from "./process/kernel-failure.ts";
 
 export type PythonOutcome = "ok" | "error" | "aborted" | "unknown";
 export interface KernelCellIdentity { readonly kernelId: string; readonly cellId: string }
@@ -168,6 +169,7 @@ export interface PythonToolClient {
 export type KernelObservationSource = Pick<PythonToolClient, "getSnapshot" | "subscribe" | "ensure" | "clear" | "restart" | "variables" | "deleteVariable">
   & Partial<Pick<PythonToolClient, "prepareHandoff" | "resumeAfterHandoff" | "hasInFlightCell" | "processRoot">>;
 export interface PythonToolHooks {
+  readonly onFailure?: (failure: KernelFailure) => void;
   readonly codeMode?: boolean;
   readonly environment?: Readonly<Record<string, string>>;
   readonly hideToolDeclaration?: (name: string) => boolean;
@@ -198,3 +200,5 @@ export interface KernelConfiguration {
 }
 export interface CapturedImage { readonly mimeType: string; readonly data: string }
 export type CapturedOutput = { text: string; tail: string; omittedChars: number; truncated: boolean };
+
+export type { KernelFailure } from "./process/kernel-failure.ts";

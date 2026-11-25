@@ -87,7 +87,7 @@
 - `KER-15` PRK 文件模式的远程嵌套 read 必须只携带展示页参数，不得经 Gateway 读取或转发该页正文；插件追加结果必须交还 kernel。
 - `KER-16` 远程写入钩子完成后 kernel 必须在目标机重读并核对写后 SHA-256，由同一文件会话刷新实际修改区段引用，不得复用写前引用。
 - `KER-17` Python files模块必须常驻；原生工具开关只切声明与权限，不得重启kernel、移除模块或清空变量；原生开启时须在文件IO前拒绝PRK文件函数。
-- `KER-18` 子会话结果与未交结果的操作异常终态必须通知当前 owner；同一失败至多一次，不重放，不提供 gateway.wait 或轮询。
+- `KER-18` 结果、未交付子会话的操作异常与kernel异常退出必须通知当前owner；同一操作或代最多一次，主动退休不发。不重放，不提供gateway.wait或轮询。
 - `KER-19` Python不得落盘；forkserver同scope独立exec、逐fork验单线程；pickle各限maxBytes、不出代。按代/cell停已握手组；子进程回收排空才结算。
 - `KER-20` code 回调必须优先传 structuredContent，否则传文本，不得猜测 JSON；PRK 结构结果必须声明 outputSchema，失败在所属语言抛异常。
 - `KER-21` kernel 函数每次调用必须经所属 SDK cell 的 typed permission 回调校验权限；严格字段及名称、限4KiB，取消后不回复。

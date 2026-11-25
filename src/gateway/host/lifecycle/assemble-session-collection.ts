@@ -99,6 +99,9 @@ export function assembleSessionCollection(ctx: HostContext): void {
         ...(persisted?.instructions ? { roleInstructions: persisted.instructions } : {}),
         sessions: createSessionsPluginGateway(ctx, sessionId),
         ...(persisted ? {
+          onKernelFailure(failure) {
+            if (!ctx.lifecycle.closing) void ctx.derivation.derivation.notifyFailure(sessionId, failure);
+          },
           onOperationCompletion(completion, interruption) {
             if (!ctx.lifecycle.closing) void ctx.derivation.derivation.notifyFailure(sessionId, completion, interruption);
           },
