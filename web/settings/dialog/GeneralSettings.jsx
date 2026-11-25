@@ -15,8 +15,6 @@ import { Text } from "@mantine/core";
 import GatewayRestartSettings from "../gateway-restart/GatewayRestartSettings.jsx";
 import { KernelExecutionSetting } from "./KernelExecutionSetting.jsx";
 import { ToolTitleSetting } from "./ToolTitleSetting.jsx";
-import { TurnFoldSetting } from "./TurnFoldSetting.jsx";
-import { NoAnimationSetting } from "./NoAnimationSetting.jsx";
 import { TerminalDisplaySettings } from "./TerminalDisplaySettings.jsx";
 export function GeneralSettings({ onReset, layoutContext, gatewayRestartUnit, api }) {
   const [status, setStatus] = useState(null);
@@ -35,10 +33,6 @@ export function GeneralSettings({ onReset, layoutContext, gatewayRestartUnit, ap
   };
   return <div className="pi-settings-body">
     <ThemeSettings />
-    <section className="settings-section" data-section="appearance">
-      <h3 className="pi-settings-heading">显示</h3>
-      <div className="pi-settings-group"><NoAnimationSetting /><TurnFoldSetting /></div>
-    </section>
     <TerminalDisplaySettings />
     <section className="settings-section" data-section="layout">
       <h3 className="pi-settings-heading">布局</h3>

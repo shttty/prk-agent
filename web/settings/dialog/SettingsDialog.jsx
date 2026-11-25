@@ -10,6 +10,7 @@ import { IconChevronLeft } from "@tabler/icons-react";
 import { IconChevronRight } from "@tabler/icons-react";
 import Crossfade from "../../design-system/crossfade/Crossfade.jsx";
 import { GeneralSettings } from "./GeneralSettings.jsx";
+import { VisualEffectsSettings } from "./VisualEffectsSettings.jsx";
 import { TargetManagement } from "../../instances/list/TargetManagement.jsx";
 import SubsessionSettings from "../subsessions/SubsessionSettings.jsx";
 import MemoryDialog from "../memory/MemoryDialog.jsx";
@@ -51,6 +52,7 @@ function SettingsDialog({ opened, onClose, fullScreen, initialSection, actions, 
       </nav>
       <Crossfade id="settings-content" className="pi-settings-content" data-section={page ?? undefined} layerKey={page ?? ""} fade={!fullScreen || wasContent.current}>
         {page === "general" ? <div className="pi-settings-page"><GeneralSettings onReset={onReset} layoutContext={layoutContext} gatewayRestartUnit={gatewayRestartUnit} api={actions.api} /></div> : null}
+        {page === "visual-effects" ? <div className="pi-settings-page"><VisualEffectsSettings setShowImages={actions.setShowImages} /></div> : null}
         {page === "targets" ? <div className="pi-settings-page" id="settings-targets"><TargetManagement actions={actions} mobile={fullScreen} /></div> : null}
         {page === "subsessions" ? <div className="pi-settings-page" id="settings-subsessions"><SubsessionSettings actions={actions} mobile={fullScreen} /></div> : null}
         {page === "memory" ? <div className="pi-settings-page"><MemoryDialog actions={actions} /></div> : null}

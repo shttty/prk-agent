@@ -83,6 +83,12 @@ test("composer and viewport stay put through send, wait, thinking, output, tool 
     await tool.waitFor();
 
     await f.page.locator("#open-settings").click();
+    await f.page.locator('#settings-content[data-section="general"]').waitFor();
+    const visualControls = "#setting-turn-fold-mode, #setting-no-animation, #setting-terminal-cursor-blink, #setting-show-message-images";
+    assert.equal(await f.page.locator(visualControls).count(), 0);
+    await f.page.locator("#open-visual-effects").click();
+    await f.page.locator('#settings-content[data-section="visual-effects"]').waitFor();
+    for (const selector of visualControls.split(", ")) await f.page.locator(selector).waitFor();
     await f.page.locator("#setting-turn-fold-mode").selectOption("whole");
     await f.page.locator("#close-settings").click();
     await turn.locator('.pi-turn-process[data-turn-fold="whole"]:not([open])').waitFor();
@@ -90,6 +96,7 @@ test("composer and viewport stay put through send, wait, thinking, output, tool 
     await after.waitFor();
 
     await f.page.locator("#open-settings").click();
+    await f.page.locator("#open-visual-effects").click();
     await f.page.locator("#setting-turn-fold-mode").selectOption("segmented");
     await f.page.locator("#close-settings").click();
     await before.waitFor();

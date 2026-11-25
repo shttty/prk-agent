@@ -1,3 +1,4 @@
+import { setShowImages } from "./set-show-images.js";
 import { getJson } from "./requests/get-json.js";
 import { requestJson } from "./requests/request-json.js";
 
@@ -25,6 +26,7 @@ export function createWorkbenchActions(ctx) {
     setQueue: ctx.bound.setQueue,
     setViewMode: ctx.bound.setViewMode,
     savePresentation: ctx.bound.savePresentation,
+    setShowImages: (enabled) => setShowImages(ctx, enabled),
     noteScroll: ctx.bound.noteScroll,
     flushScroll: ctx.bound.flushScroll,
     clearError: ctx.bound.clearError,

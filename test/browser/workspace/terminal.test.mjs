@@ -118,7 +118,10 @@ test("cursor blink preference survives disabling and restoring animations", asyn
   const blinking = terminal.locator(".xterm-cursor.xterm-cursor-blink");
   const motion = f.page.locator("#setting-no-animation");
   const reduced = f.page.locator("html[data-no-animation]");
-  const open = () => f.page.locator("#open-settings").click();
+  const open = async () => {
+    await f.page.locator("#open-settings").click();
+    await f.page.locator("#open-visual-effects").click();
+  };
   const close = () => f.page.locator("#close-settings").click();
   await open();
   const blink = f.page.locator("#setting-terminal-cursor-blink");

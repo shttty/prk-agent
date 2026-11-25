@@ -1,3 +1,4 @@
+import { IconSparkles } from "@tabler/icons-react";
 import { IconSettings } from "@tabler/icons-react";
 import { IconServer2 } from "@tabler/icons-react";
 import { IconGitBranch } from "@tabler/icons-react";
@@ -9,6 +10,7 @@ import { IconNotes } from "@tabler/icons-react";
 import { IconArchive } from "@tabler/icons-react";
 export const sections = [
   ["general", "通用", IconSettings, "open-general"],
+  ["visual-effects", "视觉效果", IconSparkles, "open-visual-effects"],
   ["targets", "实例", IconServer2, "open-targets"],
   ["subsessions", "子会话", IconGitBranch, "open-subsessions"],
   ["tools", "工具", IconTool, "open-tool-library"],

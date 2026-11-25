@@ -3,6 +3,7 @@ import { safeText } from "../../payloads/safe-text.js";
 import { sessionRequestCurrent } from "../selection/session-request-current.js";
 import { isRecord } from "../../payloads/is-record.js";
 import { patch } from "../updates/patch.js";
+import { setShowImages } from "../set-show-images.js";
 import { persistCurrentSession } from "../drafts/persist-current-session.js";
 import { flushScroll } from "../drafts/flush-scroll.js";
 import { setNotice } from "../notices/set-notice.js";
@@ -61,7 +62,7 @@ export async function applyNativeActionResult(ctx, result, fallback, { transcrip
       setNotice(ctx, copied ? "已复制原生内容。" : "复制失败，请手动复制。", copied ? "notice" : "error");
     }
     if (completed && safeText(feedback.action) === "settings" && typeof data.showImages?.requested === "boolean") {
-      patch(ctx, { showImages: data.showImages.requested });
+      setShowImages(ctx, data.showImages.requested);
       setNotice(ctx, data.showImages.requested ? "已在浏览器中显示消息图片。" : "已在浏览器中隐藏消息图片。", "notice");
     }
     const managed = normalizeSession(data.session);

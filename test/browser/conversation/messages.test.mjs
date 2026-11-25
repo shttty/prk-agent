@@ -85,7 +85,20 @@ test("send an image with no text and see it in the real conversation", async (t)
   await until(() => received, "provider input");
   assert.equal(text(received), "");
   assert.equal(received.content.find((item) => item.type === "image")?.data, pixel.toString("base64"));
-  await f.page.locator("#messages .pi-message-user .pi-message-attachment").waitFor();
+  const image = f.page.locator("#messages .pi-message-user .pi-message-attachment img");
+  await image.waitFor();
+  await f.page.locator("#open-settings").click();
+  await f.page.locator("#open-visual-effects").click();
+  await f.page.locator('label.pi-settings-title[for="setting-show-message-images"]').click();
+  await f.page.locator("#close-settings").click();
+  await image.waitFor({ state: "detached" });
+  await f.page.locator(idle).waitFor();
+  await f.page.locator(input).fill("/settings showImages=on");
+  await f.page.locator(send).click();
+  await image.waitFor();
+  await f.page.locator("#open-settings").click();
+  await f.page.locator("#open-visual-effects").click();
+  assert.equal(await f.page.locator("#setting-show-message-images").isChecked(), true);
 });
 
 test("sidebar shows a background child running, then waiting even under its folded parent", async (t) => {
