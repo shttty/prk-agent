@@ -9,6 +9,12 @@
   gap: 0;
   padding: 18px 12px 12px;
   background: var(--pi-sidebar);
+  --tree-step: 20px;
+  --tree-caret-width: 24px;
+  --tree-marker-width: 16px;
+  --tree-label-gap: 6px;
+  --tree-guide-start: calc(var(--tree-caret-width) + var(--tree-marker-width) + 1px);
+  --tree-guide: color-mix(in srgb, var(--pi-line-strong) 80%, var(--pi-faint));
   /* Secondary text (row location, list and group headings): a step above --pi-faint so it keeps AA (4.5:1) on the
      sidebar, a hovered row and a selected row in both schemes (faint alone falls to 4.5 on a hovered light row). */
   --pi-sidebar-dim: color-mix(in srgb, var(--pi-faint) 40%, var(--pi-muted));

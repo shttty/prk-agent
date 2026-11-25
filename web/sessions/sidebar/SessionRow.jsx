@@ -61,7 +61,7 @@ export function SessionRow({ sessionRow, targets, rows, onSelected, onSessionAct
     drag.onEnd();
   } : undefined;
   return (
-    <div className={`management-tree-node${temporary ? " is-temporary" : ""}${remoteOwnerLabel ? " management-tree-branch" : ""}`}>
+    <div className={`management-tree-node${temporary ? " is-temporary" : ""}${remoteOwnerLabel ? " management-tree-branch management-remote-owner-branch" : ""}`} style={{ "--tree-depth": depth }}>
     <div
       draggable={draggable}
       onDragStart={onDragStart}

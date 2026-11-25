@@ -8,6 +8,7 @@
 .management-session-row:hover,
 .management-session-row:focus-within { background: color-mix(in srgb, var(--pi-hover) 45%, transparent); }
 .management-session-row.is-selected { background: var(--pi-sidebar-selected); }
+:root[data-mantine-color-scheme="light"] .management-session-row.is-selected { background: var(--pi-selected); }
 .management-session-row[draggable="true"] .management-session-select { cursor: grab; }
 .management-session-row.is-dragging { opacity: .48; }
 .management-session-row.is-dragging .management-session-select { cursor: grabbing; }
@@ -18,10 +19,10 @@
   min-width: 0;
   min-height: 28px;
   display: grid;
-  grid-template-columns: 7px minmax(0, 1fr) auto;
+  grid-template-columns: var(--tree-marker-width) minmax(0, 1fr) auto;
   align-items: center;
-  gap: 8px;
-  padding: 4px 38px 4px 12px;
+  gap: var(--tree-label-gap);
+  padding: 4px 38px 4px var(--tree-caret-width);
   border: 0;
   border-radius: inherit;
   background: transparent;
@@ -45,8 +46,10 @@
 .management-session-row.is-selected .management-session-menu,
 .management-session-menu[aria-expanded="true"] { opacity: 1; }
 @media (hover: none) { .management-session-menu { opacity: 1; } }
+.management-status-dot { justify-self: center; }
 .management-session-copy {
   min-width: 0;
+  margin-inline-start: var(--tree-indent);
   display: grid;
   row-gap: 1px;
 }
@@ -58,8 +61,9 @@
 }
 .management-session-title {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 4px;
+  column-gap: 4px;
   min-width: 0;
 }
 .management-session-title > .pi-role-badges,
@@ -90,24 +94,39 @@
 .management-session-copy > span:not(.mantine-Badge-root, .management-session-title) { color: var(--pi-sidebar-dim); }
 .management-session-derivation { color: var(--pi-accent-strong) !important; }
 .management-session-state { white-space: nowrap; }
-.management-tree-node { position: relative; min-width: 0; }
-.management-tree-branch {
-  margin-inline-start: 6px;
-  padding-inline-start: 8px;
-  border-inline-start: 1px solid var(--pi-line);
+/* The tree indents the copy, not the controls or the right-side state. */
+.management-tree-node {
+  position: relative;
+  min-width: 0;
+  --tree-indent: calc(var(--tree-depth, 0) * var(--tree-step) + var(--tree-project-offset, 0px) + var(--tree-owner-offset, 0px));
+}
+.management-group-children.management-tree-branch { --tree-project-offset: var(--tree-step); }
+.management-remote-owner-branch { --tree-owner-offset: var(--tree-step); }
+.management-tree-branch { position: relative; }
+.management-tree-branch::after {
+  content: "";
+  position: absolute;
+  z-index: var(--pi-z-raised);
+  inset-block: 0;
+  inset-inline-start: calc(var(--tree-guide-start) + var(--tree-indent, 0px));
+  border-inline-start: 1px solid var(--tree-guide);
+  pointer-events: none;
+}
+.management-remote-owner-branch::after {
+  inset-inline-start: calc(var(--tree-guide-start) + var(--tree-project-offset, 0px));
 }
 .management-tree-toggle {
   position: absolute;
   z-index: var(--pi-z-raised);
   top: 0;
   bottom: 0;
-  left: 0;
-  width: 28px;
+  inset-inline-start: 0;
+  width: var(--tree-caret-width);
   height: 28px;
   margin-block: auto;
   display: grid;
   place-items: center;
-  padding: 0 16px 0 0;
+  padding: 0;
   border: 0;
   border-radius: var(--pi-radius-sm);
   background: transparent;
@@ -123,11 +142,11 @@
   content: "";
   position: absolute;
   top: 50%;
-  left: -6px;
+  inset-inline-start: calc(var(--tree-guide-start) + max(0px, var(--tree-indent) - var(--tree-step)));
   width: 5px;
   border-top: 1px dashed var(--pi-line-strong);
 }
-.management-session-row.is-temporary .management-session-select { gap: 8px; padding-block: 4px; grid-template-columns: 5px minmax(0, 1fr) auto; }
+.management-session-row.is-temporary .management-session-select { padding-block: 4px; }
 .management-session-row.is-temporary .management-session-copy { row-gap: 0; }
 .management-session-row.is-temporary .management-session-copy strong { color: var(--pi-ink-2); font-size: 12.5px; font-weight: 500; }
 .management-session-row.is-temporary .management-session-state { font-size: 10.5px; }

@@ -4,8 +4,8 @@
 .unreadable-reason-text { white-space: pre-wrap; }
 .unreadable-reason-file { font-family: var(--pi-font-mono); }
 /* Sidebar row: the warning icon takes the status dot's column; there is no "…" menu, so no room is kept for it. */
-.management-session-row.is-unreadable .management-session-select { grid-template-columns: 14px minmax(0, 1fr) auto; padding-right: 12px; }
-.management-unreadable-mark { flex: 0 0 auto; color: var(--pi-warn); }
+.management-session-row.is-unreadable .management-session-select { padding-right: 12px; }
+.management-unreadable-mark { justify-self: center; color: var(--pi-warn); }
 .management-session-row.is-unreadable .management-session-copy strong { color: var(--pi-muted); }
 .management-session-row.is-unreadable .management-session-state { color: var(--pi-warn); }
 /* Archive row: the whole node is the button that opens the reason. */

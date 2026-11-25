@@ -5,15 +5,17 @@
 [data-group-kind="project"] .management-group-header-row:focus-within { background: var(--pi-hover); }
 [data-group-kind="project"] .management-group-header {
   min-height: 28px;
-  gap: 6px;
-  padding: 5px 0 5px 5px;
+  gap: 0;
+  padding: 5px 0;
   background: none;
   color: var(--pi-ink);
   font-size: 13px;
   line-height: 18px;
   letter-spacing: 0;
 }
-.management-project-folder { flex: none; color: var(--pi-muted); }
+[data-group-kind="project"] .management-group-caret { width: var(--tree-caret-width); }
+.management-project-folder { flex: none; width: var(--tree-marker-width); color: var(--pi-muted); }
+.management-project-folder ~ * { margin-inline-start: var(--tree-label-gap); }
 [data-group-kind="project"] .management-group-name { flex: 0 1 auto; }
 [data-group-kind="project"] .management-group-header > [data-descendant-state] { flex: none; }
 @media (min-width: 48.01em) and (hover: hover) and (pointer: fine) {
