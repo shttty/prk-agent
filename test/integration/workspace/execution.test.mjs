@@ -7,13 +7,20 @@ import { until } from "../../fixtures/until.mjs";
 
 const call = (f, id, name, args) => f.send(id, `TOOL ${JSON.stringify({ name, args })}`);
 
-test("SDK kernel cell runs, interrupts at its own identity, and keeps the REPL usable", async (t) => {
+test("awake /reload preserves the Python namespace and cells still interrupt by identity", async (t) => {
   const f = await gatewayFixture(t);
   await f.deploy();
   const id = await f.create();
   const seed = await call(f, id, "kernel_code", { code: "seed = 41\nprint(seed)" });
   assert.equal((await f.complete(id, seed)).status, "completed");
   assert.match(text(f.state(id).messages.findLast((message) => message.role === "toolResult")), /41/);
+  const awake = f.state(id);
+  assert.equal(awake.state, "idle");
+  assert.equal(awake.kernel?.state, "idle");
+  assert(awake.kernel?.kernelId, "reload must start with a live Python generation");
+  const reloaded = await f.send(id, "/reload");
+  assert.equal(reloaded.status, "completed", JSON.stringify(reloaded));
+  assert.equal(f.state(id).kernel?.kernelId, awake.kernel.kernelId);
   const started = join(f.cwd, "started");
   const receipt = await call(f, id, "kernel_code", { code: `import asyncio\nfrom pathlib import Path\nPath(${JSON.stringify(started)}).touch()\nawait asyncio.sleep(60)\nprint('should not complete')`, yield_s: 0 });
   await until(() => access(started).then(() => true, () => false), "Python cell entered");

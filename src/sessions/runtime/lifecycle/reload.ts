@@ -18,8 +18,8 @@ export async function reload(ctx: RuntimeContext): Promise<void> {
       ctx.memoryReview = undefined;
       try {
         ctx.active = await createConversation(ctx);
-        await ctx.python.refreshCapabilities();
         ctx.python.resumeAfterHandoff();
+        await ctx.python.refreshCapabilities();
       } catch (error) {
         await ctx.active.host.close();
         await ctx.skillLease?.release();
