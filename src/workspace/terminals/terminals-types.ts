@@ -27,6 +27,7 @@ export interface WorkspaceTerminals {
   has(sessionId: string, name: string): boolean;
   open(sessionId: string, context: { cwd: string }, name: string, startup?: ModelTerminalStartup): Promise<TerminalSnapshot>;
   list(sessionId: string): { terminals: TerminalSummary[] };
+  modelShellPid(sessionId: string, name: string): number | undefined;
   integration(sessionId: string, name: string): Promise<ShellIntegrationStatus>;
   input(sessionId: string, name: string, data: string): { sent: true };
   resize(sessionId: string, name: string, rows: number, cols: number): { resized: true };

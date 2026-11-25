@@ -9,6 +9,7 @@ export function rowState(sessionRow) {
   if (sessionRow?.blocked) return { key: "blocked", label: "等待处理", tone: "warn" };
   if (sessionRow?.stopped) return { key: "stopped", label: "出错停下", tone: "error" };
   if (sessionRow?.retryPending) return { key: "running", label: stateLabel("running"), tone: stateTone("running") };
+  if (sessionRow?.background && sessionRow.state === "idle") return { key: "background", label: "后台运行中", tone: "run" };
   if (sessionRow?.done && (sessionRow.state === "idle" || sessionRow.state === "sleeping")) return { key: "done", label: "有新结果", tone: "ok" };
   if (sessionRow?.state === "running" && sessionRow.compacting) return { key: "compacting", label: "压缩中", tone: stateTone("running") };
   const delivered = DELIVERED_PHASES.has(sessionRow?.derivation?.phase) && !BUSY_STATES.has(sessionRow?.state);

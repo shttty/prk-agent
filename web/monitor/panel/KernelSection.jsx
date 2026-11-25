@@ -35,7 +35,7 @@ export function KernelSection({ actions, sessionRow }) {
   const stale = kernel?.state !== "idle" && kernel?.state !== "busy";
   const memoryAlert = alertsOf(sessionRow).memory;
   return <section className="pi-monitor-section" id="monitor-kernel" data-status={kernel?.state ?? "none"} aria-label="Kernel">
-    <h3>Kernel <Badge component="span" variant="light" color={kernel?.state === "busy" ? "accent" : kernel?.state === "unavailable" || kernel?.state === "failed" ? "red" : "gray"} size="xs" tt="none" className="pi-monitor-chip-state" data-status={kernel?.state ?? "none"}>{KERNEL_LABELS[kernel?.state] ?? "—"}</Badge></h3>
+    <h3><Badge component="span" variant="light" color={kernel?.state === "busy" ? "accent" : kernel?.state === "unavailable" || kernel?.state === "failed" ? "red" : "gray"} size="xs" tt="none" className="pi-monitor-chip-state" data-status={kernel?.state ?? "none"}>{KERNEL_LABELS[kernel?.state] ?? "—"}</Badge></h3>
     <div className="pi-monitor-meter-row">
       <span id="monitor-kernel-memory">{memory ? <span className="pi-monitor-meter-value" data-used-bytes={memory.used} data-percent={memory.percent === null ? undefined : Math.round(memory.percent)} data-stale={stale ? "true" : undefined} data-alert={memoryAlert ? "true" : undefined}>{formatBytes(memory.used)}{memory.limit ? ` / ${formatBytes(memory.limit)}` : ""}{stale ? "（最后读数）" : ""}</span> : <span className="pi-monitor-meter-value">—</span>}</span>
       <span className="pi-monitor-oom" id="monitor-kernel-oom"><span data-count={memory?.oomKill ?? 0} data-stale={stale && memory ? "true" : undefined} data-alert={memory?.oomKill > 0 ? "true" : undefined}>OOM {memory?.oomKill ?? 0} 次</span></span>

@@ -103,6 +103,7 @@ export interface KernelProcess {
   stopping?: Promise<KernelRetirementReceipt | undefined>;
   retirementReceipt?: KernelRetirementReceipt;
   pid?: number;
+  forkserverPid?: number;
   pgid?: number;
   scope: string;
   scoped: boolean;

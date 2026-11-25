@@ -1,3 +1,4 @@
+import type { MonitoredProcess, ProcessRoot } from "../telemetry/process-types.ts";
 import type { MonitorOptions } from "../../config/monitor/monitor-options.ts";
 import type { CustomMetric } from "../../config/custom-metrics/custom-metrics-options.ts";
 import type { KernelSnapshot } from "../../kernel/kernel-types.ts";
@@ -25,6 +26,8 @@ export interface AgentChanges {
 export interface MonitorDeps {
   readonly options: MonitorOptions;
   readonly channels: TargetChannels;
+  readonly processRoots: (sessionId: string) => readonly ProcessRoot[];
+  readonly onDetachedChanged: (sessionId: string, detached: boolean) => void;
   readonly customMetrics?: (instance: string) => readonly CustomMetric[];
   /** The "agent write/edit" changes of a session whose cwd has no git, derived from its SDK history. */
   agentChanges(sessionId: string): AgentChanges;
@@ -52,6 +55,8 @@ export interface SessionMonitor {
   readonly alerts: { readonly kernel: boolean; readonly oom: boolean; readonly memory: boolean };
   readonly machine?: MachineSample & { readonly ageMs: number; readonly sampledAt: number };
   readonly customMetrics: readonly MetricView[];
+  readonly processes: readonly MonitoredProcess[];
+  readonly processesTruncated: boolean;
   readonly changes?: SessionChanges;
   /** One target Node scope; null when this session has no remote extension/native host. */
   readonly remoteHost: RemoteHostMonitor | null;
@@ -71,6 +76,8 @@ export interface SessionRecord {
   agent: Stamped<AgentChanges> | undefined;
   refreshTimer: ReturnType<typeof setTimeout> | undefined;
   remoteHost: RemoteHostMonitor | null;
+  processes: readonly MonitoredProcess[];
+  processesTruncated: boolean;
 }
 
 export interface MachineRecord {

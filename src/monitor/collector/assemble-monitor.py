@@ -7,7 +7,7 @@ def create(emit):
     machine = assemble_machine(proc)
     # Keep a short CPU baseline without holding up another module's startup.
     ready_at = time.monotonic() + 0.2
-    ctx = SimpleNamespace(emit=emit, machine=machine, interval=30.0, dirs=[],
+    ctx = SimpleNamespace(emit=emit, machine=machine, interval=30.0, dirs=[], process_watches={}, process_baseline={},
                           ready_at=ready_at, next_sample=ready_at)
     ctx.handle = partial(handle_command, ctx)
     ctx.tick = partial(tick, ctx)

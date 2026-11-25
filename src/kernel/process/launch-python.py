@@ -34,7 +34,7 @@ def launch_python(configuration, source, forkserver_source):
             control = None
         print("PRK forkserver unavailable: " + str(error), file=sys.stderr, flush=True)
     try:
-        runner = {"__name__": "__main__", "forkserver": control}
+        runner = {"__name__": "__main__", "forkserver": control, "forkserver_pid": service.pid if service is not None else None}
         exec(compile(source, "<PRK runner>", "exec"), runner)
         runner["run_kernel"](configuration)
     finally:

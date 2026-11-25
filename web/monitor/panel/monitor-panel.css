@@ -18,7 +18,7 @@
 .pi-monitor-title { flex: 1 1 auto; min-width: 0; display: flex; align-items: baseline; gap: 8px; }
 .pi-monitor-title h2 { margin: 0; font: 900 15px/1.2 var(--pi-font-monitor); letter-spacing: .04em; }
 .pi-monitor-title span { min-width: 0; overflow: hidden; color: var(--pi-muted); font-size: 11.5px; text-overflow: ellipsis; white-space: nowrap; }
-.pi-monitor-card-body { min-height: 0; display: flex; flex-direction: column; overflow-y: auto; overscroll-behavior: contain; }
+.pi-monitor-card-body { min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
 
 /* Machine: Grafana-style tiles, big current number over its line. */
 .pi-monitor-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 6px 12px 0; }
@@ -66,7 +66,7 @@
 .pi-monitor-summary .is-add, .pi-monitor-counts .is-add { color: var(--pi-ok); }
 .pi-monitor-summary .is-del, .pi-monitor-counts .is-del { color: var(--pi-danger); }
 .pi-monitor-summary .is-zero, .pi-monitor-counts .is-zero { color: var(--pi-muted); }
-.pi-monitor-files { display: flex; flex-direction: column; max-height: 220px; margin: 6px -6px 0; padding: 0; overflow-y: auto; list-style: none; }
+.pi-monitor-files { display: flex; flex-direction: column; margin: 6px -6px 0; padding: 0; list-style: none; }
 .pi-monitor-files button { width: 100%; display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 3px 6px; border: 0; border-radius: var(--pi-radius-sm); background: transparent; color: var(--pi-ink); font: inherit; font-size: 12.5px; text-align: left; cursor: pointer; }
 .pi-monitor-files button:hover, .pi-monitor-files button:focus-visible { background: var(--pi-hover); }
 .pi-monitor-status { color: var(--pi-muted); font-family: var(--pi-font-mono); font-variant-ligatures: none; font-size: 11px; }
@@ -87,3 +87,24 @@
   .pi-monitor-actions .mantine-Button-root { height: 38px; padding-inline: 14px; font-size: 13.5px; }
   .pi-monitor-files button { min-height: 38px; }
 }
+
+.pi-monitor-overview { flex: none; display: grid; gap: 4px; padding: 7px 14px 9px; font-size: 11.5px; color: var(--pi-muted); font-variant-numeric: tabular-nums; }
+.pi-monitor-overview > div { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 9px; }
+.pi-monitor-overview b { color: var(--pi-ink); font-weight: 700; }
+.pi-monitor-overview .pi-monitor-summary { font: inherit; }
+.pi-monitor-blocks { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.pi-monitor-blocks > details { border-top: 1px solid var(--pi-line); }
+.pi-monitor-blocks summary { padding: 7px 14px; color: var(--pi-ink); cursor: pointer; font: 800 12px/1.3 var(--pi-font-monitor); }
+.pi-monitor-blocks summary::marker { color: var(--pi-muted); }
+.pi-monitor-blocks summary:hover { background: var(--pi-hover); }
+.pi-monitor-block-content { max-height: min(235px, 32dvh); overflow: auto; overscroll-behavior: contain; }
+.pi-monitor-block-content > :first-child { border-top: 0; }
+.pi-monitor-empty { color: var(--pi-muted); font-size: 12px; }
+.pi-monitor-processes { list-style: none; padding: 0; margin: 0; }
+.pi-monitor-process-grid { display: grid; grid-template-columns: 5.5ch minmax(0, 1fr) 4ch 7ch; gap: 5px; align-items: baseline; padding-block: 3px; color: var(--pi-ink); font-size: 11px; font-variant-numeric: tabular-nums; }
+.pi-monitor-process-grid > :nth-last-child(-n+2) { text-align: end; white-space: nowrap; }
+.pi-monitor-process-head { color: var(--pi-muted); }
+.pi-monitor-process-label { display: flex; gap: 4px; min-width: 0; }
+.pi-monitor-process-label small { flex: none; color: var(--pi-muted); }
+[data-process-owner="detached"] .pi-monitor-process-label small { color: var(--pi-danger); }
+@media (pointer: coarse) { .pi-monitor-blocks summary { padding-block: 11px; } }

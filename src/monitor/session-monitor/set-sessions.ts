@@ -17,6 +17,7 @@ export function setSessions(ctx: MonitorContext, desired: readonly MonitoredSess
       touched.add(rec.machine);
       rec.machine = undefined;
       rec.cwd = undefined;
+      rec.processes = []; rec.processesTruncated = false;
       clearTimeout(rec.refreshTimer);
       ctx.leases.delete(sessionId);
       publish(ctx, sessionId);
@@ -28,7 +29,7 @@ export function setSessions(ctx: MonitorContext, desired: readonly MonitoredSess
     if (rec.machine !== session.machine || rec.cwd !== session.cwd) {
       if (rec.machine !== undefined) touched.add(rec.machine);
       rec.machine = session.machine;
-      if (rec.historyMachine !== session.machine) rec.sample = undefined;
+      if (rec.historyMachine !== session.machine) { rec.sample = undefined; rec.processes = []; rec.processesTruncated = false; }
       rec.historyMachine = session.machine;
       rec.cwd = session.cwd;
       // A moved cwd or machine invalidates the old change numbers; machine samples stay until replaced.

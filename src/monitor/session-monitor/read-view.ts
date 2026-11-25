@@ -21,6 +21,8 @@ export function view(ctx: MonitorContext, sessionId: string): SessionMonitor | u
     ...(machine?.error === undefined ? {} : { error: machine.error }),
     ...(machine?.intervalMs === undefined ? {} : { intervalMs: machine.intervalMs }),
     alerts: rec.alerts,
+    processes: rec.processes,
+    processesTruncated: rec.processesTruncated,
     ...(rec.sample ? { machine: { ...rec.sample.value, disk, ageMs: at - rec.sample.at, sampledAt: rec.sample.at } } : {}),
     customMetrics: ctx.machines.get(rec.historyMachine ?? "")?.custom.view() ?? [],
     remoteHost: rec.remoteHost === null ? null : { ...rec.remoteHost, ...(rec.remoteHost.sampledAt === undefined ? {} : { ageMs: Math.max(0, at - rec.remoteHost.sampledAt) }) },

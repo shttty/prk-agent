@@ -17,9 +17,14 @@ export function sync(ctx: MonitorContext, machine: MachineRecord): void {
     publishMachine(ctx, machine);
   }
   const dirs = watchedDirs(ctx, machine);
-  const key = JSON.stringify(dirs);
+  const processes = Object.fromEntries([...ctx.sessions].flatMap(([id, rec]) => {
+    if (rec.machine !== machine.id) return [];
+    const pids = ctx.deps.processRoots(id).map(({ pid }) => pid).slice(0, 128);
+    return pids.length ? [[id, pids]] : [];
+  }));
+  const key = JSON.stringify({ dirs, processes });
   if (key !== machine.watched) {
     machine.watched = key;
-    request(ctx, machine, "watch", { dirs });
+    request(ctx, machine, "watch", { dirs, processes });
   }
 }

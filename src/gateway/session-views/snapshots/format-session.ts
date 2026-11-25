@@ -15,6 +15,7 @@ export function managedSessionSnapshot(ctx: HostContext, entry: StoredSession, r
     const target = ctx.instances.targets.find((candidate) => candidate.id === entry.target);
     const issue = target && configurationIssue(target);
     const projectCreated = entry.projectId === undefined ? undefined : ctx.host.projectDates.get(entry.projectId);
+    const monitor = ctx.monitoring.monitor.get(entry.sessionId);
     return Object.freeze({
    ...(entry.sleeping ? { state: "sleeping" } : unavailable ? { ...live, state: "unavailable" } : live ?? { state: "closed" }),
       target: entry.target,
@@ -30,6 +31,7 @@ export function managedSessionSnapshot(ctx: HostContext, entry: StoredSession, r
       ...(derived ? { derivation: derived } : {}),
       ...readTaskTiming(derived, entry.archived?.at),
       ...(liveRecovery === undefined && archivedRecovery === undefined ? {} : { recovery: liveRecovery ?? archivedRecovery }),
-      ...(ctx.monitoring.monitor.get(entry.sessionId) ? { monitor: ctx.monitoring.monitor.get(entry.sessionId) } : {}),
+      ...(monitor ? { monitor } : {}),
+      ...(!entry.sleeping && monitor?.processes.some((row) => row.ownership === "detached") ? { background: true } : {}),
     } as ManagedSessionSnapshot);
   }

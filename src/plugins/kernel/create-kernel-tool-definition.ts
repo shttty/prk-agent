@@ -17,7 +17,7 @@ export function createKernelToolDefinition(target: string, codeMode: boolean, ex
     : `${metadata.description} Modes: thread (default; shared vars), async (top-level await; shared loop), isolated (separate process for stuck native/DNS; copies inputs/outputs, no sandbox). Stopping a cell may affect other cells using the same subprocess or socket.`;
   return defineTool({
     ...metadata,
-    description: `${description} ${CELL_TITLE_HINT} Yielded cells wake you automatically.`,
+    description: `${description} ${CELL_TITLE_HINT} Yielded cells wake you automatically. Run long commands directly in a cell and yield, or use a model terminal; Gateway does not track processes detached from a cell (e.g. subprocess.Popen or nohup), and their exit will not wake you.`,
     label: `${label} (${target})`,
     promptSnippet: `Execute ${label} code in the retained ${target} kernel`,
     ...(bun ? {} : { promptGuidelines: [`Use Python on the ${target} kernel for calculations and stateful exploration; ordinary input() is unsupported.`] }),

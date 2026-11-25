@@ -5,11 +5,13 @@ def handle_command(ctx, command):
             ctx.interval = max(0.5, float(command["intervalMs"]) / 1000)
             ctx.next_sample = max(ctx.ready_at, time.monotonic())
     elif op == "watch":
+        roots = watch_processes(command.get("processes", {}))
         new = [directory for directory in command.get("dirs", []) if isinstance(directory, str)]
         for added in new:
             if added not in ctx.dirs:
                 ctx.emit(dir_sample(added))
         ctx.dirs = new
+        ctx.process_watches = roots
     elif op == "refresh":
         if command.get("dir") in ctx.dirs:
             ctx.emit(dir_sample(command["dir"]))

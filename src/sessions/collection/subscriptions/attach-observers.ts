@@ -29,17 +29,18 @@ export function attachObservers(ctx: CollectionContext, record: SessionRecord, s
       const syncAttention = () => {
         const next = host.attention;
         if (attention && next && attention.blocked === next.blocked && attention.asking === next.asking
-          && attention.stopped === next.stopped && attention.retryPending === next.retryPending) return;
+          && attention.stopped === next.stopped && attention.retryPending === next.retryPending && attention.background === next.background) return;
         attention = next;
         emit(ctx, "session_attention_changed", record, {
           blocked: next?.blocked === true, asking: next?.asking === true,
-          stopped: next?.stopped === true, retryPending: next?.retryPending === true,
+          stopped: next?.stopped === true, retryPending: next?.retryPending === true, background: next?.background === true,
         });
       };
       record.unsubscribeHost = host.subscribe((event) => {
         if (record.tombstoned || ctx.closed) return;
         if (event.type === "session_event" && event.details?.sdkType === "session_info_changed") emit(ctx, "session_renamed", record);
-        if (event.type === "extension_ui" || event.type === "host_closed" || event.details?.attentionChanged === true) syncAttention();
+        if (event.type === "extension_ui" || event.type === "host_closed" || event.details?.attentionChanged === true
+          || event.details?.terminals || event.details?.kernel) syncAttention();
         if (!(event.type === "state_changed" && event.details?.state) && event.type !== "host_closed") return;
         const state = host.state;
         const next = state === "running" || state === "cancel_requested" ? "running" : state;

@@ -13,6 +13,7 @@ import { clear } from "./lifecycle/clear.ts";
 import { deleteVariable } from "./namespace/delete-variable.ts";
 import { variables } from "./namespace/list-variables.ts";
 import { afterCompaction } from "./namespace/mark-compaction.ts";
+import { processRoot } from "./telemetry/read-process-root.ts";
 import { getSnapshot } from "./telemetry/read-snapshot.ts";
 import { subscribe } from "./telemetry/subscribe.ts";
 import { isFileCallback } from "./callback/is-file-callback.ts";
@@ -83,6 +84,7 @@ export function createPythonTool(configuration: KernelConfiguration, hooks: Pyth
     clear: clear.bind(null, ctx),
     deleteVariable: deleteVariable.bind(null, ctx),
     refreshCapabilities: refreshCapabilities.bind(null, ctx),
+    processRoot: processRoot.bind(undefined, ctx),
     getSnapshot: getSnapshot.bind(null, ctx),
     variables: variables.bind(null, ctx),
     isFileCallback: isFileCallback.bind(null, ctx),

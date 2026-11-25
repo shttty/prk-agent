@@ -57,7 +57,8 @@ def run_kernel(configuration):
     loop_ready.wait()
     try:
         emit_message(ctx, "ready", language="python", version=sys.version.split()[0],
-                     pid=os.getpid(), pgid=os.getpgrp(), scoped=scoped)
+                     pid=os.getpid(), pgid=os.getpgrp(), scoped=scoped,
+                     **({"forkserverPid": forkserver_pid} if forkserver_pid is not None else {}))
         threading.Thread(target=finish_workers, args=(ctx,), name="prk-finish", daemon=True).start()
         threading.Thread(target=read_input, args=(ctx,), name="prk-input", daemon=True).start()
         while True:

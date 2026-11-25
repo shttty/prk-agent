@@ -1,3 +1,5 @@
+import { Value } from "typebox/value";
+import { processSample } from "../../telemetry/process-types.ts";
 import type { MonitorContext } from "../monitor-state.ts";
 import type { MachineRecord } from "../session-monitor-types.ts";
 import type { CollectorMessage } from "../../telemetry/telemetry-types.ts";
@@ -12,7 +14,10 @@ export function start(ctx: MonitorContext, machine: MachineRecord): void {
     if (message.mod === "customMetrics" && machine.custom.receive(message, ctx.now())) publishMachine(ctx, machine);
     if (message.mod === "monitor") {
       const { mod: _mod, ...sample } = message;
-      onMessage(ctx, machine, sample as unknown as CollectorMessage);
+      if (sample.t === "processes") {
+        if (!Value.Check(processSample, sample)) { ctx.log(`monitor ${machine.id}: invalid process sample`); return; }
+        onMessage(ctx, machine, sample);
+      } else onMessage(ctx, machine, sample as unknown as CollectorMessage);
     }
   });
   const offState = lease.onState((state) => {
@@ -22,6 +27,12 @@ export function start(ctx: MonitorContext, machine: MachineRecord): void {
     machine.watched = "";
     machine.custom.reset();
     if (state.state === "ok") sync(ctx, machine);
+    else for (const [sessionId, rec] of ctx.sessions) {
+      if (rec.machine !== machine.id) continue;
+      const hadDetached = rec.processes.some((row) => row.ownership === "detached");
+      rec.processes = []; rec.processesTruncated = false;
+      if (hadDetached) ctx.deps.onDetachedChanged(sessionId, false);
+    }
     publishMachine(ctx, machine);
   });
   machine.unsubscribe = () => { offMessage(); offState(); };

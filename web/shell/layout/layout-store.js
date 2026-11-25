@@ -7,6 +7,7 @@ export const LAYOUT = {
   treePinned: false, // directory pinned as a column at the stage's right edge instead of a popover (desktop)
   treeWidth: 270, // directory column width (pinned) / popover width
   lastPreset: "builtin:1", // the layout last applied ("builtin:<n>" | "saved:<name>"), every session: where new tabs land
+  monitorOpenBlocks: "", // monitor sections expanded across sessions and reloads
   monitorCollapsed: false, // the monitor panel folded back to its button (desktop; the phone opens its sheet on demand)
 };
 

@@ -7,13 +7,12 @@ export function ChangesSection({ monitor, now, onOpen }) {
   const changes = monitor?.changes;
   const age = sampleAgeSeconds(monitor, changes, now);
   if (!changes) {
-    return <section className="pi-monitor-section" id="monitor-changes" data-status="none" aria-label="变更"><h3>变更</h3><Text size="xs" c="dimmed">暂无数据。</Text></section>;
+    return <section className="pi-monitor-section" id="monitor-changes" data-status="none" aria-label="变更"><Text size="xs" c="dimmed">暂无数据。</Text></section>;
   }
   const git = changes.source === "git";
   // Why the agent source applies: git says "no repository here" (none) or could not decide at all (unavailable).
   const gitState = git ? "repo" : changes.gitUnavailable ? "unavailable" : "none";
   return <section className="pi-monitor-section" id="monitor-changes" data-status="ok" data-source={changes.source} data-git={gitState} data-count={changes.files.length} aria-label={git ? "变更" : "改动量"}>
-    <h3>{git ? "变更" : "改动量"} <span className="pi-monitor-summary"><Count added={changes.added} removed={changes.removed} /></span></h3>
     <div className="pi-monitor-facts">
       <span id="monitor-files-count"><span data-count={changes.files.length}>{changes.files.length} 个文件</span>{changes.truncated ? "（仅列出一部分）" : ""}</span>
       <span className="pi-monitor-basis" data-basis={git ? "git" : "volume"} data-git={gitState} data-reason={changes.gitReason} title={gitState === "unavailable" ? changes.gitReason : undefined}>{git ? "git 未提交改动" : gitState === "unavailable" ? "git 不可用" : "非 git 仓库"}</span>

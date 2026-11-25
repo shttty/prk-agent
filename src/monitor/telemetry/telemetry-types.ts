@@ -1,3 +1,4 @@
+import type { ProcessSample } from "./process-types.ts";
 import type { KernelMemory } from "../../codemode/kernel-protocol/kernel-protocol-types.ts";
 
 export interface RemoteHostMonitor {
@@ -46,4 +47,5 @@ interface DiskSample {
 export type CollectorMessage =
   | ({ t: "machine" } & MachineSample)
   | ({ t: "dir" } & DirSample)
-  | ({ t: "disk" } & DiskSample);
+  | ({ t: "disk" } & DiskSample)
+  | ProcessSample;

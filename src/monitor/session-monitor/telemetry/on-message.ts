@@ -1,11 +1,31 @@
 import type { MonitorContext } from "../monitor-state.ts";
 import type { MachineRecord } from "../session-monitor-types.ts";
 import type { CollectorMessage } from "../../telemetry/telemetry-types.ts";
+import { classifyProcesses } from "./classify-processes.ts";
+import { sync } from "../sampling/sync.ts";
 import { publish } from "../subscriptions/publish.ts";
 
 export function onMessage(ctx: MonitorContext, machine: MachineRecord, message: CollectorMessage): void {
   const at = ctx.now();
+  if (message.t === "processes") {
+    const { sessionId, rows, truncated } = message;
+    const rec = ctx.sessions.get(sessionId);
+    if (rec?.machine !== machine.id) return;
+    const hadDetached = rec.processes.some((row) => row.ownership === "detached");
+    rec.processes = classifyProcesses(rows, ctx.deps.processRoots(sessionId));
+    rec.processesTruncated = Boolean(rec.processes.length && truncated);
+    const detached = rec.processes.some((row) => row.ownership === "detached");
+    if (detached !== hadDetached) ctx.deps.onDetachedChanged(sessionId, detached);
+    return; // The same collector tick ends with the ordinary machine publication.
+  }
   if (message.t === "machine") {
+    sync(ctx, machine);
+    for (const [sessionId, rec] of ctx.sessions) {
+      if (rec.machine !== machine.id || !rec.processes.length || ctx.deps.processRoots(sessionId).length) continue;
+      const hadDetached = rec.processes.some((row) => row.ownership === "detached");
+      rec.processes = []; rec.processesTruncated = false;
+      if (hadDetached) ctx.deps.onDetachedChanged(sessionId, false);
+    }
     machine.history.push(at, message);
     for (const [sessionId, rec] of ctx.sessions) {
       if (rec.machine !== machine.id) continue;

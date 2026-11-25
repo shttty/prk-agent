@@ -45,8 +45,8 @@ test("awake /reload preserves the Python namespace and cells still interrupt by 
   assert.deepEqual(edited.memories.find((item) => item.target === "user").entries, ["Updated fixture entry"]);
 });
 
-test("model terminal foreground command settles with exit status and output", async (t) => {
-  const f = await gatewayFixture(t, { config: { session: { workerTools: "direct", capabilities: { "lazy:group:tools:package:<inline:terminals>": false } } } });
+test("model terminal foreground command settles with exit status, output and managed process attention", async (t) => {
+  const f = await gatewayFixture(t, { config: { monitor: { enabled: true, fastIntervalMs: 500, slowIntervalMs: 500 }, session: { workerTools: "direct", capabilities: { "lazy:group:tools:package:<inline:terminals>": false } } } });
   await f.deploy();
   const id = await f.create();
   assert.equal((await f.complete(id, await call(f, id, "terminal_textsend", { text: "" }))).status, "completed");
@@ -62,4 +62,52 @@ test("model terminal foreground command settles with exit status and output", as
   const settled = JSON.parse(text(result));
   assert.deepEqual([settled.status, settled.exit_code, settled.output.trim()], ["done", 1, "verification-output"]);
   assert.equal(f.state(id).terminals.some((terminal) => terminal.runningCommand), false);
+
+  const long = await call(f, id, "terminal_textsend", { text: "sleep 20", yield_s: 0 });
+  assert.equal((await f.complete(id, long)).status, "completed");
+  const terminal = f.state(id).terminals.find((candidate) => candidate.runningCommand);
+  assert(terminal);
+  await until(async () => {
+    const row = (await f.request("workbench", {})).sessions.find((session) => session.sessionId === id);
+    return row.state === "idle" && row.background
+      && row.monitor?.processes.some((proc) => proc.command === "sleep 20" && proc.ownership === "managed");
+  }, "foreground PTY process and managed background attention", 5000);
+  const { name, generation, runningCommand } = terminal;
+  assert.equal((await f.request("terminalInterrupt", { sessionId: id, name, generation, commandId: runningCommand.id })).requested, true);
+});
+
+
+test("a subprocess that outlives its kernel cell appears as detached and clears the sidebar attention when it exits", async (t) => {
+  const f = await gatewayFixture(t, { remote: true, config: { monitor: { enabled: true, fastIntervalMs: 500, slowIntervalMs: 500 } } });
+  await f.deploy();
+  const id = await f.create();
+  const attention = [];
+  const unsubscribe = f.client.onCollectionEvent((event) => {
+    if (event.sessionId === id && event.type === "session_attention_changed") attention.push(event.details.background);
+  });
+  t.after(unsubscribe);
+  await f.request("subscribeSessions");
+  const row = async () => (await f.request("workbench", {})).sessions.find((session) => session.sessionId === id);
+  const receipt = await call(f, id, "kernel_code", { code: `import subprocess
+background_probe = subprocess.Popen(["sleep", "30"])
+print(background_probe.pid)` });
+  assert.equal((await f.complete(id, receipt)).status, "completed");
+  const pid = Number(text(f.state(id).messages.findLast((message) => message.role === "toolResult")).match(/^([0-9]+)$/m)?.[1]);
+  assert(pid > 0);
+  const observed = await until(async () => {
+    const value = await row();
+    return value.monitor?.processes?.find((process) => process.pid === pid) && value;
+  }, "target proc sample", 5000);
+  assert.equal(observed.state, "idle");
+  assert.equal(observed.background, true);
+  assert.equal(observed.monitor.processes.find((process) => process.pid === pid).ownership, "detached");
+  assert(attention.includes(true));
+  const stop = await call(f, id, "kernel_code", { code: `background_probe.terminate()
+background_probe.wait()` });
+  assert.equal((await f.complete(id, stop)).status, "completed");
+  await until(async () => {
+    const value = await row();
+    return value.monitor?.processes?.length && !value.monitor.processes.some((process) => process.pid === pid) && !value.background;
+  }, "detached process removal and sidebar clear", 5000);
+  assert.equal(attention.at(-1), false);
 });

@@ -1,7 +1,7 @@
 import { MAX_TREE_DEPTH } from "../sidebar-constants.js";
 import { rowState } from "../labels/row-state.js";
 
-const priority = { blocked: 4, stopped: 3, running: 2, compacting: 2, starting: 2, cancel_requested: 2, done: 1 };
+const priority = { blocked: 5, stopped: 4, running: 3, compacting: 3, starting: 3, cancel_requested: 3, background: 2, done: 1 };
 export const statusPriority = (state) => priority[state] ?? 0;
 
 export function highestUnder(children, childrenOf, depth = 0, highest) {

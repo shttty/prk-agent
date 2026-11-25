@@ -93,7 +93,7 @@ export function SessionRow({ sessionRow, targets, rows, onSelected, onSessionAct
         <span className="management-session-aside">
           {stateBelow && <span data-descendant-state={stateBelow.key} role="img" aria-label={`子会话：${stateBelow.label}`} title={`子会话：${stateBelow.label}`}><StatusDot tone={stateBelow.tone} size={6} /></span>}
           <MonitorMarks sessionRow={sessionRow} />
-          {(!projectView || sessionRow.state === "sleeping" || ["delivered", "compacting", "blocked", "stopped", "done"].includes(shownState.key)) && <span className="management-session-state" data-state={shownState.key}>{shownState.label}</span>}
+          {(!projectView || sessionRow.state === "sleeping" || ["delivered", "compacting", "blocked", "stopped", "background", "done"].includes(shownState.key)) && <span className="management-session-state" data-state={shownState.key}>{shownState.label}</span>}
         </span>
       </button>
       {/* Long menu: flip to the roomier side and cap to the viewport, scrolling inside (phones). */}

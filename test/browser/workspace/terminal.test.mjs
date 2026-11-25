@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import test from "node:test";
 import { browserFixture } from "../../fixtures/browser/open-workbench.mjs";
+import { checkProcessPanel } from "./check-process-panel.mjs";
 import { layoutRootsDuringComposition } from "./trace-ime-layout.mjs";
 
 const shell = '.pi-term[data-shell="shell"]';
@@ -78,12 +79,16 @@ test("Chromium terminal IME lays out inside xterm, commits Chinese and interrupt
 });
 
 test("file tree uploads a multi-megabyte file and downloads its target bytes", async (t) => {
-  const f = await browserFixture(t, { viewport: { width: 1920, height: 1000 } });
+  const f = await browserFixture(t, { viewport: { width: 1920, height: 1000 }, config: { monitor: { enabled: true, fastIntervalMs: 500, slowIntervalMs: 500 } } });
   const name = "payload.bin";
   const path = join(f.cwd, name);
   const bytes = randomBytes(4 * 1024 ** 2);
-  await f.open(await f.create());
+  const id = await f.create();
+  await f.open(id);
   await f.page.locator("#monitor-card").waitFor();
+  await f.page.locator("#monitor-overview").waitFor({ timeout: 3000 });
+  assert.equal(await f.page.locator("[data-monitor-block]").count(), 5);
+  assert.equal(await f.page.locator("[data-monitor-block][open]").count(), 0);
   await openWorkspace(f.page);
   const tree = f.page.locator("#toggle-tree");
   if (await tree.isVisible() && await tree.getAttribute("aria-pressed") !== "true") await tree.click();
@@ -102,6 +107,7 @@ test("file tree uploads a multi-megabyte file and downloads its target bytes", a
   await f.page.locator("#toggle-monitor").click();
   await f.page.locator('#toggle-workspace[aria-expanded="false"]').waitFor();
   await f.page.locator("#monitor-card").waitFor();
+  await checkProcessPanel(f, id);
 });
 
 test("cursor blink preference survives disabling and restoring animations", async (t) => {

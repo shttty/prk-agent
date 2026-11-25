@@ -158,6 +158,7 @@ export interface PythonToolClient {
   isFileCallback(name: string): boolean;
   restart(): Promise<KernelSnapshot>;
   getSnapshot(): KernelSnapshot;
+  processRoot(): { pid: number; infrastructurePid?: number } | undefined;
   variables(): { variables: NamespaceSummary["variables"]; truncated: boolean };
   deleteVariable(name: string): Promise<KernelSnapshot>;
   afterCompaction(): void;
@@ -165,7 +166,7 @@ export interface PythonToolClient {
   subscribeReminders(listener: (reminder: KernelReminder) => void): () => void;
 }
 export type KernelObservationSource = Pick<PythonToolClient, "getSnapshot" | "subscribe" | "ensure" | "clear" | "restart" | "variables" | "deleteVariable">
-  & Partial<Pick<PythonToolClient, "prepareHandoff" | "resumeAfterHandoff" | "hasInFlightCell">>;
+  & Partial<Pick<PythonToolClient, "prepareHandoff" | "resumeAfterHandoff" | "hasInFlightCell" | "processRoot">>;
 export interface PythonToolHooks {
   readonly codeMode?: boolean;
   readonly environment?: Readonly<Record<string, string>>;

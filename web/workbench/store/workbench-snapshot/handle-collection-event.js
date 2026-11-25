@@ -32,12 +32,12 @@ export function handleCollectionEvent(ctx, current, event) {
       if (rowState && payload.sessionId !== ctx.state.selectedSessionId && ctx.state.sessions.has(payload.sessionId)) {
         const done = rowState === "idle" && payload.details?.completed === true;
         updateSessionRow(ctx, payload.sessionId, { state: rowState, ...(done ? { done: true } : {}), compacting: payload.details?.compacting === true,
-          ...(["closed", "sleeping"].includes(rowState) ? { blocked: false, asking: false, stopped: false, retryPending: false } : {}),
+          ...(["closed", "sleeping"].includes(rowState) ? { blocked: false, asking: false, stopped: false, retryPending: false, background: false } : {}),
         });
       }
       if (payload.type === "session_closed" && payload.sessionId === ctx.state.selectedSessionId) {
         closeEventSource(ctx);
-        updateSessionRow(ctx, payload.sessionId, { state: "closed", blocked: false, asking: false, stopped: false, retryPending: false });
+        updateSessionRow(ctx, payload.sessionId, { state: "closed", blocked: false, asking: false, stopped: false, retryPending: false, background: false });
         // The sessionRow stream may have ended first and started an automatic retry; the session is closed, so that retry is over too.
         patchSession(ctx, { snapshot: ctx.state.session.snapshot ? { ...ctx.state.session.snapshot, state: "closed" } : null, connection: "disconnected", pending: withPending(ctx.state.session.pending, "reconnecting", false) });
       }
@@ -45,7 +45,7 @@ export function handleCollectionEvent(ctx, current, event) {
         updateSessionRow(ctx, payload.sessionId, { monitor: stampMonitor(payload.details.monitor) });
       }
       if (payload.type === "session_attention_changed" && typeof payload.sessionId === "string" && ctx.state.sessions.has(payload.sessionId)) {
-        updateSessionRow(ctx, payload.sessionId, { blocked: payload.details?.blocked === true, asking: payload.details?.asking === true, stopped: payload.details?.stopped === true, retryPending: payload.details?.retryPending === true });
+        updateSessionRow(ctx, payload.sessionId, { blocked: payload.details?.blocked === true, asking: payload.details?.asking === true, stopped: payload.details?.stopped === true, retryPending: payload.details?.retryPending === true, background: payload.details?.background === true });
       }
       if (payload.type === "session_capabilities_changed" && typeof payload.sessionId === "string") {
         const requiresReload = payload.details?.requiresReload === true;

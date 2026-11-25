@@ -40,6 +40,7 @@ function dispatchEvent(ctx: KernelContext, process: KernelProcess, message: Runn
     if (message.language !== process.language) throw new Error(`Expected a ${process.language} kernel ready event.`);
     if (process.pid !== undefined) return;
     process.pid = message.pid;
+    process.forkserverPid = message.forkserverPid;
     process.pgid = message.pgid;
     process.scoped = message.scoped;
     process.ready.resolve();

@@ -28,7 +28,7 @@ const cellState = {
   observedAt: Type.Optional(time),
 };
 export const runnerEvent = Type.Union([
-  Type.Object({ generation, cellId: Type.Null(), kind: Type.Literal("ready"), pid: id, pgid: id, scoped: Type.Boolean(),
+  Type.Object({ generation, cellId: Type.Null(), kind: Type.Literal("ready"), pid: id, pgid: id, forkserverPid: Type.Optional(id), scoped: Type.Boolean(),
     language: Type.Union([Type.Literal("python"), Type.Literal("bun")]), version,
   }, { additionalProperties: false }),
   Type.Object({ generation, kind: Type.Literal("diagnostic"), stream: diagnosticStream, text: Type.String() }, { additionalProperties: false }),

@@ -222,7 +222,7 @@ Compaction 后的第一结果还含一份 bounded full list。
 
 ## Monitor
 
-规则：[REQ-13](../contract.md)、[模块约定](kernel.md#约定)、[模块约定](../kernel-death.md#约定)、[KER-12](../contract.md)、[模块约定](../kernel-death.md#约定)。
+规则：[WEB-51](../contract.md)、[TGT-17](../contract.md)、[REQ-13](../contract.md)、[模块约定](kernel.md#约定)、[模块约定](../kernel-death.md#约定)、[KER-12](../contract.md)、[模块约定](../kernel-death.md#约定)。
 - `monitorFocus {sessionId,open:boolean}` → `{focused,leaseMs}`；`leaseMs = monitor.focusLeaseMs`。
 - `monitorHistory {sessionId}` → `{instance,windowMs,machine:[{at,value}],customMetrics:[{name,unit?,chart:"line",samples:[{at,value:{value:number|null,error:string|null}}]}]}`。
 - `monitorDiff {sessionId,path}` → `{kind:"git",text,truncated}` 或 `{kind:"agent",text}`。
@@ -238,6 +238,9 @@ Workbench rows 的 optional `monitor`：
   alerts:{kernel,oom,memory},
   machine?:{cpu:{pct,cores},load,mem:{total,available},disk,gpus,ageMs,sampledAt},
   customMetrics:[{name,unit?,chart:"line",sample?:{at,value:{value:number|null,error:string|null}}}],
+  processesTruncated:boolean,
+  processes:[{pid,command,cpuPercent:number|null,rssBytes,depth,kind:"kernel"|"terminal",
+    ownership:"root"|"infrastructure"|"managed"|"unknown"|"detached"}],
   remoteHost:null|{state:"running"|"replacing"|"failed",generation:string,pid?:number,scoped?:boolean,
     memory?:KernelMemory,error?:string,sampledAt?:number,ageMs?:number},
   changes?:{source:"git"|"agent",added,removed,files:[{path,status,added,removed,binary}],
@@ -246,9 +249,20 @@ Workbench rows 的 optional `monitor`：
 ```
 
 `session_monitor` 的 `details:{monitor}` 替换 row monitor。
-Sleeping row 保留末次值，`state:"stopped"`。
+Sleeping row 清空进程树并保留末次主机读数，`state:"stopped"`。
+工作台行的 `background:true` 表示存在已 yield 的 kernel cell、运行中的模型终端命令或最近样本中的脱管进程；沿 `session_attention_changed.details.background` 更新原行，无新订阅。网页只在会话空闲时显示后台标记。
 `gitReason` 是首行 stderr，`gitUnavailable` 区分无法判断与普通 non-repository。
 Alerts 对应 failed/unavailable kernel、positive `memory.oomKill`、`workingSet/memoryMax*100 >= monitor.memoryAlertPercent`。
+
+### 后台进程
+
+Gateway 在已有 `monitor/watch` 请求中附带 `processes`（会话 ID 到根 PID 列表）；目标采样器在同一 tick 产生 `processes` 帧，以 `sessionId` 路由，不混入实例历史。根为当前 kernel runner 和已握手的模型终端 shell。无新循环、租约或接口，也不为采样启动 kernel/终端。
+
+每会话每次最多 128 行，超限置 `processesTruncated:true`，计数只表示已采到的部分。每条命令行最多读取 2048 字节。内存为 RSS；CPU 为最近两次同一进程（PID 与启动 tick）的 CPU 时间差除以采样间隔，首样本为空，多线程可超过 100%。僵尸进程不计。
+
+- Kernel runner 和 forkserver 分别是根与项目基础设施。无运行 cell 时，其他活后代显示「脱管」。有运行 cell 时，共享 runner 的 /proc 父子关系不能证明子进程属于哪个 cell，显示「归属未定」，不猜归属。
+- 模型终端正在执行模型命令时，用终端前台进程组识别该命令的进程；其他后代为脱管。人在模型终端手工执行的命令不属于模型命令。
+- `systemd-run` 转交服务管理器、双 fork 后被 init 收养等会脱离所观察的进程树，监控扫不到。采样不是任务管理：即便看见脱管进程，Gateway 也不会等待、终止它或在它退出时唤醒模型。
 
 ### Remote host scope telemetry（STEER1）
 
