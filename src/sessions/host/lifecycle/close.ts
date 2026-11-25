@@ -1,3 +1,4 @@
+import { clearFailure } from "../attention/clear-failure.ts";
 import { attempt } from "./attempt.ts";
 import type { HostContext } from "../host-types.ts";
 import { requestCancel } from "../operations/request-cancel.ts";
@@ -11,6 +12,7 @@ export function close(ctx: HostContext): Promise<void> {
   if (ctx.closePromise) return ctx.closePromise;
   ctx.closing = true;
   ctx.state = "closing";
+  clearFailure(ctx);
   const failures: unknown[] = [];
   const tryCleanup = (action: () => unknown) => attempt(failures, action);
   ctx.closePromise = Promise.resolve().then(async () => {

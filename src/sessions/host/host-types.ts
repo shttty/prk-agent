@@ -1,3 +1,4 @@
+import type { SessionAttention } from "./attention/read-attention.ts";
 import type { AgentSession, ContextUsage } from "@earendil-works/pi-coding-agent";
 import type { ImageContent } from "@earendil-works/pi-ai";
 import type { KernelLanguage, KernelObservationSource, KernelSnapshot, PythonToolClient } from "../../kernel/kernel-types.ts";
@@ -16,7 +17,7 @@ import type { TerminalSummary } from "../../workspace/terminals/terminals-types.
 
 // "sleeping" and "unavailable" are Gateway projections for a session without a runtime; a live host never enters them.
 export type HostState = "idle" | "running" | "cancel_requested" | "sleeping" | "unavailable" | "closing" | "closed";
-export interface SessionHostSnapshot {
+export interface SessionHostSnapshot extends SessionAttention {
   readonly sessionId: string;
   readonly streamId: string;
   readonly sequence: number;
@@ -130,6 +131,7 @@ export interface SessionHost {
   /** Current stream identity and execution state, without building or cloning a snapshot. */
   readonly streamId: string;
   readonly state: SessionHostSnapshot["state"];
+  readonly attention?: SessionAttention;
   getSnapshot(includeMessages?: boolean): SessionHostSnapshot;
   subscribe(listener: (event: SessionHostEvent) => void): SessionHostSubscription;
   extensionUiAction?(args: Record<string, unknown>): Promise<unknown>;
@@ -167,6 +169,8 @@ export interface HostContext {
   sequence: number;
   state: HostState;
   active?: Operation;
+  retryGrace?: NodeJS.Timeout;
+  stopped?: true;
   pendingCompaction?: Operation;
   recent: readonly OperationCompletion[];
   closing: boolean;

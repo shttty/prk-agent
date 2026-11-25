@@ -67,8 +67,11 @@ Invalid answer：`unavailable`，dialog 保持 open。
 `session.askTimeoutMs > 0` 时使用 `expiresAt`；自动答案为 recommended option（否则 first），附 auto-selected 标记。
 Browser page 存放 unsubmitted ask drafts。
 
-Workbench row 在 live ask 期间含 `asking:true`。
-Collection flip event：`session_ask`，`details:{asking:boolean}`。
+## Waiting for user input
+
+会话快照与工作台行在待答 `ask`（direct 或 kernel）、扩展 `confirm` / `select` / `input` / `editor`，或安装了 `blocked` 标记的本机 `custom` 组件活跃时含 `blocked:true`。其他自定义组件、通知、终端及后台工作不计入。`blocked` 不改变执行生命周期 `state`；作答、取消、超时或宿主清理使最后一个等待点消失时，快照省略该字段。
+
+工作台行另以 `asking:true` 标明存在 PRK `ask`，供提问通知使用。工作台的 [`session_attention_changed`](http.md#independent-web-workbench) 集合事件同时推送等待、重试宽限与出错停止的变化。见 [WEB-51](../contract.md)、[ORD-8](../contract.md)。
 
 ## Notifications and renderers
 

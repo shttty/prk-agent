@@ -41,6 +41,7 @@ Pi session settings (`steeringMode`, `followUpMode`, `compaction.*`, `cacheWarmi
 | `toolTitle` | `true` | Boolean; every declared tool requires a short call title (kernel_code's own `title` becomes required). Changes apply on the next model request without reloading or waking sessions. Recorded titles remain visible. |
 | `capabilities` | `{}` | Sparse boolean defaults keyed by `tool:<SDK name>`, `kernel:<helper name>`, `skill:<absolute path>`, source `group:*` IDs, or [declaration-lazy IDs](../configuration.md#tool-declaration-lazy-loading). Missing enable keys mean enabled; lazy keys have their own tool/source defaults. The local-tools master is stored only in `localTools`. |
 | `idleTimeoutMs` | 1800000 | **timer**; continuously idle runtime reclamation. |
+| `providerRetryGraceMs` | 2500 | **positive timer**; how long a retryable failed turn still appears running before the sidebar marks it stopped. Does not schedule retries. |
 | `askTimeoutMs` | 0 | **non-negative timer**; `0` waits indefinitely. Above 0, an unanswered `ask` uses each question's recommended option (else the first) and reports that in the tool result. The cell's active deadline and reminders pause while it waits; the foreground yield clock does not. |
 | `idleCheckIntervalMs` | 1000 | **timer**; idle reclamation scan interval. |
 | `recentOperationsMax` | 64 | **positive**; retained operation outcomes. |

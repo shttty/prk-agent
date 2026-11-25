@@ -24,7 +24,6 @@ import type { ViewState } from "../session-views/view-state.ts";
 import type { InteractionState } from "../native-interactions/interaction-state.ts";
 import type { EventState } from "../collection-events/event-state.ts";
 import type { MonitorState } from "../monitoring/monitor-state.ts";
-import type { AskState } from "../asking/ask-state.ts";
 import type { MessageState } from "../peer-messages/message-state.ts";
 import type { GatewayMethods } from "./host-methods.ts";
 import type { ControlState } from "../session-control/control-state.ts";
@@ -66,7 +65,6 @@ export interface HostContext {
   native: InteractionState;
   events: EventState;
   monitoring: MonitorState;
-  asking: AskState;
   peerMessages: MessageState;
   methods: GatewayMethods;
   api: GatewaySessionHost;

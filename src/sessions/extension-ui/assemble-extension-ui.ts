@@ -10,7 +10,7 @@ import { reset } from "./lifecycle/reset.ts";
 import { action } from "./act-ui.ts";
 import { dispose } from "./lifecycle/dispose.ts";
 import { ask } from "./dialogs/ask.ts";
-import { asking } from "./dialogs/is-asking.ts";
+import { readUserWait } from "./dialogs/read-user-wait.ts";
 import { select } from "./dialogs/select.ts";
 import { confirm } from "./dialogs/confirm.ts";
 import { input } from "./dialogs/input.ts";
@@ -90,7 +90,7 @@ export async function createHostedExtensionUI(session: AgentSession, agentDir: s
     context, snapshot: () => snapshot(ctx), subscribe: (listener) => subscribe(ctx, listener),
     render: (width, height, clientId, expandedToolCallIds: readonly string[] = [], operationId?: string) => render(ctx, width, height, clientId, expandedToolCallIds, operationId),
     action: (args) => action(ctx, args), cancel: (scope) => cancel(ctx, scope), reset: () => reset(ctx), dispose: () => dispose(ctx),
-    ask: (questions, options) => ask(ctx, questions, options), asking: () => asking(ctx),
+    ask: (questions, options) => ask(ctx, questions, options), userWait: () => readUserWait(ctx),
     toolExecution: (id) => getToolExecution(ctx, id),
   };
 }

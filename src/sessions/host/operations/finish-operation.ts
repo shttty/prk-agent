@@ -1,4 +1,5 @@
 import type { HostContext, Operation, OperationCompletionStatus, OperationCompletion } from "../host-types.ts";
+import { reportProviderFailure } from "../attention/report-provider-failure.ts";
 import { boundedError } from "../../../diagnostics/session-errors/truncate-error-detail.ts";
 import { describeSessionFailure } from "../../../diagnostics/session-errors/describe-session-failure.ts";
 import { summarizeSessionFailure } from "../../../diagnostics/session-errors/summarize-session-failure.ts";
@@ -46,11 +47,12 @@ export function finish(ctx: HostContext, operation: Operation): void {
     ...(publicError && status !== "cancelled" ? { error: publicError } : {}),
     ...(operation.returnedMessages.length ? { returnedMessages: [...operation.returnedMessages] } : {}),
   };
+  if (status === "failed" && !operation.aborted) reportProviderFailure(ctx, operation.error ?? "SDK operation failed.");
   ctx.active = undefined;
   if (completion.requestIds.length) {
     ctx.recent = [...ctx.recent, completion].slice(-ctx.sessionOptions.recentOperationsMax);
     // A failed or unknown outcome belongs to this operation; the session stays usable for the next input.
-    setState(ctx, "idle");
+    setState(ctx, "idle", status === "completed");
     emit(ctx, "operation_completed", { operationId: operation.id, details: { ...completion } });
     ctx.options.onOperationCompletion?.(completion, {
       ...(operation.cancelReason === undefined ? {} : { reason: operation.cancelReason }),

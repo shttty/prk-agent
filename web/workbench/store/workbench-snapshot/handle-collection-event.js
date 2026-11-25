@@ -27,22 +27,25 @@ export function handleCollectionEvent(ctx, current, event) {
       if (!isRecord(payload)) return;
       if (payload.type === "session_control_changed" && isRecord(payload.details?.sessionControl)) patch(ctx, { sessionControl: normalizeSessionControl(payload.details.sessionControl) });
       if (payload.type === "target_environment_changed") applyTargetEnvironment(ctx, normalizeEnvironment(payload.details?.environment));
-      // The selected row is already driven by its own host stream.
+      // The selected row lifecycle is already driven by its own host stream.
       const rowState = BACKGROUND_ROW_STATES.get(payload.type);
       if (rowState && payload.sessionId !== ctx.state.selectedSessionId && ctx.state.sessions.has(payload.sessionId)) {
-        updateSessionRow(ctx, payload.sessionId, { state: rowState, compacting: payload.details?.compacting === true });
+        const done = rowState === "idle" && payload.details?.completed === true;
+        updateSessionRow(ctx, payload.sessionId, { state: rowState, ...(done ? { done: true } : {}), compacting: payload.details?.compacting === true,
+          ...(["closed", "sleeping"].includes(rowState) ? { blocked: false, asking: false, stopped: false, retryPending: false } : {}),
+        });
       }
       if (payload.type === "session_closed" && payload.sessionId === ctx.state.selectedSessionId) {
         closeEventSource(ctx);
-        updateSessionRow(ctx, payload.sessionId, { state: "closed" });
+        updateSessionRow(ctx, payload.sessionId, { state: "closed", blocked: false, asking: false, stopped: false, retryPending: false });
         // The sessionRow stream may have ended first and started an automatic retry; the session is closed, so that retry is over too.
         patchSession(ctx, { snapshot: ctx.state.session.snapshot ? { ...ctx.state.session.snapshot, state: "closed" } : null, connection: "disconnected", pending: withPending(ctx.state.session.pending, "reconnecting", false) });
       }
       if (payload.type === "session_monitor" && typeof payload.sessionId === "string" && isRecord(payload.details?.monitor) && ctx.state.sessions.has(payload.sessionId)) {
         updateSessionRow(ctx, payload.sessionId, { monitor: stampMonitor(payload.details.monitor) });
       }
-      if (payload.type === "session_ask" && typeof payload.sessionId === "string" && ctx.state.sessions.has(payload.sessionId)) {
-        updateSessionRow(ctx, payload.sessionId, { asking: payload.details?.asking === true });
+      if (payload.type === "session_attention_changed" && typeof payload.sessionId === "string" && ctx.state.sessions.has(payload.sessionId)) {
+        updateSessionRow(ctx, payload.sessionId, { blocked: payload.details?.blocked === true, asking: payload.details?.asking === true, stopped: payload.details?.stopped === true, retryPending: payload.details?.retryPending === true });
       }
       if (payload.type === "session_capabilities_changed" && typeof payload.sessionId === "string") {
         const requiresReload = payload.details?.requiresReload === true;

@@ -1,3 +1,4 @@
+import { updateSessionRow } from "../workbench-snapshot/update-session-row.js";
 import { hostState } from "./host-state.js";
 import { reconnect } from "../session-stream/reconnect.js";
 import { persistCurrentSession } from "../drafts/persist-current-session.js";
@@ -16,6 +17,7 @@ import { findSessionRow } from "../../payloads/find-session-row.js";
 export async function selectSession(ctx, name, { snapshot = null } = {}) {
     const sessionRow = findSessionRow(ctx.state, name);
     if (!sessionRow || ctx.disposed) return false;
+    if (sessionRow.done) updateSessionRow(ctx, name, { done: false });
     const reconnectingSameSession = name === ctx.state.selectedSessionId;
     const archived = !ctx.state.sessions.has(name);
     if (reconnectingSameSession && !archived && !snapshot && hostState(ctx) !== "closed") return reconnect(ctx);

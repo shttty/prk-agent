@@ -15,7 +15,7 @@ export function applyWorkbenchSnapshot(ctx, body) {
     const sessions = new Map();
     for (const value of body.sessions) {
       const sessionRow = normalizeSession(value);
-      if (sessionRow) sessions.set(sessionRow.sessionId, sessionRow);
+      if (sessionRow) sessions.set(sessionRow.sessionId, { ...sessionRow, ...(ctx.state.sessions.get(sessionRow.sessionId)?.done ? { done: true } : {}) });
     }
     const unreadableSessions = Array.isArray(body.unreadableSessions) ? body.unreadableSessions.map(normalizeUnreadableSession).filter(Boolean) : [];
     // A session that became unreadable is no longer a chat: close it instead of carrying its stale sessionRow over.

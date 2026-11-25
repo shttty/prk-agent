@@ -6,8 +6,8 @@ import type { SessionLifecycleEvent } from "../../sessions/collection/collection
 const ROW_EVENTS = new Set(["session_derivation_changed", "session_renamed", "session_unarchived", "session_recovered", "session_recovery_failed", "session_project_assigned", "session_project_renamed"]);
 
 export function publish(ctx: HostContext, type: string, entry: StoredSession, details?: Readonly<Record<string, unknown>>): void {
-    const rolesChanged = type !== "session_monitor" && type !== "session_ask" && ctx.methods.refreshSessionControl();
-    if (type !== "session_monitor" && type !== "session_ask") { ctx.methods.reconcileMonitor(); ctx.methods.reconcileAsk(); }
+    const rolesChanged = type !== "session_monitor" && ctx.methods.refreshSessionControl();
+    if (type !== "session_monitor") ctx.methods.reconcileMonitor();
     dispatch(ctx, type, entry.sessionId, { ...details, ...changedRow(ctx, type, entry, details) });
     // Membership changes re-elect roles; observers get the new designations as their own event.
     if (rolesChanged && type !== "session_control_changed") dispatch(ctx, "session_control_changed", entry.sessionId, {});

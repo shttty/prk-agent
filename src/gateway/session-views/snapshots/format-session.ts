@@ -31,6 +31,5 @@ export function managedSessionSnapshot(ctx: HostContext, entry: StoredSession, r
       ...readTaskTiming(derived, entry.archived?.at),
       ...(liveRecovery === undefined && archivedRecovery === undefined ? {} : { recovery: liveRecovery ?? archivedRecovery }),
       ...(ctx.monitoring.monitor.get(entry.sessionId) ? { monitor: ctx.monitoring.monitor.get(entry.sessionId) } : {}),
-      ...(ctx.methods.askWaiting(entry) ? { asking: true } : {}),
     } as ManagedSessionSnapshot);
   }

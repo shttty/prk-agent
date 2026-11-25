@@ -17,7 +17,7 @@ export function applyRowEvent(ctx, payload) {
     archive = [archiveGroup, ...archive.filter((entry) => entry.group !== archiveGroup.group)].sort((left, right) => String(right.at).localeCompare(String(left.at)));
   }
   const sessions = new Map(ctx.state.sessions);
-  if (row) sessions.set(row.sessionId, row);
+  if (row) sessions.set(row.sessionId, { ...row, ...(ctx.state.sessions.get(row.sessionId)?.done ? { done: true } : {}) });
   if (payload.type === "session_archived" && typeof payload.sessionId === "string") {
     ctx.storage.forgetSession(payload.sessionId);
     sessions.delete(payload.sessionId);

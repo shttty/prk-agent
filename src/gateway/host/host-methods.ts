@@ -3,7 +3,6 @@ import type { RemotePackagesMethods } from "../remote-packages/remote-packages-m
 import type { ModelsMethods } from "../models/models-methods.ts";
 import type { WorkspaceMethods } from "../workspace/workspace-methods.ts";
 import type { MonitoringMethods } from "../monitoring/monitoring-methods.ts";
-import type { AskingMethods } from "../asking/asking-methods.ts";
 import type { SessionViewsMethods } from "../session-views/session-views-methods.ts";
 import type { ArchivesMethods } from "../archives/archives-methods.ts";
 import type { CapabilitiesMethods } from "../capabilities/capabilities-methods.ts";
@@ -35,4 +34,4 @@ export interface HostMethods {
   toolTitleSet: WithoutContext<typeof toolTitleSet>;
 }
 
-export interface GatewayMethods extends RemotePackagesMethods, ModelsMethods, WorkspaceMethods, MonitoringMethods, AskingMethods, SessionViewsMethods, ArchivesMethods, CapabilitiesMethods, SessionLifecycleMethods, InstancesMethods, DerivationMethods, NativeInteractionsMethods, ProjectsMethods, ArtifactsMethods, ToolLibraryMethods, SkillLibraryMethods, ThemesMethods, MemoriesMethods, PluginConfigurationMethods, CollectionEventsMethods, ControlMethods, HostMethods {}
+export interface GatewayMethods extends RemotePackagesMethods, ModelsMethods, WorkspaceMethods, MonitoringMethods, SessionViewsMethods, ArchivesMethods, CapabilitiesMethods, SessionLifecycleMethods, InstancesMethods, DerivationMethods, NativeInteractionsMethods, ProjectsMethods, ArtifactsMethods, ToolLibraryMethods, SkillLibraryMethods, ThemesMethods, MemoriesMethods, PluginConfigurationMethods, CollectionEventsMethods, ControlMethods, HostMethods {}

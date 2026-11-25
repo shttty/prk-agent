@@ -445,7 +445,7 @@
 
 - 决定：做成 PRK 自身能力，不是 Pi 插件，也不管 Pi TUI。行为参照 OMP 的 `ask`（多题分 tab、汇总 tab、提交），代码不搬（它依赖 OMP fork 的 pi-tui）。
 - 1. Every worker session has the PRK-owned `ask` tool. In `code` mode the model does not see its declaration and a cell calls `gateway.ask(questions=[...])` through the existing Gateway callback; `direct` declares `ask` as an ordinary tool, independently of `localTools`. The schema matches OMP (`questions[]` ≥1, `id/question/header?/options[{label,description?,preview?}]/multi?/recommended?`); labels conflicting with webpage-owned rows (`其他`, `先聊聊`), duplicate question IDs, and duplicate labels within a question are rejected.
-- 2. 通道复用扩展 UI 对话框：`extension-ui.ts` 新增 `kind:"ask"`，答案走既有 `nativeAction extension-ui` 的 `dialog`；答案在 `parseAskAnswers` 这一个边界校验，之后传类型化值。对话框通道本身不新增 Gateway 事件或路由（R3 的全局提醒另加了行字段与一个 collection 事件，见 7）。停止 turn 关闭对话框，工具返回取消。
+- 2. 通道复用扩展 UI 对话框：`extension-ui.ts` 新增 `kind:"ask"`，答案走既有 `nativeAction extension-ui` 的 `dialog`；答案在 `parseAskAnswers` 这一个边界校验，之后传类型化值。对话框通道本身不新增 Gateway 事件或路由（全局等待提醒的工作台字段与 collection 事件见 7）。停止 turn 关闭对话框，工具返回取消。
 - 3. 网页：输入框上方托盘里的卡片，每题一个 tab + 汇总 tab；单选/多选；`recommended` 只做默认高亮不预选；每题「其他…」（文本）；选项可加备注（文本）；先聊聊；取消；`preview` 用 markdown 渲染。草稿只在页面内存里，刷新不保留（R2 确认维持）。
 - 3a.（R2）**取消 = 中止整个 turn**，对齐 OMP：网页「取消」走输入框停止按钮同一条路径（`actions.cancelOperation`），对话框随之关闭，ask 的结果记为取消，模型不再被调用，会话回到可发消息状态；没有可停止的 operation 时才退回只关对话框（`dialog {cancel:true}`）。线协议里的 `dialog cancel` 仍是「只关对话框、turn 继续」。
 - 3b.（R2）**只有一题且为单选时不显示汇总 tab**：题目页的主按钮直接是「提交」（先选再点提交，点选不提交；未选时禁用）。多题、或单题多选，仍是 tab + 汇总。
@@ -453,7 +453,7 @@
 - 4. 超时 `session.askTimeoutMs`（默认 0 = 不超时）：固定截止时间，到点每题自动选推荐项（无推荐取第一项），结果标注自动选择。
 - 5. 等待提醒：标签页标题标记；系统通知放设置、默认关，非安全上下文（http + tailnet）不可用时禁用并说明。不做 TTS。R3 起覆盖所有会话，见 7。
 - 6. 结果文本照 OMP `formatQuestionResult` 的形状（纯文本）；`details` 存结构化记录，历史里的 ask 行据此显示每题问题与回答。详见 [wire](docs/wire/transport.md)、[configuration](docs/configuration.md)。
-- 7.（R3）**全局等待提醒**（用户定：R1 只提醒所选会话不够）。后端：workbench 快照里每个会话行带 `asking: true`（该会话的活动运行时里有 ask 卡在等；不另存，读该会话的扩展 UI 得出），翻转时推 collection 事件 `session_ask {asking}`，不轮询；运行时随卡消失（关闭、归档、睡眠）也会清掉标记。网页：侧边栏会话行（手机抽屉里同样）显示标记，折叠的分组、折叠的父会话行也显示其内有 ask 在等；标题标记与系统通知（设置里打开时）改为「任何会话有 ask 在等」就触发，每个在等的会话一条通知，点击通知切到那个会话；页面回到前台，或没有任何 ask 在等时，标题恢复。线协议见 [wire](docs/wire/transport.md)。
+- 7.（R3，后扩展为会话关注状态）侧栏按等待操作、出错停止、运行、有新结果、空闲／休眠显示，折叠父会话和分组标最高提示。可重试的最终错误先保留运行提示一个短宽限；取消不算出错。后台会话正常完成后在本页标有新结果，选中即清，不持久化。「任何会话有 ask 在等」仍由 `asking:true` 单独驱动标题和系统通知（启用时每个待答会话一条，点击切换）；页面进入前台或没有 ask 时恢复标题。线协议见 [wire](docs/wire/http.md#independent-web-workbench)。
 - 8.（R4）**code 模式下 ask 等待不计入 cell 期限**（用户定：R3 里 `askTimeoutMs=0` 实际被 `executionTimeoutMs` 的 5 分钟截断不合理）：`jupyter.ts` 的 cell 期限只在 cell 干活时走，`ask` 回调等待用户期间暂停，作答/取消/`askTimeoutMs` 超时后从暂停处接着计时；**只对 `ask` 暂停**（`protocol.ts` 的 `USER_WAIT_CALLBACK`），其他 Gateway 回调（等子会话、插件工具）仍算工作量，语义不变；停止 turn 仍立即结束 cell。`recommended` 的说明（0 起的整数下标，不是选项文字）在工具描述、schema 和 code 模式的 worker 提示里写清楚，校验不放宽。
 - 9.（R4）**ask 不支持图片**（用户定，取代 R1 的「其他…和备注可贴图」与 R3 里「code 模式传不到图」的遗留问题）：「其他…」和备注都只收文本，卡片里没有图片入口，答案里不带附件（带了就被 `parseAskAnswers` 当非法答案拒绝，不静默丢弃），结果文本没有 `[image N]` 也没有 image block，历史行不显示图片张数；相关代码和额度分配都删干净，没有开关。输入框的附件行为不变（`attachments.js` / `Attachments.jsx` 现在只有输入框用）。用户要给模型看图：点「先聊聊」，再在输入框里贴。
 

@@ -88,15 +88,26 @@ test("send an image with no text and see it in the real conversation", async (t)
   await f.page.locator("#messages .pi-message-user .pi-message-attachment").waitFor();
 });
 
-test("sidebar shows a non-selected session starting and settling without changing the visible chat", async (t) => {
+test("sidebar shows a background child running, then waiting even under its folded parent", async (t) => {
   const release = Promise.withResolvers();
   const f = await browserFixture(t, { answer: async (context) => {
-    if (text(context.messages.at(-1)) === "Background request") await release.promise;
+    const last = context.messages.at(-1);
+    if (last?.role === "toolResult" && last.toolName === "session_spawn") return fauxAssistantMessage("Spawn settled");
+    if (text(last) === "Background request") await release.promise;
+    if (text(last) === "Background provider error") return fauxAssistantMessage([], { stopReason: "error", errorMessage: "401 Unauthorized" });
     return fauxAssistantMessage("Background done");
   } });
-  const active = await f.create("Selected"), background = await f.create("Background");
+  const active = await f.create("Selected");
+  const spawn = await f.send(active, `TOOL ${JSON.stringify({ name: "session_spawn", args: { context: "Sidebar verification",
+    tasks: [{ task: "Verify a blocked child", label: "Background", lifecycle: "persistent" }],
+  } })}`);
+  assert.equal((await f.complete(active, spawn)).status, "completed");
+  const child = await until(async () => (await f.request("workbench")).sessions.find((item) => item.derivation?.owner === active && item.label === "Background" && item.state === "idle"), "child ready");
+  const background = child.sessionId;
   try {
     await f.open(active);
+    const parent = f.page.locator(`[data-session-id="${active}"]`);
+    const toggle = parent.locator(".management-tree-toggle");
     const row = f.page.locator(`[data-session-id="${background}"]`);
     const pill = (state) => row.locator(`.management-session-state[data-state="${state}"]`);
     await pill("idle").waitFor();
@@ -105,9 +116,47 @@ test("sidebar shows a non-selected session starting and settling without changin
     await pill("running").waitFor();
     assert.equal(await f.page.locator(idle).count(), 1);
     release.resolve();
-    await pill("idle").waitFor();
+    await pill("done").waitFor();
     assert.equal((await f.complete(background, receipt)).status, "completed");
     await f.page.locator("#messages").getByText("Background done").waitFor({ state: "detached" });
     assert(new URL(f.page.url()).hash.includes(active));
+
+    await row.locator(".management-session-select").click();
+    await pill("idle").waitFor();
+    await parent.locator(".management-session-select").click();
+    await toggle.click();
+    await row.waitFor({ state: "detached" });
+    const ask = await f.send(background, `TOOL ${JSON.stringify({ name: "ask", args: { questions: [
+      { id: "choice", question: "Pick one", options: [{ label: "First" }, { label: "Second" }] },
+    ] } })}`);
+    assert(ask.accepted);
+    const inherited = parent.locator('[data-descendant-state="blocked"] [data-tone="warn"]');
+    await inherited.waitFor();
+    await parent.locator('.management-session-state[data-state="idle"]').waitFor();
+    await toggle.click();
+    await inherited.waitFor({ state: "detached" });
+    await pill("blocked").waitFor();
+    const dot = row.locator('.management-status-dot[data-tone="warn"]');
+    await dot.waitFor();
+    assert(await dot.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return style.getPropertyValue("--badge-bg").trim() === style.getPropertyValue("--pi-warn").trim();
+    }));
+    assert(new URL(f.page.url()).hash.includes(active));
+    await row.locator(".management-session-select").click();
+    const dialog = f.page.locator('[data-prompt-kind="ask"]');
+    await dialog.locator('[data-ask-option="0"]').click();
+    await dialog.locator('[data-action="ask-submit"]').click();
+    await pill("blocked").waitFor({ state: "detached" });
+    await dot.waitFor({ state: "detached" });
+    await pill("idle").waitFor();
+    assert.equal((await f.complete(background, ask)).status, "completed");
+    await parent.locator(".management-session-select").click();
+    const failed = await f.send(background, "Background provider error");
+    assert.equal((await f.complete(background, failed)).status, "failed");
+    await pill("stopped").waitFor();
+    await row.locator('.management-status-dot[data-tone="error"]').waitFor();
+    await toggle.click();
+    await parent.locator('[data-descendant-state="stopped"] [data-tone="error"]').waitFor();
   } finally { release.resolve(); }
 });

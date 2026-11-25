@@ -2,6 +2,7 @@ import type { AgentSessionEvent } from "@earendil-works/pi-coding-agent";
 import type { HostContext } from "../host-types.ts";
 import { cloneEventValue } from "./format-event-value.ts";
 import { sdkExecutionDetails } from "./format-tool-event.ts";
+import { clearFailure } from "../attention/clear-failure.ts";
 import { emit } from "../subscriptions/publish-event.ts";
 
 function unknownPythonOutcome(event: Extract<AgentSessionEvent, { type: "tool_execution_end" }>): boolean {
@@ -21,11 +22,12 @@ export function observeSdkEvents(ctx: HostContext, event: AgentSessionEvent): vo
   }
   // Only the SDK knows whether a failed assistant attempt will be retried.
   // Do not clear operation errors on later successful messages: other invocations may have failed.
-  if (event.type === "agent_end" && !event.willRetry && ctx.active) {
+  if (event.type === "agent_start" || event.type === "auto_retry_start") clearFailure(ctx);
+  if (event.type === "agent_end" && !event.willRetry && !("willContinue" in event && event.willContinue === true)) {
     for (let index = event.messages.length - 1; index >= 0; index--) {
       const message = event.messages[index];
       if (message.role !== "assistant") continue;
-      if (message.stopReason === "error") ctx.active.error = message.errorMessage ?? "SDK operation failed.";
+      if (message.stopReason === "error" && ctx.active) ctx.active.error = message.errorMessage ?? "SDK operation failed.";
       break;
     }
   }

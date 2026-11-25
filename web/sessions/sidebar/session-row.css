@@ -80,8 +80,6 @@
 .management-session-copy > span:not(.mantine-Badge-root, .management-session-title) { color: var(--pi-sidebar-dim); }
 .management-session-derivation { color: var(--pi-accent-strong) !important; }
 .management-session-state { white-space: nowrap; }
-.management-ask-mark { flex: 0 0 auto; color: var(--pi-accent-strong); }
-.management-ask-mark:not([data-ask-mark="self"]) { opacity: .75; }
 .management-tree-node { position: relative; min-width: 0; }
 .management-session-children {
   margin-left: 14px;

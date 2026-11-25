@@ -7,8 +7,6 @@ export function close(ctx: HostContext): Promise<void> {
    clearInterval(ctx.lifecycle.idleTimer);
    for (const watch of ctx.monitoring.kernelWatches.values()) watch.unsubscribe();
    ctx.monitoring.kernelWatches.clear();
-   for (const watch of ctx.asking.askWatches.values()) watch.unsubscribe();
-   ctx.asking.askWatches.clear();
    const unsubscribeMonitor = ctx.monitoring.unsubscribeMonitor;
    unsubscribeMonitor();
       return ctx.lifecycle.closing ??= (async () => {

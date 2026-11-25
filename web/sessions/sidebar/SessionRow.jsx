@@ -5,14 +5,13 @@ import { rowState } from "./labels/row-state.js";
 import { visibleOwner } from "./grouping/visible-owner.js";
 import { sessionLabelById } from "./labels/session-label-by-id.js";
 import { MAX_TREE_DEPTH } from "./sidebar-constants.js";
-import { askingUnder } from "./grouping/asking-under.js";
+import { highestUnder, statusPriority } from "./grouping/highest-under.js";
 import { alertsOf } from "../../monitor/readings/alerts-of.js";
 import { deltaLabel } from "../../monitor/readings/delta-label.js";
 import { CLOSED_STATES } from "./grouping/closed-last.js";
 import { IconChevronRight } from "@tabler/icons-react";
 import StatusDot from "../../design-system/status-dot/StatusDot.jsx";
 import { Badge } from "@mantine/core";
-import { IconMessageQuestion } from "@tabler/icons-react";
 import { MonitorMarks } from "../../monitor/button/MonitorMarks.jsx";
 import { Menu } from "@mantine/core";
 import { ActionIcon } from "@mantine/core";
@@ -43,9 +42,8 @@ export function SessionRow({ sessionRow, targets, rows, onSelected, onSessionAct
   const remoteOwnerLabel = remoteOwner ? sessionLabelById(sessions, remoteOwner) : "";
   const children = depth < MAX_TREE_DEPTH ? tree.childrenOf.get(sessionRow.sessionId) || [] : [];
   const expanded = children.length > 0 && !tree.collapsed.has(sessionRow.sessionId);
-  // An ask waits here, or in a child this folded row hides.
-  const asking = sessionRow.asking === true;
-  const askingBelow = !asking && children.length > 0 && !expanded && askingUnder(sessionRow.sessionId, tree.childrenOf);
+  const descendantState = !expanded && highestUnder(children, tree.childrenOf);
+  const stateBelow = descendantState && statusPriority(descendantState.key) > statusPriority(shownState.key) ? descendantState : null;
   const pendingOwner = text(sessionRow.derivation?.pendingOwner);
   const draggable = Boolean(projectView && drag && !rows.projectMutating);
   const dragging = drag?.draggedSessionId === sessionRow.sessionId;
@@ -72,7 +70,6 @@ export function SessionRow({ sessionRow, targets, rows, onSelected, onSessionAct
       data-status={sessionRow.state}
       data-phase={sessionRow.derivation?.phase}
       data-pending-owner={pendingOwner || undefined}
-      data-asking={asking ? "true" : undefined}
       data-alert={alertsOf(sessionRow).any ? "true" : undefined}
       data-delta={deltaLabel(sessionRow) ?? undefined}
       data-dragging={dragging ? "true" : undefined}
@@ -94,9 +91,9 @@ export function SessionRow({ sessionRow, targets, rows, onSelected, onSessionAct
           <span>{location}</span>
         </span>
         <span className="management-session-aside">
-          {(asking || askingBelow) && <IconMessageQuestion className="management-ask-mark" data-ask-mark={asking ? "self" : "below"} role="img" aria-label="有问题等待回答" size={14} stroke={2} />}
+          {stateBelow && <span data-descendant-state={stateBelow.key} role="img" aria-label={`子会话：${stateBelow.label}`} title={`子会话：${stateBelow.label}`}><StatusDot tone={stateBelow.tone} size={6} /></span>}
           <MonitorMarks sessionRow={sessionRow} />
-          {(!projectView || sessionRow.state === "sleeping" || ["delivered", "compacting"].includes(shownState.key)) && <span className="management-session-state" data-state={shownState.key}>{shownState.label}</span>}
+          {(!projectView || sessionRow.state === "sleeping" || ["delivered", "compacting", "blocked", "stopped", "done"].includes(shownState.key)) && <span className="management-session-state" data-state={shownState.key}>{shownState.label}</span>}
         </span>
       </button>
       {/* Long menu: flip to the roomier side and cap to the viewport, scrolling inside (phones). */}

@@ -20,6 +20,7 @@ export const DEFAULT_SESSION_OPTIONS = Object.freeze({
   idleTimeoutMs: 30 * 60 * 1000,
   /** `ask` tool: after this many ms an unanswered dialog auto-selects each question's recommended option; 0 = wait indefinitely. */
   askTimeoutMs: 0,
+  providerRetryGraceMs: 2500,
   idleCheckIntervalMs: 1000,
   recentOperationsMax: 64,
   inboxMaxMessages: 32,

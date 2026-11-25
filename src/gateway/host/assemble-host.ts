@@ -3,7 +3,6 @@ import { assembleRemotePackages } from "../remote-packages/assemble-remote-packa
 import { assembleModels } from "../models/assemble-models.ts";
 import { assembleWorkspace } from "../workspace/assemble-workspace.ts";
 import { assembleMonitoring } from "../monitoring/assemble-monitoring.ts";
-import { assembleAsking } from "../asking/assemble-asking.ts";
 import { assembleSessionViews } from "../session-views/assemble-session-views.ts";
 import { assembleArchives } from "../archives/assemble-archives.ts";
 import { assembleCapabilities } from "../capabilities/assemble-capabilities.ts";
@@ -46,7 +45,6 @@ export function assembleHost(options: GatewayHostOptions, dependencies: GatewayH
     native: {},
     events: {},
     monitoring: {},
-    asking: {},
     peerMessages: {},
   } as HostContext;
   ctx.methods = {
@@ -54,7 +52,6 @@ export function assembleHost(options: GatewayHostOptions, dependencies: GatewayH
     ...assembleModels(ctx),
     ...assembleWorkspace(ctx),
     ...assembleMonitoring(ctx),
-    ...assembleAsking(ctx),
     ...assembleSessionViews(ctx),
     ...assembleArchives(ctx),
     ...assembleCapabilities(ctx),

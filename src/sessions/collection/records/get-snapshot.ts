@@ -8,6 +8,7 @@ export function snapshot(ctx: CollectionContext): readonly ManagedSessionSnapsho
       target: record.target.id,
       label: record.sessionManager.getSessionName() ?? record.sessionId,
       state: record.state,
+      ...record.session?.host.attention,
       ...(record.session ? { requiresReload: record.session.requiresReload } : {}),
       ...(record.state === "running" && record.session?.host.operationKind === "compact" ? { compacting: true } : {}),
       ...(record.session?.host.startedAt === undefined ? {} : { startedAt: record.session.host.startedAt }),

@@ -1,3 +1,4 @@
+import type { SessionAttention } from "../host/attention/read-attention.ts";
 import type { ConfigurationIssue } from "../../config/execution-target/configuration-issue.ts";
 import type { SessionManager } from "@earendil-works/pi-coding-agent";
 import type { ExecutionTarget } from "../../config/execution-target/target-types.ts";
@@ -18,7 +19,7 @@ export interface SessionRecovery {
   readonly code?: "TARGET_UNREACHABLE";
 }
 
-export interface ManagedSessionSnapshot extends TaskTiming {
+export interface ManagedSessionSnapshot extends TaskTiming, SessionAttention {
   readonly target: string;
   readonly label: string;
   /** Effective Python cwd captured for this session. */
@@ -37,8 +38,6 @@ export interface ManagedSessionSnapshot extends TaskTiming {
   readonly derivation?: DerivedSessionInfo;
   /** Gateway-owned machine/change/alert numbers; attached by the Gateway host, never by the collection. */
   readonly monitor?: SessionMonitor;
-  /** An `ask` card waits for the user in this session's live runtime; attached by the Gateway host. */
-  readonly asking?: true;
 }
 
 export interface SessionLifecycleEvent {

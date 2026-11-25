@@ -1,4 +1,5 @@
 import type { HostContext, SessionHostSnapshot } from "../host-types.ts";
+import { readAttention } from "../attention/read-attention.ts";
 import { snapshotOperation } from "./format-operation.ts";
 
 export function snapshot(ctx: HostContext, includeMessages = true): SessionHostSnapshot {
@@ -7,6 +8,7 @@ export function snapshot(ctx: HostContext, includeMessages = true): SessionHostS
     streamId: ctx.streamId,
     sequence: ctx.sequence,
     state: ctx.state,
+    ...readAttention(ctx),
     ...(ctx.active ? { operation: snapshotOperation(ctx) } : {}),
     messages: includeMessages ? ctx.session.messages : [],
     queuedMessages: { steering: ctx.session.getSteeringMessages(), followUp: ctx.session.getFollowUpMessages() },

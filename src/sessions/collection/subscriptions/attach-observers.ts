@@ -24,17 +24,32 @@ export function attachObservers(ctx: CollectionContext, record: SessionRecord, s
       }
     }
     if (session.host) {
-      record.unsubscribeHost = session.host.subscribe((event) => {
+      const host = session.host;
+      let attention: typeof host.attention;
+      const syncAttention = () => {
+        const next = host.attention;
+        if (attention && next && attention.blocked === next.blocked && attention.asking === next.asking
+          && attention.stopped === next.stopped && attention.retryPending === next.retryPending) return;
+        attention = next;
+        emit(ctx, "session_attention_changed", record, {
+          blocked: next?.blocked === true, asking: next?.asking === true,
+          stopped: next?.stopped === true, retryPending: next?.retryPending === true,
+        });
+      };
+      record.unsubscribeHost = host.subscribe((event) => {
         if (record.tombstoned || ctx.closed) return;
         if (event.type === "session_event" && event.details?.sdkType === "session_info_changed") emit(ctx, "session_renamed", record);
+        if (event.type === "extension_ui" || event.type === "host_closed" || event.details?.attentionChanged === true) syncAttention();
         if (!(event.type === "state_changed" && event.details?.state) && event.type !== "host_closed") return;
-        const state = session.host.state;
+        const state = host.state;
         const next = state === "running" || state === "cancel_requested" ? "running" : state;
         if (record.state !== next) {
+          const completed = record.state === "running" && next === "idle" && event.details?.completed === true;
           record.state = next;
           if (next === "closed") record.tombstoned = true;
-          emit(ctx, `session_${next}`, record, next === "running" && session.host.operationKind === "compact" ? { compacting: true } : undefined);
+          emit(ctx, `session_${next}`, record, completed ? { completed: true } : next === "running" && host.operationKind === "compact" ? { compacting: true } : undefined);
         }
       }).unsubscribe;
+      syncAttention();
     }
   }

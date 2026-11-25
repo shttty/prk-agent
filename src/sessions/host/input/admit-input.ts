@@ -9,6 +9,7 @@ import { describeSessionFailure } from "../../../diagnostics/session-errors/desc
 import { reject } from "./reject-request.ts";
 import { emit } from "../subscriptions/publish-event.ts";
 import { setState } from "../operations/set-host-state.ts";
+import { clearFailure } from "../attention/clear-failure.ts";
 import { settle } from "../operations/settle-operation.ts";
 
 export function admit(ctx: HostContext, request: SubmitMessageRequest, peerPreflight?: PromptOptions["preflightResult"]): RejectedSubmission | (AcceptedSubmission & { invocation: Promise<unknown> }) {
@@ -36,6 +37,7 @@ export function admit(ctx: HostContext, request: SubmitMessageRequest, peerPrefl
   // Acceptance records only this process's SDK invocation; later rejection settles completion as an error.
   emit(ctx, "request_accepted", { requestId: request.requestId, operationId: operation.id, details: { queue: request.queue ?? "initial" } });
   if (!operation.cancelled) setState(ctx, "running");
+  if (request.internalNotification === undefined) clearFailure(ctx);
   void invocation.then(undefined, (error: unknown) => {
     operation.error = describeError(error, ctx.sessionOptions);
     const sessionDetail = describeSessionFailure(ctx.session, operation.error, operation.messageCount, ctx.sessionOptions);

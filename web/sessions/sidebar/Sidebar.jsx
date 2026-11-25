@@ -19,8 +19,8 @@ import { Text } from "@mantine/core";
 import { closedLast } from "./grouping/closed-last.js";
 import { IconChevronRight } from "@tabler/icons-react";
 import { LocalBadge } from "./LocalBadge.jsx";
-import { IconMessageQuestion } from "@tabler/icons-react";
 import { SessionRow } from "./SessionRow.jsx";
+import { highestUnder } from "./grouping/highest-under.js";
 import StatusDot from "../../design-system/status-dot/StatusDot.jsx";
 import { IconSun } from "@tabler/icons-react";
 import { IconMoon } from "@tabler/icons-react";
@@ -143,12 +143,12 @@ export const Sidebar = memo(function Sidebar({ actions, onCollapse, themeToggle,
           const open = openGroups[group.id] !== false;
           if (projectView && !top.length) return null;
           // A folded group says it holds a waiting ask (an open one shows the row itself).
-          const askHere = !open && group.sessions.some((sessionRow) => sessionRow.asking === true);
-          const header = <button type="button" className="management-group-header" onClick={() => toggle(group.id)} aria-expanded={open} data-asking={askHere ? "true" : undefined}>
+          const groupState = !open && highestUnder(group.sessions);
+          const header = <button type="button" className="management-group-header" onClick={() => toggle(group.id)} aria-expanded={open}>
             <IconChevronRight className="management-group-caret" size={14} stroke={2} aria-hidden="true" /><span>{group.name}</span>
             {projectView && <ProjectCreatedDate created={group.created} />}
             {group.target?.local === true && <LocalBadge />}
-            {askHere && <IconMessageQuestion className="management-ask-mark" data-ask-mark="group" role="img" aria-label="有问题等待回答" size={14} stroke={2} />}
+            {groupState && <span data-descendant-state={groupState.key} role="img" aria-label={`组内会话：${groupState.label}`} title={`组内会话：${groupState.label}`}><StatusDot tone={groupState.tone} size={6} /></span>}
             <span className="management-count">{treeSize(top)}</span>
           </button>;
           const droppable = projectView && canDropSessionToGroup(draggedSession, group);

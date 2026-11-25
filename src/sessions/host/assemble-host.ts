@@ -17,6 +17,7 @@ import { subscribe } from "./subscriptions/subscribe.ts";
 import { observeExtensionUi } from "./subscriptions/observe-extension-ui.ts";
 import { observeSdkEvents } from "./sdk-events/observe-sdk-events.ts";
 import { observeKernel } from "./subscriptions/observe-kernel.ts";
+import { readAttention } from "./attention/read-attention.ts";
 import { emit } from "./subscriptions/publish-event.ts";
 
 /** Correlates local request IDs with one transient SDK operation; it never persists or replays input. */
@@ -58,6 +59,7 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
     get operationKind() { return ctx.active?.kind; },
     streamId,
     get state() { return ctx.state; },
+    get attention() { return readAttention(ctx); },
     getSnapshot: (includeMessages) => snapshot(ctx, includeMessages),
     ...(options.extensionUi ? { extensionUiAction: (args: Record<string, unknown>) => extensionUiAction(ctx, args) } : {}),
     submit: (request) => submit(ctx, request),

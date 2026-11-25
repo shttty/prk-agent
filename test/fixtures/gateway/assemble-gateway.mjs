@@ -14,7 +14,7 @@ import { startWebServer } from "../../../src/http/listener/start-listener.ts";
 import { prepareArtifacts } from "./prepare-artifacts.mjs";
 import { until } from "../until.mjs";
 
-export async function gatewayFixture(t, { answer, remote = false, web = false, rate = 100_000, config = {} } = {}) {
+export async function gatewayFixture(t, { answer, remote = false, web = false, rate = 100_000, config = {}, settings = {} } = {}) {
   const python = process.env.PI_TEST_PYTHON;
   assert(python && isAbsolute(python), "PI_TEST_PYTHON must be an absolute interpreter path");
   const root = await mkdtemp(join(tmpdir(), "g-"));
@@ -33,7 +33,7 @@ export async function gatewayFixture(t, { answer, remote = false, web = false, r
   const instances = [{ id: target, label: "Owned fixture", cwd, python, ...(remote ? { sshCommand: "exec /bin/sh" } : { local: true }) }];
   await Promise.all([
     writeFile(join(root, "instances.toml"), stringify({ instances }), { mode: 0o600 }),
-    writeFile(join(agent, "settings.json"), JSON.stringify({ compaction: { enabled: false, keepRecentTokens: 32 }, retry: { enabled: false } })),
+    writeFile(join(agent, "settings.json"), JSON.stringify({ compaction: { enabled: false, keepRecentTokens: 32 }, retry: { enabled: false }, ...settings })),
   ]);
   const modelRuntime = await ModelRuntime.create({ authPath: join(agent, "auth.json"), modelsPath: null, refreshOnCreate: false, allowModelNetwork: false });
   const provider = fauxProvider({ provider: "verification", models: [{ id: "faux", reasoning: true, input: ["text", "image"] }], tokensPerSecond: rate });

@@ -56,6 +56,10 @@ Browser selection fragment：`/#sessionId=SESSION_ID`。
 
 工作台 SSE 的 `collection` 事件以 `sessionId` 和类型更新非选中会话的行状态：`session_starting` → `starting`、`session_running` → `running`、`session_idle`／`session_awake` → `idle`、`session_sleeping` → `sleeping`、`session_closed` → `closed`。这些事件不携带完整会话行或消息，客户端不另开该会话的 SSE，也不重取工作台（[WEB-51](../contract.md)）。
 
+所选及非选中行均通过 `session_attention_changed` 更新关注状态：`details:{blocked:boolean,asking:boolean,stopped:boolean,retryPending:boolean}`。首帧会话快照和工作台行省略为假的标记。`blocked` 表示[等待用户操作](extension-ui.md#waiting-for-user-input)，不改变执行 `state`。模型轮次失败时，`retryPending` 表示可重试的错误正在等待重试宽限；宽限结束仍未恢复即换成 `stopped`。不可重试错误直接 `stopped`，取消及已知继续不进入 `stopped`；下次接受用户输入或 SDK 开始运行清除。宽限只改变展示，不延迟完成应答或拦截新输入。
+
+`session_idle.details.completed:true` 只标识一次正常完成的运行。浏览器为非当前会话显示「有新结果」，选中后清除；未读只在本页面保存，不随页面刷新恢复。侧栏按等待操作、出错停止、运行（含宽限）、有新结果、空闲或休眠排序显示关注状态；折叠父行和分组保留最高的提示。
+
 列表行为 closed 的会话只读一次 `GET /api/sessions/:sessionId/history`：其 `session` 是该会话当前的行，仍 closed 则显示只读历史、不订阅；已被其他观察端恢复则用这一行更新列表并改为订阅，不再先 GET 整份 `workbench` 确认状态。
 
 `POST /api/sessions` 的 `CreatedSession` 就是新会话的列表行与底稿：网页用它选中新会话后只开该会话的 SSE 和读取 native 目录，不再 GET 快照、`workbench` 或角色；创建失败时也不重取列表，Gateway 若实际建成会话，其 `session_derivation_changed` 行事件会带来该行。

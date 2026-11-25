@@ -21,7 +21,6 @@ import type { GatewayCollectionEvent } from "../instance-environments/environmen
 import { openWorkspace } from "../workspace/open-workspace.ts";
 import { openTargetChannels } from "./resources/open-target-channels.ts";
 import { openMonitor } from "../monitoring/open-monitor.ts";
-import type { HostedExtensionUI } from "../../sessions/extension-ui/ui-types.ts";
 import { observeCollection } from "../collection-events/observe-collection.ts";
 import { openDerivation } from "../derivation/open-derivation.ts";
 import { openPeerMessages } from "../peer-messages/open-peer-messages.ts";
@@ -72,8 +71,6 @@ export async function createGatewayHost(options: GatewayHostOptions, dependencie
   openMonitor(ctx);
   ctx.monitoring.kernelWatches = new Map<string, { readonly kernel: object; unsubscribe(): void }>();
   ctx.monitoring.monitorQueued = false;
-  ctx.asking.askWatches = new Map<string, { readonly ui: HostedExtensionUI; asking: boolean; unsubscribe(): void }>();
-  ctx.asking.askQueued = false;
   observeCollection(ctx);
   openDerivation(ctx);
   openPeerMessages(ctx);

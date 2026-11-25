@@ -1,5 +1,5 @@
 import type { AgentSession, AutocompleteProviderFactory, ExtensionUIContext, ReadonlyFooterDataProvider, WorkingIndicatorOptions, ToolRenderers, Theme } from "@earendil-works/pi-coding-agent";
-import type { AutocompleteProvider, Component, SelectItem, SettingItem, OverlayOptions, OverlayHandle, TUI } from "@earendil-works/pi-tui";
+import type { AutocompleteProvider, Component, SelectItem, SettingItem, OverlayOptions, TUI } from "@earendil-works/pi-tui";
 import type { AskOutcome, AskQuestion } from "../../plugins/ask/tools/ask-types.ts";
 
 export type UiState = {
@@ -91,6 +91,8 @@ export type HostedExtensionUiSnapshot = {
   }[];
 };
 
+export type UserWait = { readonly blocked?: true; readonly asking?: true };
+
 export interface HostedExtensionUI {
   readonly context: ExtensionUIContext;
   readonly snapshot: () => HostedExtensionUiSnapshot;
@@ -99,7 +101,7 @@ export interface HostedExtensionUI {
   readonly action: (args: Record<string, unknown>) => Promise<unknown>;
   /** Raise an `ask` card and wait; undefined = cancelled (closed, aborted or the turn stopped). A timeout answers by itself. */
   readonly ask: (questions: readonly AskQuestion[], options: { signal?: AbortSignal; timeoutMs: number }) => Promise<AskOutcome | undefined>;
-  readonly asking: () => boolean;
+  readonly userWait: () => UserWait;
   /** Latest observed tool payload until SDK agent_end; persisted messages always take precedence. */
   readonly toolExecution: (toolCallId: string) => ToolExecutionSnapshot | undefined;
   readonly cancel: (scope?: "operation") => void;
@@ -168,7 +170,7 @@ export type HostedComponent = Component & { dispose?(): void };
 
 export type HostedCustomFactory<T> = (tui: TUI, theme: Theme, keybindings: HostedKeybindingsManager, done: (result: T) => void) => HostedComponent | Promise<HostedComponent>;
 
-export type HostedCustomOptions = { overlay?: boolean; overlayOptions?: OverlayOptions | (() => OverlayOptions); onHandle?: (handle: OverlayHandle) => void };
+export type HostedCustomOptions = Parameters<ExtensionUIContext["custom"]>[1];
 
 export type RuntimeInput = Component & { getValue(): string; setValue(value: string): void; onSubmit?: (value: string) => void; onEscape?: () => void };
 
