@@ -1,0 +1,39 @@
+.pi-kernel-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.pi-kernel-thumbnail {
+  display: grid;
+  place-items: center;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  inline-size: min(100%, 176px);
+  block-size: 112px;
+  overflow: hidden;
+  border: 1px solid var(--pi-line);
+  border-radius: var(--pi-radius-sm);
+  padding: 0;
+  background: var(--pi-surface-2);
+  color: var(--pi-muted);
+  font: inherit;
+  font-size: .78rem;
+}
+
+button.pi-kernel-thumbnail { cursor: zoom-in; }
+button.pi-kernel-thumbnail:hover { border-color: var(--pi-accent); }
+
+.pi-kernel-thumbnail img {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
+}
+
+.pi-kernel-original {
+  display: block;
+  max-inline-size: calc(100vw - 4rem);
+  max-block-size: 80vh;
+  object-fit: contain;
+}

@@ -6,6 +6,7 @@ export interface ToolContentPreview {
   readonly bytes: number;
   readonly lines: number;
   readonly version: string;
+  readonly imageCount?: number;
 }
 export interface ToolContent {
   readonly sessionId: string;

@@ -114,6 +114,7 @@ export function ToolRow({ toolCallId, toolName, title, argsText, result, artifac
       <Stack gap="xs" className="pi-tool-body">
         {kernelCell ? <KernelCellBody key={`${context?.streamId}:${kernelCell.kernelId}:${kernelCell.cellId}:${kernelCell.toolCallId}`} cell={{ ...kernelCell, elapsedMs }} code={code} active={open} inputDeferred={metadata?.inputLoaded ? undefined : metadata?.inputPreview} loadInput={loadContent} /> : <ToolBody
           kind={kind}
+          showResultImages={toolName !== "kernel_code"}
           args={toolArgs}
           code={code}
           output={output}

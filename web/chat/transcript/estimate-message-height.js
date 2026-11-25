@@ -3,7 +3,7 @@ import { turnGrouping } from "./turns/turn-grouping.js";
 
 const LINE_HEIGHT = 27;
 
-export function estimateMessageHeight(message, width, display) {
+export function estimateMessageHeight(message, width, display, imageCounts) {
   if (!message) return 56;
   const { role, content, metadata } = message;
   if (metadata?.isOptimistic) return 24;
@@ -23,5 +23,11 @@ export function estimateMessageHeight(message, width, display) {
     return 54 + Math.min(textHeight, 240) + attachments + (custom?.references?.length ? 26 : 0);
   }
   const foldHeight = groups.filter(({ groupKey }) => groupKey !== undefined).length * 38;
-  return Math.max(24, foldHeight + textHeight + (text ? 36 : 0) + (visibility.showText ? 0 : 24));
+  // Thumbnail grid: 176px wide, 112px high, 8px row/column gap, 12px bottom margin.
+  const perRow = Math.max(1, Math.floor((width + 8) / 184));
+  const imageHeight = display?.showImages === false ? 0 : content.reduce((height, part) => {
+    const count = part.type === "tool-call" && part.toolName === "kernel_code" && (imageCounts?.get(part.toolCallId) || part.metadata?.outputPreview?.imageCount);
+    return count ? height + Math.ceil(count / perRow) * 120 + 4 : height;
+  }, 0);
+  return Math.max(24, foldHeight + imageHeight + textHeight + (text ? 36 : 0) + (visibility.showText ? 0 : 24));
 }

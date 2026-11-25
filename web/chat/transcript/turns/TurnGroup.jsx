@@ -1,4 +1,5 @@
 import { useContext } from "react";
+import { KernelImageGallery } from "../tool-calls/kernel-cell/KernelImageGallery.jsx";
 import { TurnProcess } from "./TurnProcess.jsx";
 import { TurnContext } from "./turn-context.js";
 import { SpawnSummary } from "../spawn/SpawnSummary.jsx";
@@ -10,5 +11,9 @@ export function TurnGroup({ groupKey, indices, children }) {
   const firstSpawn = message.content.findIndex((part) => part.type === "tool-call" && part.toolName === SPAWN_TOOL);
   // Show one turn-wide child card outside the fold, beside the first spawn.
   return <><TurnProcess groupKey={groupKey} indices={indices}>{children}</TurnProcess>
+    {indices.map((index) => {
+      const part = message.content[index];
+      return part?.type === "tool-call" && part.toolName === "kernel_code" ? <KernelImageGallery key={part.toolCallId} part={part} /> : null;
+    })}
     {indices.includes(firstSpawn) ? <SpawnSummary /> : null}</>;
 }

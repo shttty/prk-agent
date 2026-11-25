@@ -1,6 +1,7 @@
-import { useContext, useCallback, useImperativeHandle, useLayoutEffect, useRef, useState } from "react";
+import { useContext, useCallback, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ThreadPrimitive, unstable_useThreadMessageIds, useAui, useAuiState } from "@assistant-ui/react";
 import { defaultRangeExtractor, useVirtualizer } from "@tanstack/react-virtual";
+import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import { PresentationContext } from "./presentation-context.js";
 import { MessageView } from "./MessageView.jsx";
 import { HistoryPagination } from "./HistoryPagination.jsx";
@@ -19,6 +20,8 @@ const COMPONENTS = { Message: TranscriptMessage };
 
 export function TranscriptList({ ref, viewportRef, history, following, mayFollow }) {
   const display = useContext(PresentationContext)?.transcriptDisplay;
+  const cells = useWorkbench((state) => state.session.snapshot?.kernelCells);
+  const imageCounts = useMemo(() => new Map(cells?.filter(({ imageCount }) => imageCount > 0).map(({ toolCallId, imageCount }) => [toolCallId, imageCount])), [cells]);
   const ids = unstable_useThreadMessageIds();
   const aui = useAui();
   const [prepend, setPrepend] = useState(null);
@@ -41,14 +44,14 @@ export function TranscriptList({ ref, viewportRef, history, following, mayFollow
     estimateSize: (index) => {
       if (pageRows && index === 0) return 22;
       const measured = heights.current.get(getItemKey(index));
-      if (measured?.width === geometry.width && measured.display === display) return measured.height;
-      return estimateMessageHeight(aui.thread().getState().messages[index - pageRows], geometry.width, display);
+      if (measured?.width === geometry.width && measured.display === display && measured.imageCounts === imageCounts) return measured.height;
+      return estimateMessageHeight(aui.thread().getState().messages[index - pageRows], geometry.width, display, imageCounts);
     },
     measureElement: (node, entry, instance) => {
       const rect = entry?.borderBoxSize?.[0];
       const height = rect?.blockSize ?? node.getBoundingClientRect().height;
       const width = Math.round(rect?.inlineSize ?? node.getBoundingClientRect().width);
-      heights.current.set(getItemKey(instance.indexFromElement(node)), { width, height, display });
+      heights.current.set(getItemKey(instance.indexFromElement(node)), { width, height, display, imageCounts });
       return height;
     },
     scrollMargin: geometry.margin, gap: geometry.gap, overscan: 4,

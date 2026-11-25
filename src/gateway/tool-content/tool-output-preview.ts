@@ -5,6 +5,8 @@ import { contentText } from "./previews/content-text.ts";
 import { outputText } from "./previews/preview-output.ts";
 
 export function toolOutputPreview(result: unknown, options: Options): ToolContentPreview | undefined {
-  const hasImage = object(result) && Array.isArray(result.content) && result.content.some((part) => object(part) && part.type === "image");
-  return hasImage ? preview(result, contentText(result), options, true) : preview(result, outputText(result), options);
+  const imageCount = object(result) && Array.isArray(result.content)
+    ? result.content.filter((part) => object(part) && part.type === "image").length : 0;
+  const descriptor = preview(result, imageCount ? contentText(result) : outputText(result), options, imageCount > 0);
+  return descriptor && imageCount ? { ...descriptor, imageCount } : descriptor;
 }

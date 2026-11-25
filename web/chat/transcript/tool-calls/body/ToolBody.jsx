@@ -18,7 +18,7 @@ export const NO_INPUT = "（无输入）";
  * `outputText` the same with the waiting/unknown placeholder; `result` the result message (carries `nestedCalls`).
  * `active` is the row's open state: syntax highlighting waits for it.
  */
-export function ToolBody({ kind, args, code, output, outputText, result, toolState, parsedDiff, extensionTool, headerOnlyCall, active, contentMetadata, loadContent }) {
+export function ToolBody({ kind, showResultImages, args, code, output, outputText, result, toolState, parsedDiff, extensionTool, headerOnlyCall, active, contentMetadata, loadContent }) {
   const inputDeferred = contentMetadata?.inputLoaded ? undefined : contentMetadata?.inputPreview;
   const outputDeferred = contentMetadata?.outputLoaded ? undefined : contentMetadata?.outputPreview;
   const inputOptions = { deferred: inputDeferred, loadContent, ...(contentMetadata?.inputLoaded ? { limit: Infinity } : {}) };
@@ -75,7 +75,7 @@ export function ToolBody({ kind, args, code, output, outputText, result, toolSta
         {input ? <div className="pi-io-rule" aria-hidden="true"><span>Output</span></div> : null}
         {outputNode}
       </> : null}
-      <ResultImages result={result} />
+      {showResultImages ? <ResultImages result={result} /> : null}
       {note ? <div className="pi-io-note" data-kind="write-result">{note}</div> : null}
       {meta ? <div className="pi-io-note" data-kind="meta" data-timeout-seconds={Number(args.timeout)}>{meta}</div> : null}
       {nestedNode}

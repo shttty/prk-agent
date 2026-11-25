@@ -6,6 +6,7 @@ import { fauxAssistantMessage } from "@earendil-works/pi-ai";
 import { browserFixture } from "../../fixtures/browser/open-workbench.mjs";
 import { text } from "../../fixtures/gateway/assemble-gateway.mjs";
 import { chartPng } from "./chart-png.mjs";
+import { verifyFoldedKernelImages } from "./verify-folded-kernel-images.mjs";
 import { until } from "../../fixtures/until.mjs";
 
 const idle = "#composer-form:not([data-busy])";
@@ -77,6 +78,7 @@ test("send an image with no text and see it in the real conversation", async (t)
   let received;
   const external = "https://image.invalid/tracker.png";
   const f = await browserFixture(t, { answer(context) {
+    if (context.messages.at(-1).role !== "user") return fauxAssistantMessage("Cell completed.");
     received = context.messages.at(-1);
     return fauxAssistantMessage(`![Target chart](./reply%20chart.png)\n\n![External chart](${external})\n\n![Missing chart](./missing.png)`);
   } });
@@ -122,6 +124,8 @@ test("send an image with no text and see it in the real conversation", async (t)
   await f.page.locator("#open-settings").click();
   await f.page.locator("#open-visual-effects").click();
   assert.equal(await f.page.locator("#setting-show-message-images").isChecked(), true);
+  await f.page.locator("#close-settings").click();
+  await verifyFoldedKernelImages(f, id);
 });
 
 test("sidebar shows a background child running, then waiting even under its folded parent", async (t) => {
