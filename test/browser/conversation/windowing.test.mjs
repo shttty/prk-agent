@@ -57,7 +57,7 @@ test("long transcript preserves prepend and restore anchors, reveals off-window 
   assert(Math.abs(offsets.at(-1) - offsets[0]) <= 2, JSON.stringify(offsets));
   assert(offsets.slice(1).every((offset, index) => Math.abs(offset - offsets[index]) <= 8), JSON.stringify(offsets));
 
-  const sessionButton = page.locator(`[data-session-id="${id}"] .management-session-select`);
+  const sessionButton = page.locator(`[data-session-list] [data-session-id="${id}"] [data-action="select-session"]`);
   await sessionButton.focus();
   assert(await sessionButton.evaluate((button) => document.activeElement === button));
   await page.keyboard.press("Control+f");
@@ -76,9 +76,9 @@ test("long transcript preserves prepend and restore anchors, reveals off-window 
   const offset = () => row("32").evaluate((node) => node.getBoundingClientRect().top - document.querySelector("#transcript").getBoundingClientRect().top);
   const saved = await offset();
   const other = await f.create("Other conversation");
-  await page.locator(`[data-session-id="${other}"]`).first().click();
+  await page.locator(`[data-session-list] [data-session-id="${other}"]`).first().click();
   await page.waitForFunction((other) => location.hash.includes(other), other);
-  await page.locator(`[data-session-id="${id}"]`).first().click();
+  await page.locator(`[data-session-list] [data-session-id="${id}"]`).first().click();
   await page.waitForFunction((id) => location.hash.includes(id), id);
   await row("32").waitFor();
   assert(Math.abs(await offset() - saved) <= 2, "session switch restores the saved message offset");

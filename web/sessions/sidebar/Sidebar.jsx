@@ -17,8 +17,6 @@ import { IconServer2 } from "@tabler/icons-react";
 import { SegmentedControl } from "@mantine/core";
 import { Text } from "@mantine/core";
 import { closedLast } from "./grouping/closed-last.js";
-import { IconChevronRight } from "@tabler/icons-react";
-import { LocalBadge } from "./LocalBadge.jsx";
 import { SessionRow } from "./SessionRow.jsx";
 import { highestUnder } from "./grouping/highest-under.js";
 import StatusDot from "../../design-system/status-dot/StatusDot.jsx";
@@ -26,6 +24,7 @@ import { IconSun } from "@tabler/icons-react";
 import { IconMoon } from "@tabler/icons-react";
 import { IconSettings } from "@tabler/icons-react";
 import "./sidebar.css";
+import "./project-tree.css";
 import { UnreadableRow } from "../unreadable/UnreadableRow.jsx";
 import { UnreadableReason } from "../unreadable/UnreadableReason.jsx";
 import { unreadableItem } from "../unreadable/unreadable-item.js";
@@ -33,7 +32,7 @@ import { unknownLocationGroup } from "../unreadable/unknown-location-group.js";
 import { useThemeToggle } from "../../design-system/theme/use-theme-toggle.js";
 import { InstanceGroupActions } from "./InstanceGroupActions.jsx";
 import { ProjectGroupActions } from "./ProjectGroupActions.jsx";
-import { ProjectCreatedDate } from "./ProjectCreatedDate.jsx";
+import { GroupHeader } from "./GroupHeader.jsx";
 /** Session list region: subscribes to the fields below only, so stream deltas, typing and telemetry leave it alone. */
 export const Sidebar = memo(function Sidebar({ actions, onCollapse, themeToggle, onOpen, onSettings, onSelected, onSessionAction }) {
   const toggleTheme = useThemeToggle();
@@ -99,6 +98,8 @@ export const Sidebar = memo(function Sidebar({ actions, onCollapse, themeToggle,
   const groups = useMemo(() => {
     const items = [...[...sessions.values()].reverse(), ...unreadableRows];
     const placed = projectView ? projectGroups(items) : instanceGroups(items, targetList);
+    // Ungrouped rows sit above project headings in this view only; archive grouping is unchanged.
+    if (projectView) placed.sort((a, b) => Number(b.id === "project:ungrouped") - Number(a.id === "project:ungrouped"));
     return unknownRows.length ? [...placed, unknownLocationGroup(unknownRows)] : placed;
   }, [targetList, sessions, unreadableRows, unknownRows, projectView]);
   const ungroupedPresent = projectView && groups.some((group) => group.id === "project:ungrouped" && closedLast(roots(group.sessions)).length > 0);
@@ -136,46 +137,8 @@ export const Sidebar = memo(function Sidebar({ actions, onCollapse, themeToggle,
         <span>{viewMode === "projects" ? "项目与会话" : "实例与会话"}</span>
         <span className="management-count">{sessionCount}</span>
       </div>
-      <div className="management-sidebar-list" aria-label={viewMode === "projects" ? "按项目分组的会话" : "按实例分组的会话"}>
+      <div className="management-sidebar-list" data-session-list="" aria-label={viewMode === "projects" ? "按项目分组的会话" : "按实例分组的会话"}>
         {!groups.length && <Text size="sm" c="dimmed" px="xs" py="md">{service === "error" ? "无法读取会话列表。" : "暂无会话。"}</Text>}
-        {groups.map((group) => {
-          const top = closedLast(roots(group.sessions));
-          const open = openGroups[group.id] !== false;
-          if (projectView && !top.length) return null;
-          // A folded group says it holds a waiting ask (an open one shows the row itself).
-          const groupState = !open && highestUnder(group.sessions);
-          const header = <button type="button" className="management-group-header" onClick={() => toggle(group.id)} aria-expanded={open}>
-            <IconChevronRight className="management-group-caret" size={14} stroke={2} aria-hidden="true" /><span>{group.name}</span>
-            {projectView && <ProjectCreatedDate created={group.created} />}
-            {group.target?.local === true && <LocalBadge />}
-            {groupState && <span data-descendant-state={groupState.key} role="img" aria-label={`组内会话：${groupState.label}`} title={`组内会话：${groupState.label}`}><StatusDot tone={groupState.tone} size={6} /></span>}
-            <span className="management-count">{treeSize(top)}</span>
-          </button>;
-          const droppable = projectView && canDropSessionToGroup(draggedSession, group);
-          const dropActive = droppable && dropGroupId === group.id;
-          return (
-            <section
-              className="management-group"
-              key={group.id}
-              data-group={group.id}
-              data-droppable={droppable ? "true" : undefined}
-              data-drop-target={dropActive ? "true" : undefined}
-              onDragOver={droppable ? (event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; if (dropGroupId !== group.id) setDropGroupId(group.id); } : undefined}
-              onDragLeave={droppable ? (event) => { if (!event.currentTarget.contains(event.relatedTarget)) setDropGroupId((current) => (current === group.id ? null : current)); } : undefined}
-              onDrop={droppable ? (event) => finishDrop(group, event) : undefined}
-            >
-              <div className="management-group-header-row">
-                {header}
-                {projectView ? <ProjectGroupActions group={group} creating={creating} onOpen={onOpen} /> : <InstanceGroupActions group={group} actions={actions} creating={creating} onOpen={onOpen} />}
-              </div>
-              {open && <div className="management-group-children">
-                {top.map((sessionRow) => sessionRow.unreadable
-                  ? <UnreadableRow key={sessionRow.key} item={sessionRow} targets={targets} onOpen={setViewingUnreadable} />
-                  : <SessionRow key={sessionRow.sessionId} sessionRow={sessionRow} targets={targets} rows={rowContext} onSelected={onSelected} onSessionAction={onSessionAction} projectView={projectView} tree={tree} drag={projectView ? { draggedSessionId, onStart: startDrag, onEnd: clearDrag } : null} />)}
-              </div>}
-            </section>
-          );
-        })}
         {showUngroupedDrop ? (
           <section
             className="management-group management-drop-ungrouped"
@@ -189,6 +152,39 @@ export const Sidebar = memo(function Sidebar({ actions, onCollapse, themeToggle,
             <div className="management-drop-zone-label">拖到此处移出项目（未归类）</div>
           </section>
         ) : null}
+        {groups.map((group) => {
+          const top = closedLast(roots(group.sessions));
+          if (projectView && !top.length) return null;
+          const ungrouped = projectView && group.id === "project:ungrouped";
+          const project = projectView ? projectPayloadForGroup(group) : undefined;
+          const open = ungrouped || openGroups[group.id] !== false;
+          const groupState = !open && highestUnder(group.sessions);
+          const droppable = projectView && canDropSessionToGroup(draggedSession, group);
+          const dropActive = droppable && dropGroupId === group.id;
+          return (
+            <section
+              className="management-group"
+              key={group.id}
+              data-group={group.id}
+              data-group-kind={ungrouped ? "ungrouped" : project ? "project" : undefined}
+              data-droppable={droppable ? "true" : undefined}
+              data-drop-target={dropActive ? "true" : undefined}
+              onDragOver={droppable ? (event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; if (dropGroupId !== group.id) setDropGroupId(group.id); } : undefined}
+              onDragLeave={droppable ? (event) => { if (!event.currentTarget.contains(event.relatedTarget)) setDropGroupId((current) => (current === group.id ? null : current)); } : undefined}
+              onDrop={droppable ? (event) => finishDrop(group, event) : undefined}
+            >
+              {!ungrouped && <div className="management-group-header-row">
+                <GroupHeader group={group} project={project} open={open} onToggle={() => toggle(group.id)} count={project && open ? undefined : treeSize(top)} state={groupState} />
+                {project ? <ProjectGroupActions project={project} creating={creating} onOpen={onOpen} /> : !projectView && <InstanceGroupActions group={group} actions={actions} creating={creating} onOpen={onOpen} />}
+              </div>}
+              {open && <div className={`management-group-children${project ? " management-tree-branch" : ""}`}>
+                {top.map((sessionRow) => sessionRow.unreadable
+                  ? <UnreadableRow key={sessionRow.key} item={sessionRow} targets={targets} onOpen={setViewingUnreadable} />
+                  : <SessionRow key={sessionRow.sessionId} sessionRow={sessionRow} targets={targets} rows={rowContext} onSelected={onSelected} onSessionAction={onSessionAction} projectView={projectView} tree={tree} drag={projectView ? { draggedSessionId, onStart: startDrag, onEnd: clearDrag } : null} />)}
+              </div>}
+            </section>
+          );
+        })}
       </div>
       <div className="management-sidebar-footer">
         <StatusDot className="management-connection-dot" tone={connectionTone} size={7} />

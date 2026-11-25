@@ -2,11 +2,11 @@
   position: relative;
   min-width: 0;
   margin: 1px 0;
-  border-radius: 10px;
+  border-radius: calc(var(--pi-radius-sm) / 2);
   transition: background var(--pi-motion-fast) ease;
 }
 .management-session-row:hover,
-.management-session-row:focus-within { background: var(--pi-hover); }
+.management-session-row:focus-within { background: color-mix(in srgb, var(--pi-hover) 45%, transparent); }
 .management-session-row.is-selected { background: var(--pi-sidebar-selected); }
 .management-session-row[draggable="true"] .management-session-select { cursor: grab; }
 .management-session-row.is-dragging { opacity: .48; }
@@ -16,11 +16,12 @@
 .management-session-select {
   width: 100%;
   min-width: 0;
+  min-height: 28px;
   display: grid;
   grid-template-columns: 7px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 10px;
-  padding: 7px 38px 7px 12px;
+  gap: 8px;
+  padding: 4px 38px 4px 12px;
   border: 0;
   border-radius: inherit;
   background: transparent;
@@ -47,8 +48,6 @@
 .management-session-copy {
   min-width: 0;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  column-gap: 6px;
   row-gap: 1px;
 }
 .management-session-copy strong,
@@ -58,14 +57,25 @@
   white-space: nowrap;
 }
 .management-session-title {
-  grid-column: 1 / -1;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   min-width: 0;
 }
 .management-session-title > .pi-role-badges,
 .management-session-title > .mantine-Badge-root { flex: 0 0 auto; }
+.management-session-title .pi-role-badge,
+.management-session-title .management-session-capability {
+  height: 14px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--pi-sidebar-dim);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
 .management-session-copy strong {
   min-width: 0;
   color: var(--pi-ink);
@@ -81,25 +91,23 @@
 .management-session-derivation { color: var(--pi-accent-strong) !important; }
 .management-session-state { white-space: nowrap; }
 .management-tree-node { position: relative; min-width: 0; }
-.management-session-children {
-  margin-left: 14px;
-  padding-left: 6px;
-  border-left: 1px solid var(--pi-line);
+.management-tree-branch {
+  margin-inline-start: 6px;
+  padding-inline-start: 8px;
+  border-inline-start: 1px solid var(--pi-line);
 }
-/* A child whose manager sits under another instance: indented like a nested child, on the same guide line. */
-.management-tree-node.is-remote-child { margin-left: 14px; padding-left: 6px; border-left: 1px solid var(--pi-line); }
 .management-tree-toggle {
   position: absolute;
   z-index: var(--pi-z-raised);
   top: 0;
   bottom: 0;
   left: 0;
-  width: 12px;
-  height: 18px;
+  width: 28px;
+  height: 28px;
   margin-block: auto;
   display: grid;
   place-items: center;
-  padding: 0;
+  padding: 0 16px 0 0;
   border: 0;
   border-radius: var(--pi-radius-sm);
   background: transparent;

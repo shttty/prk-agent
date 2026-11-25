@@ -1,0 +1,27 @@
+[data-group-kind="project"] .management-group-header-row {
+  border-radius: var(--pi-radius-sm);
+}
+[data-group-kind="project"] .management-group-header-row:hover,
+[data-group-kind="project"] .management-group-header-row:focus-within { background: var(--pi-hover); }
+[data-group-kind="project"] .management-group-header {
+  min-height: 28px;
+  gap: 6px;
+  padding: 5px 0 5px 5px;
+  background: none;
+  color: var(--pi-ink);
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: 0;
+}
+.management-project-folder { flex: none; color: var(--pi-muted); }
+[data-group-kind="project"] .management-group-name { flex: 0 1 auto; }
+[data-group-kind="project"] .management-group-header > [data-descendant-state] { flex: none; }
+@media (min-width: 48.01em) and (hover: hover) and (pointer: fine) {
+  [data-group-kind="project"] .management-group-header-row:not(:hover):not(:focus-within) .mantine-ActionIcon-root:not([aria-expanded="true"]) {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+@media (max-width: 48em), (hover: none) {
+  [data-group-kind="project"] .management-group-header { min-height: 32px; }
+}

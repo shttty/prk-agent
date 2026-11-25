@@ -61,7 +61,7 @@ export function SessionRow({ sessionRow, targets, rows, onSelected, onSessionAct
     drag.onEnd();
   } : undefined;
   return (
-    <div className={`management-tree-node${temporary ? " is-temporary" : ""}${remoteOwnerLabel ? " is-remote-child" : ""}`}>
+    <div className={`management-tree-node${temporary ? " is-temporary" : ""}${remoteOwnerLabel ? " management-tree-branch" : ""}`}>
     <div
       draggable={draggable}
       onDragStart={onDragStart}
@@ -76,18 +76,18 @@ export function SessionRow({ sessionRow, targets, rows, onSelected, onSessionAct
       aria-current={selected ? "true" : undefined}
       className={`management-session-row${selected ? " is-selected" : ""}${CLOSED_STATES.has(sessionRow.state) ? " is-closed" : ""}${temporary ? " is-temporary" : ""}${dragging ? " is-dragging" : ""}`}
     >
-      {children.length > 0 && <button type="button" className="management-tree-toggle" aria-expanded={expanded} aria-label={`${expanded ? "折叠" : "展开"}${sessionLabel}的子会话`} onClick={() => tree.toggle(sessionRow.sessionId)}>
+      {children.length > 0 && <button type="button" className="management-tree-toggle" data-action="toggle-session-children" aria-expanded={expanded} aria-label={`${expanded ? "折叠" : "展开"}${sessionLabel}的子会话`} onClick={() => tree.toggle(sessionRow.sessionId)}>
         <IconChevronRight size={12} stroke={2.2} aria-hidden="true" />
       </button>}
-      <button type="button" className="management-session-select" onClick={() => onSelected(sessionRow.sessionId)} aria-current={selected ? "true" : undefined} title={[cwd ? `工作目录：${cwd}` : "", remoteOwnerLabel ? `由 ${remoteOwnerLabel} 管理` : "", pendingOwner ? `待 ${sessionLabelById(sessions, pendingOwner)} 接收` : "", !cwd && !remoteOwnerLabel ? derivation : ""].filter(Boolean).join("\n")}>
-        <StatusDot className="management-status-dot" tone={shownState.tone} size={temporary ? 5 : 7} />
+      <button type="button" className="management-session-select" data-action="select-session" onClick={() => onSelected(sessionRow.sessionId)} aria-current={selected ? "true" : undefined} title={[cwd ? `工作目录：${cwd}` : "", remoteOwnerLabel ? `由 ${remoteOwnerLabel} 管理` : "", pendingOwner ? `待 ${sessionLabelById(sessions, pendingOwner)} 接收` : "", !cwd && !remoteOwnerLabel ? derivation : ""].filter(Boolean).join("\n")}>
+        <StatusDot className="management-status-dot" data-session-dot="" tone={shownState.tone} size={temporary ? 5 : 7} />
         <span className="management-session-copy">
           <span className="management-session-title">
             <strong>{sessionLabel}</strong>
             <RoleBadges {...roles} />
+            {child ? <Badge component="span" variant="outline" color="gray" size="xs" tt="none" radius="sm" className="management-session-capability" data-kind="child">子会话</Badge> : null}
             {pendingOwner ? <Badge component="span" variant="light" color="gray" size="xs" tt="none" radius="sm" className="management-session-pending" data-pending-owner={pendingOwner}>待接收</Badge> : null}
           </span>
-          {child ? <Badge component="span" variant="outline" color="gray" size="xs" tt="none" radius="sm" className="management-session-capability" data-kind="child">子会话</Badge> : null}
           <span>{location}</span>
         </span>
         <span className="management-session-aside">
@@ -123,7 +123,7 @@ export function SessionRow({ sessionRow, targets, rows, onSelected, onSessionAct
         </Menu.Dropdown>
       </Menu>
     </div>
-    {expanded && <div className="management-session-children" role="group" aria-label={`${sessionLabel}的子会话`}>
+    {expanded && <div className="management-tree-branch" role="group" aria-label={`${sessionLabel}的子会话`}>
       {children.map((child) => <SessionRow key={child.sessionId} sessionRow={child} targets={targets} rows={rows} onSelected={onSelected} onSessionAction={onSessionAction} projectView={projectView} tree={tree} depth={depth + 1} drag={drag} />)}
     </div>}
     </div>

@@ -8,7 +8,7 @@ processes = [subprocess.Popen(["sleep", "60"]) for _ in range(24)]`;
   const receipt = await f.send(id, `TOOL ${JSON.stringify({ name: "kernel_code", args: { code } })}`);
   assert.equal((await f.complete(id, receipt)).status, "completed");
   await page.locator(`#monitor-overview[data-process-count="24"]`).waitFor();
-  await page.locator(`[data-session-id="${id}"] .management-session-state[data-state="background"]`).waitFor({ state: "attached" });
+  await page.locator(`[data-session-list] [data-session-id="${id}"] [data-state="background"]`).waitFor({ state: "attached" });
   await block.locator("summary").click();
   const process = block.locator('[data-process-owner="detached"]').first();
   await process.waitFor();

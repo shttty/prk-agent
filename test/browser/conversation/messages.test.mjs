@@ -119,10 +119,10 @@ test("sidebar shows a background child running, then waiting even under its fold
   const background = child.sessionId;
   try {
     await f.open(active);
-    const parent = f.page.locator(`[data-session-id="${active}"]`);
-    const toggle = parent.locator(".management-tree-toggle");
-    const row = f.page.locator(`[data-session-id="${background}"]`);
-    const pill = (state) => row.locator(`.management-session-state[data-state="${state}"]`);
+    const parent = f.page.locator(`[data-session-list] [data-session-id="${active}"]`);
+    const toggle = parent.locator('[data-action="toggle-session-children"]');
+    const row = f.page.locator(`[data-session-list] [data-session-id="${background}"]`);
+    const pill = (state) => row.locator(`[data-state="${state}"]`);
     await pill("idle").waitFor();
     const receipt = await f.send(background, "Background request");
     assert(receipt.accepted);
@@ -134,9 +134,9 @@ test("sidebar shows a background child running, then waiting even under its fold
     await f.page.locator("#messages").getByText("Background done").waitFor({ state: "detached" });
     assert(new URL(f.page.url()).hash.includes(active));
 
-    await row.locator(".management-session-select").click();
+    await row.locator('[data-action="select-session"]').click();
     await pill("idle").waitFor();
-    await parent.locator(".management-session-select").click();
+    await parent.locator('[data-action="select-session"]').click();
     await toggle.click();
     await row.waitFor({ state: "detached" });
     const ask = await f.send(background, `TOOL ${JSON.stringify({ name: "ask", args: { questions: [
@@ -145,18 +145,18 @@ test("sidebar shows a background child running, then waiting even under its fold
     assert(ask.accepted);
     const inherited = parent.locator('[data-descendant-state="blocked"] [data-tone="warn"]');
     await inherited.waitFor();
-    await parent.locator('.management-session-state[data-state="idle"]').waitFor();
+    await parent.locator('[data-state="idle"]').waitFor();
     await toggle.click();
     await inherited.waitFor({ state: "detached" });
     await pill("blocked").waitFor();
-    const dot = row.locator('.management-status-dot[data-tone="warn"]');
+    const dot = row.locator('[data-session-dot][data-tone="warn"]');
     await dot.waitFor();
     assert(await dot.evaluate((element) => {
       const style = getComputedStyle(element);
       return style.getPropertyValue("--badge-bg").trim() === style.getPropertyValue("--pi-warn").trim();
     }));
     assert(new URL(f.page.url()).hash.includes(active));
-    await row.locator(".management-session-select").click();
+    await row.locator('[data-action="select-session"]').click();
     const dialog = f.page.locator('[data-prompt-kind="ask"]');
     await dialog.locator('[data-ask-option="0"]').click();
     await dialog.locator('[data-action="ask-submit"]').click();
@@ -164,12 +164,35 @@ test("sidebar shows a background child running, then waiting even under its fold
     await dot.waitFor({ state: "detached" });
     await pill("idle").waitFor();
     assert.equal((await f.complete(background, ask)).status, "completed");
-    await parent.locator(".management-session-select").click();
+    await parent.locator('[data-action="select-session"]').click();
     const failed = await f.send(background, "Background provider error");
     assert.equal((await f.complete(background, failed)).status, "failed");
     await pill("stopped").waitFor();
-    await row.locator('.management-status-dot[data-tone="error"]').waitFor();
+    await row.locator('[data-session-dot][data-tone="error"]').waitFor();
     await toggle.click();
     await parent.locator('[data-descendant-state="stopped"] [data-tone="error"]').waitFor();
+
+    const project = { id: "sidebar-regression", name: "Sidebar regression" };
+    await f.request("assignProject", { sessionId: active, project });
+    await f.request("assignProject", { sessionId: background, project });
+    const loose = await f.create("Loose note");
+    await f.page.locator('#management-view-switch input[value="projects"] + label').click();
+    const ungrouped = f.page.locator('[data-group-kind="ungrouped"]');
+    const group = f.page.locator(`[data-group="${project.id}"]`);
+    const fold = group.locator('[data-action="toggle-session-group"]');
+    await ungrouped.locator(`[data-session-id="${loose}"]`).waitFor();
+    await f.page.locator('[data-group-kind="ungrouped"] + [data-group-kind="project"]').waitFor();
+    assert.equal(await ungrouped.locator('[data-action="toggle-session-group"]').count(), 0);
+    await fold.waitFor();
+    assert.equal(await group.locator('[data-session-count]').count(), 0);
+    assert.ok(await fold.getAttribute('title'));
+    await fold.press("Space");
+    await group.locator('[data-session-count="2"]').waitFor();
+    await group.locator('[data-descendant-state="stopped"]').waitFor();
+    await parent.waitFor({ state: "detached" });
+    await fold.press("Space");
+    await group.locator(`[data-session-id="${active}"][aria-current="true"]`).waitFor();
+    await toggle.press("Space");
+    await row.locator('[data-state="stopped"]').waitFor();
   } finally { release.resolve(); }
 });
