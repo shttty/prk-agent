@@ -25,7 +25,6 @@ export function useDialogRouting({ sessionRequest, setDialog, actions, setSideba
       if (request !== sessionRequest.current || current.selectedSessionId !== name || !current.sessions.has(name)) return;
       if (type === "recover") { await actions.recoverSession("auto"); return; }
       if (type === "clone") { await actions.executeNativeAction("clone", {}, { transcript: false }); return; }
-      if (type === "reload") { await actions.executeNativeAction("reload", {}, { transcript: false }); return; }
       if (type === "export-html" || type === "export-jsonl") { await actions.executeNativeAction("export", { format: type.slice("export-".length) }, { transcript: false }); return; }
       setDialogSerial((value) => value + 1);
       setDialog({ type, targetName: name, sessionId: name });

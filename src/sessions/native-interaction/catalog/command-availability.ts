@@ -16,6 +16,14 @@ export function commandAvailability(command: StaticCommand, target: NativeTarget
       : "This sensitive external side effect requires a dedicated authorized flow and is not executed from chat.";
     return { enabled: false, reason };
   }
+  if (command.name === "reload") {
+    if (target.readOnly || !target.session || !target.host) return { enabled: false, reason: "Reload requires an active SDK runtime; it never wakes or creates one." };
+    const kernel = target.host.getSnapshot().kernel;
+    if (!target.session.isIdle || target.session.isCompacting || target.session.pendingMessageCount > 0
+      || target.host.isIdle === false || kernel?.state === "busy" || kernel?.state === "starting") {
+      return { enabled: false, reason: "Session must be idle to reload tools and skills." };
+    }
+  }
   if (!target.readOnly && target.state === "sleeping"
     && (wakesSleepingSession(command.name) || ["model", "thinking", "scoped-models"].includes(command.name))) return { enabled: true };
   if (target.readOnly || target.state === "sleeping") {
@@ -26,14 +34,6 @@ export function commandAvailability(command: StaticCommand, target: NativeTarget
       : { enabled: false, reason: target.state === "sleeping" ? "This operation requires an awake session." : "This session is read-only history; select or create an active Gateway session before changing it." };
   }
   if (command.name === "compact") return { enabled: true };
-  if (command.name === "reload") {
-    if (!target.session || !target.host) return { enabled: false, reason: "Reload requires an active SDK runtime." };
-    const kernel = target.host.getSnapshot().kernel;
-    if (!target.session.isIdle || target.session.isCompacting || target.session.pendingMessageCount > 0
-      || target.host.isIdle === false || kernel?.state === "busy" || kernel?.state === "starting") {
-      return { enabled: false, reason: "Session must be idle to reload tools and skills." };
-    }
-  }
   if (command.name === "model" || command.name === "thinking") {
     return target.session ? { enabled: true } : { enabled: false, reason: "No active SDK session." };
   }

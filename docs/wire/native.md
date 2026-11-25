@@ -49,7 +49,7 @@ Catalog 中的 SDK `thinkingLevels` 是当前模型支持值。
 
 休眠时只换模型且未另选思考档，保留已保存的 thinkingLevel，并用公开 `clampThinkingLevel` 按新模型能力裁剪；不连接目标机读取偏好。醒着时仍由 Pi `setModel` 选择目标模型偏好、SDK 全局默认或当前值；两条路径不强求相同偏好选择。
 
-内建斜线命令与结构化 nativeAction 共用 Gateway 原生准入；`compact`、`reload`、`settings`、`tree` 与 `tree-label` 在休眠时先按输入准入唤醒，再按实际运行时状态执行（[REQ-10](../contract.md)）。`model`、`thinking`、`scoped-models` 仍直接在休眠记录中执行，`export` 不为导出唤醒。未知命令及扩展、技能、模板保留原 SDK 输入准入与覆盖优先级。
+内建斜线命令与结构化 nativeAction 共用 Gateway 原生准入；`compact`、`settings`、`tree` 与 `tree-label` 在休眠时先按输入准入唤醒，再按实际运行时状态执行（[REQ-10](../contract.md)）。`model`、`thinking`、`scoped-models` 仍直接在休眠记录中执行，`export` 不为导出唤醒。`reload` 要求已有空闲运行时，不会唤醒或创建。Web 命令列表不展示，手动输入沿用既有 auto／plain 发送规则。未知命令及扩展、技能、模板保留原 SDK 输入准入与覆盖优先级。
 
 ### 保存的模型不可用
 

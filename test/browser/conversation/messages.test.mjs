@@ -34,6 +34,10 @@ test("send, observe streamed output, stop, then retry and edit from the original
     await until(() => wakeRequests === 1, "composer focus posts wake");
     await composer.blur();
     await composer.focus();
+    await composer.fill("/");
+    const commands = f.page.locator("#native-candidate-list");
+    await commands.getByText("/compact", { exact: true }).waitFor();
+    assert.equal(await commands.getByText("/reload", { exact: true }).count(), 0);
     await composer.fill("Original question");
     wakeGate.resolve();
     await f.page.locator(`${input}[data-status="idle"]`).waitFor();

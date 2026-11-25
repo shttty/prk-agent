@@ -60,7 +60,7 @@ function SessionDetailsBody({ actions, sessionId, opened }) {
     </dl>
     <SessionUsage actions={actions} opened={opened} sessionKey={`${sessionRow?.sessionId || ""}:${streamId || ""}:${snapshotSessionId || ""}`} contextUsage={contextUsage} />
     {sessionRow?.state !== "closed" ? <SessionSettings actions={actions} opened={opened} /> : null}
-    {sessionRow?.sessionId === selectedSessionId && sessionRow?.state !== "closed" ? <SessionResources actions={actions} /> : null}
+    {sessionRow?.sessionId === selectedSessionId && sessionRow?.state !== "closed" ? <SessionResources /> : null}
     <details className="diagnostics"><summary>运行记录</summary>
       <div id="activity-feed" className="activity-feed" aria-label="运行记录">
         {!activities.length && <Text size="sm" c="dimmed">暂无运行记录</Text>}

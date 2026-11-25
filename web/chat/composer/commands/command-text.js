@@ -42,7 +42,6 @@ export const COMMAND_ELSEWHERE = {
   session: "统计在会话详情里；上下文看输入框下方的圆环。",
   export: "导出在侧栏会话卡片的菜单里。",
   clone: "复制为新会话在侧栏会话卡片的菜单里。",
-  reload: "重新加载在会话详情里。",
   hotkeys: "快捷键在输入框的 ＋ 菜单里。",
   changelog: "发送后在对话里显示 Pi 版本和更新内容。",
   quit: "关闭标签页即可，Gateway 继续运行。",

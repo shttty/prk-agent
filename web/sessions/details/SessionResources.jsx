@@ -1,23 +1,12 @@
-import { useState } from "react";
 import { Text } from "@mantine/core";
 import { Stack } from "@mantine/core";
 import { Group } from "@mantine/core";
 import StatusDot from "../../design-system/status-dot/StatusDot.jsx";
-import { Button } from "@mantine/core";
-import { IconRefresh } from "@tabler/icons-react";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
-export function SessionResources({ actions }) {
-  const [reloading, setReloading] = useState(false);
+export function SessionResources() {
   const catalog = useWorkbench((state) => state.session.nativeCatalog?.value);
-  const ready = useWorkbench((state) => ["idle", "sleeping"].includes(state.session.snapshot?.state) && state.session.connection === "connected" && !state.session.pending.has("nativeActionPending"));
   const resources = Array.isArray(catalog?.resources) ? catalog.resources : [];
-  const reloadCommand = (catalog?.commands || []).find((command) => command?.name === "reload" && command.source === "builtin");
-  const reloadEnabled = Boolean(reloadCommand) && reloadCommand.availability?.enabled !== false && reloadCommand.enabled !== false && ready;
-  if (!reloadCommand && !resources.length) return null;
-  const reload = () => {
-    setReloading(true);
-    void Promise.resolve(actions.executeNativeAction("reload", {}, { transcript: false })).finally(() => setReloading(false));
-  };
+  if (!resources.length) return null;
   return <section className="session-section" aria-label="资源与扩展">
     <Text className="session-section-title">资源与扩展</Text>
     <Stack gap={6}>
@@ -29,10 +18,6 @@ export function SessionResources({ actions }) {
           <Text size="xs">{resource.name || resource.type}: {state}{providers.length ? ` · provider：${providers.join(", ")}` : ""}{resource.reason ? ` · ${resource.reason}` : ""}</Text>
         </Group>;
       })}
-      {reloadCommand ? <Group gap="sm" wrap="nowrap" align="center">
-        <Button id="reload-resources" size="compact-xs" variant="default" leftSection={<IconRefresh size={13} stroke={1.8} />} disabled={!reloadEnabled} loading={reloading} onClick={reload}>重新加载</Button>
-        <Text size="xs" c="dimmed">{ready ? "改了设置、扩展、技能或模板后重新读取。" : "会话空闲时可以重新加载。"}</Text>
-      </Group> : null}
     </Stack>
   </section>;
 }

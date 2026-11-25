@@ -1,3 +1,3 @@
 export function wakesSleepingSession(action: string): boolean {
-  return ["compact", "reload", "settings", "tree", "tree-label"].includes(action);
+  return ["compact", "settings", "tree", "tree-label"].includes(action);
 }

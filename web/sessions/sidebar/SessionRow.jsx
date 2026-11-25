@@ -107,7 +107,6 @@ export function SessionRow({ sessionRow, targets, rows, onSelected, onSessionAct
           <Menu.Item id="session-details" onClick={() => onSessionAction("details", sessionRow.sessionId)}>会话详情</Menu.Item>
           <Menu.Item id="session-tools" disabled={closed || unavailable} onClick={() => onSessionAction("tools", sessionRow.sessionId)}>工具</Menu.Item>
           <Menu.Item id="session-skills" disabled={closed || unavailable} onClick={() => onSessionAction("skills", sessionRow.sessionId)}>Skills</Menu.Item>
-          <Menu.Item id="reload-session" disabled={sessionRow.state !== "idle" || rows.nativeActionPending} onClick={() => onSessionAction("reload", sessionRow.sessionId)}>重载</Menu.Item>
           <Menu.Item id="rename-session" disabled={rows.renaming} onClick={() => onSessionAction("rename", sessionRow.sessionId)}>重命名</Menu.Item>
           {sessionRow.derivation && <Menu.Item id="manage-derived-session" disabled={rows.sessionManaging} onClick={() => onSessionAction("derivation", sessionRow.sessionId)}>派生会话管理</Menu.Item>}
           {(closed || unavailable) && <>

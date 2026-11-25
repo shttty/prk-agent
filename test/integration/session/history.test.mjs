@@ -53,7 +53,10 @@ test("sleeping /compact wakes, acknowledges before the model, and persists a com
   }, "session sleep before native input");
   const catalog = await f.request("nativeCapabilities", { sessionId: id });
   assert.equal(catalog.commands.find((command) => command.name === "compact")?.availability.enabled, true);
-  assert.equal(catalog.actions.find((action) => action.name === "reload")?.enabled, true);
+  assert.equal(catalog.actions.find((action) => action.name === "reload")?.enabled, false);
+  const reload = await f.request("nativeAction", { sessionId: id, requestId: crypto.randomUUID(), action: "reload", args: {} });
+  assert.equal(reload.status, "unavailable", JSON.stringify(reload));
+  assert.equal((await f.send(id, "/reload")).status, "unavailable");
   const model = await f.send(id, "/model verification/faux");
   assert.equal(model.status, "completed", JSON.stringify(model));
   assert.equal(model.data.model, "verification/faux");
@@ -82,10 +85,5 @@ test("sleeping /compact wakes, acknowledges before the model, and persists a com
     const pushed = await until(() => frames.find((event) => event.type === "snapshot" && event.sequence === done.sequence), "compaction snapshot");
     const page = await f.request("historyPage", { sessionId: id, through: pushed.details.snapshot.historyThrough });
     assert(page.compactions.some((item) => item.summary.includes("Verification summary")));
-    await until(async () => (await f.request("state", { sessionId: id })).state === "sleeping", "session sleep before nativeAction");
-    const reloaded = await f.request("nativeAction", { sessionId: id, requestId: crypto.randomUUID(), action: "reload", args: {} });
-    assert.equal(reloaded.status, "completed", JSON.stringify(reloaded));
-    assert.equal(reloaded.data.reloaded, true);
-    assert.equal(f.state(id).state, "idle");
   } finally { release.resolve(); }
 });

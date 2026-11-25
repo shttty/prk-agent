@@ -21,6 +21,9 @@ test("awake /reload preserves the Python namespace and cells still interrupt by 
   const reloaded = await f.send(id, "/reload");
   assert.equal(reloaded.status, "completed", JSON.stringify(reloaded));
   assert.equal(f.state(id).kernel?.kernelId, awake.kernel.kernelId);
+  const apiReload = await f.request("nativeAction", { sessionId: id, requestId: crypto.randomUUID(), action: "reload", args: {} });
+  assert.equal(apiReload.status, "completed", JSON.stringify(apiReload));
+  assert.equal(f.state(id).kernel?.kernelId, awake.kernel.kernelId);
   const started = join(f.cwd, "started");
   const receipt = await call(f, id, "kernel_code", { code: `import asyncio\nfrom pathlib import Path\nPath(${JSON.stringify(started)}).touch()\nawait asyncio.sleep(60)\nprint('should not complete')`, yield_s: 0 });
   await until(() => access(started).then(() => true, () => false), "Python cell entered");
