@@ -18,12 +18,14 @@ import { UserMarkdownPart } from "./messages/UserMarkdownPart.jsx";
 import { ToolPart } from "./tool-calls/ToolPart.jsx";
 import { ThinkingPart } from "./reasoning/ThinkingPart.jsx";
 import { TurnContext } from "./turns/turn-context.js";
+import { transcriptVisibility } from "./transcript-visibility.js";
 import { turnGrouping } from "./turns/turn-grouping.js";
 import { TurnGroup } from "./turns/TurnGroup.jsx";
 import { MessageActions } from "./messages/MessageActions.jsx";
 import { PeerMessageHeader } from "./messages/PeerMessageHeader.jsx";
 import { SearchMatchContext } from "./search-match-context.js";
 const NO_CUSTOM = {};
+const HiddenPart = () => null;
 export function MessageView({ message }) {
   const presentationContext = useContext(PresentationContext);
   const actions = presentationContext?.actions;
@@ -34,10 +36,12 @@ export function MessageView({ message }) {
   const status = message?.role === "assistant" && message.status?.type === "incomplete"
     ? "生成未完成，请检查当前状态。"
     : message?.role === "assistant" && message.status?.type === "running" ? "正在生成…" : "";
-  const textComponent = message?.role === "user" ? UserMarkdownPart : MarkdownPart;
+  const display = presentationContext?.transcriptDisplay;
+  const { showText, showThinking } = transcriptVisibility(message, display);
+  const textComponent = message.role === "user" ? UserMarkdownPart : showText ? MarkdownPart : HiddenPart;
   const streaming = message?.role === "assistant" && message.status?.type === "running";
-  const foldMode = presentationContext?.turnFoldMode;
-  const groupParts = useCallback((parts) => turnGrouping(parts, !streaming, foldMode), [streaming, foldMode]);
+  const foldMode = display?.turnFoldMode;
+  const groupParts = useCallback((parts) => turnGrouping(parts, !streaming, foldMode, { showThinking, showText }), [streaming, foldMode, showThinking, showText]);
   const batch = peer?.batch && Number.isSafeInteger(peer.batch.count) && peer.batch.count > 1 ? peer.batch : null;
   const batchClass = batch
     ? ` pi-peer-batch${batch.index === 0 ? " is-batch-first" : ""}${batch.index === batch.count - 1 ? " is-batch-last" : ""}`
@@ -75,6 +79,7 @@ export function MessageView({ message }) {
     <MessagePrimitive.Root
       className={`message-row pi-message pi-message-${message.role} ${message.role}${peer ? " pi-message-peer" : ""}${batchClass}${custom.nativeFeedback ? " pi-native-interaction-card" : ""}${streaming ? " is-streaming" : ""}${matchClass}`}
       data-message-id={message.id}
+      data-text-buffered={!showText ? true : undefined}
       data-entry-id={message.role === "user" ? custom.entryId : undefined}
       aria-label={custom.nativeFeedback ? "原生操作结果" : peer ? "同伴消息" : message.role === "user" ? "你" : message.role === "assistant" ? "助手" : "系统记录"}
     >
@@ -82,7 +87,7 @@ export function MessageView({ message }) {
       <Box className="message-body pi-message-body">
         {peer ? <PeerMessageHeader peer={peer} /> : null}
         <TurnContext.Provider value={message}>
-          {!custom.extensionNode ? <MessagePrimitive.Unstable_PartsGrouped groupingFunction={groupParts} components={{ Text: textComponent, Reasoning: ThinkingPart, tools: { Fallback: ToolPart }, Group: TurnGroup }} /> : null}
+          {!custom.extensionNode ? <MessagePrimitive.Unstable_PartsGrouped groupingFunction={groupParts} components={{ Text: textComponent, Reasoning: showThinking ? ThinkingPart : HiddenPart, tools: { Fallback: ToolPart }, Group: TurnGroup }} /> : null}
         </TurnContext.Provider>
         {custom.extensionNode ? <ExtensionNode node={custom.extensionNode} onAction={(args) => { if (presentationContext?.actions?.extensionUiAction) void presentationContext.actions.extensionUiAction("component", args); }} className="extension-message-renderer" /> : null}
         {!custom.extensionNode ? <>
@@ -91,7 +96,7 @@ export function MessageView({ message }) {
         </> : null}
         {status ? <Text className={`message-status pi-message-status${status.includes("未知") || completionFailed ? " is-error" : ""}`} size="xs">{status}</Text> : null}
       </Box>
-      {message.role === "user" || (message.role === "assistant" && !custom.nativeFeedback) ? <MessageActions role={message.role} custom={custom} content={message.content} actions={actions} /> : null}
+      {message.role === "user" || (message.role === "assistant" && showText && !custom.nativeFeedback) ? <MessageActions role={message.role} custom={custom} content={message.content} actions={actions} /> : null}
     </MessagePrimitive.Root>
   );
 }

@@ -1,9 +1,6 @@
 import "./tool-calls.css";
 import { useContext } from "react";
-import { useState } from "react";
 import { useMemo } from "react";
-import { useEffectEvent } from "react";
-import { useEffect } from "react";
 import { VisuallyHidden } from "@mantine/core";
 import { Stack } from "@mantine/core";
 import InlineAlert from "../../../design-system/inline-alert/InlineAlert.jsx";
@@ -21,7 +18,8 @@ import { toolHeadline } from "../../tool-text/tool-headline.js";
 import { PresentationContext } from "../presentation-context.js";
 import { FILE_TOOLS } from "../../tool-text/tool-text-constants.js";
 import { presentationKey } from "../presentation/presentation-key.js";
-import { isPresentationOpen } from "../presentation/is-presentation-open.js";
+import { readDisclosure } from "../presentation/read-disclosure.js";
+import { saveDisclosure } from "../presentation/save-disclosure.js";
 import { toolDurationMs } from "./tool-duration-ms.js";
 import { toolDuration } from "./tool-duration.js";
 import { formatElapsed } from "./format-elapsed.js";
@@ -37,7 +35,7 @@ export function ToolRow({ toolCallId, toolName, title, argsText, result, artifac
   const key = context ? presentationKey(context.sessionId, toolCallId) : toolCallId;
   const deferred = Boolean((metadata?.inputPreview && !metadata.inputLoaded) || (metadata?.outputPreview && !metadata.outputLoaded));
   const loadContent = () => context.actions.loadToolContent(toolCallId, metadata);
-  const [open, setOpen] = useState(() => isPresentationOpen(context?.openedTools, key, toolCallId) || context?.extensionUiRender?.toolsExpanded === true);
+  const open = readDisclosure(context?.openedTools, key, { fallbackId: toolCallId, defaultOpen: context?.expandTools });
   const partialOutput = safeText(artifact?.output);
   const output = result === undefined ? partialOutput : printable(result);
   const running = kernelCell ? kernelCell.status === "running" : artifact?.running === true || status?.type === "running";
@@ -73,22 +71,7 @@ export function ToolRow({ toolCallId, toolName, title, argsText, result, artifac
   // Only the first line fits the header; anything beyond it (or a non-text node) is shown in full at the top of the body.
   const callOverflows = headerCall && !(headerCall.kind === "text" && (headerCall.lines || []).filter((line) => stripAnsi(line).trim()).length <= 1);
 
-  const syncPresentationOpen = useEffectEvent(() => {
-    setOpen(isPresentationOpen(context.openedTools, key, toolCallId) || context.extensionUiRender?.toolsExpanded === true);
-  });
-  useEffect(() => {
-    if (context?.presentationRevision === undefined) return;
-    syncPresentationOpen();
-  }, [context?.streamId, context?.presentationRevision, context?.extensionUiRender?.revision, key, toolCallId]);
-
-  const setOpened = (next) => {
-    setOpen(next);
-    if (!context?.actions?.savePresentation) return;
-    const opened = new Set(context.openedTools);
-    if (next) opened.add(key);
-    else opened.delete(key);
-    context.actions.savePresentation({ openedTools: [...opened].slice(-128) });
-  };
+  const setOpened = (next) => saveDisclosure(context?.actions, key, next);
 
   const outputText = output || (running ? "正在等待执行结果…" : unknown ? "执行结果未知，请检查当前状态。" : "（暂无输出）");
   if (extensionTool?.shell === "self") return <div data-tool-key={key} data-tool-name={toolName} data-via={metadata?.via} data-extension-shell="self" data-state={toolState}>

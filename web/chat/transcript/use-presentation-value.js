@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranscriptEffects } from "./use-transcript-effects.js";
 import { useTurnFoldMode } from "./turns/use-turn-fold-mode.js";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 /**
@@ -7,12 +8,15 @@ import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
  */
 export function usePresentationValue({ actions, preserveDisclosure, revealKernelCell }) {
   const [turnFoldMode] = useTurnFoldMode();
+  const { showThinking: [showThinking], expandTools: [autoExpandTools], expandThinking: [expandThinking], streamOutput: [streamOutput] } = useTranscriptEffects();
+  const transcriptDisplay = useMemo(() => ({ turnFoldMode, showThinking, streamOutput }), [turnFoldMode, showThinking, streamOutput]);
   const sessionId = useWorkbench((state) => state.selectedSessionId);
   const openedTools = useWorkbench((state) => state.presentation?.openedTools);
   const showImages = useWorkbench((state) => state.showImages);
   const streamId = useWorkbench((state) => state.session.streamId);
   const presentationRevision = useWorkbench((state) => state.session.presentationRevision);
   const extensionUiRender = useWorkbench((state) => state.session.extensionUiRender);
-  return useMemo(() => ({ actions, preserveDisclosure, revealKernelCell, sessionId, openedTools, showImages, streamId, presentationRevision, extensionUiRender, turnFoldMode }),
-    [actions, preserveDisclosure, revealKernelCell, sessionId, openedTools, showImages, streamId, presentationRevision, extensionUiRender, turnFoldMode]);
+  const expandTools = autoExpandTools || extensionUiRender?.toolsExpanded === true;
+  return useMemo(() => ({ actions, preserveDisclosure, revealKernelCell, sessionId, openedTools, showImages, streamId, presentationRevision, extensionUiRender, transcriptDisplay, expandTools, expandThinking }),
+    [actions, preserveDisclosure, revealKernelCell, sessionId, openedTools, showImages, streamId, presentationRevision, extensionUiRender, transcriptDisplay, expandTools, expandThinking]);
 }

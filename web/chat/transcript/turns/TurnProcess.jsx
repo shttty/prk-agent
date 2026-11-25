@@ -27,9 +27,10 @@ export function TurnProcess({ groupKey, indices, children }) {
   const turnId = `turn:${safeText(message?.id)}`;
   const key = presentationKey(context?.sessionId, whole ? turnId : `${turnId}:segment:${encodeURIComponent(groupKey)}`);
   const openedTools = context?.openedTools;
-  const childOpen = tools.some((part) => readDisclosure(openedTools, presentationKey(context?.sessionId, part.toolCallId), part.toolCallId) === true);
-  const explicit = readDisclosure(openedTools, key, whole ? turnId : undefined);
-  const open = explicit ?? (context?.extensionUiRender?.toolsExpanded === true || running || (whole && !hasAnswer) || childOpen);
+  const childOpen = tools.some(({ toolCallId }) => readDisclosure(openedTools, presentationKey(context?.sessionId, toolCallId), { fallbackId: toolCallId }));
+  const open = readDisclosure(openedTools, key, {
+    fallbackId: whole ? turnId : undefined, defaultOpen: Boolean(context?.expandTools || running || (whole && !hasAnswer) || childOpen),
+  });
   const setOpened = (next) => { if (next !== open) saveDisclosure(context?.actions, key, next); };
   const count = tools.length ? `${tools.length} 次工具调用` : "";
   const verb = running ? "正在处理" : interrupted ? "已中断" : failed ? "已处理，有失败" : "已处理";

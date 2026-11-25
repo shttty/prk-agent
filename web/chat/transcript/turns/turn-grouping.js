@@ -1,7 +1,18 @@
 import { hasText } from "./has-text.js";
 
-export function turnGrouping(parts, finished, mode = "segmented") {
-  if (mode === "whole") return wholeProcessGrouping(parts, finished);
+export function turnGrouping(parts, finished, mode = "segmented", { showThinking = true, showText = true } = {}) {
+  const groups = mode === "whole" ? wholeProcessGrouping(parts, finished) : segmentedGrouping(parts);
+  if (showThinking && showText) return groups;
+  // Filter empty groups, not their indices: hiding thinking or text must not change a fold's identity or tool count.
+  return groups.filter(({ indices }) => indices.some((index) => {
+    const part = parts[index];
+    if (part.type === "text") return showText && hasText(part);
+    if (part.type === "reasoning") return showThinking;
+    return true;
+  }));
+}
+
+function segmentedGrouping(parts) {
   const groups = [];
   for (const [index, part] of parts.entries()) {
     if (part.type === "text" && !hasText(part)) continue;

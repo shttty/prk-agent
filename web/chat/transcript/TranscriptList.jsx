@@ -18,7 +18,7 @@ function TranscriptMessage() {
 const COMPONENTS = { Message: TranscriptMessage };
 
 export function TranscriptList({ ref, viewportRef, history, following, mayFollow }) {
-  const foldMode = useContext(PresentationContext)?.turnFoldMode;
+  const display = useContext(PresentationContext)?.transcriptDisplay;
   const ids = unstable_useThreadMessageIds();
   const aui = useAui();
   const [prepend, setPrepend] = useState(null);
@@ -41,14 +41,14 @@ export function TranscriptList({ ref, viewportRef, history, following, mayFollow
     estimateSize: (index) => {
       if (pageRows && index === 0) return 22;
       const measured = heights.current.get(getItemKey(index));
-      if (measured?.width === geometry.width && measured.foldMode === foldMode) return measured.height;
-      return estimateMessageHeight(aui.thread().getState().messages[index - pageRows], geometry.width, foldMode);
+      if (measured?.width === geometry.width && measured.display === display) return measured.height;
+      return estimateMessageHeight(aui.thread().getState().messages[index - pageRows], geometry.width, display);
     },
     measureElement: (node, entry, instance) => {
       const rect = entry?.borderBoxSize?.[0];
       const height = rect?.blockSize ?? node.getBoundingClientRect().height;
       const width = Math.round(rect?.inlineSize ?? node.getBoundingClientRect().width);
-      heights.current.set(getItemKey(instance.indexFromElement(node)), { width, height, foldMode });
+      heights.current.set(getItemKey(instance.indexFromElement(node)), { width, height, display });
       return height;
     },
     scrollMargin: geometry.margin, gap: geometry.gap, overscan: 4,
@@ -93,7 +93,7 @@ export function TranscriptList({ ref, viewportRef, history, following, mayFollow
   useLayoutEffect(() => {
     virtualizer.measure();
     for (const row of container.current.children) virtualizer.measureElement(row);
-  }, [geometry.width, foldMode, virtualizer]);
+  }, [geometry.width, display, virtualizer]);
 
   const revealMounted = useCallback((id, options) => {
     const offset = messageScrollOffset(viewportRef.current, id, options);

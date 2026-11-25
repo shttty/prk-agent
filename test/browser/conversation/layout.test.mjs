@@ -11,20 +11,31 @@ const stage = (name) => `#operation-state[data-stage="${name}"]`;
 test("composer and viewport stay put through send, wait, thinking, output, tool and settlement", async (t) => {
   const release = Promise.withResolvers();
   const f = await browserFixture(t, { rate: 36, answer: async (context) => {
-    if (context.messages.at(-1).role === "toolResult") return fauxAssistantMessage("Settled.");
+    if (context.messages.at(-1).role === "toolResult") {
+      const lastUser = context.messages.findLast((message) => message.role === "user");
+      return fauxAssistantMessage(text(lastUser) === "Check folds" ? "Fold final." : "Settled.");
+    }
     if (text(context.messages.at(-1)) === "Check folds") return fauxAssistantMessage([
       fauxText("Before tool, always visible."), fauxToolCall("kernel_code", { code: "print(42)" }),
     ], { stopReason: "toolUse" });
     await release.promise;
     return fauxAssistantMessage([
       fauxThinking("Plan verification ".repeat(20)), fauxText("Steady layout ".repeat(20)),
-      fauxToolCall("kernel_code", { code: "import asyncio\nawait asyncio.sleep(60)", yield_s: 30 }),
+      fauxToolCall("kernel_code", { code: "import asyncio\nawait asyncio.sleep(5)" }),
+      fauxText("Same assistant message after the call."),
     ], { stopReason: "toolUse" });
   } });
   const id = await f.create();
   const gate = Promise.withResolvers();
   try {
     await f.open(id);
+    await f.page.locator("#open-settings").click();
+    await f.page.locator("#open-visual-effects").click();
+    await f.page.locator("#setting-stream-output").press("Space");
+    assert.equal(await f.page.locator("#setting-stream-output").isChecked(), false);
+    await f.page.locator("#setting-show-thinking").press("Space");
+    assert.equal(await f.page.locator("#setting-show-thinking").isChecked(), false);
+    await f.page.locator("#close-settings").click();
     await f.page.evaluate(() => document.fonts.ready);
     await f.page.locator("#composer").fill("Check layout");
     const captureRing = async (phase) => {
@@ -60,18 +71,35 @@ test("composer and viewport stay put through send, wait, thinking, output, tool 
     release.resolve();
     await f.page.locator(stage("thinking")).waitFor();
     await unchanged("thinking");
+    const buffered = f.page.locator('.pi-message-assistant[data-text-buffered="true"]');
+    assert.equal(await f.page.locator(".pi-thinking").count(), 0);
     await f.page.locator(stage("output")).waitFor();
     await unchanged("output");
+    await buffered.locator(".pi-message-status").waitFor();
+    assert.equal(await buffered.locator(".pi-markdown").count(), 0);
     await f.page.locator(stage("tool")).waitFor();
     await unchanged("tool");
-    await f.page.locator("#cancel-operation").click();
+    await buffered.locator('.pi-turn-process[open][data-state="running"] [data-tool-name="kernel_code"][data-state="running"] > summary').waitFor();
     await f.page.locator(idle).waitFor();
     await unchanged("settled");
+    await f.page.getByText("Settled.", { exact: true }).waitFor();
+    await f.page.getByText(/^Steady layout /).waitFor();
+    await f.page.getByText("Same assistant message after the call.", { exact: true }).waitFor();
+    assert.equal(await f.page.locator(".pi-thinking").count(), 0);
+
+    await f.page.locator("#open-settings").click();
+    await f.page.locator("#open-visual-effects").click();
+    await f.page.locator("#setting-show-thinking").press("Space");
+    assert.equal(await f.page.locator("#setting-show-thinking").isChecked(), true);
+    await f.page.locator("#setting-expand-thinking").press("Space");
+    assert.equal(await f.page.locator("#setting-expand-thinking").isChecked(), true);
+    await f.page.locator("#close-settings").click();
+    await f.page.locator(".pi-thinking[open]").waitFor({ state: "attached" });
 
     await f.page.locator("#composer").fill("Check folds");
     await f.page.locator("#send-message").click();
     const before = f.page.getByText("Before tool, always visible.", { exact: true });
-    const after = f.page.getByText("Settled.", { exact: true });
+    const after = f.page.getByText("Fold final.", { exact: true });
     await after.waitFor();
     const turn = f.page.locator(".pi-message-assistant").filter({ has: after });
     const segmented = turn.locator('.pi-turn-process[data-turn-fold="segmented"][data-state="done"]');
