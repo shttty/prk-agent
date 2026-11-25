@@ -38,6 +38,7 @@ export const SessionBanners = memo(function SessionBanners({ actions, onBottom }
   // a plain closed session keeps its existing reconnect/retarget controls in the menu and topbar.
   const showUnavailable = unavailable && notice?.kind !== "send-rejected";
   const retry = connectionFailed ? <Button id="retry-connection" variant="default" size="xs" disabled={sending} onClick={() => void actions.reconnect()}>重试连接</Button> : null;
+  const reload = <Button id="reload-capabilities" size="compact-xs" variant="default" disabled={!connected || status !== "idle" || nativePending} onClick={() => void actions.executeNativeAction("reload", {}, { transcript: false })}>重载</Button>;
   const items = [
     banner ? <Alert key="connection" id="connection-banner" data-kind={notice?.kind} data-stage={notice?.stage} data-code={notice?.code} data-submitted={notice?.submitted === undefined ? undefined : String(notice.submitted)} color={notice?.tone === "error" ? "red" : "gray"} icon={<IconInfoCircle size={18} />} role="status" withCloseButton={Boolean(error)} closeButtonLabel="关闭错误提示" onClose={actions.clearError}>
       <BannerRow actions={retry}>
@@ -56,7 +57,7 @@ export const SessionBanners = memo(function SessionBanners({ actions, onBottom }
       <Text size="sm" id="recovery-status">无法启动。{sessionRow.recovery?.message ? ` ${sessionRow.recovery.message}` : ""}</Text>
     </Alert> : null,
     sessionRow && (sessionRow.requiresReload || snapshotRequiresReload) ? <Alert key="reload" color="gray" icon={<IconInfoCircle size={18} />} data-requires-reload="true" role="status">
-      <Text size="sm">会话资源有更新，下次唤醒时会重新读取。</Text>
+      <BannerRow actions={reload}><Text size="sm">会话资源有更新，重载会话后生效（可能丢失缓存命中）</Text></BannerRow>
     </Alert> : null,
   ].filter(Boolean);
   // Another session never inherits a fold: drop it during this render, before anything is drawn from it.

@@ -19,6 +19,7 @@ import { setError } from "../notices/set-error.js";
 import { addActivity } from "../notices/add-activity.js";
 import { LIGHT_SETTING_ACTIONS, updateLightSetting } from "./update-light-setting.js";
 export const QUIET_NOTICES = {
+  reload: "已重新加载。",
   tree: "已回到这条消息之前。",
   clone: "已复制为新会话。",
 };
