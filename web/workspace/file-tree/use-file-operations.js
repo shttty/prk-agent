@@ -4,12 +4,12 @@ import { joinPath } from "../file-paths/join-path.js";
 import { parentOf } from "../file-paths/parent-of.js";
 import { copyText } from "../file-actions/copy-text.js";
 import { downloadFile } from "../file-actions/download-file.js";
-import { readAsBase64 } from "../file-actions/read-as-base64.js";
+import { uploadFile } from "../file-actions/upload-file.js";
 import { failure } from "./failure.js";
 import { isTargetMismatch } from "../file-store/target-mismatch.js";
 // Every request names the target its intent belongs to (`target`): the menu click, the clipboard, the name input, the delete
-// prompt and the upload's clash list each remember it, so nothing is re-targeted after a FileReader or a confirmation.
-export function useFileOperations({ attempt, generation, target, clip, api, base, forgetListings, onMoved, setClip, reload, menu, dirFor, setMenu, onOpenFile, root, goTo, setEditing, setOpError, refresh, setRemoving, editing, showHidden, toggleHidden, removing, onDeleted, uploadInput, uploadDir, setClashes, clashes, onOverwritten }) {
+// prompt and the upload's clash list each remember it, so nothing is re-targeted after a transfer or a confirmation.
+export function useFileOperations({ attempt, generation, target, clip, api, base, forgetListings, onMoved, setClip, reload, menu, dirFor, setMenu, onOpenFile, root, goTo, setEditing, setOpError, refresh, setRemoving, editing, showHidden, toggleHidden, removing, onDeleted, uploadInput, uploadDir, setClashes, clashes, onOverwritten, uploadProgress, setUploadProgress }) {
   // After the session's environment changed, a response (or the rest of a loop) belongs to the old tree: no side effects.
   const fresh = () => { const serial = generation.current; return () => serial === generation.current; };
   const paste = (dir) => attempt(async () => {
@@ -38,7 +38,7 @@ export function useFileOperations({ attempt, generation, target, clip, api, base
     setMenu(null);
     if (id === "open") onOpenFile(entry);
     else if (id === "newFile" || id === "newFolder") { if (dir !== root) goTo(dir); setEditing({ kind: id === "newFile" ? "file" : "directory", dir, target }); }
-    else if (id === "upload") { uploadDir.current = { dir, target }; uploadInput.current?.click(); }
+    else if (id === "upload" && uploadProgress === null) { uploadDir.current = { dir, target }; uploadInput.current?.click(); }
     else if (id === "paste") void paste(dir);
     else if (id === "rename") setEditing({ kind: "rename", entry, target });
     else if (id === "duplicate") void attempt(async () => { const live = fresh(); await api.post(`${base}/copy`, { target, path: entry.path, toDir: parentOf(entry.path) }); if (live()) reload(parentOf(entry.path)); });
@@ -91,6 +91,14 @@ export function useFileOperations({ attempt, generation, target, clip, api, base
     });
   };
 
+  const transfer = async (file, path, owner, live, overwrite = false) => {
+    const url = `${api.root}${base}/upload?${new URLSearchParams({ target: owner, path, ...(overwrite ? { overwrite: "true" } : {}) })}`;
+    const progress = (bytes) => { if (live()) setUploadProgress({ name: file.name, bytes, size: file.size }); };
+    progress(0);
+    try { await uploadFile(url, file, progress); }
+    finally { if (live()) setUploadProgress(null); }
+  };
+
   const onUpload = async (event) => {
     const files = [...(event.target.files || [])];
     event.target.value = "";
@@ -101,9 +109,8 @@ export function useFileOperations({ attempt, generation, target, clip, api, base
     for (const file of files) {
       const path = joinPath(dir, file.name);
       try {
-        const content = await readAsBase64(file);
         if (!live()) return;
-        await api.post(`${base}/create`, { target: owner, path, type: "file", content, format: "base64" });
+        await transfer(file, path, owner, live);
       } catch (error) {
         if (!live()) return;
         if (error.code === "CONFLICT") clash.push({ file, path });
@@ -121,9 +128,8 @@ export function useFileOperations({ attempt, generation, target, clip, api, base
     void attempt(async () => {
       const live = fresh();
       for (const { file, path } of items) {
-        const content = await readAsBase64(file);
         if (!live()) return;
-        await api.post(`${base}/write`, { target: owner, path, content, format: "base64" });
+        await transfer(file, path, owner, live, true);
       }
       if (!live()) return;
       onOverwritten(items.map((item) => item.path));

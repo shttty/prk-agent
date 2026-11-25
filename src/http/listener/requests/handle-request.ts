@@ -141,7 +141,7 @@ export async function handleRequest(ctx: ListenerContext, request: IncomingMessa
 
     const workspaceRoute = workspaceHttpRoute(path);
     if (workspaceRoute) {
-      await handleWorkspaceRequest(ctx, request, response, workspaceRoute);
+      await handleWorkspaceRequest(ctx, request, response, workspaceRoute, url.searchParams);
       return;
     }
 

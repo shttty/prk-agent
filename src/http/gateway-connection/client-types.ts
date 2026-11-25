@@ -37,6 +37,7 @@ export interface WebTerminalSession {
 export interface WebGatewayClient {
   available(): boolean;
   call(method: Method, params: Record<string, unknown>): Promise<unknown>;
+  uploadFile(params: Record<string, unknown>, signal: AbortSignal, source: AsyncIterable<Buffer>): Promise<void>;
   downloadFile(params: Record<string, unknown>, signal: AbortSignal, sink: WebDownloadSink): Promise<void>;
   observe(sessionId: string, sink: WebObserverSink): Promise<() => void>;
   observeSessions(sink: WebObserverSink): Promise<() => void>;

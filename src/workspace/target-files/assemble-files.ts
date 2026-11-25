@@ -2,6 +2,7 @@ import type { FilesState, TargetFilesOptions, TargetFileContext, TargetFiles } f
 import type { WorkspaceFileFormat } from "../files/files-types.ts";
 import { withOperation } from "./with-operation.ts";
 import { list } from "./list.ts";
+import { streamUpload } from "./stream-upload.ts";
 import { download } from "./download.ts";
 import { read } from "./read.ts";
 import { write } from "./write.ts";
@@ -16,6 +17,7 @@ export function assembleFiles(options: TargetFilesOptions): TargetFiles {
   const state: FilesState = { options, active: 0 };
   return {
     list: (context: TargetFileContext, path = context.cwd) => withOperation(state, context, (op) => list(op, path)),
+    upload: (context, path, overwrite, wireChunkBytes) => streamUpload(state, context, path, overwrite, wireChunkBytes),
     download: (context, path, wireChunkBytes) => download(state, context, path, wireChunkBytes),
     read: (context: TargetFileContext, path: string, format?: WorkspaceFileFormat) => withOperation(state, context, (op) => read(op, path, format)),
     write: (context: TargetFileContext, request: Parameters<typeof write>[1]) => withOperation(state, context, (op) => write(op, request)),

@@ -4,6 +4,7 @@ import { rejectPathTraversal } from "./reject-path-traversal.ts";
 import { HttpError } from "./create-error.ts";
 import { nativeRequest } from "./validate-wire-params.ts";
 import { routeSessionPath } from "../session-routes/parse-session-route.ts";
+import { workspaceHttpRoute } from "../../workspace/http-routes/workspace-http-route.ts";
 import { terminalSocketRoute } from "../../workspace/http-routes/terminal-socket-route.ts";
 import { parseKernelResultQuery } from "../session-routes/parse-kernel-result-query.ts";
 
@@ -26,7 +27,8 @@ export function routePath(limits: LimitsOptions, request: IncomingMessage, origi
       }
       return parsed;
     }
-    if (request.method === "POST" && parsed.pathname === "/api/artifacts/upload") return parsed;
+    if (request.method === "POST" && (parsed.pathname === "/api/artifacts/upload"
+      || workspaceHttpRoute(parsed.pathname)?.method === "filesUpload")) return parsed;
     if (request.method === "GET" && parsed.pathname === "/api/capabilities"
       && [...parsed.searchParams.keys()].length === 1 && parsed.searchParams.has("instance")) {
       nativeRequest(limits, { instance: parsed.searchParams.get("instance") }, "capabilitiesList");

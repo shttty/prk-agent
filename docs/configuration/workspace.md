@@ -3,7 +3,6 @@
 | Key | Default | Range / meaning |
 | --- | --- | --- |
 | `fileReadBytes` | 524288 | Positive maximum file body bytes; opened-file size and bounded reads both enforce it. Oversize content is rejected, never truncated. |
-| `fileDownloadBytes` | 4294967296 (4 GiB) | Positive maximum bytes for explicit workspace file downloads; does not raise the preview limit. |
 | `terminalReplayBytes` | 262144 | **positive**; fixed UTF-8 recent-output ring capacity per owned terminal; whole code points are evicted. |
 | `terminalsPerWorkerMax` | 4 | **positive**; named terminals per worker, including pending creation. |
 | `fileChunkBytes` | 262144 | Positive sequential pread/write payload size, at most 16711680; actual JSON + payload must also fit the protocol's 16777216-byte frame. |
@@ -16,7 +15,7 @@
 | `terminalCloseTimeoutMs` | 3000 | Positive timer; terminal cleanup confirmation budget, not proof of death. |
 
 Workspace file/terminal shapes: [Gateway transport](../wire/workspace.md#files-and-terminal-shapes).
-Target file deadlines use `targetConnection.requestTimeoutMs` (default 10000 ms); timeout retires the owned shared generation and reports unknown effects without replay. For downloads, this deadline applies to target open/read/close, not time waiting for HTTP backpressure. Configured Gateway/HTTP caps still apply. Terminal setup deadlines are separate.
+Target file deadlines use `targetConnection.requestTimeoutMs` (default 10000 ms); timeout retires the owned shared generation and reports unknown effects without replay. For file transfers, this deadline applies to individual target operations, not time waiting for HTTP to supply or drain bytes. Explicit workspace uploads and downloads have no whole-file byte limit. Gateway frames and HTTP request lifetimes still have their own budgets. Terminal setup deadlines are separate.
 PTY 启动与清理使用 workspace.terminalStartTimeoutMs / terminalCloseTimeoutMs，单次输入用 terminalInputBytes；Gateway/HTTP/SSE 原有限额仍适用。
 Option changes: [模块约定](../wire/targets.md#约定)、[模块约定](../configuration.md#约定); transport implementation: [design notes](../design-notes.md).
 

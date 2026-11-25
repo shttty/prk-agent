@@ -13,6 +13,7 @@ import { pathItems } from "../file-paths/path-items.js";
 import { Tooltip } from "@mantine/core";
 import { ActionIcon } from "@mantine/core";
 import { Loader } from "@mantine/core";
+import { Progress } from "@mantine/core";
 import { Modal } from "@mantine/core";
 import { Text } from "@mantine/core";
 import { Group } from "@mantine/core";
@@ -66,7 +67,7 @@ export default function FileTree({ api, sessionId, target, environment, activePa
   useLayoutEffect(() => {
     const serial = ++generation.current;
     setRoot(null); setNodes({}); setRootError("");
-    setMenu(null); setEditing(null); setClip(null); setRemoving(null); setClashes(null); setQuery(""); setOpError("");
+    setMenu(null); setEditing(null); setClip(null); setRemoving(null); setClashes(null); setQuery(""); setOpError(""); setUploadProgress(null);
     void list(null).then((path) => { if (serial === generation.current) setRoot(path); })
       .catch((error) => { if (serial === generation.current) setRootError(listFailure(error)); });
   }, [list, environment]);
@@ -87,6 +88,7 @@ export default function FileTree({ api, sessionId, target, environment, activePa
   const [clip, setClip] = useState(null);
   const [removing, setRemoving] = useState(null);
   const [clashes, setClashes] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(null);
   const [opError, setOpError] = useState("");
   const touch = useMediaQuery("(hover: none)");
   const uploadInput = useRef(null);
@@ -113,7 +115,7 @@ export default function FileTree({ api, sessionId, target, environment, activePa
     setMenu({ entry, x: rect.left, y: rect.bottom, sheet: touch });
   };
 
-  const { act, commitName, confirmRemove, onUpload, overwrite } = useFileOperations({ attempt, generation, target, clip, api, base, forgetListings, onMoved, setClip, reload, menu, dirFor, setMenu, onOpenFile, root, goTo, setEditing, setOpError, refresh, setRemoving, editing, showHidden, toggleHidden, removing, onDeleted, uploadInput, uploadDir, setClashes, clashes, onOverwritten });
+  const { act, commitName, confirmRemove, onUpload, overwrite } = useFileOperations({ attempt, generation, target, clip, api, base, forgetListings, onMoved, setClip, reload, menu, dirFor, setMenu, onOpenFile, root, goTo, setEditing, setOpError, refresh, setRemoving, editing, showHidden, toggleHidden, removing, onDeleted, uploadInput, uploadDir, setClashes, clashes, onOverwritten, uploadProgress, setUploadProgress });
 
   const tree = { showHidden, query, nodes, goTo, openFile: onOpenFile, activePath, editing, cutPath: clip?.mode === "cut" ? clip.entry.path : null, onMenu, onMore, commitName, cancelEdit: () => setEditing(null) };
   const removingDirty = removing ? hasUnsaved(removing.path) : false;
@@ -136,11 +138,15 @@ export default function FileTree({ api, sessionId, target, environment, activePa
       </div>
     </div> : null}
     {opError ? <InlineAlert m="xs" flex="none" withCloseButton closeButtonLabel="关闭错误提示" onClose={() => setOpError("")}>{opError}</InlineAlert> : null}
+    {uploadProgress ? <div id="file-upload-progress" data-transferred={uploadProgress.bytes} data-total={uploadProgress.size}>
+      <Text size="xs" mx="xs" truncate>{uploadProgress.bytes < uploadProgress.size ? "正在上传" : "正在保存"}：{uploadProgress.name}</Text>
+      <Progress m="xs" size="xs" aria-label={`上传 ${uploadProgress.name}`} value={uploadProgress.size ? 100 * uploadProgress.bytes / uploadProgress.size : 100} />
+    </div> : null}
     <div className="pi-files-list" aria-label="目录内容" onContextMenu={(event) => { if (root !== null) onMenu(event, null); }}>
       {rootError ? <InlineAlert m="xs">{rootError}</InlineAlert> : root === null ? <div className="pi-files-note"><Loader size={12} /></div>
         : <TreeContext.Provider value={tree}><DirectoryList path={root} /></TreeContext.Provider>}
     </div>
-    <input ref={uploadInput} type="file" multiple hidden onChange={(event) => void onUpload(event)} />
+    <input id="file-upload-input" ref={uploadInput} type="file" multiple hidden onChange={(event) => void onUpload(event)} />
     <FileMenu menu={menu} groups={fileActionGroups(menu?.entry ?? null, Boolean(clip))} showHidden={showHidden} onAction={act} onClose={() => setMenu(null)} />
     <Modal opened={Boolean(removing)} onClose={() => setRemoving(null)} title={removing ? `删除 ${removing.name}？` : ""} size="sm" centered>
       {removing && isDir(removing) ? <Text size="sm">只能删除空目录。</Text> : null}

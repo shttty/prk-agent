@@ -28,6 +28,8 @@ export function workspace(ctx: HostContext, method: Parameters<GatewaySessionHos
           case "filesDownload":
             // Allow for base64 padding plus the bounded Gateway response envelope and its newline.
             return ctx.workspace.files.download(context, p.path as string, Math.floor((ctx.host.config.limits.outputBytes - 128) / 4) * 3);
+          case "filesUpload":
+            return ctx.workspace.files.upload(context, p.path as string, p.overwrite as boolean, Math.floor((ctx.host.config.limits.inputBytes - 128) / 4) * 3);
           case "filesRead": return ctx.workspace.files.read(context, p.path as string, p.format as "text" | "base64" | undefined);
           case "filesWrite": return ctx.workspace.files.write(context, p as unknown as Parameters<typeof ctx.workspace.files.write>[1]);
           case "filesCreate": return ctx.workspace.files.create(context, p as unknown as Parameters<typeof ctx.workspace.files.create>[1]);

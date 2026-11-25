@@ -1,6 +1,5 @@
 export interface WorkspaceOptions {
   readonly fileReadBytes: number;
-  readonly fileDownloadBytes: number;
   readonly fileChunkBytes: number;
   readonly directoryEntries: number;
   readonly directoryBytes: number;
@@ -15,7 +14,6 @@ export interface WorkspaceOptions {
 
 export const DEFAULT_WORKSPACE_OPTIONS: WorkspaceOptions = Object.freeze({
   fileReadBytes: 512 * 1024,
-  fileDownloadBytes: 4 * 1024 ** 3,
   fileChunkBytes: 262144,
   directoryEntries: 1000,
   directoryBytes: 262144,

@@ -25,7 +25,6 @@ export async function* download(state: FilesState, context: TargetFileContext, p
       const { name, size, type } = formatMetadata(opened.json.info, path);
       if (type !== "file" && type !== "notebook") throw new WireError("INVALID_REQUEST", "Only regular files can be downloaded.");
       if (size === null || !Number.isSafeInteger(size) || size < 0) throw new WireError("HOST_ERROR", "Invalid target file length.");
-      if (size > options.workspace.fileDownloadBytes) throw new WireError("TOO_LARGE", `File exceeds the ${options.workspace.fileDownloadBytes} byte download limit.`);
       yield { name, size };
       for (let offset = 0; offset < size;) {
         const chunk = await run(() => readChunk(op, opened, offset, Math.min(maxChunk, size - offset)));

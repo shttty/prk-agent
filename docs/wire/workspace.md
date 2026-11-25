@@ -35,7 +35,7 @@ The background task's Interrupt action requests `terminalInterrupt` with the ter
 
 ## Wire methods
 
-Every `files*` request except `filesDownloadNext` additionally requires `target:string` (HTTP body as well as wire params), captured from the operation's session selection. The Gateway compares it to the current authoritative session target before capturing the file context. A mismatch is HTTP 400 `INVALID_REQUEST` with `details.reason:"target-mismatch"`; it performs no file operation and is not a timestamp conflict or a retry instruction. Terminal requests do not take a target.
+Every `files*` request except `filesDownloadNext`, `filesUploadChunk` and `filesUploadFinish` additionally requires `target:string` (HTTP metadata as well as wire params), captured from the operation's session selection. The Gateway compares it to the current authoritative session target before capturing the file context. A mismatch is HTTP 400 `INVALID_REQUEST` with `details.reason:"target-mismatch"`; it performs no file operation and is not a timestamp conflict or a retry instruction. Terminal requests do not take a target.
 
 | Method | Parameters | Result |
 | --- | --- | --- |
@@ -43,8 +43,11 @@ Every `files*` request except `filesDownloadNext` additionally requires `target:
 | `filesRead` | `{sessionId,path,format?:"text"\|"base64"}` | `WorkspaceFileMetadata & {content:string,format:"text"\|"base64"}` |
 | `filesDownload` | `{sessionId,path}` | `{done:false,value:{name,size}}` |
 | `filesDownloadNext` | `{}` | `{done,value:{data}}`; `data` is one base64 chunk |
-| `filesWrite` | `{sessionId,path,content:string,format:"text"\|"base64",expectedLastModified?:string}` | `WorkspaceFileMetadata` |
-| `filesCreate` | `{sessionId,path,type:"file"\|"directory",content?:string,format?:"text"\|"base64"}` | `WorkspaceFileMetadata` |
+| `filesUpload` | `{sessionId,path,overwrite:boolean}` | `{done:false,value:{chunkBytes}}` |
+| `filesUploadChunk` | `{data:string}` (one nonempty base64 chunk) | `{done:false}` after the target acknowledges the write |
+| `filesUploadFinish` | `{}` | `{done:true}` after the target publishes the file |
+| `filesWrite` | `{sessionId,path,content:string,format:"text",expectedLastModified?:string}` | `WorkspaceFileMetadata` |
+| `filesCreate` | `{sessionId,path,type:"file"\|"directory",content?:string,format?:"text"}` | `WorkspaceFileMetadata` |
 | `filesRename` | `{sessionId,path,newPath}` | `WorkspaceFileMetadata` |
 | `filesCopy` | `{sessionId,path,toDir}` | metadata of the new copy |
 | `filesDelete` | `{sessionId,path}` | `{path}` |
@@ -59,9 +62,13 @@ Every `files*` request except `filesDownloadNext` additionally requires `target:
 
 `filesRead` 使用 raw bytes（包括 notebooks）；omitted format 对有效 UTF-8 无 NUL 文件返回 text，否则 base64。
 Read cap 按正文原始/解码字节检查打开句柄 size 与实际 bounded pread；超限报 TOO_LARGE，不返回截断正文。
-下载只用于用户明确取回完整文件。每个下载使用独立 Web ↔ Gateway 连接与目标机上的一个文件句柄，禁止并行拉块。Web 按 HTTP 写入背压依次调用 `filesDownloadNext`；原始块上限为 `workspace.fileChunkBytes` 和 JSON/base64 帧预算的较小值。只有目标句柄关闭成功才返回 `done:true` 的末块（空文件末块为空）；任一连接断开后停止拉取并清理本次下载，不重放。
+每个上传或下载使用独立 Web ↔ Gateway 连接与目标机上的一个文件句柄，同一连接不能并行推进或打开第二个传输。原始块上限为 `workspace.fileChunkBytes` 和相应方向的 JSON/base64 帧预算的较小值；完整文件没有字节上限。
+
+- 下载：Web 按 HTTP 写入背压依次调用 `filesDownloadNext`；目标句柄关闭成功才返回 `done:true` 的末块（空文件末块为空）。
+- 上传：Web 等目标确认每个 `filesUploadChunk` 后才推进，收到完整 HTTP 请求体后发送 `filesUploadFinish`。目标关闭句柄后，将同目录的 `.<文件名片段>.prk-upload-<id>` 原子改名。未确认覆盖时检查目标名是否存在，冲突返回 `CONFLICT`；pi-env 不提供原子不覆盖改名，存在性检查不是 CAS。
+- 浏览器或 Web ↔ Gateway 断开时终止未提交的传输，目标在线时关闭句柄并删除未发布的暂存文件。目标机本身断开时可能留下该暂存；UNKNOWN 或离线清理失败会记录时间与暂存路径。重连后先检查目标路径和暂存，再决定是否手动删除或重试。已发出发布请求但未收到回执时，目标文件可能已经替换；传输不自动重放。
 Write 受 encoded inbound frame / body cap 限制，按 fileChunkBytes 顺序发送；单帧另受 pi-env 固有上限限制。
-Empty content 有效；base64 可以包含 standard ASCII whitespace。
+编辑器只以内联正文写入 text；空正文有效，普通文件上传不经过这些 JSON 写接口。
 File create 默认 empty text；directory create 的参数不含 content / format。
 Metadata 中 size / MIME 可为 null。
 
@@ -143,6 +150,7 @@ Web row hook：`.pi-terminal-event[data-kind]`。
 | --- | --- | --- |
 | `POST /api/sessions/:sessionId/files/list` | `{path?}` | `filesList` |
 | `POST /api/sessions/:sessionId/files/read` | `{path,format?}` | `filesRead` |
+| `POST /api/sessions/:sessionId/files/upload?target=…&path=…[&overwrite=true]` | `application/octet-stream` 原始请求体 | `filesUpload` / `filesUploadChunk` / `filesUploadFinish`，成功后返回 `{uploaded:true}` |
 | `POST /api/sessions/:sessionId/files/download` | URL 编码表单 `{target,path}` | `filesDownload` / `filesDownloadNext`，返回二进制附件 |
 | `POST /api/sessions/:sessionId/files/write` | `{path,content,format,expectedLastModified?}` | `filesWrite` |
 | `POST /api/sessions/:sessionId/files/create` | `{path,type,content?,format?}` | `filesCreate` |
@@ -150,7 +158,7 @@ Web row hook：`.pi-terminal-event[data-kind]`。
 | `POST /api/sessions/:sessionId/files/copy` | `{path,toDir}` | `filesCopy` (same dir → `name-Copy1.ext`; directories copy recursively) |
 | `POST /api/sessions/:sessionId/files/delete` | `{path}` | `filesDelete` |
 
-下载保留原有精确 Origin 与目标、会话、绝对路径校验。响应携带 `Content-Disposition: attachment`（含文件名）、按扩展名获取的 `Content-Type`（未知为 `application/octet-stream`）和 `Content-Length`。`workspace.fileDownloadBytes` 默认 4 GiB，超限返回 413 `TOO_LARGE`；不改变 `fileReadBytes`。已开始响应后，提前 EOF、读错或连接失败均中止响应，不把截断体作为成功文件发送。
+上传与下载均保留精确 Origin 与目标、会话、绝对路径校验。下载响应携带 `Content-Disposition: attachment`（含文件名）、按扩展名获取的 `Content-Type`（未知为 `application/octet-stream`）和 `Content-Length`。编辑器预览仍使用 `fileReadBytes`。已开始响应后，提前 EOF、读错或连接失败均中止响应，不把截断体作为成功文件发送。
 | `GET /api/sessions/:sessionId/terminals` | none | `terminalsList` |
 | `POST /api/sessions/:sessionId/terminals/interrupt` | `{name,generation,commandId}` | `terminalInterrupt` |
 | `POST /api/sessions/:sessionId/terminals/close` | `{name}` | `terminalClose` |

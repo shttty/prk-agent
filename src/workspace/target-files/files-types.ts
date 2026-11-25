@@ -33,12 +33,16 @@ export type DownloadMetadata = { name: string; size: number };
 export type DownloadChunk = { data: string };
 export type FileDownload = AsyncGenerator<DownloadMetadata | DownloadChunk, DownloadChunk | undefined, void>;
 
+export type UploadMetadata = { chunkBytes: number };
+export type FileUpload = AsyncGenerator<UploadMetadata | undefined, undefined, Buffer | undefined>;
+
 export interface TargetFiles {
+  upload(context: TargetFileContext, path: string, overwrite: boolean, wireChunkBytes: number): FileUpload;
   download(context: TargetFileContext, path: string, wireChunkBytes: number): FileDownload;
   list(context: TargetFileContext, path?: string): Promise<FileListing>;
   read(context: TargetFileContext, path: string, format?: WorkspaceFileFormat): Promise<FileRead>;
-  write(context: TargetFileContext, request: { path: string; content: string; format: WorkspaceFileFormat; expectedLastModified?: string }): Promise<WorkspaceFileMetadata>;
-  create(context: TargetFileContext, request: { path: string; type: "file" | "directory"; content?: string; format?: WorkspaceFileFormat }): Promise<WorkspaceFileMetadata>;
+  write(context: TargetFileContext, request: { path: string; content: string; format: "text"; expectedLastModified?: string }): Promise<WorkspaceFileMetadata>;
+  create(context: TargetFileContext, request: { path: string; type: "file" | "directory"; content?: string; format?: "text" }): Promise<WorkspaceFileMetadata>;
   rename(context: TargetFileContext, path: string, newPath: string): Promise<WorkspaceFileMetadata>;
   copy(context: TargetFileContext, path: string, toDir: string): Promise<WorkspaceFileMetadata>;
   delete(context: TargetFileContext, path: string): Promise<{ path: string }>;

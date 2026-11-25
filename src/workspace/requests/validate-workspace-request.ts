@@ -5,7 +5,8 @@ import { validateRequest } from "../target-files/validate-request.ts";
 import { positive } from "./is-positive-count.ts";
 
 export function validateWorkspaceRequest(method: string, p: Record<string, unknown>, limits: LimitsOptions): boolean {
-  if (method === "unsubscribeTerminal" || method === "filesDownloadNext") return keys(p, []);
+  if (method === "unsubscribeTerminal" || method === "filesDownloadNext" || method === "filesUploadFinish") return keys(p, []);
+  if (method === "filesUploadChunk") return keys(p, ["data"]) && typeof p.data === "string" && p.data.length % 4 === 0 && /^[A-Za-z0-9+/]+={0,2}$/u.test(p.data);
   if (!identifier(p.sessionId, limits.identityChars)) return false;
   if (method === "terminalsList") return keys(p, ["sessionId"]);
   if (method.startsWith("files")) {

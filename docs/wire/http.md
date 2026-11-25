@@ -1,7 +1,7 @@
 # Independent Web workbench HTTP/SSE
 
 规则：[GEN-1](../contract.md)、[WEB-4](../contract.md)、[GEN-7](../contract.md)、[模块约定](native.md#约定)、[LIFE-1](../contract.md)。
-Backend 只发布 `/api` JSON / SSE 与 terminal WebSocket。
+Backend 只发布 `/api` JSON / SSE、工作区二进制传输与 terminal WebSocket。
 UI 属于独立 `web/` npm package；同源 Vite proxy 的运行方式见 [design notes](../design-notes.md#运行与验收证据)。
 `API_ROOT` 为 same-origin `/api`。
 

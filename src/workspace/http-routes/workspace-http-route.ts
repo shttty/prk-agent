@@ -1,7 +1,7 @@
 import type { WorkspaceMethod } from "../requests/requests-types.ts";
 import { fileMethods } from "./http-routes-constants.ts";
 
-/** New routes remain under the existing private session namespace, without query fields. Terminal I/O is not HTTP: see `terminalSocketRoute`. */
+/** New routes remain under the existing private session namespace. Terminal I/O is not HTTP: see `terminalSocketRoute`. */
 export function workspaceHttpRoute(pathname: string): { sessionId: string; method: WorkspaceMethod; verb: "GET" | "POST" } | undefined {
   const parts = pathname.split("/");
   if (parts[1] !== "api" || parts[2] !== "sessions" || !parts[3]) return;

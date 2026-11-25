@@ -1,4 +1,4 @@
-import type { FileDownload } from "../../../workspace/target-files/files-types.ts";
+import type { FileDownload, FileUpload } from "../../../workspace/target-files/files-types.ts";
 import type { Socket } from "node:net";
 import type { ListenerContext } from "../listener-state.ts";
 
@@ -10,8 +10,8 @@ export interface PeerContext {
   unsubscribeTerminal: (() => void) | undefined;
   subscribedSessionId: string | undefined;
   unsubscribeRoutes: (() => void) | undefined;
-  download?: FileDownload;
-  pullingDownload?: boolean;
+  fileTransfer?: { method: "filesDownload"; stream: FileDownload } | { method: "filesUpload"; stream: FileUpload };
+  advancingFileTransfer?: boolean;
   lastId: number;
   pending: number;
 }

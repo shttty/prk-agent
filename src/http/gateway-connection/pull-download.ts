@@ -1,16 +1,11 @@
 import type { ClientContext } from "./client-state.ts";
 import type { WebDownloadSink } from "./client-types.ts";
 import type { DownloadChunk, DownloadMetadata } from "../../workspace/target-files/files-types.ts";
-import { acquireStream } from "./acquire-stream.ts";
+import { withFileTransfer } from "./with-file-transfer.ts";
 import { WireError } from "../../gateway/wire/create-error.ts";
 
 export async function downloadFile(ctx: ClientContext, params: Record<string, unknown>, signal: AbortSignal, sink: WebDownloadSink): Promise<void> {
-  signal.throwIfAborted();
-  const client = await acquireStream(ctx);
-  const close = () => { ctx.streams.delete(client); client.disconnect(); };
-  signal.addEventListener("abort", close, { once: true });
-  try {
-    signal.throwIfAborted();
+  await withFileTransfer(ctx, signal, async (client) => {
     const { value: metadata } = await client.request("filesDownload", params) as { value: DownloadMetadata };
     sink.open(metadata);
     let remaining = metadata.size;
@@ -25,8 +20,5 @@ export async function downloadFile(ctx: ClientContext, params: Record<string, un
       if (chunk.length !== 0) await sink.write(chunk);
       if (done) return;
     }
-  } finally {
-    signal.removeEventListener("abort", close);
-    close();
-  }
+  });
 }
