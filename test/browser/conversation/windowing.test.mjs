@@ -57,7 +57,9 @@ test("long transcript preserves prepend and restore anchors, reveals off-window 
   assert(Math.abs(offsets.at(-1) - offsets[0]) <= 2, JSON.stringify(offsets));
   assert(offsets.slice(1).every((offset, index) => Math.abs(offset - offsets[index]) <= 8), JSON.stringify(offsets));
 
-  await page.locator("#composer").focus();
+  const sessionButton = page.locator(`[data-session-id="${id}"] .management-session-select`);
+  await sessionButton.focus();
+  assert(await sessionButton.evaluate((button) => document.activeElement === button));
   await page.keyboard.press("Control+f");
   const input = page.locator("#transcript-search");
   await input.waitFor();

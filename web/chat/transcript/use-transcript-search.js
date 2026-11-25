@@ -20,15 +20,13 @@ export function useTranscriptSearch({ actions, revealMessage, setFollowing, view
     const find = (event) => {
       if (event.defaultPrevented || event.isComposing || event.altKey || event.shiftKey || (!event.ctrlKey && !event.metaKey) || event.key.toLowerCase() !== "f") return;
       const target = event.target;
-      const chat = viewportRef.current?.closest(".pi-chat");
-      if (!chat || !(target instanceof Element)) return;
-      if (!chat.contains(target) && target !== document.body && target !== document.documentElement) return;
+      if (!viewportRef.current || !sessionId || !(target instanceof Element)) return;
       if (target.closest(".cm-editor, .xterm")) return;
       event.preventDefault();
       open();
     };
     document.addEventListener("keydown", find);
     return () => document.removeEventListener("keydown", find);
-  }, [open, viewportRef]);
+  }, [open, sessionId, viewportRef]);
   return { searchOpen, searchStatus, searchMatches, closeSearch: close, searchText, setSearchText, selectSearchMatch: select, searchIndex, searchError, open };
 }
