@@ -20,10 +20,11 @@ export async function executeNativeAction(ctx, action, args = {}, { transcript =
     const isCurrent = sessionRequestCurrent(ctx);
     const cancellable = descriptor?.cancellable === true || descriptor?.availability?.cancellable === true || action === "compact" || (action === "tree" && args?.summarize === true);
     const lightSetting = LIGHT_SETTING_ACTIONS.has(action);
+    const blocksNativeActions = !lightSetting && action !== "fork-reply";
     const value = args[{ model: "model", thinking: "level", "tool-mode": "mode", delegation: "level" }[action]];
     const rollback = lightSetting ? updateLightSetting(ctx, { [LIGHT_SETTING_FIELDS[action]]: value }) : null;
     if (transcript && action !== "compact") upsertNativeFeedback(ctx, { requestId: id, action, status: "running", message: "正在执行…", ...(cancellable ? { cancellable: true } : {}) });
-    patchSession(ctx, { ...(!transcript ? { error: null } : {}), ...(!lightSetting ? { pending: withPending(ctx.state.session.pending, "nativeActionPending", true) } : {}) });
+    patchSession(ctx, { ...(!transcript ? { error: null } : {}), ...(blocksNativeActions ? { pending: withPending(ctx.state.session.pending, "nativeActionPending", true) } : {}) });
     try {
       const result = await postJson(ctx, nativePath(ctx, name), { requestId: id, action, args });
       if (!isCurrent()) return ["completed", "running"].includes(result?.status);
@@ -37,7 +38,7 @@ export async function executeNativeAction(ctx, action, args = {}, { transcript =
       }
       return false;
     } finally {
-      if (!lightSetting && isCurrent()) patchSession(ctx, { pending: withPending(ctx.state.session.pending, "nativeActionPending", false) });
+      if (blocksNativeActions && isCurrent()) patchSession(ctx, { pending: withPending(ctx.state.session.pending, "nativeActionPending", false) });
     }
   }
 

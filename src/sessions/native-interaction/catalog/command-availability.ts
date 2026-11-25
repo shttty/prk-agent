@@ -3,6 +3,9 @@ import { wakesSleepingSession } from "./wakes-sleeping-session.ts";
 
 export function commandAvailability(command: StaticCommand, target: NativeTarget): { readonly enabled: boolean; readonly reason?: string } {
   if (command.name === "fork") return { enabled: false, reason: "Use the fork icon below an assistant reply; Web does not expose a /fork command." };
+  if (command.name === "fork-reply") return target.state === "closing"
+    ? { enabled: false, reason: "Wait for the source session to finish closing before forking a reply." }
+    : { enabled: true };
   if (command.name === "name") return target.rename ? { enabled: true } : { enabled: false, reason: "Gateway session rename is unavailable." };
   if (command.name === "new" && !(target.state === "sleeping" || (target.state === "closed" && target.readOnly))
     && (target.readOnly || target.state !== "idle" || !target.session
@@ -27,7 +30,7 @@ export function commandAvailability(command: StaticCommand, target: NativeTarget
   if (!target.readOnly && target.state === "sleeping"
     && (wakesSleepingSession(command.name) || ["model", "thinking", "scoped-models"].includes(command.name))) return { enabled: true };
   if (target.readOnly || target.state === "sleeping") {
-    if (command.name === "new" || command.name === "clone" || command.name === "fork-reply") return { enabled: true };
+    if (command.name === "new" || command.name === "clone") return { enabled: true };
     if (command.name === "export") return { enabled: false, reason: "Native SDK export requires an active session; read-only history export is unsupported." };
     return command.effect === "read" || command.effect === "presentation"
       ? { enabled: true }

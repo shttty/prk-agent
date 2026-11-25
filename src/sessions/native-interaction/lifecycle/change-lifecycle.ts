@@ -14,6 +14,6 @@ export async function changeLifecycle(ctx: NativeContext, target: NativeTarget, 
     if (session.isCompacting || session.pendingMessageCount > 0 || target.host?.isIdle === false) {
       throw new WireError("BUSY", "Creating a session requires an idle source session.");
     }
-  } else if (!target.readOnly && target.state !== "sleeping") requireIdle(target);
+  } else if (action === "clone" && !target.readOnly && target.state !== "sleeping") requireIdle(target);
   return await options.lifecycle(target, action === "fork-reply" ? "fork" : action, request.args);
 }
