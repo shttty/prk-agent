@@ -1,0 +1,40 @@
+button.pi-image-button {
+  cursor: zoom-in;
+}
+
+button.pi-image-button:not(.pi-kernel-thumbnail) {
+  border: 0;
+  padding: 0;
+  max-inline-size: 100%;
+  background: transparent;
+}
+
+.pi-image-button:focus-visible {
+  outline: 2px solid var(--pi-accent);
+  outline-offset: 3px;
+}
+
+.pi-image-viewer-nav { margin-block-end: .75rem; }
+.pi-image-viewer-caption { flex: 1; min-inline-size: 0; text-align: center; }
+
+.pi-image-viewer-stage {
+  display: grid;
+  place-items: center;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  block-size: min(65dvh, 40rem);
+  overflow: hidden;
+  border-radius: var(--pi-radius-sm);
+  background: var(--pi-code-bg);
+  color: var(--pi-muted);
+  touch-action: none;
+}
+
+.pi-image-viewer-stage:not([data-zoom="1"])[data-zoom] { cursor: grab; }
+.pi-image-viewer-stage:not([data-zoom="1"])[data-zoom]:active { cursor: grabbing; }
+
+.pi-image-viewer-stage img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
+  user-select: none;
+}

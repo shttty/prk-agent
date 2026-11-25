@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
-import { Modal } from "@mantine/core";
+import { ImageThumbnail } from "../../image-viewer/ImageThumbnail.jsx";
+import { imageKey } from "../../image-viewer/image-key.js";
 import { useWorkbench } from "../../../../workbench/subscription/use-workbench.js";
 import { PresentationContext } from "../../presentation-context.js";
 import { resultImageSource } from "../body/result-image-source.js";
@@ -29,22 +30,18 @@ function ForegroundGallery({ actions, sessionId, part }) {
   }, [actions, sessionId, toolCallId, metadata]);
   const result = part.result?.result ?? part.result;
   const sources = metadata.outputLoaded ? result?.content?.filter(({ type }) => type === "image").map(resultImageSource) ?? [] : undefined;
-  return <Gallery count={metadata.outputPreview.imageCount} sources={sources} failed={failed} />;
+  return <Gallery toolCallId={toolCallId} count={metadata.outputPreview.imageCount} sources={sources} failed={failed} />;
 }
 
-function Gallery({ loadKernelImage, cell, count, sources, failed }) {
-  const [original, setOriginal] = useState(null);
+function Gallery({ loadKernelImage, cell, toolCallId = cell?.toolCallId, count, sources, failed }) {
   return <div className="pi-kernel-gallery" data-kind="kernel-image-gallery" data-cell-id={cell?.cellId}>
     {Array.from({ length: count }, (_, index) => <Thumbnail key={index} index={index + 1} loadKernelImage={loadKernelImage}
-      sessionId={cell?.sessionId} toolCallId={cell?.toolCallId} kernelId={cell?.kernelId} cellId={cell?.cellId}
-      source={sources?.[index]} failed={failed || (sources && !sources[index])} onOpen={setOriginal} />)}
-    {original ? <Modal opened onClose={() => setOriginal(null)} title={original.label} size="auto" centered closeButtonProps={{ "aria-label": "关闭原图" }}>
-      <img className="pi-kernel-original" src={original.src} alt={original.label} />
-    </Modal> : null}
+      sessionId={cell?.sessionId} toolCallId={toolCallId} kernelId={cell?.kernelId} cellId={cell?.cellId}
+      source={sources?.[index]} failed={failed || (sources && !sources[index])} />)}
   </div>;
 }
 
-function Thumbnail({ loadKernelImage, sessionId, kernelId, cellId, toolCallId, index, source, failed, onOpen }) {
+function Thumbnail({ loadKernelImage, sessionId, kernelId, cellId, toolCallId, index, source, failed }) {
   const [loaded, setLoaded] = useState(null);
   const [broken, setBroken] = useState(false);
   useEffect(() => {
@@ -60,7 +57,7 @@ function Thumbnail({ loadKernelImage, sessionId, kernelId, cellId, toolCallId, i
   if (!image) return <span className="pi-kernel-thumbnail" data-image-status={image === null ? "loading" : "error"}>
     {image === null ? `正在加载${label}…` : `无法显示${label}`}
   </span>;
-  return <button className="pi-kernel-thumbnail" type="button" aria-label={`查看${label}原图`} onClick={() => onOpen({ src: image, label })}>
+  return <ImageThumbnail className="pi-kernel-thumbnail" imageId={imageKey(cellId ? "kernel" : "tool", toolCallId, index - 1)} label={label}>
     <img src={image} alt={label} decoding="async" onError={() => setBroken(true)} />
-  </button>;
+  </ImageThumbnail>;
 }

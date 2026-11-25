@@ -161,7 +161,7 @@ Web row hook：`.pi-terminal-event[data-kind]`。
 
 回复正文图片（`WEB-8`）：Web 转发 `filesDownload` 时使用 `inlineImage:true`。Gateway 仍按会话和 `target` 校验；规范绝对路径原样使用，相对路径基于保存的会话 cwd，`~/` 基于目标通道元数据的 home，打开前校验解析后的规范绝对路径。不唤醒会话。不接受不同 Origin 或 Fetch Metadata `same-site`／`cross-site`。
 
-浏览器解码和打开原图需要完整图像数据；每张最多 32 MiB，沿用有背压的下载块，不在 Web 聚合整图。发送响应头前最多暂存 12 字节，校验 PNG／JPEG／GIF／WebP 扩展名与文件签名相符；SVG 和不匹配拒绝。响应含匹配的 `Content-Type`、`Content-Length`、`Content-Disposition: inline` 与 `Cache-Control: no-store`。Markdown 中的 HTTP(S) 图片只显示链接，不请求外部内容。
+浏览器解码和打开原图需要完整图像数据；每张最多 32 MiB，沿用有背压的下载块，不在 Web 聚合整图。发送响应头前最多暂存 12 字节，校验 PNG／JPEG／GIF／WebP 扩展名与文件签名相符；SVG 和不匹配拒绝。响应含匹配的 `Content-Type`、`Content-Length`、`Content-Disposition: inline` 与 `Cache-Control: no-store`。Markdown 中的 HTTP(S) 图片只显示链接，不请求外部内容。对话灯箱使用同一 URL 加载和打开当前目标图片，不预取尚未翻到的图片。
 
 上传与下载均保留精确 Origin 与目标、会话、绝对路径校验。下载响应携带 `Content-Disposition: attachment`（含文件名）、按扩展名获取的 `Content-Type`（未知为 `application/octet-stream`）和 `Content-Length`。编辑器预览仍使用 `fileReadBytes`。已开始响应后，提前 EOF、读错或连接失败均中止响应，不把截断体作为成功文件发送。
 | `GET /api/sessions/:sessionId/terminals` | none | `terminalsList` |

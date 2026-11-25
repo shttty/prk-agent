@@ -1,12 +1,9 @@
 import assert from "node:assert/strict";
-import { writeFile } from "node:fs/promises";
-import { join } from "node:path";
 import test from "node:test";
 import { fauxAssistantMessage } from "@earendil-works/pi-ai";
 import { browserFixture } from "../../fixtures/browser/open-workbench.mjs";
 import { text } from "../../fixtures/gateway/assemble-gateway.mjs";
-import { chartPng } from "./chart-png.mjs";
-import { verifyFoldedKernelImages } from "./verify-folded-kernel-images.mjs";
+import { verifyConversationImages } from "./verify-conversation-images.mjs";
 import { until } from "../../fixtures/until.mjs";
 
 const idle = "#composer-form:not([data-busy])";
@@ -74,59 +71,7 @@ test("send, observe streamed output, stop, then retry and edit from the original
   assert.equal(text(f.state(id).messages.findLast((item) => item.role === "user")), "Revised question");
 });
 
-test("send an image with no text and see it in the real conversation", async (t) => {
-  let received;
-  const external = "https://image.invalid/tracker.png";
-  const f = await browserFixture(t, { answer(context) {
-    if (context.messages.at(-1).role !== "user") return fauxAssistantMessage("Cell completed.");
-    received = context.messages.at(-1);
-    return fauxAssistantMessage(`![Target chart](./reply%20chart.png)\n\n![External chart](${external})\n\n![Missing chart](./missing.png)`);
-  } });
-  const id = await f.create();
-  await f.open(id);
-  const pixel = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAEElEQVR4AQEFAPr/AP8AAP8FAAH/+lyI0QAAAABJRU5ErkJggg==", "base64");
-  await writeFile(join(f.cwd, "reply chart.png"), await chartPng(f.page));
-  const externalRequests = [];
-  f.page.on("request", (request) => { if (request.url() === external) externalRequests.push(request.url()); });
-  await f.page.locator('input[type="file"][accept*="image"]').setInputFiles({ name: "pixel.png", mimeType: "image/png", buffer: pixel });
-  assert.equal(await f.page.locator(input).inputValue(), "");
-  const response = f.page.waitForResponse((res) => res.request().method() === "POST" && new URL(res.url()).pathname === `/api/sessions/${id}/send`);
-  await f.page.locator(send).click();
-  const receipt = await (await response).json();
-  assert.equal(receipt.accepted, true, JSON.stringify(receipt));
-  await until(() => received, "provider input");
-  assert.equal(text(received), "");
-  assert.equal(received.content.find((item) => item.type === "image")?.data, pixel.toString("base64"));
-  const image = f.page.locator("#messages .pi-message-user .pi-message-attachment img");
-  await image.waitFor();
-  const reply = f.page.locator('#messages .pi-message-assistant img[alt="Target chart"]');
-  await reply.waitFor();
-  await f.page.waitForFunction(() => document.querySelector('img[alt="Target chart"]')?.naturalWidth === 400);
-  assert.equal(await reply.getAttribute("loading"), "lazy");
-  assert.equal(await reply.locator("..").getAttribute("target"), "_blank");
-  await f.page.locator(`#messages a[href="${external}"]`).waitFor();
-  assert.deepEqual(externalRequests, []);
-  await f.page.locator('[data-image-status="error"]').filter({ hasText: "./missing.png" }).waitFor();
-  if (process.env.PI_TEST_WEB_EVIDENCE) await f.page.screenshot({ path: `${process.env.PI_TEST_WEB_EVIDENCE}/reply-markdown.png`, animations: "disabled" });
-  const [popup] = await Promise.all([f.page.waitForEvent("popup"), reply.locator("..").click()]);
-  await popup.waitForFunction(() => document.querySelector("img")?.naturalWidth === 400);
-  await popup.close();
-  await f.page.locator("#open-settings").click();
-  await f.page.locator("#open-visual-effects").click();
-  await f.page.locator('label.pi-settings-title[for="setting-show-message-images"]').click();
-  await f.page.locator("#close-settings").click();
-  await image.waitFor({ state: "detached" });
-  await reply.waitFor({ state: "detached" });
-  await f.page.locator(idle).waitFor();
-  await f.page.locator(input).fill("/settings showImages=on");
-  await f.page.locator(send).click();
-  await image.waitFor();
-  await f.page.locator("#open-settings").click();
-  await f.page.locator("#open-visual-effects").click();
-  assert.equal(await f.page.locator("#setting-show-message-images").isChecked(), true);
-  await f.page.locator("#close-settings").click();
-  await verifyFoldedKernelImages(f, id);
-});
+test("send an image with no text and see it in the real conversation", verifyConversationImages);
 
 test("sidebar shows a background child running, then waiting even under its folded parent", async (t) => {
   const release = Promise.withResolvers();

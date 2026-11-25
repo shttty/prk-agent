@@ -30,10 +30,3 @@ button.pi-kernel-thumbnail:hover { border-color: var(--pi-accent); }
   block-size: 100%;
   object-fit: contain;
 }
-
-.pi-kernel-original {
-  display: block;
-  max-inline-size: calc(100vw - 4rem);
-  max-block-size: 80vh;
-  object-fit: contain;
-}

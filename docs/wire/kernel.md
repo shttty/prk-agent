@@ -293,7 +293,7 @@ Gateway 在已有 `monitor/watch` 请求中附带 `processes`（会话 ID 到根
 | POST | `/api/sessions/:sessionId/monitor/focus` | `{open}` | `monitorFocus` |
 | POST | `/api/sessions/:sessionId/monitor/diff` | `{path}` | `monitorDiff` |
 
-`kernelResult {sessionId,cellId,imageIndex?}` 返回 `{sessionId,...cellDelivery,result?}`。默认返回最终文本和详情（不返回图块）；指定从 1 开始的 `imageIndex` 时返回一张已保留的图。浏览器仅在已完成 cell 报告保留图片且启用图片显示时请求；按会话、kernel、cell 和工具调用身份验证应答，工具行展开和原图预览不重复请求（`WEB-11`）。未 yield 的 cell 没有这条结果记录，图片按工具输出预览声明的 `imageCount` 走既有 `toolContent`，匹配会话、工具调用与版本后显示。没有终态时只返回投影状态；未知 cell 或图号为 `NOT_FOUND`。只读、不唤醒、不移动分支 leaf。
+`kernelResult {sessionId,cellId,imageIndex?}` 返回 `{sessionId,...cellDelivery,result?}`。默认返回最终文本和详情（不返回图块）；指定从 1 开始的 `imageIndex` 时返回一张已保留的图。浏览器仅在已完成 cell 报告保留图片且启用图片显示时请求；按会话、kernel、cell 和工具调用身份验证应答，工具行展开和原图预览不重复请求（`WEB-11`）。未 yield 的 cell 没有这条结果记录，图片按工具输出预览声明的 `imageCount` 走既有 `toolContent`，匹配会话、工具调用与版本后显示。灯箱按已加载的对话与图数定位图片，不为窗口外图片提前请求；翻到时复用同会话已经验证的内容，否则走相同读路由。没有终态时只返回投影状态；未知 cell 或图号为 `NOT_FOUND`。只读、不唤醒、不移动分支 leaf。
 
 Session SSE `snapshot.kernel` 是 full object；`host` event `type:"state_changed"` 使用 `details.kernel`。
 Live kernel frame 可省略 unchanged namespace。

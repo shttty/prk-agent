@@ -21,6 +21,7 @@ import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import { ExtensionRegion } from "../extension-ui/ExtensionRegion.jsx";
 import { ExtensionToasts } from "../extension-ui/ExtensionToasts.jsx";
 import { ExtensionUI } from "../extension-ui/ExtensionUI.jsx";
+import { ImageViewerProvider } from "../transcript/image-viewer/ImageViewerProvider.jsx";
 import { TranscriptList } from "../transcript/TranscriptList.jsx";
 import { PresentationContext } from "../transcript/presentation-context.js";
 import { usePresentationValue } from "../transcript/use-presentation-value.js";
@@ -146,7 +147,9 @@ export function ChatSurface({ actions, messageCount, onViewTerminal }) {
             onWheel={noteScrollIntent} onTouchStart={noteScrollIntent} onTouchMove={noteScrollIntent} onPointerDown={noteScrollIntent}>
             <Stack id="messages" ref={messagesRef} className="pi-messages messages" gap={8}>
               <SearchMatchContext.Provider value={searchMatches[searchIndex] ?? null}>
-                <TranscriptList key={snapshotSessionId} ref={listRef} viewportRef={viewportRef} history={history} following={scrollReady && followOutput && !searchOpen} mayFollow={mayFollow} />
+                <ImageViewerProvider identity={`${snapshotSessionId}:${streamId}:${presentationRevision}`}>
+                  <TranscriptList key={snapshotSessionId} ref={listRef} viewportRef={viewportRef} history={history} following={scrollReady && followOutput && !searchOpen} mayFollow={mayFollow} />
+                </ImageViewerProvider>
               </SearchMatchContext.Provider>
               {outcome ? <InlineAlert className={`pi-operation-outcome${outcome.status === "cancelled" || outcome.status === "canceled" ? "" : " is-error"}`} color={outcome.status === "cancelled" || outcome.status === "canceled" ? "gray" : "red"} role="status" data-status={outcome.status}>{outcome.text}</InlineAlert> : null}
               <ThreadPrimitive.Empty>

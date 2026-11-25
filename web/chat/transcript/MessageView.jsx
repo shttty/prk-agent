@@ -13,6 +13,8 @@ import { ExtensionNode } from "../extension-ui/ExtensionNode.jsx";
 import { AnsiText } from "../ansi/AnsiText.jsx";
 import { MemoryNotice } from "../memory-notice/MemoryNotice.jsx";
 import { PresentationContext } from "./presentation-context.js";
+import { ImageThumbnail } from "./image-viewer/ImageThumbnail.jsx";
+import { imageKey } from "./image-viewer/image-key.js";
 import { MarkdownPart } from "./messages/MarkdownPart.jsx";
 import { UserMarkdownPart } from "./messages/UserMarkdownPart.jsx";
 import { ToolPart } from "./tool-calls/ToolPart.jsx";
@@ -91,7 +93,9 @@ export function MessageView({ message }) {
         </TurnContext.Provider>
         {custom.extensionNode ? <ExtensionNode node={custom.extensionNode} onAction={(args) => { if (presentationContext?.actions?.extensionUiAction) void presentationContext.actions.extensionUiAction("component", args); }} className="extension-message-renderer" /> : null}
         {!custom.extensionNode ? <>
-        {Array.isArray(custom.attachments) && custom.attachments.length ? <Group className="pi-message-attachments" gap={4}>{custom.attachments.map((attachment, index) => <Box key={`${attachment.name || "attachment"}-${index}`} className="pi-message-attachment"><Badge variant="light" color={attachment.type?.startsWith("image/") ? "violet" : "gray"}>{attachment.source || "browser"}: {attachment.name || "附件"} · {attachment.size || 0} B</Badge>{presentationContext?.showImages !== false && attachment.type?.startsWith("image/") && typeof attachment.data === "string" ? <img src={`data:${attachment.type};base64,${attachment.data}`} alt={attachment.name || "上传图片"} loading="lazy" /> : null}</Box>)}</Group> : null}
+        {Array.isArray(custom.attachments) && custom.attachments.length ? <Group className="pi-message-attachments" gap={4}>{custom.attachments.map((attachment, index) => <Box key={`${attachment.name || "attachment"}-${index}`} className="pi-message-attachment"><Badge variant="light" color={attachment.type?.startsWith("image/") ? "violet" : "gray"}>{attachment.source || "browser"}: {attachment.name || "附件"} · {attachment.size || 0} B</Badge>{presentationContext?.showImages !== false && attachment.type?.startsWith("image/") && typeof attachment.data === "string" ? <ImageThumbnail imageId={imageKey("attachment", message.id, index)} label={attachment.name || "上传图片"}>
+          <img src={`data:${attachment.type};base64,${attachment.data}`} alt={attachment.name || "上传图片"} loading="lazy" />
+        </ImageThumbnail> : null}</Box>)}</Group> : null}
         {Array.isArray(custom.references) && custom.references.length ? <Group className="pi-message-references" gap={4}>{custom.references.map((reference, index) => <Badge key={`${reference.type || "reference"}-${index}`} variant="outline" title={`${reference.target || ""} · ${reference.sessionId || ""}`}>{reference.source || "引用"}: {reference.name || reference.path || reference.text?.slice(0, 32) || reference.type}</Badge>)}</Group> : null}
         </> : null}
         {status ? <Text className={`message-status pi-message-status${status.includes("未知") || completionFailed ? " is-error" : ""}`} size="xs">{status}</Text> : null}
