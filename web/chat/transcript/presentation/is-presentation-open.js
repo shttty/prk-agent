@@ -1,4 +1,5 @@
+import { readDisclosure } from "./read-disclosure.js";
 
-export function isPresentationOpen(openedTools = [], key, toolCallId) {
-  return openedTools.includes(key) || openedTools.some((value) => value.endsWith(`:${toolCallId}`));
+export function isPresentationOpen(openedTools, key, toolCallId) {
+  return readDisclosure(openedTools, key, toolCallId) === true;
 }

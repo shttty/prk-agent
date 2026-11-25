@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { fauxAssistantMessage, fauxText, fauxThinking, fauxToolCall } from "@earendil-works/pi-ai";
 import { browserFixture } from "../../fixtures/browser/open-workbench.mjs";
+import { text } from "../../fixtures/gateway/assemble-gateway.mjs";
 import { installMessageRenderCounter } from "../../fixtures/browser/count-message-renders.mjs";
 
 const idle = "#composer-form:not([data-busy])";
@@ -11,6 +12,9 @@ test("composer and viewport stay put through send, wait, thinking, output, tool 
   const release = Promise.withResolvers();
   const f = await browserFixture(t, { rate: 36, answer: async (context) => {
     if (context.messages.at(-1).role === "toolResult") return fauxAssistantMessage("Settled.");
+    if (text(context.messages.at(-1)) === "Check folds") return fauxAssistantMessage([
+      fauxText("Before tool, always visible."), fauxToolCall("kernel_code", { code: "print(42)" }),
+    ], { stopReason: "toolUse" });
     await release.promise;
     return fauxAssistantMessage([
       fauxThinking("Plan verification ".repeat(20)), fauxText("Steady layout ".repeat(20)),
@@ -63,6 +67,33 @@ test("composer and viewport stay put through send, wait, thinking, output, tool 
     await f.page.locator("#cancel-operation").click();
     await f.page.locator(idle).waitFor();
     await unchanged("settled");
+
+    await f.page.locator("#composer").fill("Check folds");
+    await f.page.locator("#send-message").click();
+    const before = f.page.getByText("Before tool, always visible.", { exact: true });
+    const after = f.page.getByText("Settled.", { exact: true });
+    await after.waitFor();
+    const turn = f.page.locator(".pi-message-assistant").filter({ has: after });
+    const segmented = turn.locator('.pi-turn-process[data-turn-fold="segmented"][data-state="done"]');
+    const tool = turn.locator('[data-tool-name="kernel_code"] > summary');
+    await before.waitFor();
+    await segmented.waitFor();
+    await tool.waitFor({ state: "hidden" });
+    await segmented.locator("summary.pi-turn-summary").click();
+    await tool.waitFor();
+
+    await f.page.locator("#open-settings").click();
+    await f.page.locator("#setting-turn-fold-mode").selectOption("whole");
+    await f.page.locator("#close-settings").click();
+    await turn.locator('.pi-turn-process[data-turn-fold="whole"]:not([open])').waitFor();
+    await before.waitFor({ state: "hidden" });
+    await after.waitFor();
+
+    await f.page.locator("#open-settings").click();
+    await f.page.locator("#setting-turn-fold-mode").selectOption("segmented");
+    await f.page.locator("#close-settings").click();
+    await before.waitFor();
+    await tool.waitFor();
   } finally { gate.resolve(); release.resolve(); }
 });
 
