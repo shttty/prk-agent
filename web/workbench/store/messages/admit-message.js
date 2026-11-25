@@ -87,7 +87,6 @@ export async function admitMessage(ctx, message, queueOrOptions, options, matche
         persistCurrentSession(ctx);
         return true;
       }
-      if (!isCurrent()) return false;
       if (result?.plainSendAvailable === true) {
         patchSession(ctx, { localMessages: new Map([...ctx.state.session.localMessages].filter(([key]) => key !== id)), banner: { text: safeText(result.error) || "未知命令；可作为普通文本发送。", tone: "warning", kind: "send-rejected", plainSendAvailable: true }, transcriptRevision: ctx.state.session.transcriptRevision + 1 });
         persistCurrentSession(ctx);
@@ -99,8 +98,8 @@ export async function admitMessage(ctx, message, queueOrOptions, options, matche
       persistCurrentSession(ctx);
       return false;
     } catch (error) {
-      if (!matches() || !isCurrent()) return false;
-      if (ctx.state.session.localMessages.get(id)?.operationId) return true;
+      if (!matches()) return false;
+      if (isCurrent() && ctx.state.session.localMessages.get(id)?.operationId) return true;
       // The Gateway refused before admitting the message (no runtime could be started, or the session could not
       // wake): it was definitely not sent. Say why; keep the draft.
       if (error?.details?.submitted === false) {

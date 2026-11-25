@@ -39,6 +39,7 @@ export interface SessionHostSnapshot extends SessionAttention {
   readonly terminals?: readonly TerminalSummary[];
   readonly messages: AgentSession["messages"];
   readonly historyThrough?: string | null;
+  readonly receivingUserText?: string | null;
   readonly queuedMessages: { readonly steering: readonly string[]; readonly followUp: readonly string[] };
   readonly messageEntryIds?: readonly (string | null)[];
   readonly historyBefore?: BranchHistoryPage["historyBefore"];

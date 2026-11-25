@@ -136,6 +136,8 @@
 /* Browser sizing avoids a synchronous hidden textarea measurement on every keystroke. */
 .pi-composer-input textarea { field-sizing: content; max-height: min(calc(6lh + .3rem), 25dvh); }
 
+.pi-composer-input[data-sending] { color: var(--pi-muted); }
+
 .pi-composer-input textarea::placeholder { color: var(--pi-faint); }
 
 .pi-composer-input textarea:focus,

@@ -1,4 +1,3 @@
-import { sessionRequestCurrent } from "../selection/session-request-current.js";
 import { isRecord } from "../../payloads/is-record.js";
 import { hostState } from "../selection/host-state.js";
 import { patchSession } from "../updates/patch-session.js";
@@ -12,7 +11,6 @@ export async function sendMessage(ctx, text, queueOrOptions = ctx.state.queue, o
     if (ctx.state.session.pending.has("sending") || ctx.disposed || typeof text !== "string" || !ctx.state.selectedSessionId) return false;
     const name = ctx.state.selectedSessionId;
     const token = ctx.selectionToken;
-    const isCurrent = sessionRequestCurrent(ctx);
     const draft = ctx.draftRevision;
     const captured = isRecord(queueOrOptions) ? queueOrOptions : options;
     const sendOptions = { ...captured, attachments: captured.attachments || ctx.state.attachments, references: captured.references || ctx.state.references };
@@ -39,7 +37,7 @@ export async function sendMessage(ctx, text, queueOrOptions = ctx.state.queue, o
       }
       return admitted;
     } finally {
-      if (isCurrent()) patchSession(ctx, { pending: withPending(ctx.state.session.pending, "sending", false) });
+      if (matches()) patchSession(ctx, { pending: withPending(ctx.state.session.pending, "sending", false) });
     }
   }
 

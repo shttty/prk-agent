@@ -155,7 +155,7 @@
 - `TGT-59` 同代终端的HTTP关闭回执与WS终态必须幂等移除视图；旧代终态不得关闭新代视图。
 - `TGT-60` 连接/部署/超时错误必须保留TARGET_UNREACHABLE及details.reason=connection/deployment/timeout。
 ## 请求、结果与事件顺序
-- `REQ-1` send 与 cancel 的接受应答只表示请求已收下，不得当作操作终态。
+- `REQ-1` send/cancel 接纳只确认收下，不是终态。快照、队列更新及 `message_start` 必须携 SDK 接收中的用户文本，`message_end` 原子换正文。
 - `REQ-2` 操作终态必须等已接受的 SDK 调用完成且 SDK 空闲，中间的重试错误不得当作终态。
 - `REQ-3` 用户显式取消必须结算为不带 error 的 `cancelled`。
 - `REQ-4` 停轮按操作ID，否则按所选cell；匹配代次和ID、不得代选同伴。cellOnly不停轮、不清队列；定向只撤本项ask与未发提醒，不取消同伴；退休撤全代。停止及落账不唤醒。

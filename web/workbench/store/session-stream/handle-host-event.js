@@ -68,7 +68,10 @@ export function handleHostEvent(ctx, event) {
         patchSession(ctx, { terminalRefreshKey: ctx.state.session.terminalRefreshKey + 1 });
       }
       if (details?.sdkType === "queue_update" && ctx.state.session.snapshot && Array.isArray(details.steering) && Array.isArray(details.followUp)) {
-        patchSession(ctx, { snapshot: { ...ctx.state.session.snapshot, queuedMessages: { steering: details.steering, followUp: details.followUp } } });
+        patchSession(ctx, { snapshot: { ...ctx.state.session.snapshot, queuedMessages: { steering: details.steering, followUp: details.followUp }, receivingUserText: typeof details.receivingUserText === "string" ? details.receivingUserText : null } });
+      }
+      if (details.sdkType === "message_start" && typeof details.receivingUserText === "string" && ctx.state.session.snapshot) {
+        patchSession(ctx, { snapshot: { ...ctx.state.session.snapshot, receivingUserText: details.receivingUserText } });
       }
       if (details?.sdkType === "message_end" && ctx.state.session.snapshot && isRecord(details.message) && typeof details.message.role === "string") {
         const operationId = safeText(event.operationId) || "live";
@@ -77,7 +80,7 @@ export function handleHostEvent(ctx, event) {
           : ctx.state.session.streams;
         const snapshot = details.message.role === "assistant" && details.message.stopReason === "error"
           ? ctx.state.session.snapshot
-          : { ...ctx.state.session.snapshot, messages: [...ctx.state.session.snapshot.messages, details.message] };
+          : { ...ctx.state.session.snapshot, messages: [...ctx.state.session.snapshot.messages, details.message], ...(details.message.role === "user" ? { receivingUserText: null } : {}) };
         patchSession(ctx, { snapshot, streams }, { displayOnly: details.message.role === "assistant" });
       }
       const toolRuns = ingestToolEvent(ctx.state.session.toolRuns, details, ctx.state.selectedSessionId || "session", event.operationId, event.timestamp);

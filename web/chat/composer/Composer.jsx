@@ -35,7 +35,7 @@ export function Composer({ actions, model }) {
   const canStop = Boolean(stopTarget && connected && !cancelling && !stopping);
   const onStop = () => { if (canStop) void actions.cancelOperation(stopTarget); };
   const onKeyDown = (event) => {
-    if (event.key !== "Escape") return handleInputKeyDown(event);
+    if (event.key !== "Escape") return submitting ? undefined : handleInputKeyDown(event);
     if (event.defaultPrevented || composingRef.current || event.nativeEvent.isComposing || event.keyCode === 229) return;
     if ([...document.querySelectorAll('[role="dialog"], [data-portal] [role="menu"], .mantine-Popover-dropdown')].some((node) => node.checkVisibility({ visibilityProperty: true }))) return;
     handleInputKeyDown(event);
@@ -60,6 +60,8 @@ export function Composer({ actions, model }) {
                 asChild
                 id="composer"
                 data-status={status}
+                data-sending={submitting ? true : undefined}
+                readOnly={submitting}
                 data-queue={queueMode}
                 value={composerText}
                 onFocus={sleeping ? actions.wakeSession : undefined}

@@ -29,7 +29,9 @@ export function ingestSnapshot(ctx, value, observation = false) {
       flushScroll(ctx);
       persistCurrentSession(ctx);
       const connection = ctx.source ? "connected" : ctx.state.session.connection;
-      replaceSession(ctx, snapshot.streamId);
+      // The selected draft's HTTP send can outlive the sleeping stream it started on.
+      const sending = ctx.state.session.pending.has("sending");
+      replaceSession(ctx, snapshot.streamId, sending ? { pending: new Set(["sending"]) } : null);
       const saved = ctx.storage.sessionState(ctx.state.selectedSessionId);
       patchSession(ctx, { connection, operations: new Map((saved?.restoredQueueCounts || []).map(([operationId, restoredQueueCount]) => [operationId, { restoredQueueCount }])) });
     }

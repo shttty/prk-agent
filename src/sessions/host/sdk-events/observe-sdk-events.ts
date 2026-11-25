@@ -3,6 +3,7 @@ import type { HostContext } from "../host-types.ts";
 import { cloneEventValue } from "./format-event-value.ts";
 import { sdkExecutionDetails } from "./format-tool-event.ts";
 import { clearFailure } from "../attention/clear-failure.ts";
+import { receivingUserText } from "../snapshots/read-receiving-user-text.ts";
 import { emit } from "../subscriptions/publish-event.ts";
 
 function unknownPythonOutcome(event: Extract<AgentSessionEvent, { type: "tool_execution_end" }>): boolean {
@@ -51,8 +52,9 @@ export function observeSdkEvents(ctx: HostContext, event: AgentSessionEvent): vo
   } else if (event.type === "tool_execution_start" || event.type === "tool_execution_update" || event.type === "tool_execution_end") {
     emit(ctx, "session_event", { operationId: ctx.active?.id, details: sdkExecutionDetails(event) });
   } else if (event.type === "queue_update") {
-    emit(ctx, "session_event", { operationId: ctx.active?.id, details: { sdkType: event.type, steering: event.steering, followUp: event.followUp } });
+    // Pi removes the input before awaiting normalization and message_start hooks. Its public state already holds that input.
+    emit(ctx, "session_event", { operationId: ctx.active?.id, details: { sdkType: event.type, steering: event.steering, followUp: event.followUp, receivingUserText: receivingUserText(ctx.session) } });
   } else if (event.type === "message_start" || event.type === "message_end") {
-    emit(ctx, "session_event", { operationId: ctx.active?.id, details: { sdkType: event.type, message: cloneEventValue(event.message) } });
+    emit(ctx, "session_event", { operationId: ctx.active?.id, details: { sdkType: event.type, message: cloneEventValue(event.message), ...(event.type === "message_start" && event.message.role === "user" ? { receivingUserText: receivingUserText(ctx.session) } : {}) } });
   } else emit(ctx, "session_event", { operationId: ctx.active?.id, details: { sdkType: event.type } });
 }
