@@ -1,7 +1,7 @@
 /* Session sidebar frame: brand, the create / instances buttons, the view switch, the list heading and the footer.
    One visual language for the whole column: controls are surface + line on the flat sidebar, hover and the current
    item are neutral fills (--pi-sidebar-hover / --pi-sidebar-active). Small controls (buttons, the view switch, icon
-   buttons, counts, badges) are pills; session and project rows round like the inputs (Mantine's default radius). */
+   buttons, counts, badges) are pills; session and project rows round like cards (--pi-radius). */
 .management-sidebar {
   width: 100%;
   min-width: 0;
@@ -15,7 +15,7 @@
   /* Secondary text (row location, list and group headings): a step above --pi-faint so it keeps AA (4.5:1) on the
      sidebar and on a hovered or current row in both schemes. */
   --pi-sidebar-dim: color-mix(in srgb, var(--pi-faint) 40%, var(--pi-muted));
-  --sidebar-row-radius: var(--mantine-radius-default);
+  --sidebar-row-radius: var(--pi-radius);
 }
 .management-sidebar .mantine-ActionIcon-root { border-radius: var(--pi-radius-pill); color: var(--pi-muted); }
 .management-sidebar .mantine-ActionIcon-root:where(:hover, [aria-expanded="true"]):not(:disabled) { background: var(--pi-sidebar-active); color: var(--pi-ink); }

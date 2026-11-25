@@ -1,11 +1,11 @@
 /* The project → session → child-session tree: each level indents one step; a 1px guide runs down the caret column of
-   the level that owns the branch. A row's pill fill starts at its indent, so it never covers an ancestor's guide. */
+   the level that owns the branch. A row's fill starts at its indent, so it never covers an ancestor's guide. */
 .management-sidebar {
   --tree-step: 20px;
   --tree-caret-width: 24px;
   --tree-marker-width: 16px;
   --tree-label-gap: 6px;
-  --tree-row-inset: 6px; /* content inside a pill-shaped row or header starts this far from its rounded end */
+  --tree-row-inset: 6px; /* content inside a row or header starts this far from its fill edge */
   --tree-guide-start: calc(var(--tree-row-inset) + (var(--tree-caret-width) - 1px) / 2);
 }
 .management-tree-node {
