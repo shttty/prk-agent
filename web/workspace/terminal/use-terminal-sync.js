@@ -18,22 +18,24 @@ import { nextShellName } from "./next-shell-name.js";
 export function useTerminalSync({ engine, api, sessionId, enabled, hidden, refreshKey, onShown }) {
   const [listed, setListed] = useState(false);
   const [metadata, setMetadata] = useState({});
-  const reconciled = useRef(null);
+  const reconciliation = useRef(null);
   const replacementBlocked = useRef(false);
   const shown = useEffectEvent(() => onShown?.());
   const base = `/sessions/${encodeURIComponent(sessionId)}/terminals`;
   useEffect(() => {
-    if (!engine || !enabled || hidden) return undefined;
+    if (!engine) return undefined;
+    // Only saved tabs can be stale; a user can open a new one while the first list is in flight.
+    if (reconciliation.current?.engine !== engine) reconciliation.current = { engine, restored: engine.terminalNames() };
+    if (!enabled || hidden) return undefined;
     let live = true;
     let timer = 0;
     const load = () => api.get(base).then((result) => {
       if (!live) return;
       const terminals = result?.terminals || [];
       const names = terminals.map((item) => item.name);
-      if (reconciled.current !== engine) {
-        reconciled.current = engine;
-        for (const name of engine.terminalNames()) if (!names.includes(name)) { engine.closeTerminal(name); replacementBlocked.current = true; }
-      }
+      const restored = reconciliation.current.restored;
+      reconciliation.current.restored = null;
+      for (const name of restored ?? []) if (!names.includes(name)) { engine.closeTerminal(name); replacementBlocked.current = true; }
       const tabs = engine.terminalNames();
       setMetadata((previous) => {
         const next = Object.fromEntries(terminals.map((item) => [item.name, item]));

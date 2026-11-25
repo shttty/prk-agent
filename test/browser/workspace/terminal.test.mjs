@@ -23,9 +23,27 @@ async function openTerminal(page) {
 
 test("Chromium terminal IME lays out inside xterm, commits Chinese and interrupts a PTY command", async (t) => {
   const f = await browserFixture(t);
-  await f.open(await f.create());
-  const terminal = await openTerminal(f.page);
+  const id = await f.create();
+  await f.open(id);
   const keyboard = f.page.keyboard;
+  const monitor = f.page.locator("#monitor-card");
+  await monitor.waitFor();
+  const received = Promise.withResolvers();
+  const resume = Promise.withResolvers();
+  t.after(() => resume.resolve());
+  await f.page.route(`**/api/sessions/${id}/terminals`, async (route) => {
+    const reply = await route.fetch();
+    received.resolve();
+    await resume.promise;
+    await route.fulfill({ response: reply });
+  }, { times: 1 });
+  await keyboard.press("Control+j");
+  await received.promise;
+  await f.page.locator("#new-terminal").click();
+  const tab = f.page.locator('.pi-tab[data-kind="terminal"][data-shell="shell"]');
+  await tab.waitFor();
+  resume.resolve();
+  const terminal = await openTerminal(f.page);
   const input = terminal.locator("textarea.xterm-helper-textarea");
   await f.page.evaluate(() => document.fonts.ready);
   await input.focus();
