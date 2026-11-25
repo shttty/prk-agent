@@ -86,9 +86,8 @@ test("file tree uploads a multi-megabyte file and downloads its target bytes", a
   const id = await f.create();
   await f.open(id);
   await f.page.locator("#monitor-card").waitFor();
-  await f.page.locator("#monitor-overview").waitFor({ timeout: 3000 });
-  assert.equal(await f.page.locator("[data-monitor-block]").count(), 5);
-  assert.equal(await f.page.locator("[data-monitor-block][open]").count(), 0);
+  await f.page.locator("#monitor-machine").waitFor({ timeout: 3000 });
+  assert.equal(await f.page.locator('[data-monitor-fold][data-open="true"]').count(), 0);
   await openWorkspace(f.page);
   const tree = f.page.locator("#toggle-tree");
   if (await tree.isVisible() && await tree.getAttribute("aria-pressed") !== "true") await tree.click();
