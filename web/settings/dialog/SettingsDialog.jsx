@@ -55,7 +55,7 @@ function SettingsDialog({ opened, onClose, fullScreen, initialSection, actions, 
         {page === "visual-effects" ? <div className="pi-settings-page"><VisualEffectsSettings setShowImages={actions.setShowImages} /></div> : null}
         {page === "targets" ? <div className="pi-settings-page" id="settings-targets"><TargetManagement actions={actions} mobile={fullScreen} /></div> : null}
         {page === "subsessions" ? <div className="pi-settings-page" id="settings-subsessions"><SubsessionSettings actions={actions} mobile={fullScreen} /></div> : null}
-        {page === "memory" ? <div className="pi-settings-page"><MemoryDialog actions={actions} /></div> : null}
+        {page === "memory" ? <MemoryDialog actions={actions} mobile={fullScreen} /> : null}
         {page === "artifacts" ? <div className="pi-settings-page"><ArtifactsPanel actions={actions} /></div> : null}
         {page === "plugins" ? <div className="pi-settings-page" id="settings-plugins"><PluginsPanel actions={actions} gatewayRestartUnit={gatewayRestartUnit} /></div> : null}
         {page === "archive" ? <div className="pi-settings-page" id="settings-archive"><ArchiveDialog actions={actions} onViewHistory={onClose} /></div> : null}

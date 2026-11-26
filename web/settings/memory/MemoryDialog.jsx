@@ -1,89 +1,61 @@
 import { useState } from "react";
-import { useRef } from "react";
 import { useCallback } from "react";
-import { useEffect } from "react";
-import { Stack } from "@mantine/core";
+import { createPortal } from "react-dom";
 import { Text } from "@mantine/core";
+import { ActionIcon } from "@mantine/core";
+import { IconChevronLeft } from "@tabler/icons-react";
 import InlineAlert from "../../design-system/inline-alert/InlineAlert.jsx";
-import { Tabs } from "@mantine/core";
-import { Group } from "@mantine/core";
-import { Button } from "@mantine/core";
-import { Modal } from "@mantine/core";
+import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
+import { DetailSheet } from "../capabilities/panel/DetailSheet.jsx";
+import MemoryLayerList from "./MemoryLayerList.jsx";
 import MemoryDocuments from "./MemoryDocuments.jsx";
+import MemoryDeleteDialog from "./MemoryDeleteDialog.jsx";
 import LayerConfig from "./LayerConfig.jsx";
 import { layerLabel } from "./layer-label.js";
+import { useMemoryListing } from "./use-memory-listing.js";
+import "../capabilities/capabilities.css";
 import "./memory.css";
 
-const CONFIG_TAB = "__config";
+const CONFIG = "__config";
 
-export default function MemoryDialog({ actions }) {
-  const [listing, setListing] = useState({ enabled: true, layers: [], memories: [] });
-  const [tab, setTab] = useState(null);
-  const [editor, setEditor] = useState(null);
-  const [deletion, setDeletion] = useState(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const generation = useRef(0);
-  const adopt = useCallback((result) => { setListing(result); }, []);
-  const invalidate = useCallback(() => { generation.current++; }, []);
-  const reload = useCallback(() => {
-    const current = ++generation.current;
-    setBusy(true);
-    actions.api.post("/memory/list", {}).then((result) => {
-      if (current === generation.current) adopt(result);
-    }).catch((cause) => {
-      if (current === generation.current) setError(cause.message);
-    }).finally(() => { if (current === generation.current) setBusy(false); });
-  }, [actions, adopt]);
-  useEffect(() => {
-    setEditor(null); setDeletion(null); setError("");
-    reload();
-    return invalidate;
-  }, [reload, invalidate]);
-
-  const mutate = async (path, request) => {
-    const current = generation.current;
-    setBusy(true); setError("");
-    try {
-      const result = await actions.api.post(path, request);
-      if (current !== generation.current) return;
-      adopt(result); setEditor(null); setDeletion(null);
-    } catch (cause) {
-      if (current === generation.current) setError(cause.message);
-    } finally { if (current === generation.current) setBusy(false); }
-  };
-  const save = () => {
-    const { target, old_text, content, ...scope } = editor;
-    const operation = old_text === undefined ? { target, action: "add", content } : { target, action: "replace", content, old_text };
-    void mutate("/memory/change", { ...scope, operations: [operation] });
-  };
-  const remove = () => {
-    const { old_text, target, ...scope } = deletion;
-    void mutate(old_text === undefined ? "/memory/delete-instance" : "/memory/change", old_text === undefined
-      ? { instance: scope.instance, confirm: true }
-      : { ...scope, operations: [{ target, action: "remove", old_text }] });
-  };
-
-  const active = tab ?? listing.layers[0]?.name ?? CONFIG_TAB;
-  return <>
-      <Stack gap="sm" id="memory-manager" aria-busy={busy} data-enabled={String(listing.enabled)}>
+/**
+ * Global memory page, laid out like the tools page: layer list | selected layer; on phones the layer opens in a
+ * slide-over. Project-scoped layers are edited per project from the sidebar project menu instead.
+ */
+export default function MemoryDialog({ actions, mobile }) {
+  const memory = useMemoryListing(actions.api);
+  const { listing, busy, error, setError, setEditor } = memory;
+  const [selected, setSelected] = useState(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [frame, setFrame] = useState(null);
+  const rootRef = useCallback((node) => setFrame(node?.closest(".mantine-Modal-content") ?? null), []);
+  const currentInstance = useWorkbench((state) => state.sessions.get(state.selectedSessionId)?.target);
+  const layers = listing.layers.filter((layer) => layer.scope !== "project");
+  const documentsOf = (name) => listing.memories.filter((document) => document.target === name);
+  const items = [
+    ...layers.map((layer) => ({ id: layer.name, label: layerLabel(layer.name), count: documentsOf(layer.name).reduce((sum, document) => sum + document.entries.length, 0) })),
+    { id: CONFIG, label: "配置" },
+  ];
+  const active = selected ?? items[0].id;
+  const choose = (id) => { setSelected(id); setEditor(null); setError(""); if (mobile) setSheetOpen(true); };
+  const detail = (back) => {
+    const layer = layers.find((item) => item.name === active);
+    return <div className="capability-detail memory-detail" data-memory-detail={active}>
+      <header className="capability-group capability-line memory-detail-head">{back}<h3 className="capability-group-name">{items.find((item) => item.id === active)?.label}</h3></header>
+      <div className="memory-detail-body">
         {!listing.enabled && !listing.error ? <Text id="memory-disabled" size="sm" c="dimmed">记忆已关闭。修改配置后需重启 Gateway。</Text> : null}
         {listing.error ? <InlineAlert id="memory-config-error" size="sm">{listing.error}</InlineAlert> : null}
         {error ? <InlineAlert id="memory-error" size="sm">{error}</InlineAlert> : null}
-        <Tabs value={active} onChange={(value) => { setTab(value); setEditor(null); setError(""); }}>
-          <Tabs.List grow>
-            {listing.layers.map((layer) => <Tabs.Tab key={layer.name} value={layer.name} id={`memory-tab-${layer.name}`}>{layerLabel(layer.name)}</Tabs.Tab>)}
-            <Tabs.Tab value={CONFIG_TAB} id="memory-tab-config">配置</Tabs.Tab>
-          </Tabs.List>
-          {listing.layers.map((layer) => <Tabs.Panel key={layer.name} value={layer.name} pt="md">
-            <MemoryDocuments layer={layer} label={layerLabel(layer.name)} documents={listing.memories.filter((document) => document.target === layer.name)}
-              busy={busy} editor={editor} setEditor={setEditor} setDeletion={setDeletion} onSave={save} />
-          </Tabs.Panel>)}
-          <Tabs.Panel value={CONFIG_TAB} pt="md">{active === CONFIG_TAB ? <LayerConfig api={actions.api} onSaved={reload} /> : null}</Tabs.Panel>
-        </Tabs>
-      </Stack>
-    <Modal id="memory-delete-dialog" opened={Boolean(deletion)} onClose={() => setDeletion(null)} title="确认删除" centered size={380}>
-      <Stack gap="md"><Text className="memory-entry-content">{deletion?.old_text ?? deletion?.instance}</Text>{error ? <InlineAlert size="sm">{error}</InlineAlert> : null}<Group justify="flex-end"><Button id="memory-cancel-delete" variant="default" disabled={busy} onClick={() => setDeletion(null)}>取消</Button><Button id="memory-confirm-delete" color="red" loading={busy} onClick={remove}>删除</Button></Group></Stack>
-    </Modal>
-  </>;
+        {layer ? <MemoryDocuments layer={layer} documents={documentsOf(layer.name)} memory={memory} currentInstance={currentInstance} />
+          : active === CONFIG ? <LayerConfig api={actions.api} onSaved={memory.reload} /> : null}
+      </div>
+    </div>;
+  };
+  const back = <ActionIcon data-action="close-memory-layer" variant="subtle" color="gray" aria-label="返回" onClick={() => setSheetOpen(false)}><IconChevronLeft size={18} /></ActionIcon>;
+  return <div ref={rootRef} className="capabilities-panel" id="memory-manager" data-layout={mobile ? "stack" : "split"} aria-busy={busy} data-enabled={String(listing.enabled)}>
+    <MemoryLayerList items={items} active={active} mobile={mobile} onChoose={choose} hint={layers.length < listing.layers.length ? "项目记忆在侧栏项目菜单里。" : ""} />
+    {!mobile ? <div className="capability-detail-host">{detail(null)}</div> : null}
+    {mobile && frame ? createPortal(<DetailSheet open={sheetOpen} onClose={() => setSheetOpen(false)} closeAction="close-memory-layer" id="memory-sheet">{detail(back)}</DetailSheet>, frame) : null}
+    <MemoryDeleteDialog memory={memory} />
+  </div>;
 }

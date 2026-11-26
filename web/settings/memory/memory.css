@@ -1,12 +1,38 @@
-.memory-documents { display: flex; flex-direction: column; gap: 22px; }
+.memory-documents { display: flex; flex-direction: column; gap: 4px; }
 .memory-document { min-width: 0; }
-.memory-document-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px; margin-bottom: 10px; }
-.memory-document-head h3 { margin: 0; font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
-.memory-usage { color: var(--pi-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.memory-usage { margin-bottom: 4px; color: var(--pi-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
 .memory-usage[data-over-limit="true"] { color: var(--pi-warn); }
-.memory-entry { padding: 10px 0; border-bottom: 1px solid var(--pi-line); }
-.memory-entry-content { color: var(--pi-ink); font-size: 14px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
-.memory-editor { margin-top: 12px; }
+.memory-empty { padding: 10px 0; color: var(--pi-muted); font-size: 13px; }
+.memory-hint { flex: none; padding: 10px 20px 14px; color: var(--pi-muted); font-size: 12px; }
+/* Memory page: the tools page's list | detail layout; the list keeps its natural height, the detail scrolls. */
+.memory-detail { height: 100%; }
+.memory-detail > .memory-detail-head { padding-inline: 24px; }
+/* Neutral selection (no hued fill or accent bar), per the sidebar's selection rule. */
+.memory-layers .capability-provider[aria-selected="true"] { background: var(--pi-sidebar-active); }
+.memory-layers .capability-provider[aria-selected="true"]::before { content: none; }
+.memory-detail-body { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 10px; padding: 12px 24px 32px; }
+.capability-sheet .memory-detail > .memory-detail-head { padding-inline: 8px 14px; }
+.capability-sheet .memory-detail-body { padding: 10px 14px 24px; }
+/* Entries are separated by rules; their actions appear on hover or focus, and stay visible on touch screens. */
+.memory-entry { display: flex; align-items: flex-start; gap: 8px; padding: 9px 0; }
+.memory-entries > * + * { border-top: 1px solid var(--pi-line); }
+.memory-entry-content { flex: 1; min-width: 0; color: var(--pi-ink); font-size: 14px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.memory-entry-actions { flex: none; }
+@media (hover: hover) and (pointer: fine) {
+  .memory-entry:not(:hover):not(:focus-within) .memory-entry-actions { opacity: 0; }
+}
+.memory-editor { padding: 9px 0; }
+.memory-document-foot { margin-top: 4px; }
+.memory-document-foot .mantine-Button-root { padding-inline: 6px; border-radius: var(--pi-radius-pill); }
+/* Instance layer: one folding section per instance. */
+.memory-instance + .memory-instance { border-top: 1px solid var(--pi-line); }
+.memory-instance-head { width: 100%; display: flex; align-items: center; gap: 6px; padding: 10px 0; color: var(--pi-ink); }
+.memory-instance-caret { flex: none; color: var(--pi-faint); transition: transform var(--pi-motion-fast) ease; }
+.memory-instance-head[aria-expanded="true"] .memory-instance-caret { transform: rotate(90deg); }
+.memory-instance-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 600; }
+.memory-instance-meta { flex: none; color: var(--pi-muted); font-size: 12px; }
+.memory-instance-head:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: 2px; border-radius: var(--pi-radius-sm); }
+.memory-instance-body { padding: 0 0 12px 20px; }
 .memory-layer-card { display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid var(--pi-line); border-radius: 8px; min-width: 0; }
 .memory-layer-name { flex: 1; min-width: 0; }
 .memory-config-raw { margin: 0; padding: 10px; border: 1px solid var(--pi-line); border-radius: 8px; font-family: var(--pi-font-mono); font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--pi-ink); }

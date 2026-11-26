@@ -15,7 +15,7 @@ export const AppDialogs = memo(function AppDialogs({ dialog, dialogMatches, dial
   const sessionTools = dialogMatches && ["tools", "skills"].includes(dialog?.type);
   const instanceLabel = useWorkbench((state) => state.targets.find((target) => target.id === dialog?.targetName)?.label);
   return <>
-    <Management contentKey={dialogSerial} actions={dialogActions} dialog={dialogMatches && !MANAGEMENT_ELSEWHERE.includes(dialog?.type) ? dialog : null} onClose={onCloseDialog} />
+    <Management contentKey={dialogSerial} actions={dialogActions} dialog={dialogMatches && !MANAGEMENT_ELSEWHERE.includes(dialog?.type) ? dialog : null} mobile={mobile} onClose={onCloseDialog} />
     <SessionDetails actions={actions} sessionId={dialog?.sessionId} opened={dialogMatches && dialog?.type === "details"} onClose={onCloseDialog} />
     <Modal id="session-capabilities-dialog" opened={sessionTools} onClose={onCloseDialog} title={dialog?.type === "skills" ? "会话 Skills" : "会话工具"} size="min(1000px, 94vw)" fullScreen={mobile} centered closeButtonProps={{ id: "close-session-capabilities", "aria-label": "关闭会话工具设置" }}>
       {sessionTools ? <SessionCapabilities key={`${dialog.sessionId}:${dialog.type}`} kind={dialog.type} sessionId={dialog.sessionId} actions={actions} mobile={mobile} /> : null}

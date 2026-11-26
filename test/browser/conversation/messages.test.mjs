@@ -165,6 +165,18 @@ test("sidebar shows a background child running, then waiting even under its fold
     await parent.waitFor({ state: "detached" });
     await fold.press("Space");
     await group.locator(`[data-session-id="${active}"][aria-current="true"]`).waitFor();
+    await group.locator(".management-group-header-row").hover();
+    await group.locator('[data-action="project-menu"]').click();
+    await f.page.locator(`[data-action="project-memory"][data-project="${project.id}"]`).click();
+    const memory = f.page.locator(`#project-memory[data-project="${project.id}"]`);
+    await memory.locator('[data-empty="true"]').waitFor();
+    await memory.locator('[data-action="memory-add"]').click();
+    await f.page.locator("#memory-content").fill("Project memory entry");
+    await f.page.locator("#memory-save").click();
+    await memory.locator('[data-memory-entry="0"] [data-field="content"]').filter({ hasText: "Project memory entry" }).waitFor();
+    const stored = (await f.request("memoryList", {})).memories.find((item) => item.target === "project" && item.project === project.id);
+    assert.deepEqual(stored.entries, ["Project memory entry"]);
+    await f.page.locator("#close-management-dialog").click();
     await toggle.press("Space");
     await row.locator('[data-state="stopped"]').waitFor();
     await verifyPeerMessages(f, active, background);
