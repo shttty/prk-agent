@@ -5,6 +5,7 @@ import test from "node:test";
 import { fauxAssistantMessage, getCurrentSystemMessage } from "@earendil-works/pi-ai";
 import { gatewayFixture } from "../../fixtures/gateway/assemble-gateway.mjs";
 import { until } from "../../fixtures/until.mjs";
+import { verifyFileHelpers } from "../../fixtures/kernel/verify-file-helpers.mjs";
 
 test("create → stream → stop → sleep → explicitly wake the same SDK session", async (t) => {
   const systems = [];
@@ -71,10 +72,9 @@ test("create → stream → stop → sleep → explicitly wake the same SDK sess
   assert.deepEqual(await f.request("wakeSession", { sessionId: id }), { sessionId: id, sleeping: false });
   const awake = await f.request("state", { sessionId: id });
   assert.equal(awake.state, "idle");
-  // A cell after waking lets the kernel report its file helpers. The kernel group switch only hides
-  // kernel_read/interrupt/language; code mode keeps kernel_code and its prompt sections.
-  const cell = { name: "kernel_code", args: { code: "1", title: "Probe" } };
-  assert.equal((await f.complete(id, await f.send(id, `TOOL ${JSON.stringify(cell)}`))).status, "completed");
+  // A cell after waking lets the kernel report its file helpers, and they must run in the woken kernel. The
+  // kernel group switch only hides kernel_read/interrupt/language; code mode keeps kernel_code and its prompt sections.
+  await verifyFileHelpers(f, id, "woken.txt");
   assert.equal(systems.length, 2);
   for (const system of systems) {
     assert.match(system.sections.kernel, /^<kernel>\n/);

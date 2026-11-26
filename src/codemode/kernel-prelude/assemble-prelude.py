@@ -46,6 +46,7 @@ _trace.start = _MethodType(_trace_start, _trace)
 _trace.stop = _MethodType(_trace_stop, _trace)
 _trace.shutdown = _MethodType(_trace_shutdown, _trace)
 _trace.record = _MethodType(_trace_record, _trace)
+_trace.publish = _MethodType(_trace_publish, _trace)
 _sys.addaudithook(_trace.record)
 _shutdown.append(_trace.shutdown)
 

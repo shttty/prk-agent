@@ -4,13 +4,15 @@ import { join } from "node:path";
 import test from "node:test";
 import { gatewayFixture, text } from "../../fixtures/gateway/assemble-gateway.mjs";
 import { until } from "../../fixtures/until.mjs";
+import { verifyFileHelpers } from "../../fixtures/kernel/verify-file-helpers.mjs";
 
 const call = (f, id, name, args) => f.send(id, `TOOL ${JSON.stringify({ name, args })}`);
 
-test("awake /reload preserves the Python namespace and cells still interrupt by identity", async (t) => {
+test("awake /reload preserves the Python namespace, cells still interrupt by identity, and file helpers work on every kernel path", async (t) => {
   const f = await gatewayFixture(t);
   await f.stageArtifacts();
   const id = await f.create();
+  await verifyFileHelpers(f, id, "first-cell.txt");
   const seed = await call(f, id, "kernel_code", { code: "seed = 41\nprint(seed)" });
   assert.equal((await f.complete(id, seed)).status, "completed");
   assert.match(text(f.state(id).messages.findLast((message) => message.role === "toolResult")), /41/);
@@ -35,6 +37,7 @@ test("awake /reload preserves the Python namespace and cells still interrupt by 
   assert.equal(result.outcome, "aborted");
   assert.equal((await f.complete(id, await call(f, id, "kernel_code", { code: "print(seed + 1)" }))).status, "completed");
   assert.match(text(f.state(id).messages.findLast((message) => message.role === "toolResult")), /42/);
+  await verifyFileHelpers(f, id, "later-cell.txt");
 
   const save = await call(f, id, "kernel_code", { code: 'print(gateway.memory(operations=[{"action":"add", "target":"user", "content":"Fixture entry"}])["message"])' });
   assert.equal((await f.complete(id, save)).status, "completed");
@@ -43,6 +46,9 @@ test("awake /reload preserves the Python namespace and cells still interrupt by 
     { action: "replace", target: "user", old_text: "Fixture entry", content: "Updated fixture entry" },
   ] });
   assert.deepEqual(edited.memories.find((item) => item.target === "user").entries, ["Updated fixture entry"]);
+  const beforeReset = f.state(id).kernel.kernelId;
+  await verifyFileHelpers(f, id, "reset-cell.txt", { reset: true });
+  assert.notEqual(f.state(id).kernel.kernelId, beforeReset);
 });
 
 test("model terminal foreground command settles with exit status, output and managed process attention", async (t) => {

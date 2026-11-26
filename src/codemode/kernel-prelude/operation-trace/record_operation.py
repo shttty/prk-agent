@@ -3,11 +3,8 @@ import os as _trace_os
 
 
 def _trace_record(ctx, event, args):
-    if not ctx.enabled or getattr(ctx.local, "busy", False) or (event != "open" and event not in ctx._operations):
-        return
-    cell = _current_cell()
-    if (cell is None or getattr(cell, "prelude_trace", None) is not ctx
-            or cell.prelude_trace_records >= ctx.options["maxRecords"]):
+    if (getattr(ctx.local, "busy", False) or (event != "open" and event not in ctx._operations)
+            or _trace_cell(ctx) is None):
         return
     ctx.local.busy = True
     try:
@@ -29,19 +26,7 @@ def _trace_record(ctx, event, args):
             operation = "write" if writing else "read"
         else:
             operation = ctx._operations[event]
-        trace = {
-            "event": event,
-            "operation": operation,
-            "args": [repr(arg)[:ctx.options["argumentChars"]] for arg in args[:ctx.options["maxArguments"]]],
-            "time": _time.strftime("%Y-%m-%dT%H:%M:%SZ", _time.gmtime()),
-        }
-        if not ctx.enabled or cell.prelude_trace is not ctx:
-            return
-        phase = getattr(cell, "prelude_origin", {}).get("phase")
-        if phase is not None:
-            trace["phase"] = phase
-        cell.prelude_trace_records += 1
-        _display({"application/x-prk-trace+json": trace}, raw=True)
+        _trace_publish(ctx, event, operation, args)
     except Exception:
         pass  # Trace formatting/transport must not turn an observed operation into a failure.
     finally:
