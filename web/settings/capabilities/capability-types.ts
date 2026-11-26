@@ -21,9 +21,14 @@ export type CapabilityEntry = {
 
 export type CapabilityGroup = {
   id: string; kind?: string; name: string; enabled?: boolean; available?: boolean; overridden?: boolean; lazy?: LazyState; instance?: string; path?: string; defaultEnabled?: boolean;
+  /** Source of the settings package this group's tools or skills come from. */
+  package?: string;
 };
 
-export type CapabilityCatalog = { groups: CapabilityGroup[]; entries: CapabilityEntry[]; providerErrors?: ProviderError[] };
+/** A plugin package with its 加载 switch at this layer; `providerIds` are the Gateway-wide providers it owns, so it cannot be unloaded below the plugin settings. */
+export type CapabilityPackage = { source: string; name: string; location: "gateway" | "host"; providerIds: string[]; load: LazyState & { id: string } };
+
+export type CapabilityCatalog = { groups: CapabilityGroup[]; entries: CapabilityEntry[]; packages?: CapabilityPackage[]; providerErrors?: ProviderError[] };
 
 /** `/capabilities`: the catalog plus the instance error and PRK's own terminal settings. */
 export type CapabilityData = { catalog?: CapabilityCatalog; terminal?: ConfigValues; instanceError?: string };

@@ -70,20 +70,32 @@ export default function PluginsPanel({ actions, gatewayRestartUnit, mobile, onOp
       if (current === generation.current && !isConnectionFailure(cause)) setFailure({ source: failureSource, ...toFailure(cause) });
     } finally { if (current === generation.current) setBusy(false); }
   };
+  const changeLoad = async (source: string, id: string, enabled: boolean) => {
+    const current = generation.current;
+    setBusy(true); setFailure(null);
+    try {
+      const result = await actions.api.post<{ catalog: PluginCatalog }>("/capabilities", { changes: [{ id, enabled }] });
+      if (current === generation.current) setCatalog(result.catalog);
+    } catch (cause) {
+      if (current === generation.current && !isConnectionFailure(cause)) setFailure({ source, ...toFailure(cause) });
+    } finally { if (current === generation.current) setBusy(false); }
+  };
   const install = (source: string, location: PluginLocation) => void mutate(null, "/plugins/install", { source, location }, () => setInstalling(false));
   const uninstall = () => { if (removal) void mutate(removal.source, "/plugins/uninstall", { source: removal.source, confirm: true }, () => { setRemoval(null); setSheetOpen(false); }); };
   const packages = data?.packages ?? [];
   const active = packages.find((pkg) => pkg.source === selected) ?? packages[0];
   const choose = (source: string) => { setSelected(source); if (mobile) setSheetOpen(true); };
   const removalFailure = removal && failure?.source === removal.source ? failure : null;
-  const detail = (back: (() => void) | null) => active ? <PluginDetail key={active.source} pkg={active} busy={busy} onBack={back}
+  const loads = new Map((catalog?.packages ?? []).map((entry) => [entry.source, entry]));
+  const detail = (back: (() => void) | null) => active ? <PluginDetail key={active.source} pkg={active} load={loads.get(active.source)} busy={busy} onBack={back}
     failure={!removal && failure?.source === active.source ? failure : null} tools={pluginToolGroups(catalog, active.name)} onOpenTools={onOpenTools}
     onChange={(patch: object) => void mutate(active.source, "/plugins/change", { source: active.source, ...patch })}
+    onLoadChange={(enabled) => { const load = loads.get(active.source); if (load) void changeLoad(active.source, load.load.id, enabled); }}
     onUninstall={() => { setFailure(null); setRemoval(active); }} /> : null;
 
   return <>
     <SplitPage id="plugins-manager" mobile={mobile} aria-busy={busy} sheetOpen={sheetOpen} onCloseSheet={() => setSheetOpen(false)} sheetId="plugin-sheet" backAction="close-plugin" detail={detail}
-      list={<PluginList data={data} busy={busy} waiting={waiting} active={active?.source} mobile={mobile} installing={installing} setInstalling={setInstalling} onInstall={install} onChoose={choose}
+      list={<PluginList data={data} unloaded={new Set([...loads.values()].filter((entry) => entry.load.enabled === false).map((entry) => entry.source))} busy={busy} waiting={waiting} active={active?.source} mobile={mobile} installing={installing} setInstalling={setInstalling} onInstall={install} onChoose={choose}
         formFailure={failure && failure.source === null ? failure : null} restartNotice={data?.restartRequired ? <GatewayRestartNotice unit={gatewayRestartUnit} api={actions.api} /> : null} />} />
     <Modal id="plugin-uninstall-dialog" opened={Boolean(removal)} onClose={() => { if (!busy) setRemoval(null); }} title="卸载插件" centered size="sm">
       <Stack gap="md">

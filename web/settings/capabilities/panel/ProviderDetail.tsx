@@ -7,6 +7,7 @@ import { Text } from "@mantine/core";
 import { IconSettings } from "@tabler/icons-react";
 import { IconLock } from "@tabler/icons-react";
 import { OverrideControl } from "./OverrideControl.tsx";
+import { PackageLoadControl } from "./PackageLoadControl.tsx";
 import { ModeControl } from "./ModeControl.tsx";
 import { groupMode } from "./group-mode.ts";
 import { groupItem } from "./group-item.ts";
@@ -64,6 +65,7 @@ export function ProviderDetail({ ctx, item, onBack }: { ctx: CapabilityCtx; item
     <section className="capability-section" data-provider-section={item.id}>
       <DetailHeader title={item.name} onBack={onBack} backAction="close-provider" data-capability-group={item.id} data-state={!item.enabled ? "off" : mode === null ? "mixed" : "on"}
         meta={<><span className="capability-count" data-count={count}>{count} 项</span>{item.id === "group:tools:local" && item.available === false ? <span data-reason="local-only"> · 仅本机实例可用</span> : null}</>}>
+        <PackageLoadControl ctx={ctx} group={item} />
         {configurable && categoryOf(item.id) !== "remote" ? <Tooltip label="配置"><ActionIcon className="capability-config-open" data-action="open-config" data-provider={item.id} variant="subtle" color="gray" aria-label="配置" onClick={() => openConfig(item)}>
           <IconSettings size={16} />{drafts[item.id] !== undefined ? <span className="capability-dirty" data-dirty="true" /> : null}
         </ActionIcon></Tooltip> : null}

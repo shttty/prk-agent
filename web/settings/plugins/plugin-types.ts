@@ -1,4 +1,5 @@
 import type { ApiFailure } from "../../shell/page/page-types.ts";
+import type { CapabilityPackage } from "../capabilities/capability-types.ts";
 
 export type PluginLocation = "gateway" | "host";
 
@@ -18,6 +19,6 @@ export type PluginList = { packages: PluginPackage[]; restartRequired?: boolean 
 export type PluginRejection = { source: string | null; message: string; code?: string; details?: ApiFailure["details"] & { providerErrors?: ProviderError[]; member?: string } };
 
 /** The part of the capability catalog the plugin page reads. */
-export type PluginCatalog = { groups: { id: string; kind: string }[]; entries: { kind: string; group: string }[] };
+export type PluginCatalog = { groups: { id: string; kind: string }[]; entries: { kind: string; group: string }[]; packages?: CapabilityPackage[] };
 
 export type PluginTools = { groupId: string | undefined; count: number };

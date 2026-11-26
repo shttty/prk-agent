@@ -7,6 +7,7 @@
 .plugin-source-line, .plugin-uninstall-name code { font-family: var(--pi-font-mono); font-size: 12px; color: var(--pi-muted); overflow-wrap: anywhere; }
 .plugin-field { font-size: 13px; color: var(--pi-ink); }
 .plugin-field-label { min-width: 64px; color: var(--pi-muted); font-size: 12px; }
+.plugin-field-note { color: var(--pi-muted); font-size: 12px; }
 .plugin-commands { display: flex; flex-direction: column; gap: 6px; }
 .plugin-commands ul { display: flex; flex-direction: column; gap: 3px; margin: 0; padding: 0; list-style: none; font-size: 12px; color: var(--pi-muted); }
 .plugin-commands li { display: flex; gap: 10px; min-width: 0; }

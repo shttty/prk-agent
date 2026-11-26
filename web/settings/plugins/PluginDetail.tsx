@@ -1,3 +1,4 @@
+import type { CapabilityPackage } from "../capabilities/capability-types.ts";
 import type { PluginPackage, PluginRejection, PluginTools } from "./plugin-types.ts";
 import { Group } from "@mantine/core";
 import { Badge } from "@mantine/core";
@@ -10,6 +11,7 @@ import { DetailHeader } from "../list-page/DetailHeader.tsx";
 import { Button } from "@mantine/core";
 import { PLUGIN_LOCATIONS } from "./plugin-locations.ts";
 import { PluginFailure } from "./PluginFailure.tsx";
+import { PackageLoadSwitch } from "./PackageLoadSwitch.tsx";
 
 /**
  * One installed Pi package: enable switch, location, the commands and providers it really registered, the tools it
@@ -17,13 +19,13 @@ import { PluginFailure } from "./PluginFailure.tsx";
  * `failure` is this package's last rejected change; `tools` is `{groupId, count}` from the capability catalog.
  */
 type PluginDetailProps = {
-  pkg: PluginPackage; busy: boolean; failure: PluginRejection | null; tools: PluginTools; onBack: (() => void) | null;
-  onChange: (patch: { enabled: boolean } | { location: string }) => void; onUninstall: () => void; onOpenTools?: (groupId: string) => void;
+  pkg: PluginPackage; load: CapabilityPackage | undefined; busy: boolean; failure: PluginRejection | null; tools: PluginTools; onBack: (() => void) | null;
+  onChange: (patch: { enabled: boolean } | { location: string }) => void; onLoadChange: (enabled: boolean) => void; onUninstall: () => void; onOpenTools?: (groupId: string) => void;
 };
 
 const SOURCE_KINDS = { local: "本地", npm: "npm", git: "git" };
 
-export function PluginDetail({ pkg, busy, failure, tools, onBack, onChange, onUninstall, onOpenTools }: PluginDetailProps) {
+export function PluginDetail({ pkg, load, busy, failure, tools, onBack, onChange, onLoadChange, onUninstall, onOpenTools }: PluginDetailProps) {
   const source = `${SOURCE_KINDS[pkg.sourceKind]} · ${pkg.sourceDisplay}`;
   return <div className="settings-detail plugin-detail" data-plugin-source={pkg.source} data-name={pkg.name} data-location={pkg.location} data-enabled={String(pkg.enabled)}
     data-command-count={pkg.commands.length} data-provider-count={pkg.providerIds.length}>
@@ -35,6 +37,11 @@ export function PluginDetail({ pkg, busy, failure, tools, onBack, onChange, onUn
         <span className="plugin-field-label">位置</span>
         <NativeSelect data-action="plugin-location" size="xs" w={160} aria-label={`${pkg.name} 位置`} data={PLUGIN_LOCATIONS} value={pkg.location} disabled={busy} onChange={(event) => onChange({ location: event.currentTarget.value })} />
       </Group>
+      {load ? <Group gap="sm" align="center" className="plugin-field" data-load={String(load.load.enabled !== false)}>
+        <span className="plugin-field-label">加载</span>
+        <PackageLoadSwitch pkg={load} disabled={busy} onChange={onLoadChange} />
+        <span className="plugin-field-note">全局默认；实例、角色、会话可覆盖</span>
+      </Group> : null}
       {tools.count ? <Group gap="sm" className="plugin-field" data-tool-count={tools.count}>
         <span className="plugin-field-label">工具</span>
         <span>{tools.count} 个</span>

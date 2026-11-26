@@ -34,11 +34,11 @@ const placeLabel = (location: string) => PLUGIN_LOCATIONS.find((item) => item.va
 
 /** Plugin column: 安装插件 (folds the form open), one row per package with version · location · state, the total. */
 type PluginListProps = {
-  data: PluginListData | null; busy: boolean; waiting: boolean; active: string | undefined; mobile: boolean; installing: boolean; setInstalling: (installing: boolean) => void;
+  data: PluginListData | null; unloaded: ReadonlySet<string>; busy: boolean; waiting: boolean; active: string | undefined; mobile: boolean; installing: boolean; setInstalling: (installing: boolean) => void;
   onInstall: (source: string, location: PluginLocation) => void; formFailure: PluginRejection | null; restartNotice: ReactNode; onChoose: (source: string) => void;
 };
 
-export function PluginList({ data, busy, waiting, active, mobile, installing, setInstalling, onInstall, formFailure, restartNotice, onChoose }: PluginListProps) {
+export function PluginList({ data, unloaded, busy, waiting, active, mobile, installing, setInstalling, onInstall, formFailure, restartNotice, onChoose }: PluginListProps) {
   const packages = data?.packages ?? [];
   return <section className="settings-list plugin-list">
     <div className="settings-list-top">
@@ -53,7 +53,7 @@ export function PluginList({ data, busy, waiting, active, mobile, installing, se
       {data && !packages.length ? <Text id="plugins-empty" c="dimmed" size="sm" px="xs">暂无插件。</Text> : null}
       {packages.map((pkg) => <ListRow key={pkg.source} data-plugin-source={pkg.source} data-name={pkg.name} data-enabled={String(pkg.enabled)} data-location={pkg.location}
         selected={!mobile && active === pkg.source} onChoose={() => onChoose(pkg.source)} name={pkg.name}
-        meta={[pkg.version, placeLabel(pkg.location), pkg.enabled ? "已启用" : "已停用"].filter(Boolean).join(" · ")} />)}
+        meta={[pkg.version, placeLabel(pkg.location), pkg.enabled ? "已启用" : "已停用", pkg.enabled && unloaded.has(pkg.source) ? "默认不加载" : ""].filter(Boolean).join(" · ")} />)}
     </div>
     {data ? <div className="settings-list-foot">{packages.length} 个插件</div> : null}
   </section>;
