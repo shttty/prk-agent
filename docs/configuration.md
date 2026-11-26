@@ -56,6 +56,41 @@ This is the Pi 1.6.0 schema: only `id` is required in each model entry. Omitted 
 
 Keep the handwritten `clp` provider or give a provider plugin a different ID, such as `clp-plugin`; a plugin cannot augment or replace that handwritten `clp` entry.
 
+### Per-provider outbound proxy
+
+A `models.json` provider may set `proxy`, a PRK key that Pi's schema ignores. It is either an `http://` or `https://` proxy URL, optionally with `user:password@` (percent-encode reserved characters), or `false` to force a direct connection even when the process has an environment proxy:
+
+```json
+{
+  "providers": {
+    "intranet": {
+      "baseUrl": "https://llm.example.internal/v1",
+      "api": "openai-completions",
+      "apiKey": "$INTRANET_API_KEY",
+      "proxy": false,
+      "models": [{ "id": "qwen-max" }]
+    },
+    "clp": {
+      "baseUrl": "https://proxy.example.com/v1",
+      "api": "openai-responses",
+      "apiKey": "$CLP_API_KEY",
+      "proxy": "http://user:pass@proxy.example.internal:3128",
+      "models": [{ "id": "gpt-6.1-sol" }]
+    }
+  }
+}
+```
+
+Providers without `proxy` keep the process default: direct, or the environment proxy under `NODE_USE_ENV_PROXY=1`. When only one proxy for everything is needed, skip `proxy` and set `NODE_USE_ENV_PROXY=1`, `HTTPS_PROXY` and `NO_PROXY` in `prk.env`; see [INSTALL.md](../INSTALL.md#1-前置检查). An https:// endpoint is reached through a `CONNECT` tunnel and an http:// endpoint through ordinary proxy forwarding. `NODE_EXTRA_CA_CERTS` applies to both the proxy and the endpoint.
+
+Gateway validates `proxy` once when it reads `models.json` and refuses to start on:
+
+- any other value, such as `true`, a bare `host:port` or a `socks5://` URL; the error does not echo the value;
+- a Pi built-in provider ID such as `openai`, `anthropic` or `google`, or a provider with `"oauth": "radius"`: Pi streams those models with its built-in implementation, which the proxy cannot reach. Use your own ID, as with `clp` above;
+- a model API other than `openai-completions`, `openai-responses`, `azure-openai-responses`, `anthropic-messages`, `google-generative-ai`, `mistral-conversations` or `pi-messages`: Bedrock, Vertex and Codex send some requests outside the replaceable fetch.
+
+At startup Gateway logs one line per provider with `proxy`, without credentials: `[provider-proxy] clp: http://proxy.example.internal:3128` or `[provider-proxy] intranet: direct`. Like the rest of `models.json`, a change takes effect after a Gateway restart. Plugin-registered providers are not covered.
+
 ## `config.toml`: global settings
 
 `config.toml` groups: `derivation`, `session`, `codemode`, `trace`, `kernel`, `namespace`, `gateway`, `http`, `limits`, `tools`, `skills`, `learning`, `memory`, `extensions`, `remoteHost`, `workspace`, `terminal`, `monitor`, `artifacts`, `toolContent`, `kernelTools`, `processWindow`, `references`, `targetConnection`. Instance fields, including a root `instances` key, are rejected as unknown fields; normal startup reads only the current format.

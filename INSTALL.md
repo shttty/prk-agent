@@ -19,7 +19,7 @@ export PRK_HOME="${PRK_HOME:-${XDG_CONFIG_HOME:-$HOME/.config}/pi-remote-kernel}
 H="$PRK_HOME"
 ```
 
-如果出网要走 HTTP 代理，npm 可配置自己的代理。要让 Gateway 调模型时也使用环境代理，使用支持 `NODE_USE_ENV_PROXY` 的 Node（22.x 至少 22.21），在 `$H/prk.env` 中 `export HTTPS_PROXY=…`、`export NO_PROXY=127.0.0.1,localhost` 和 `export NODE_USE_ENV_PROXY=1`。如果模型端点应直连，把它的域名也加入 `NO_PROXY`。
+如果出网要走 HTTP 代理，npm 可配置自己的代理。所有模型都走同一个代理时，用支持 `NODE_USE_ENV_PROXY` 的 Node（24.0 起，22.x 至少 22.21），在 `$H/prk.env` 中 `export HTTPS_PROXY=…`、`export NO_PROXY=127.0.0.1,localhost` 和 `export NODE_USE_ENV_PROXY=1`，不需要改 PRK 配置；Node 26.7 实测内置 `fetch` 和 `https` 模块都按它走代理，`NO_PROXY` 里的域名直连。如果模型端点应直连，把它的域名也加入 `NO_PROXY`。不同 provider 要走不同代理或部分直连时，见第 3 步的 `proxy` 字段。
 
 完成标准：Node 和 Python 版本都满足，本机及目标机有 Python ≥3.9，npm registry（可以是镜像）可用。`npm ci` 安装 PRK 的锁定依赖；`@earendil-works/pi-env` 包携带 daemon，Gateway 按需启动本机 daemon 或向远程目标部署它。
 
@@ -104,6 +104,31 @@ unset KEY
 ```
 
 `contextWindow`、`maxTokens` 按 provider 文档填；纯文本模型去掉 `"input"` 里的 `"image"`。用可信的私有 CA 时，在 `$H/prk.env` 加 `export NODE_EXTRA_CA_CERTS=/path/to/ca.pem`。
+
+内网里有的 provider 要经公司代理、有的要直连时，在 provider 上写 `proxy`：代理 URL（`http://` 或 `https://`，可带 `user:password@`），或 `false` 表示强制直连（即使设了 `NODE_USE_ENV_PROXY` 也不走环境代理）；不写则沿用进程默认。provider ID 不能和 Pi 内置 provider（`openai`、`anthropic`、`google` 等）重名，否则 Gateway 拒绝启动：
+
+```json
+{
+  "providers": {
+    "intranet": {
+      "baseUrl": "https://llm.example.internal/v1",
+      "api": "openai-completions",
+      "apiKey": "<key>",
+      "proxy": false,
+      "models": [{ "id": "<模型名>" }]
+    },
+    "external": {
+      "baseUrl": "https://provider.example.com/v1",
+      "api": "openai-completions",
+      "apiKey": "<key>",
+      "proxy": "http://proxy.example.internal:3128",
+      "models": [{ "id": "<模型名>" }]
+    }
+  }
+}
+```
+
+改完重启 Gateway，`logs gateway` 里每个配了 `proxy` 的 provider 有一行 `[provider-proxy] external: http://proxy.example.internal:3128`（或 `direct`）。取值规则和不支持的 API 见[按 provider 配置出站代理](docs/configuration.md#per-provider-outbound-proxy)。
 
 在 `$H/prk.env` 设 `PRK_MODEL` 为 `provider/model-id` 形式，例如 `PRK_MODEL=custom/your-model-id`。选择支持工具调用的模型，并用实际模型 ID 替换示例。
 

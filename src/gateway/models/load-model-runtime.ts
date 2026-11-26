@@ -2,6 +2,8 @@ import type { HostContext } from "../host/host-state.ts";
 import type { SessionRuntimeDependencies } from "../../sessions/runtime/runtime-types.ts";
 import { createAgentSessionFromServices, createAgentSessionRuntime, createAgentSessionServices, SessionManager, SettingsManager } from "@earendil-works/pi-coding-agent";
 import { createProviderBootstrap } from "./create-provider-bootstrap.ts";
+import { readProviderProxies } from "./provider-proxy/read-provider-proxies.ts";
+import { routeProviderProxies } from "./provider-proxy/route-provider-proxies.ts";
 import { createSessionSettings } from "../../sessions/session-settings/create-settings.ts";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -17,6 +19,7 @@ export function sharedModelRuntime(ctx: HostContext): Promise<SessionRuntimeDepe
     let document;
     try { document = JSON.parse(readFileSync(join(agentDir, "models.json"), "utf8")); }
     catch (error) { if (!(error && typeof error === "object" && "code" in error && error.code === "ENOENT")) throw error; }
+    routeProviderProxies(readProviderProxies(document));
     const bootstrap = createProviderBootstrap(Object.keys(document?.providers ?? {}));
     ctx.models.modelProviders = bootstrap.modelProviders;
     const runtime = await createAgentSessionRuntime(async ({ sessionManager }) => {

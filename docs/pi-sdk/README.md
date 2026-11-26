@@ -38,6 +38,7 @@
 - `find` 含 `/` 的 glob 改为相对搜索目录匹配；原生工具调用直接继承，以 `**/src/*.ts` 搜任意层级的 `src`。GPT-6.2 Sol 默认模型、Qwen 退休模型及官方 Anthropic 域上的 threads 默认范围由 SDK 管理，不改 PRK 模型配置。
 - Chord 的 breaking 项为 `createWorkers` 要求传 `store`、`telemetryIngestFacet` 要求 `admit`、`HostError.query_failed.table` 改为 `.query`；PRK 不使用这些接口。1.6.0 将 `ws` 的精确 peer 约束改为 `^8.21.0`。pi-env 的 Connection／Terminal／Process 声明及 wire protocol 保持，更新精确 daemon 版本和缓存目录；原版 daemon 修复背压时进程退出丢尾输出。
 - 保留 rebrand、provider policy、Google `xhigh` 和五个未映射的 Google finish reason；仅 `CONTINUATION` 交还上游。接缝及启动校验见[补丁记录](patches.md)。
+- 按 provider 出站代理（2026-11-26）使用 `@earendil-works/pi-ai/compat` 的公开 `getApiProvider`／`registerApiProvider`（sourceId `prk-provider-proxy`），只给配了 `proxy` 的 provider 的模型注入 `StreamOptions.fetch`。1.6.0 核对：Gateway 与插件拿到同一 compat 实例；`provider-composer.js` 在请求时才查 `getApiProvider(model.api)`，但与内置 provider 同 ID 且内置支持该 API 的模型直接走内置实现，所以这类 ID 配 `proxy` 时启动拒绝；Bedrock（AWS SDK handler）、Codex（默认 WebSocket）、Vertex（ADC 取 token）不全经 `options.fetch`，同样拒绝。compat 注明随 ModelManager 迁移删除，升级 Pi 时复核，由 `test/integration/models/provider-proxy.test.mjs` 兜住。
 
 ## Pi 1.5.2 核对（2026-11-16，PRK-PI15）
 

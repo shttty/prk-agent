@@ -52,6 +52,8 @@
 - 共享提供方初始化必须从所选主目录 `agent/settings.json` 的普通 `packages` 列表加载，不得增加独立 provider 清单；必须沿用包位置选择，并排除默认及实例远程列表管理的包。
 - Gateway 必须按加载期 `registerProvider` 行为识别包与 provider ID 的所有权，不得按包名或 metadata 推断；启动日志必须列出识别结果。
 - `models.json` 声明的 provider ID 必须优先保留给手写配置；插件同名注册必须报结构化扩展错误并记 Gateway 日志，不得覆盖或合并。
+- `models.json` 的 `providers[*].proxy` 必须在 Gateway 读取该文件时校验一次，只接受 http/https URL 或 `false`；其他值、Pi 内置 provider ID（含 radius）及不经 `options.fetch` 发请求的 API 必须让 Gateway 拒绝启动，错误不得回显代理值。
+- 代理必须只作用于所配 provider 的模型请求（按 `model.provider` 判断，同一 API 的其他 provider 不变），用项目依赖的 undici `fetch` 携带 `ProxyAgent`／`Agent`；没有 provider 配 `proxy` 时不得注册 API 包装。启动日志每个配了代理的 provider 一行，不得含 userinfo。
 - 其余 provider ID 必须按 `packages` 加载顺序归第一个注册成功的包所有；后续包争用同一 ID 必须报结构化扩展错误并记日志，不得替换所有者。
 - 所有者包的 Gateway 实例必须可以在后续刷新中注册／注销自己的 provider ID；其他包不得修改该所有权下的共享提供方。
 - 会话、全局目录和发现实例对已有所有者的 provider ID 注册／注销必须 no-op 并记 debug 日志；无所有者的 ID 必须报结构化扩展错误并记 Gateway 日志，不得修改共享运行时，也不得阻断该插件其他工具、hook 和命令的注册。
