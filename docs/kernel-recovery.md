@@ -36,7 +36,7 @@ Gateway or target-connection loss invalidates old execution handles and namespac
 
 ## Test environment
 
-`npm test` runs typechecking, pure Node unit tests, Web lint and contract lint. Install the checkout dependencies first: `npm ci && npm --prefix web ci`.
+`npm test` runs typechecking (backend and web), pure Node unit tests, Web lint, contract lint and structure lint. The unit runner loads `scripts/verification/resolve-web-sources.mjs` (`--import`) so web modules renamed to `.ts` still resolve from their `.js` specifiers. Install the checkout dependencies first: `npm ci && npm --prefix web ci`.
 
 `npm run check` also runs real Gateway/SDK integration tests, Chromium journeys and the Web build. In a Linux user session, make `bun`, `rg` and `fd` available on `PATH` and set:
 
