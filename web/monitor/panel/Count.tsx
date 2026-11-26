@@ -1,0 +1,5 @@
+type CountProps = { added: number; removed: number };
+
+export function Count({ added, removed }: CountProps) {
+  return <><span className={added > 0 ? "is-add" : "is-zero"}>+{added}</span> <span className={removed > 0 ? "is-del" : "is-zero"}>-{removed}</span></>;
+}

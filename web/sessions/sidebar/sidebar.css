@@ -8,8 +8,6 @@
   flex: 1;
   height: 100%;
   min-height: 0;
-  display: flex;
-  flex-direction: column;
   padding: 16px 10px 10px;
   background: var(--pi-sidebar);
   /* Secondary text (row location, list and group headings): a step above --pi-faint so it keeps AA (4.5:1) on the
@@ -19,12 +17,6 @@
 }
 .management-sidebar .mantine-ActionIcon-root { border-radius: var(--pi-radius-pill); color: var(--pi-muted); }
 .management-sidebar .mantine-ActionIcon-root:where(:hover, [aria-expanded="true"]):not(:disabled) { background: var(--pi-sidebar-active); color: var(--pi-ink); }
-.management-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 8px 16px;
-}
 .management-brand-mark {
   position: relative;
   width: 14px;
@@ -47,12 +39,6 @@
   letter-spacing: .16em;
   white-space: nowrap;
 }
-.management-brand-collapse { margin-left: auto; margin-block: -4px; }
-.management-sidebar-heading {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
 .management-sidebar-heading .mantine-Button-root {
   height: 34px;
   padding-inline: 14px;
@@ -64,7 +50,6 @@
   font-weight: 500;
 }
 .management-sidebar-heading .mantine-Button-root:not(:disabled):hover { background: var(--pi-sidebar-hover); }
-.management-sidebar-heading .management-primary-action { flex: 1; }
 .management-sidebar-heading .management-primary-action:not(:disabled) {
   border-color: var(--pi-line-strong);
   background: var(--pi-surface);
@@ -84,42 +69,19 @@
 .management-view-switch .mantine-SegmentedControl-label { color: var(--pi-muted); font-size: 12px; font-weight: 500; }
 .management-view-switch .mantine-SegmentedControl-label[data-active] { color: var(--pi-ink); font-weight: 600; }
 .management-list-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 18px 8px 4px;
   color: var(--pi-sidebar-dim);
   font-size: 11.5px;
   font-weight: 600;
   letter-spacing: .04em;
 }
 .management-sidebar-list {
-  min-height: 0;
-  flex: 1;
   overflow: auto;
   overscroll-behavior: contain;
 }
-.management-sidebar-footer {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  min-height: 36px;
-  margin-top: 8px;
-  padding: 8px 2px 0 12px;
-  border-top: 1px solid var(--pi-line);
-}
+.management-sidebar-footer { border-top: 1px solid var(--pi-line); }
 .management-sidebar-footer .management-connection-dot,
 .management-sidebar-footer .mantine-ActionIcon-root { flex: 0 0 auto; }
-.management-sidebar-footer #management-connection-status {
-  flex: 1 1 0;
-  min-width: 0;
-  margin-inline: 6px 4px;
-  overflow: hidden;
-  color: var(--pi-sidebar-dim);
-  font-size: 11.5px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
+.management-sidebar-footer #management-connection-status { font-size: 11.5px; }
 /* Session "…" menu: solid (it scrolls inside on phones), corners concentric with its 9px items over 6px padding. */
 .mantine-Menu-dropdown.management-session-dropdown {
   overflow-y: auto;

@@ -1,18 +1,13 @@
+/* Layout (heading, session rows, gaps) is Mantine's in ArchiveDialog.tsx; this keeps the group card and the small type. */
 .management-archive-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 8px 12px;
   border: 1px solid var(--pi-line);
   border-radius: var(--pi-radius);
   background: var(--pi-surface);
 }
-.management-archive-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; }
 .management-archive-meta { min-width: 0; color: var(--pi-muted); font-size: 11.5px; white-space: nowrap; }
 .management-archive-group .management-affected-tree { padding: 0; border: 0; background: transparent; }
 .management-archive-filter { flex: 0 1 340px; min-width: 0; }
 .management-archive-location { min-width: 0; overflow: hidden; color: var(--pi-muted); font-size: 11.5px; text-overflow: ellipsis; white-space: nowrap; }
-.management-archive-session { display: flex; align-items: center; justify-content: space-between; gap: .5rem; min-width: 0; }
 .management-archive-session > button { flex-shrink: 0; }
 .management-archive-group button[data-action="purge-archive"] { color: var(--pi-danger); }
 @media (max-width: 48em) {

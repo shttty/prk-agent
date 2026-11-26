@@ -1,3 +1,1 @@
 # Existing structure violations of this scope (rules: lines, exports, name). The list only shrinks: fix the file, then delete its line.
-exports web/monitor/panel/use-monitor-history.js
-exports web/monitor/readings/machine-point.js

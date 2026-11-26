@@ -1,0 +1,1 @@
+export const statusTone = (value: string | undefined) => value === "unavailable" ? "error" : value === "sleeping" ? "sleep" : value && ["running", "starting", "cancel_requested", "closing"].includes(value) ? "run" : value === "idle" ? "ok" : "idle";

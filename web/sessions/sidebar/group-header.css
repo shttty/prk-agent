@@ -1,5 +1,6 @@
 /* Group headers: an instance (instances view) or a project folder (projects view), with drop targets for moving a
-   session between projects. The archive dialog reuses the header and its caret. */
+   session between projects. The archive dialog reuses the header and its caret. The header's parts are laid out by
+   Mantine in GroupHeader.tsx; this keeps colour, type and the neutral fills. */
 .management-group { margin: 2px 0 8px; }
 .management-group[data-droppable="true"] {
   border-radius: var(--pi-radius-sm);
@@ -21,45 +22,24 @@
   text-align: center;
 }
 .management-group-header-row {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  margin-inline-end: 2px;
-  padding-inline: var(--tree-row-inset, 6px) 4px;
   border-radius: var(--sidebar-row-radius);
   transition: background var(--pi-motion-fast) ease;
 }
 .management-group-header-row:hover,
 .management-group-header-row:focus-within { background: var(--pi-sidebar-hover); }
 .management-group-header {
-  min-width: 0;
   min-height: 30px;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  padding: 0;
-  border: 0;
   border-radius: var(--sidebar-row-radius);
-  background: none;
   color: var(--pi-sidebar-dim);
-  text-align: left;
   font-size: 12px;
   font-weight: 600;
   line-height: 18px;
   letter-spacing: .02em;
-  cursor: pointer;
 }
 .management-group-header:hover,
 .management-group-header:focus-visible { color: var(--pi-ink-2); }
 .management-group-header:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: -2px; }
-.management-group-header > span:where(:not(.management-count, .management-local-badge)) {
-  min-width: 0;
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.management-group-header > :where(.management-count, .management-local-badge, [data-descendant-state]) { flex: none; margin-inline-start: 6px; }
+.management-group-name { font: inherit; }
 .management-group-caret {
   width: var(--tree-caret-width, 24px);
   flex: none;
@@ -75,7 +55,6 @@
   letter-spacing: 0;
 }
 .management-project-folder { flex: none; width: var(--tree-marker-width); margin-inline-end: var(--tree-label-gap); color: var(--pi-muted); }
-[data-group-kind="project"] .management-group-name { flex: 0 1 auto; }
 @media (min-width: 48.01em) and (hover: hover) and (pointer: fine) {
   [data-group-kind="project"] .management-group-header-row:not(:hover):not(:focus-within) .mantine-ActionIcon-root:not([aria-expanded="true"]) {
     opacity: 0;

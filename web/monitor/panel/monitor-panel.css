@@ -1,8 +1,7 @@
-/* Monitor panel (lazy with MonitorPanel.jsx). Where it sits and the room the chat column leaves for it: app/style.css.
-   A glass widget (translucent, blurred). Titles and numbers use --pi-font-monitor (bold CJK sans + Manrope, tokens.css). */
+/* Monitor panel (lazy with MonitorPanel.tsx). Where it sits and the room the chat column leaves for it: shell/page/page.css.
+   A glass widget (translucent, blurred). Titles and numbers use --pi-font-monitor (bold CJK sans + Manrope, tokens.css).
+   Layout (rows, tiles, gaps) is Mantine's in the components; this file keeps colour, type and the glass. */
 .pi-monitor-panel {
-  display: flex;
-  flex-direction: column;
   min-height: 0;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--pi-surface) 60%, transparent);
@@ -13,20 +12,12 @@
   -webkit-backdrop-filter: var(--pi-glass);
   backdrop-filter: var(--pi-glass);
 }
-
-.pi-monitor-head { flex: 0 0 auto; display: flex; align-items: center; gap: 2px; padding: 11px 8px 4px 14px; }
-.pi-monitor-title { flex: 1 1 auto; min-width: 0; display: flex; align-items: baseline; gap: 8px; }
-.pi-monitor-title h2 { margin: 0; font: 900 15px/1.2 var(--pi-font-monitor); letter-spacing: .04em; }
-.pi-monitor-title span { min-width: 0; overflow: hidden; color: var(--pi-muted); font-size: 11.5px; text-overflow: ellipsis; white-space: nowrap; }
-.pi-monitor-card-body { min-height: 0; display: flex; flex-direction: column; overflow-y: auto; overscroll-behavior: contain; }
+.pi-monitor-title { margin: 0; font: 900 15px/1.2 var(--pi-font-monitor); letter-spacing: .04em; }
+.pi-monitor-card-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 
 /* Machine: Grafana-style tiles, big current number over its line. */
-.pi-monitor-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 6px 12px 0; }
 .pi-monitor-metric {
-  position: relative;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
   padding: 8px 10px 0;
   border-radius: 14px;
@@ -34,66 +25,58 @@
   box-shadow: 0 0 0 1px var(--pi-line);
 }
 .pi-monitor-metric.is-wide { grid-column: 1 / -1; }
-.pi-monitor-metric-head { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; min-width: 0; }
 .pi-monitor-metric-title { flex: 0 0 auto; color: var(--pi-ink-2); font: 800 12px/1.3 var(--pi-font-monitor); letter-spacing: .06em; }
-.pi-monitor-metric-detail { min-width: 0; overflow: hidden; color: var(--pi-muted); font-size: 10.5px; font-variant-numeric: tabular-nums; text-overflow: ellipsis; white-space: nowrap; }
+.pi-monitor-metric-detail { color: var(--pi-muted); font-size: 10.5px; font-variant-numeric: tabular-nums; }
 .pi-monitor-metric-value { margin-top: 3px; color: var(--pi-ink); font: 800 27px/1.05 var(--pi-font-monitor); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
 .pi-monitor-metric-value small { margin-left: 2px; color: var(--pi-muted); font-size: 13px; font-weight: 700; letter-spacing: 0; }
-.pi-monitor-metric[data-alert="true"] .pi-monitor-metric-value { color: var(--pi-danger); }
 .pi-monitor-metric .pi-chart { display: block; width: calc(100% + 20px); height: 34px; margin: 4px -10px 0; color: var(--pi-accent); }
-.pi-monitor-metric[data-alert="true"] .pi-chart { color: var(--pi-danger); }
 .pi-chart-line { fill: none; stroke: currentColor; stroke-width: 1.5px; stroke-linejoin: round; stroke-linecap: round; }
 .pi-chart-grid { stroke: var(--pi-line); stroke-width: 1px; stroke-dasharray: 2 3; }
-.pi-monitor-window { display: flex; justify-content: space-between; gap: 8px; padding: 6px 14px 10px; color: var(--pi-faint); font-size: 11px; font-variant-numeric: tabular-nums; }
+.pi-monitor-window { color: var(--pi-faint); font-size: 11px; font-variant-numeric: tabular-nums; }
 
 /* Kernel and changes: compact sections under the tiles. */
 .pi-monitor-section { padding: 10px 14px 12px; border-top: 1px solid var(--pi-line); }
 .pi-monitor-section.is-machine { padding: 0; border-top: 0; }
-.pi-monitor-section h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; color: var(--pi-ink); font: 800 13px/1.3 var(--pi-font-monitor); letter-spacing: .04em; }
-.pi-monitor-section h3 .pi-monitor-chip-state { flex: none; }
-.pi-monitor-meter-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.pi-monitor-section-title { margin: 0; color: var(--pi-ink); font: 800 13px/1.3 var(--pi-font-monitor); letter-spacing: .04em; }
+.pi-monitor-meter-row { font-size: 12.5px; font-variant-numeric: tabular-nums; }
 .pi-monitor-meter-value { font: 700 13px/1.4 var(--pi-font-monitor); font-variant-numeric: tabular-nums; }
 .pi-monitor-oom { color: var(--pi-muted); font-size: 11.5px; }
-.pi-monitor-meter { height: 4px; margin-top: 5px; overflow: hidden; border-radius: 2px; background: var(--pi-track); }
-.pi-monitor-meter i { display: block; height: 100%; border-radius: inherit; background: var(--pi-accent); }
-.pi-monitor-meter[data-alert="true"] i { background: var(--pi-danger); }
-.pi-monitor-meter[data-stale="true"] i { background: var(--pi-faint); }
 [data-alert="true"].pi-monitor-meter-value, .pi-monitor-oom [data-alert="true"] { color: var(--pi-danger); font-weight: 600; }
 [data-stale="true"].pi-monitor-meter-value, .pi-monitor-oom [data-stale="true"] { color: var(--pi-muted); }
-.pi-monitor-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
-.pi-monitor-facts { display: flex; flex-wrap: wrap; gap: 4px 10px; color: var(--pi-muted); font-size: 12px; }
+.pi-monitor-facts { color: var(--pi-muted); font-size: 12px; }
 .pi-monitor-summary { color: var(--pi-muted); font: 700 12.5px/1.3 var(--pi-font-monitor); font-variant-numeric: tabular-nums; letter-spacing: 0; }
 .pi-monitor-summary .is-add, .pi-monitor-counts .is-add { color: var(--pi-ok); }
 .pi-monitor-summary .is-del, .pi-monitor-counts .is-del { color: var(--pi-danger); }
 .pi-monitor-summary .is-zero, .pi-monitor-counts .is-zero { color: var(--pi-muted); }
-.pi-monitor-files { display: flex; flex-direction: column; max-height: 220px; margin: 6px -6px 0; padding: 0; overflow-y: auto; list-style: none; }
-.pi-monitor-files button { width: 100%; display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 3px 6px; border: 0; border-radius: var(--pi-radius-sm); background: transparent; color: var(--pi-ink); font: inherit; font-size: 12.5px; text-align: left; cursor: pointer; }
-.pi-monitor-files button:hover, .pi-monitor-files button:focus-visible { background: var(--pi-hover); }
+.pi-monitor-files { max-height: 220px; margin: 6px -6px 0; padding: 0; overflow-y: auto; list-style: none; }
+/* Changed files and child sessions are rows of aligned columns (status, path that truncates, counts), not equal cells. */
+.pi-monitor-files button, .pi-monitor-children button { width: 100%; display: grid; align-items: center; gap: 8px; padding: 3px 6px; border: 0; border-radius: var(--pi-radius-sm); background: transparent; color: var(--pi-ink); font: inherit; font-size: 12.5px; text-align: left; cursor: pointer; }
+.pi-monitor-files button { grid-template-columns: 14px minmax(0, 1fr) auto; }
+.pi-monitor-children button { grid-template-columns: 10px minmax(0, 1fr) auto auto; }
+.pi-monitor-files button:hover, .pi-monitor-files button:focus-visible, .pi-monitor-children button:hover, .pi-monitor-children button:focus-visible { background: var(--pi-hover); }
 .pi-monitor-status { color: var(--pi-muted); font-family: var(--pi-font-mono); font-variant-ligatures: none; font-size: 11px; }
 .pi-monitor-path { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pi-monitor-counts { color: var(--pi-muted); font-size: 11.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .pi-monitor-age { display: block; margin-top: 6px; color: var(--pi-faint); font-size: 11px; font-variant-numeric: tabular-nums; }
-.pi-monitor-children { display: flex; flex-direction: column; margin: 2px -6px 0; padding: 0; list-style: none; }
-.pi-monitor-children button { width: 100%; display: grid; grid-template-columns: 10px minmax(0, 1fr) auto auto; align-items: center; gap: 8px; padding: 3px 6px; border: 0; border-radius: var(--pi-radius-sm); background: transparent; color: var(--pi-ink); font: inherit; font-size: 12.5px; text-align: left; cursor: pointer; }
-.pi-monitor-children button:hover, .pi-monitor-children button:focus-visible { background: var(--pi-hover); }
+.pi-monitor-children { margin: 2px -6px 0; padding: 0; list-style: none; }
 .pi-monitor-child-state { color: var(--pi-muted); font-size: 11.5px; white-space: nowrap; }
 .pi-monitor-window .pi-monitor-age { margin-top: 0; }
 
 /* Child sessions and background processes fold under their heading, which keeps a one-line muted summary cut with an
-   ellipsis; open, the list scrolls inside its own height. Which ones are open: FoldSection.jsx. */
+   ellipsis; open, the list scrolls inside its own height. Which ones are open: FoldSection.tsx. */
 .pi-monitor-fold { flex: 1 1 auto; min-width: 0; display: flex; align-items: baseline; gap: 8px; margin: -3px -6px; padding: 3px 6px; border: 0; border-radius: var(--pi-radius-sm); background: transparent; color: inherit; font: inherit; letter-spacing: inherit; text-align: left; cursor: pointer; }
 .pi-monitor-fold:hover, .pi-monitor-fold:focus-visible { background: var(--pi-hover); }
 .pi-monitor-fold-icon { flex: none; align-self: center; margin-inline-end: -4px; color: var(--pi-faint); transition: transform .15s ease; }
 .pi-monitor-fold[aria-expanded="true"] .pi-monitor-fold-icon { transform: rotate(90deg); }
 .pi-monitor-fold-title { flex: none; }
 .pi-monitor-fold .pi-monitor-summary { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pi-monitor-section[data-open="false"] h3, #monitor-processes[data-count="0"] h3 { margin-bottom: 0; }
 .pi-monitor-children, .pi-monitor-processes { max-height: min(240px, 34dvh); overflow-y: auto; overscroll-behavior: contain; }
 .pi-monitor-processes { margin: 0; padding: 0; list-style: none; }
+/* The process table: fixed character-width columns (PID, CPU, memory) around a command that truncates. */
 .pi-monitor-process-grid { display: grid; grid-template-columns: 7.5ch minmax(0, 1fr) 4ch 7ch; gap: 5px; align-items: baseline; padding-block: 3px; color: var(--pi-ink); font-size: 11.5px; font-variant-numeric: tabular-nums; }
 .pi-monitor-process-grid > :nth-last-child(-n+2) { text-align: end; white-space: nowrap; }
 .pi-monitor-process-head { color: var(--pi-muted); font-size: 11px; }
-.pi-monitor-process-label { display: flex; gap: 4px; min-width: 0; }
+.pi-monitor-process-label { min-width: 0; }
 .pi-monitor-process-label small { flex: none; color: var(--pi-muted); }
 [data-process-owner="detached"] .pi-monitor-process-label small { color: var(--pi-danger); }
 .pi-monitor-note, .pi-monitor-error { margin: 4px 14px 2px; }
@@ -101,7 +84,7 @@
 
 /* Touch: card buttons and file rows are finger-sized. Mantine sets the button height inline-var, so the property is overridden. */
 @media (pointer: coarse) {
-  .pi-monitor-actions { gap: 10px; }
+  .pi-monitor-actions { --group-gap: 10px; }
   .pi-monitor-actions .mantine-Button-root { height: 38px; padding-inline: 14px; font-size: 13.5px; }
   .pi-monitor-files button { min-height: 38px; }
   .pi-monitor-fold { min-height: 38px; align-items: center; }

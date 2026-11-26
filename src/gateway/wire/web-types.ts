@@ -29,6 +29,18 @@ export type { AbsoluteListing, EditableExecutionTarget, InspectTargetResult, Tar
 
 
 // web/instances, web/monitor, web/sessions
+export type { SessionMonitor, SessionChanges } from "../../monitor/session-monitor/session-monitor-types.ts";
+export type { MonitorHistory } from "../../monitor/sample-history/sample-history-types.ts";
+export type { MetricView } from "../../monitor/custom-metrics/custom-metrics-types.ts";
+export type { MonitoredProcess } from "../../monitor/telemetry/process-types.ts";
+export type { MachineSample, RemoteHostMonitor } from "../../monitor/telemetry/telemetry-types.ts";
+export type { ConfigurationIssue } from "../../config/execution-target/configuration-issue.ts";
+export type { DerivedSessionInfo } from "../../plugins/sessions/session-types.ts";
+export type { EditableExecutionTarget, TargetConnection, InspectTargetResult, AbsoluteListing } from "../instances/instance-types.ts";
+export type { TargetEnvironmentSnapshot } from "../instance-environments/environment-types.ts";
+export type { SessionControl } from "../../sessions/session-control/control-types.ts";
+export type { SessionHostSnapshot } from "../../sessions/host/host-types.ts";
+export type { ArchiveGroup, ArchivedSession, ArchivePreview, ArchivePreviewSession, ProjectArchivePreview, ProjectArchiveResult } from "../archives/archive-types.ts";
 
 
 // web/settings, web/shell, web/workspace

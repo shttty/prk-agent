@@ -1,6 +1,2 @@
-.management-inspection-header { min-width: 0; }
+/* The connection test card's text takes the room the button leaves, and wraps the button under it when that is too little. */
 .management-inspection-copy { min-width: 0; flex: 1 1 auto; }
-.management-inspection-feedback { margin-top: 8px; overflow-wrap: anywhere; }
-.management-inspection-feedback-pending { color: var(--mantine-color-blue-7); }
-.management-inspection-feedback-success { color: var(--pi-ok); }
-.management-inspection-feedback-error { color: var(--pi-danger); }

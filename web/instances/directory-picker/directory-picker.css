@@ -1,35 +1,10 @@
+/* The directory picker: Mantine lays the rows out (DirectoryPicker.tsx); this keeps the list box and its mobile height. */
 .management-directory-picker {
   min-width: 0;
   max-height: min(680px, 82dvh);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
   overflow: hidden;
 }
-.management-directory-heading {
-  min-width: 0;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-}
-.management-directory-heading > button { flex-shrink: 0; }
-.management-directory-heading-copy { min-width: 0; }
-.management-directory-toolbar {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-.management-directory-toolbar-actions { flex: 0 0 auto; }
 .management-directory-path {
-  min-width: 0;
-  flex: 1 1 auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-align: right;
   font-family: var(--pi-font-mono);
   font-variant-ligatures: none;
   font-size: 12px;
@@ -45,14 +20,6 @@
   padding: 4px;
   background: var(--pi-surface);
 }
-.management-directory-filter {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.management-directory-search { min-width: 0; flex: 1 1 auto; }
-.management-directory-filter .mantine-Switch-root { flex: 0 0 auto; }
 .management-directory-entries { margin: 0; padding: 0; list-style: none; }
 .management-directory-entries .pi-files-name {
   min-width: 0;
@@ -62,27 +29,9 @@
 }
 /* Directory mode lists files for orientation only. */
 .management-directory-entries .pi-files-row:disabled { cursor: default; color: var(--pi-muted); background: none; }
-.management-directory-state {
-  display: flex;
-  min-height: 94px;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  text-align: center;
-}
-.management-directory-footer {
-  display: flex;
-  flex: 0 0 auto;
-  justify-content: flex-end;
-  gap: 8px;
-  padding-top: 2px;
-  border-top: 1px solid var(--pi-line);
-}
-.management-directory-input { min-width: 0; flex: 1; }
+.management-directory-footer { flex: 0 0 auto; padding-top: 2px; border-top: 1px solid var(--pi-line); }
 @media (max-width: 700px) {
   .management-directory-picker { max-height: min(78dvh, 620px); }
-  .management-directory-toolbar { align-items: flex-start; flex-direction: column; }
-  .management-directory-path { width: 100%; text-align: left; }
   .management-directory-list { max-height: min(300px, 36dvh); }
   .management-directory-entries .pi-files-row { min-height: 2.5rem; }
   .management-directory-footer { padding-top: 6px; }

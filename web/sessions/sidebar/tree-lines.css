@@ -15,6 +15,7 @@
 }
 .management-group-children.management-tree-branch { --tree-project-offset: var(--tree-step); }
 .management-remote-owner-branch { --tree-owner-offset: var(--tree-step); }
+/* The level guide is a decorative 1px rule down the caret column, placed from the same CSS tokens as the rows (no measuring). */
 .management-tree-branch { position: relative; }
 .management-tree-branch::after {
   content: "";
@@ -27,27 +28,14 @@
 }
 .management-remote-owner-branch::after { inset-inline-start: calc(var(--tree-guide-start) + var(--tree-project-offset, 0px)); }
 .management-tree-toggle {
-  position: absolute;
-  z-index: var(--pi-z-raised);
-  inset-block: 0;
-  inset-inline-start: var(--tree-row-inset);
-  width: var(--tree-caret-width);
-  height: 24px;
-  margin-block: auto;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 0;
   border-radius: var(--pi-radius-pill);
-  background: transparent;
   color: var(--pi-faint);
-  cursor: pointer;
 }
 .management-tree-toggle:hover { color: var(--pi-ink); }
 .management-tree-toggle:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: 0; }
 .management-tree-toggle svg { transition: transform var(--pi-motion-slow) var(--pi-motion-ease-spring); }
 .management-tree-toggle[aria-expanded="true"] svg { transform: rotate(90deg); }
-/* Temporary child: a short dashed tick from the parent's guide instead of a full row weight. */
+/* Temporary child: a short dashed tick (decorative, token-placed like the guide) from the parent's guide instead of a full row weight. */
 .management-session-row.is-temporary::before {
   content: "";
   position: absolute;
