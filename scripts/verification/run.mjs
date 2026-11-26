@@ -16,11 +16,13 @@ if (mode === "check" && required.some((name) => !process.env[name])) {
 }
 const scratch = await mkdtemp(join(tmpdir(), "prk-v-"));
 const reporter = "./scripts/verification/report-cases.mjs";
-const cases = (layer, seconds, concurrency) => run(layer, node, ["--test", `--test-concurrency=${concurrency}`, `--test-reporter=${reporter}`, `test/${layer}/**/*.test.mjs`], seconds);
+const webResolver = "./scripts/verification/resolve-web-sources.mjs";
+const cases = (layer, seconds, concurrency) => run(layer, node, ["--import", webResolver, "--test", `--test-concurrency=${concurrency}`, `--test-reporter=${reporter}`, `test/${layer}/**/*.test.mjs`], seconds);
 try {
   const fast = await Promise.all([
     cases("unit", 30, 4),
     run("typecheck", node, ["node_modules/typescript/bin/tsc", "--noEmit"], 59),
+    run("web typecheck", node, ["node_modules/typescript/bin/tsc", "-p", "web/tsconfig.json"], 59),
     run("web lint", node, [npm, "--prefix", "web", "run", "lint"], 59),
     run("contract lint", node, ["scripts/verification/lint-contract.mjs"], 59),
   ]);
