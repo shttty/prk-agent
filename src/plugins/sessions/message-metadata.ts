@@ -1,7 +1,7 @@
 export const SESSION_MESSAGE_TOOL_METADATA = {
   session_list: {
     name: "session_list",
-    description: "List reachable sessions (self: true), or inspect a controlled sessionId's status, result, and recent activity without waking.",
+    description: "List reachable sessions (results mark your own with self: true), or inspect a controlled sessionId's status, result, and recent activity without waking.",
   },
   session_send: {
     name: "session_send",

@@ -24,7 +24,7 @@ export const TERMINAL_TOOL_METADATA = {
   },
   terminal_textsend: {
     name: "terminal_textsend",
-    description: "Send verbatim text+Enter to a model or human terminal for interactive/long commands (default main; new name opens bash; prk_ssh tracks remote bash; avoid kernel bash). Events wake you—end turn without polling. Quiet means silence: check screen first; user types sudo/ssh passwords directly.",
+    description: "Send verbatim text+Enter to a model or human terminal for interactive/long commands instead of bash (default main; new name opens bash; prk_ssh tracks remote bash). Events wake you—end turn without polling. Quiet means silence: check screen first; user types sudo/ssh passwords directly.",
   },
   terminal_keysend: {
     name: "terminal_keysend",

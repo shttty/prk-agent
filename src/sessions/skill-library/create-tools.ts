@@ -25,7 +25,8 @@ export function createSkillTools(library: SkillLibraryContext, skills: () => rea
     defineTool({ ...SKILL_TOOL_METADATA.skill_manage, label: "Manage shared skill", parameters: manageSchema, outputSchema: manageResultSchema,
       execute: (id, request) => manageSkill(ctx, id, request),
     }),
-    defineTool({ ...reader, ...SKILL_TOOL_METADATA.skill_read, label: "Read skill", parameters: readSchema,
+    // Drop the generic read snippet and guideline: they would describe a `read` tool in the tool catalog.
+    defineTool({ ...reader, ...SKILL_TOOL_METADATA.skill_read, promptSnippet: undefined, promptGuidelines: undefined, label: "Read skill", parameters: readSchema,
       execute: (...args) => readSkill(ctx, ...args),
     }),
   ] as ToolDefinition[];
