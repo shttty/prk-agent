@@ -4,6 +4,7 @@ import remarkGfm from "remark-gfm";
 import { classifyImageSource } from "../../markdown/classify-image-source.js";
 import { resultImageSource } from "../tool-calls/body/result-image-source.js";
 import { imageKey } from "./image-key.js";
+import { projectPeerBody } from "../messages/peer/project-peer-body.js";
 
 const markdown = unified().use(remarkParse).use(remarkGfm);
 
@@ -16,6 +17,12 @@ export function collectTranscriptImages(messages, cells = []) {
       for (const [index, attachment] of (metadata?.custom?.attachments ?? []).entries()) {
         const src = resultImageSource({ type: "image", mimeType: attachment.type, data: attachment.data });
         if (src) images.push({ key: imageKey("attachment", messageId, index), kind: "attachment", messageId, messageNumber: messageIndex + 1, index, src, label: attachment.name || "上传图片" });
+      }
+      if (metadata?.custom?.peerMessage) {
+        const report = projectPeerBody(metadata.custom.copyText);
+        for (const [index, { path, image }] of (report.kind === "result" ? report.artifacts : []).entries()) {
+          if (image) images.push({ key: imageKey("artifact", messageId, index), kind: "artifact", messageId, path, label: path });
+        }
       }
     }
     if (role !== "assistant") continue;

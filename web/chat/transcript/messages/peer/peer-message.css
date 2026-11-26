@@ -69,6 +69,69 @@ button.pi-peer-sender:focus-visible { outline: 2px solid var(--pi-accent-ring); 
   color: var(--pi-muted);
 }
 
+.pi-peer-outcome { flex-shrink: 0; }
+
+/* A child's result or failure notice: the same quiet row, structured instead of raw JSON. */
+
+.pi-peer-failure-summary {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  margin: 0;
+  font-size: .9rem;
+  line-height: 1.7;
+  color: var(--pi-muted);
+}
+
+.pi-peer-failure-summary > :first-child { flex-shrink: 0; }
+
+.pi-peer-failure-summary > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pi-peer-report .mantine-Accordion-item { border-bottom: 0; }
+
+.pi-peer-report-more {
+  display: grid;
+  gap: .35rem;
+  margin-top: .4rem;
+}
+
+.pi-peer-artifacts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--pi-font-mono);
+  font-size: .78rem;
+  line-height: 1.6;
+  color: var(--pi-muted);
+}
+
+.pi-peer-artifact { overflow-wrap: anywhere; text-align: start; }
+
+button.pi-peer-artifact {
+  font: inherit;
+  color: var(--pi-accent-strong);
+}
+
+button.pi-peer-artifact:hover { text-decoration: underline; text-underline-offset: 2px; }
+
+.pi-peer-patch-stats,
+.pi-peer-detail-json {
+  margin: 0;
+  overflow-x: auto;
+  font-family: var(--pi-font-mono);
+  font-size: .75rem;
+  line-height: 1.5;
+  color: var(--pi-ink-2);
+  white-space: pre;
+}
+
+.pi-peer-meta { color: var(--pi-faint); }
+
 @media (pointer: coarse) {
   button.pi-peer-sender { min-height: 44px; padding-inline: .25rem; }
 }

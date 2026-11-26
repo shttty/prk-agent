@@ -1,5 +1,5 @@
 import "./messages/messages.css";
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, useMemo } from "react";
 import { Code } from "@mantine/core";
 import { Text } from "@mantine/core";
 import { Box } from "@mantine/core";
@@ -24,10 +24,15 @@ import { transcriptVisibility } from "./transcript-visibility.js";
 import { turnGrouping } from "./turns/turn-grouping.js";
 import { TurnGroup } from "./turns/TurnGroup.jsx";
 import { MessageActions } from "./messages/MessageActions.jsx";
-import { PeerMessageHeader } from "./messages/PeerMessageHeader.jsx";
+import { PeerMessageHeader } from "./messages/peer/PeerMessageHeader.jsx";
+import { PeerTextPart } from "./messages/peer/PeerTextPart.jsx";
+import { PeerResultReport } from "./messages/peer/PeerResultReport.jsx";
+import { PeerFailureReport } from "./messages/peer/PeerFailureReport.jsx";
+import { projectPeerBody } from "./messages/peer/project-peer-body.js";
 import { SearchMatchContext } from "./search-match-context.js";
 const NO_CUSTOM = {};
 const HiddenPart = () => null;
+const PEER_OUTCOME = { result: "已交付结果", failure: "运行失败" };
 export function MessageView({ message }) {
   const presentationContext = useContext(PresentationContext);
   const actions = presentationContext?.actions;
@@ -40,7 +45,9 @@ export function MessageView({ message }) {
     : message?.role === "assistant" && message.status?.type === "running" ? "正在生成…" : "";
   const display = presentationContext?.transcriptDisplay;
   const { showText, showThinking } = transcriptVisibility(message, display);
-  const textComponent = message.role === "user" ? UserMarkdownPart : showText ? MarkdownPart : HiddenPart;
+  // Copy text keeps the full peer body; the displayed part may be truncated.
+  const report = useMemo(() => peer ? projectPeerBody(custom.copyText) : null, [peer, custom.copyText]);
+  const textComponent = message.role === "user" ? peer ? PeerTextPart : UserMarkdownPart : showText ? MarkdownPart : HiddenPart;
   const streaming = message?.role === "assistant" && message.status?.type === "running";
   const foldMode = display?.turnFoldMode;
   const groupParts = useCallback((parts) => turnGrouping(parts, !streaming, foldMode, { showThinking, showText }), [streaming, foldMode, showThinking, showText]);
@@ -87,9 +94,11 @@ export function MessageView({ message }) {
     >
       {batch?.index === 0 ? <Text component="div" className="pi-peer-batch-caption" size="xs">{batch.count} 条同伴消息 · 一起送达</Text> : null}
       <Box className="message-body pi-message-body">
-        {peer ? <PeerMessageHeader peer={peer} /> : null}
+        {peer ? <PeerMessageHeader peer={peer} outcome={PEER_OUTCOME[report.kind]} /> : null}
+        {report?.kind === "result" ? <PeerResultReport report={report} messageId={message.id} /> : null}
+        {report?.kind === "failure" ? <PeerFailureReport report={report} /> : null}
         <TurnContext.Provider value={message}>
-          {!custom.extensionNode ? <MessagePrimitive.Unstable_PartsGrouped groupingFunction={groupParts} components={{ Text: textComponent, Reasoning: showThinking ? ThinkingPart : HiddenPart, tools: { Fallback: ToolPart }, Group: TurnGroup }} /> : null}
+          {!custom.extensionNode && !PEER_OUTCOME[report?.kind] ? <MessagePrimitive.Unstable_PartsGrouped groupingFunction={groupParts} components={{ Text: textComponent, Reasoning: showThinking ? ThinkingPart : HiddenPart, tools: { Fallback: ToolPart }, Group: TurnGroup }} /> : null}
         </TurnContext.Provider>
         {custom.extensionNode ? <ExtensionNode node={custom.extensionNode} onAction={(args) => { if (presentationContext?.actions?.extensionUiAction) void presentationContext.actions.extensionUiAction("component", args); }} className="extension-message-renderer" /> : null}
         {!custom.extensionNode ? <>

@@ -4,6 +4,7 @@ import { fauxAssistantMessage } from "@earendil-works/pi-ai";
 import { browserFixture } from "../../fixtures/browser/open-workbench.mjs";
 import { text } from "../../fixtures/gateway/assemble-gateway.mjs";
 import { verifyConversationImages } from "./verify-conversation-images.mjs";
+import { verifyPeerMessages } from "./verify-peer-messages.mjs";
 import { until } from "../../fixtures/until.mjs";
 
 const idle = "#composer-form:not([data-busy])";
@@ -73,7 +74,7 @@ test("send, observe streamed output, stop, then retry and edit from the original
 
 test("send an image with no text and see it in the real conversation", verifyConversationImages);
 
-test("sidebar shows a background child running, then waiting even under its folded parent", async (t) => {
+test("sidebar shows a background child running, then waiting even under its folded parent; its reports stay compact", async (t) => {
   const release = Promise.withResolvers();
   const f = await browserFixture(t, { answer: async (context) => {
     const last = context.messages.at(-1);
@@ -166,5 +167,6 @@ test("sidebar shows a background child running, then waiting even under its fold
     await group.locator(`[data-session-id="${active}"][aria-current="true"]`).waitFor();
     await toggle.press("Space");
     await row.locator('[data-state="stopped"]').waitFor();
+    await verifyPeerMessages(f, active, background);
   } finally { release.resolve(); }
 });

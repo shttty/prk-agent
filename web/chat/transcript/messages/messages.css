@@ -63,21 +63,24 @@
 
 .pi-message-assistant:not(.pi-native-interaction-card) { flex-direction: column; }
 
-.pi-user-message-content {
+.pi-message-fold {
   max-height: min(14rem, 30dvh);
   overflow: hidden;
 }
 
-.pi-user-message-content.is-expanded {
+/* Peer messages show a two-to-three-line preview. */
+.pi-message-fold.is-compact { max-height: 4.5em; }
+
+.pi-message-fold.is-expanded {
   max-height: none;
   overflow: visible;
 }
 
-.pi-user-message-content.is-collapsed {
+.pi-message-fold.is-collapsed {
   position: relative;
 }
 
-.pi-user-message-content.is-collapsed::after {
+.pi-message-fold.is-collapsed::after {
   position: absolute;
   right: 0;
   bottom: 0;
@@ -88,13 +91,15 @@
   background: linear-gradient(to bottom, transparent, var(--pi-bg));
 }
 
+.pi-message-fold.is-compact.is-collapsed::after { height: 2.2em; }
+
 /* The fade must end in the bubble colour. */
 
-.pi-message-user:not(.pi-message-peer) .pi-user-message-content.is-collapsed::after {
+.pi-message-user:not(.pi-message-peer) .pi-message-fold.is-collapsed::after {
   background: linear-gradient(to bottom, transparent, var(--pi-bubble-user));
 }
 
-.pi-user-expand {
+.pi-message-fold-toggle {
   min-height: 1.75rem;
   margin-top: .2rem;
   padding-inline: .25rem;
@@ -105,7 +110,8 @@
    UI face, quiet rule, and a sender line instead of the accent-ruled display type. */
 
 .pi-message-user.pi-message-peer .pi-message-body {
-  border-left-color: var(--pi-line-strong);
+  padding-left: .75rem;
+  border-left: 2px solid var(--pi-line);
 }
 
 .pi-message-user.pi-message-peer .pi-markdown {

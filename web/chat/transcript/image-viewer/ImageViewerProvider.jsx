@@ -32,7 +32,7 @@ export function ImageViewerProvider({ children, identity }) {
   const step = useCallback((delta) => setGallery((current) => current && ({ ...current, index: Math.max(0, Math.min(current.items.length - 1, current.index + delta)) })), []);
   const resolve = useCallback(async (item) => {
     if (item.src) return item.src;
-    if (item.kind === "markdown") return targetImageUrl(actions.api, sessionId, target, item.path);
+    if (item.kind === "markdown" || item.kind === "artifact") return targetImageUrl(actions.api, sessionId, target, item.path);
     if (item.kind === "kernel") return loadKernelImage({ ...item.cell, sessionId }, item.index + 1);
     const { result } = await actions.loadToolContent(item.toolCallId, item.metadata, { sessionId });
     const parts = (result?.result ?? result)?.content;

@@ -20,7 +20,7 @@ export function estimateMessageHeight(message, width, display, imageCounts) {
   const textHeight = text ? lines * LINE_HEIGHT : 0;
   if (user) {
     const attachments = custom?.attachments?.some(({ type }) => type?.startsWith("image/")) ? 160 : custom?.attachments?.length ? 30 : 0;
-    return 54 + Math.min(textHeight, 240) + attachments + (custom?.references?.length ? 26 : 0);
+    return 54 + Math.min(textHeight, custom?.peerMessage ? 76 : 240) + attachments + (custom?.references?.length ? 26 : 0);
   }
   const foldHeight = groups.filter(({ groupKey }) => groupKey !== undefined).length * 38;
   // Thumbnail grid: 176px wide, 112px high, 8px row/column gap, 12px bottom margin.
