@@ -64,7 +64,7 @@ Gateway 在新项目首次提交归属时保存 `project.json.created`；启动�
     "at": "ISO time", "provider": "relay", "model": "relay", "api": "openai-completions", "shape": "chat",
     "payloadKeys": ["model", "messages", "tools", "…"], "payloadChars": 22921,
     "system": { "text": "…", "chars": 19350,
-      "sections": { "baseChars": 0, "entries": [{ "key": "kernel", "chars": 4074 }, { "key": "gateway_calls", "chars": 637 }] } },
+      "sections": { "baseChars": 0, "entries": [{ "key": "kernel", "chars": 4074, "start": 0 }, { "key": "gateway_calls", "chars": 637, "start": 4076 }] } },
     "tools": [{ "name": "kernel_code", "descriptionChars": 512, "parametersChars": 624 }],
     "messages": { "count": 3, "chars": 160 },
     "repeats": 0 },
@@ -74,13 +74,13 @@ Gateway 在新项目首次提交归属时保存 `project.json.created`；启动�
     "system": { "changed": false, "chars": { "before": 19350, "after": 19350 } },
     "sections": { "added": [{ "key": "ask", "chars": 349 }], "removed": [], "changed": [{ "key": "kernel", "before": 4074, "after": 3890 }] },
     "tools": { "added": [], "removed": [{ "key": "kernel_read", "chars": 505 }], "changed": [], "reordered": false },
-    "messages": { "before": 1, "after": 3, "commonPrefix": 1, "prefixStable": true } } }
+    "messages": { "before": 1, "after": 3, "commonPrefix": 1, "prefixStable": true, "firstChange": null } } }
 ```
 
-- 只含大小、名称与 `system.text`；消息正文、工具描述与参数正文、请求头、API key 与 Authorization 均不返回（投影只读取已知字段，不拷贝 payload）。`payloadKeys` 只有顶层键名。
+- 只含大小、名称与 `system.text`；工具描述与参数正文、请求头、API key 与 Authorization 均不返回（投影只读取已知字段，不拷贝 payload）。消息正文只在 `messages.firstChange` 里出现（见下）。`payloadKeys` 只有顶层键名。
 - `shape` 为 `chat`（openai-completions、mistral-conversations）、`responses`（openai-responses、azure-openai-responses、openai-codex-responses）、`anthropic`、`google`（google-generative-ai、google-vertex）或 `bedrock`。其他 api（如 `pi-messages`）`shape:null`，`system`、`tools`、`messages` 均为 `null`，只有大小与键名；某字段不在已知位置也读作 `null`，不猜。`messages` 不含开头的 system／developer 条目。
-- `system.sections` 仅当该 payload 的系统文本与同一轮 `context_with_system` 最终结果渲染出的文本逐字相等时给出（`entries` 按 Pi 渲染顺序，`baseChars` 为各节之前的正文）；provider 另加前缀（如 Anthropic OAuth）或改写文本时为 `null`。
-- `diff` 在第二个不同请求出现后才有。`sections`、`tools` 的 `changed` 为 `{key,before,after}`（工具的大小是描述加参数字符数）；`reordered` 表示共有工具的相对顺序变了；`messages.prefixStable` 表示前一次的全部消息按原样仍是这一次的前缀（提示缓存关心的稳定性）。
+- `system.sections` 仅当该 payload 的系统文本与同一轮 `context_with_system` 最终结果渲染出的文本逐字相等时给出（`entries` 按 Pi 渲染顺序，`baseChars` 为各节之前的正文，`start` 为该节在 `system.text` 里的起点，全文是 `text.slice(start, start + chars)`）；provider 另加前缀（如 Anthropic OAuth）或改写文本时为 `null`。
+- `diff` 在第二个不同请求出现后才有。`sections`、`tools` 的 `changed` 为 `{key,before,after}`（工具的大小是描述加参数字符数）；`reordered` 表示共有工具的相对顺序变了；`messages.prefixStable` 表示前一次的全部消息按原样仍是这一次的前缀（提示缓存关心的稳定性）；比较前去掉各条消息里的 `cache_control` 标记（provider 把它挪到新的最后一条，不算消息变了）。`prefixStable:false` 时 `messages.firstChange` 是第一条不同的消息 `{index,offset,before,after}`：`index` 从 0 起（等于 `commonPrefix`），`before`/`after` 为 `{chars,text}`，该侧没有这一条（这次更短）时为 `null`。`text` 是该条消息的缩进 JSON，两侧都从同一个 `offset`（第一个不同字符前约 200 字符）起各取至多 2000 字符；`chars` 是整条的长度。运行时只为最新一次请求保留消息对象的引用，下一次请求到来时立即比较，之后只留这一条的截取文本。
 - 与前一次完全相同的请求（缓存预热重放、重试）只累加 `latest.repeats`，不顶替也不产生 diff。
 - 事件覆盖：Pi 在 `onPayload` 回调里发出 `before_provider_request`，pi-ai 的 `anthropic-messages`、`azure-openai-responses`、`bedrock-converse-stream`、`google-generative-ai`、`google-vertex`、`mistral-conversations`、`openai-codex-responses`、`openai-completions`、`openai-responses`、`pi-messages` 都调用它；`faux` 测试 provider 与不转发 `options.onPayload` 的自定义 api 不触发。压缩与摘要请求不走该回调，不被记录。
 

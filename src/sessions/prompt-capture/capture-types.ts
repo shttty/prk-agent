@@ -14,6 +14,8 @@ export interface RequestFields {
 
 export interface SizedTool { readonly name: string; readonly descriptionChars: number; readonly parametersChars: number }
 export interface SizedSection { readonly key: string; readonly chars: number }
+/** A section's place in `system.text`: it spans `start` to `start + chars`. */
+export interface PlacedSection extends SizedSection { readonly start: number }
 
 export interface CapturedRequest {
   readonly at: string;
@@ -28,7 +30,7 @@ export interface CapturedRequest {
     readonly text: string;
     readonly chars: number;
     /** Present only when the payload's system text equals the text rendered from the same turn's `context_with_system` result. */
-    readonly sections: { readonly baseChars: number; readonly entries: readonly SizedSection[] } | null;
+    readonly sections: { readonly baseChars: number; readonly entries: readonly PlacedSection[] } | null;
   } | null;
   readonly tools: readonly SizedTool[] | null;
   /** Conversation entries after the leading system prompt. */
@@ -46,7 +48,12 @@ export interface RequestDigest {
   readonly messages: readonly string[] | null;
 }
 
-export interface RecordedRequest { readonly request: CapturedRequest; readonly digest: RequestDigest }
+export interface RecordedRequest {
+  readonly request: CapturedRequest;
+  readonly digest: RequestDigest;
+  /** The conversation entries themselves, held only so the next request can show its first changed message; never reported whole. */
+  readonly bodies: readonly unknown[] | null;
+}
 
 export interface Change { readonly key: string; readonly before: number; readonly after: number }
 export interface Delta {
@@ -55,13 +62,18 @@ export interface Delta {
   readonly changed: readonly Change[];
 }
 
+/** One side of a changed message: its pretty-printed JSON from `MessageChange.offset` on, at most a window long. */
+export interface MessageText { readonly chars: number; readonly text: string }
+/** The first message that is not the same in both requests; `null` on a side that has no message at `index`. */
+export interface MessageChange { readonly index: number; readonly offset: number; readonly before: MessageText | null; readonly after: MessageText | null }
+
 export interface PromptDiff {
   readonly modelChanged: boolean;
   readonly system: { readonly changed: boolean; readonly chars: { readonly before: number; readonly after: number } } | null;
   readonly sections: Delta | null;
   readonly tools: (Delta & { readonly reordered: boolean }) | null;
-  /** `prefixStable`: every earlier message is still in place, the condition for a prompt-cache hit on the transcript. */
-  readonly messages: { readonly before: number; readonly after: number; readonly commonPrefix: number; readonly prefixStable: boolean } | null;
+  /** `prefixStable`: every earlier message is still in place, the condition for a prompt-cache hit on the transcript. `firstChange` is `null` then. */
+  readonly messages: { readonly before: number; readonly after: number; readonly commonPrefix: number; readonly prefixStable: boolean; readonly firstChange: MessageChange | null } | null;
 }
 
 export interface PromptReport {

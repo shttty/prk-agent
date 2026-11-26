@@ -54,6 +54,8 @@ test("GET /prompt reports the last provider request and what changed since the o
   assert.equal(first.latest.system.text, wire.messages[0].content);
   assert.match(first.latest.system.text, /<kernel>\n/);
   assert.deepEqual(first.latest.system.sections.entries.map(({ key }) => key).filter((key) => key === "kernel" || key === "gateway_calls"), ["kernel", "gateway_calls"]);
+  const kernel = first.latest.system.sections.entries.find(({ key }) => key === "kernel");
+  assert.match(first.latest.system.text.slice(kernel.start, kernel.start + kernel.chars), /^<kernel>\n[\s\S]*<\/kernel>$/);
   assert.deepEqual(first.latest.tools.map(({ name }) => name), wire.tools.map((tool) => tool.function.name));
   assert(first.latest.tools.some(({ name }) => name === "kernel_code"));
   assert.deepEqual(first.latest.messages.count, wire.messages.length - 1);
@@ -65,7 +67,7 @@ test("GET /prompt reports the last provider request and what changed since the o
   const second = await prompt();
   assert.equal(second.previousAt, first.latest.at);
   assert.equal(second.latest.messages.count, endpoint.bodies[1].messages.length - 1);
-  assert.deepEqual(second.diff.messages, { before: first.latest.messages.count, after: second.latest.messages.count, commonPrefix: first.latest.messages.count, prefixStable: true });
+  assert.deepEqual(second.diff.messages, { before: first.latest.messages.count, after: second.latest.messages.count, commonPrefix: first.latest.messages.count, prefixStable: true, firstChange: null });
   assert.deepEqual([second.diff.system.changed, second.diff.tools.reordered, second.diff.modelChanged], [false, false, false]);
   assert.deepEqual([second.diff.tools, second.diff.sections].map((delta) => [delta.added, delta.removed, delta.changed]), [[[], [], []], [[], [], []]]);
 

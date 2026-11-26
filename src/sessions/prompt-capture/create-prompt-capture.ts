@@ -1,5 +1,5 @@
 import { contentText, getCurrentSystemMessage, getSystemMessageText } from "@earendil-works/pi-ai";
-import type { PromptReport, RecordedRequest, RenderedSystem, RequestModel } from "./capture-types.ts";
+import type { PromptDiff, PromptReport, RecordedRequest, RenderedSystem, RequestModel } from "./capture-types.ts";
 import { diffRequests } from "./diff-requests.ts";
 import { recordRequest } from "./record-request.ts";
 import { sameRequest } from "./same-request.ts";
@@ -16,7 +16,8 @@ export interface PromptCapture {
 export function createPromptCapture(): PromptCapture {
   let rendered: RenderedSystem | undefined;
   let latest: RecordedRequest | undefined;
-  let previous: RecordedRequest | undefined;
+  let previousAt: string | null = null;
+  let diff: PromptDiff | null = null;
   return {
     observeContext(messages) {
       const system = getCurrentSystemMessage(messages);
@@ -28,9 +29,11 @@ export function createPromptCapture(): PromptCapture {
     observeRequest(payload, model) {
       const recorded = recordRequest(payload, model, rendered, new Date());
       if (latest && sameRequest(latest.digest, recorded.digest)) { latest.request.repeats++; return; }
-      previous = latest;
+      // Compared at once: only the newest request keeps its message bodies, for the next comparison.
+      diff = latest ? diffRequests(latest, recorded) : null;
+      previousAt = latest?.request.at ?? null;
       latest = recorded;
     },
-    report: () => ({ latest: latest?.request ?? null, previousAt: previous?.request.at ?? null, diff: latest && previous ? diffRequests(previous, latest) : null }),
+    report: () => ({ latest: latest?.request ?? null, previousAt, diff }),
   };
 }

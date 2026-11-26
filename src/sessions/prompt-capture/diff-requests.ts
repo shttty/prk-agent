@@ -1,4 +1,5 @@
 import type { Change, Delta, PromptDiff, RecordedRequest, SizedSection } from "./capture-types.ts";
+import { describeMessageChange } from "./describe-message-change.ts";
 
 export function diffRequests(before: RecordedRequest, after: RecordedRequest): PromptDiff {
   const a = before.request, b = after.request, x = before.digest, y = after.digest;
@@ -13,14 +14,16 @@ export function diffRequests(before: RecordedRequest, after: RecordedRequest): P
       ? delta(sizes(a.system.sections.entries.map((entry) => [entry.key, entry.chars])), sizes(b.system.sections.entries.map((entry) => [entry.key, entry.chars])), x.sections!, y.sections!)
       : null,
     tools,
-    messages: x.messages && y.messages ? messages(x.messages, y.messages) : null,
+    messages: x.messages && y.messages ? messages(before, after) : null,
   };
 }
 
-function messages(before: readonly string[], after: readonly string[]): NonNullable<PromptDiff["messages"]> {
+function messages(before: RecordedRequest, after: RecordedRequest): NonNullable<PromptDiff["messages"]> {
+  const x = before.digest.messages!, y = after.digest.messages!;
   let common = 0;
-  while (common < before.length && common < after.length && before[common] === after[common]) common++;
-  return { before: before.length, after: after.length, commonPrefix: common, prefixStable: common === before.length };
+  while (common < x.length && common < y.length && x[common] === y[common]) common++;
+  const stable = common === x.length;
+  return { before: x.length, after: y.length, commonPrefix: common, prefixStable: stable, firstChange: stable ? null : describeMessageChange(common, before.bodies![common], after.bodies![common]) };
 }
 
 function delta(before: ReadonlyMap<string, number>, after: ReadonlyMap<string, number>, x: Readonly<Record<string, string>>, y: Readonly<Record<string, string>>): Delta {
