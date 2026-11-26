@@ -15,15 +15,15 @@ import { FormError } from "../../design-system/form-error/FormError.tsx";
 import { ConfigurationIssueNotice } from "../../instances/configuration-issue/ConfigurationIssueNotice.tsx";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import type { PublicExecutionTarget } from "../../../src/gateway/wire/web-types.ts";
-import type { SessionRow } from "../session-row-types.ts";
+import type { SessionRow } from "../../workbench/store/store-types.ts";
 import type { WorkbenchActions } from "../workbench-actions-types.ts";
-import type { WorkbenchReads } from "../workbench-reads-types.ts";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 /** User-forced recovery into another instance or working directory when the original one is gone; the interpreter is the instance's. */
 type RetargetDialogProps = { actions: WorkbenchActions; onClose: () => void; sessionRow: SessionRow | undefined };
 
 export function RetargetDialog({ actions, onClose, sessionRow }: RetargetDialogProps) {
-  const targets: PublicExecutionTarget[] = useWorkbench((state: WorkbenchReads) => state.targets);
-  const recoveryMessage: string = useWorkbench((state: WorkbenchReads) => state.session.recoveryMessage);
+  const targets: PublicExecutionTarget[] = useWorkbench((state: WorkbenchState) => state.targets);
+  const recoveryMessage: string = useWorkbench((state: WorkbenchState) => state.session.recoveryMessage);
   const [targetName, setTargetName] = useState(() => (targets.find((item) => item.id === sessionRow?.target)?.id ?? targets[0]?.id ?? ""));
   const [submitting, setSubmitting] = useState(false);
   const [failed, setFailed] = useState(false);

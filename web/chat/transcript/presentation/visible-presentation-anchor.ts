@@ -1,4 +1,4 @@
-import type { PresentationAnchor } from "../presentation-types.ts";
+import type { PresentationAnchor } from "../../../workbench/session-storage/session-storage-types.ts";
 export function visiblePresentationAnchor(viewport: HTMLElement): PresentationAnchor | null {
   const viewportTop = viewport.getBoundingClientRect().top;
   const messages = [...viewport.querySelectorAll(".pi-message")];

@@ -1,4 +1,4 @@
-import type { SessionRow } from "../../session-row-types.ts";
+import type { SessionRow } from "../../../workbench/store/store-types.ts";
 import type { SidebarItem } from "../sidebar-types.ts";
 import { MAX_TREE_DEPTH } from "../sidebar-constants.ts";
 import { rowState, type RowState } from "../labels/row-state.ts";

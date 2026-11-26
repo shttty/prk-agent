@@ -6,7 +6,7 @@ import { useLayoutEffect } from "react";
 import { useEffect } from "react";
 import { useAui } from "@assistant-ui/react";
 import { safeText } from "../../workbench/payloads/safe-text.js";
-import { useChatState } from "../thread/use-chat-state.ts";
+import { useWorkbench } from "../../workbench/subscription/use-workbench.ts";
 import { extensionUiInitializing } from "../thread/extension-ui-initializing.ts";
 import { isResumableSession } from "../conversation/is-resumable-session.ts";
 import { referenceState } from "./reference-state.ts";
@@ -40,7 +40,7 @@ import { Composer } from "./Composer.tsx";
 import type { ChatActions } from "../thread/chat-actions-types.ts";
 import type { ComposerModel } from "./composer-model-types.ts";
 import type { ComposerCommand, ExtensionCompletion, ExtensionCompletionItem, QueueMode, ReferenceCandidateView } from "./composer-types.ts";
-import type { ChatReference } from "../thread/chat-state-types.ts";
+import type { StoredReference } from "../../workbench/session-storage/session-storage-types.ts";
 import type { FormEvent, KeyboardEvent } from "react";
 /**
  * Composer region: owns the draft and everything that follows it (command, reference and plugin completion menus,
@@ -51,27 +51,27 @@ type ComposerDockProps = { actions: ChatActions; onFindInPage: () => void; onSen
 
 export const ComposerDock = memo(function ComposerDock({ actions, onFindInPage, onSend }: ComposerDockProps) {
   const aui = useAui();
-  const composerText = useChatState((state) => state.draft);
-  const selectedSessionId = useChatState((state) => safeText(state.selectedSessionId));
-  const status = useChatState((state) => state.session.snapshot?.state || (state.selectedSessionId ? state.sessions.get(state.selectedSessionId)?.state : undefined));
-  const rowTarget = useChatState((state) => state.selectedSessionId ? state.sessions.get(state.selectedSessionId)?.target : undefined);
-  const rowSessionId = useChatState((state) => state.selectedSessionId ? state.sessions.get(state.selectedSessionId)?.sessionId : undefined);
-  const snapshotSessionId = useChatState((state) => state.session.snapshot?.sessionId);
-  const streamId = useChatState((state) => state.session.streamId);
-  const submitting = useChatState((state) => state.session.pending.has("sending"));
-  const connected = useChatState((state) => state.session.connection === "connected");
-  const catalog = useChatState((state) => state.session.nativeCatalog?.value);
-  const referenceCandidates = useChatState((state) => state.session.referenceCandidates);
-  const autocomplete = useChatState((state) => state.session.extensionUi?.autocomplete);
-  const plainSendAvailable = useChatState((state) => state.session.banner?.plainSendAvailable === true);
-  const queue = useChatState((state) => state.queue);
-  const attachments = useChatState((state) => state.attachments);
-  const attachedReferences = useChatState((state) => state.references);
-  const messages = useChatState((state) => state.session.snapshot?.messages);
-  const uiLoading = useChatState(extensionUiInitializing);
-  const resumable = useChatState(isResumableSession);
+  const composerText = useWorkbench((state) => state.draft);
+  const selectedSessionId = useWorkbench((state) => safeText(state.selectedSessionId));
+  const status = useWorkbench((state) => state.session.snapshot?.state || (state.selectedSessionId ? state.sessions.get(state.selectedSessionId)?.state : undefined));
+  const rowTarget = useWorkbench((state) => state.selectedSessionId ? state.sessions.get(state.selectedSessionId)?.target : undefined);
+  const rowSessionId = useWorkbench((state) => state.selectedSessionId ? state.sessions.get(state.selectedSessionId)?.sessionId : undefined);
+  const snapshotSessionId = useWorkbench((state) => state.session.snapshot?.sessionId);
+  const streamId = useWorkbench((state) => state.session.streamId);
+  const submitting = useWorkbench((state) => state.session.pending.has("sending"));
+  const connected = useWorkbench((state) => state.session.connection === "connected");
+  const catalog = useWorkbench((state) => state.session.nativeCatalog?.value);
+  const referenceCandidates = useWorkbench((state) => state.session.referenceCandidates);
+  const autocomplete = useWorkbench((state) => state.session.extensionUi?.autocomplete);
+  const plainSendAvailable = useWorkbench((state) => state.session.banner?.plainSendAvailable === true);
+  const queue = useWorkbench((state) => state.queue);
+  const attachments = useWorkbench((state) => state.attachments);
+  const attachedReferences = useWorkbench((state) => state.references);
+  const messages = useWorkbench((state) => state.session.snapshot?.messages);
+  const uiLoading = useWorkbench(extensionUiInitializing);
+  const resumable = useWorkbench(isResumableSession);
   const { busy, cancelling } = useBusy();
-  const compacting = useChatState((state) => state.session.snapshot?.operation?.kind === "compact");
+  const compacting = useWorkbench((state) => state.session.snapshot?.operation?.kind === "compact");
   const sleeping = status === "sleeping";
   const [candidateIndex, setCandidateIndex] = useState(0);
   const [popupDismissed, setPopupDismissed] = useState(false);
@@ -103,7 +103,7 @@ export const ComposerDock = memo(function ComposerDock({ actions, onFindInPage, 
   const selectCandidate = useCallback((candidate: ComposerCommand | undefined) => { return selectCandidateBody({ setComposerText, setCandidateIndex, setPopupDismissed }, candidate); }, [setComposerText]);
   /** A directory opens in place (`@<dir>/`, menu stays); a file ends the token (`@<file> `) and becomes a reference. */
   const selectReference = useCallback((reference: ReferenceCandidateView | undefined) => { return selectReferenceBody({ referenceBase, setComposerText, composerText, setPopupDismissed, rowTarget, rowSessionId, snapshotSessionId, attachedReferences, actions }, reference); }, [actions, composerText, referenceBase, setComposerText, attachedReferences, snapshotSessionId, rowTarget, rowSessionId]);
-  const replaceReference = useCallback((reference: ChatReference, index: number) => { return replaceReferenceBody({ composerText, actions, attachedReferences, setComposerText, setPopupDismissed }, reference, index); }, [actions, composerText, setComposerText, attachedReferences]);
+  const replaceReference = useCallback((reference: StoredReference, index: number) => { return replaceReferenceBody({ composerText, actions, attachedReferences, setComposerText, setPopupDismissed }, reference, index); }, [actions, composerText, setComposerText, attachedReferences]);
   const sendDraft = useCallback((sendQueue: QueueMode = queueMode) => { if (compacting) return; return sendDraftBody({ composerText, composingRef, selectedSessionId, submitting, uiLoading, onSend, actions, plainMode, attachments, attachedReferences, setPlainMode, setHistoryCursor }, sendQueue); }, [actions, compacting, composerText, plainMode, queueMode, selectedSessionId, submitting, uiLoading, onSend, attachments, attachedReferences]);
   const submitDraft = useCallback((event: FormEvent) => { return submitDraftBody({ sendDraft }, event); }, [sendDraft]);
   const { promptHistory } = usePromptHistory({ messages });

@@ -17,7 +17,7 @@ import InlineAlert from "../../design-system/inline-alert/InlineAlert.tsx";
 import { IconArrowDown } from "@tabler/icons-react";
 import { useAui, useAuiState } from "@assistant-ui/react";
 import { ThreadPrimitive } from "@assistant-ui/react";
-import { useChatState } from "./use-chat-state.ts";
+import { useWorkbench } from "../../workbench/subscription/use-workbench.ts";
 import { ExtensionRegion } from "../extension-ui/ExtensionRegion.tsx";
 import { ExtensionToasts } from "../extension-ui/ExtensionToasts.tsx";
 import { ExtensionUI } from "../extension-ui/ExtensionUI.tsx";
@@ -47,7 +47,7 @@ import { useBusy } from "../composer/use-busy.ts";
 import { useHistoryPagination } from "../transcript/use-history-pagination.ts";
 import type { UIEvent } from "react";
 import type { ChatActions } from "./chat-actions-types.ts";
-import type { BackgroundTask } from "../background-tasks/background-task-types.ts";
+import type { TerminalTask } from "../background-tasks/background-task-types.ts";
 import type { KernelEvent } from "../conversation/conversation-types.ts";
 import type { PendingDisclosure, RestoredPresentation, RevealOptions, ScrollIntent, TranscriptListHandle } from "../transcript/scroll-types.ts";
 import { projectedMessage } from "../conversation/messages/projected-message.ts";
@@ -58,22 +58,22 @@ const DOCUMENT_INTENTS = ["keydown", "pointerup", "pointercancel"];
  * The chat column: transcript (scroll restore/follow, search, plugin header/footer) and the composer row. It reads
  * only transcript fields; the composer row's parts subscribe to their own, so typing never re-renders it.
  */
-type ChatSurfaceProps = { actions: ChatActions; messageCount: number; onViewTerminal: (sessionId: string, task: BackgroundTask) => void };
+type ChatSurfaceProps = { actions: ChatActions; messageCount: number; onViewTerminal: (sessionId: string, task: TerminalTask) => void };
 
 export function ChatSurface({ actions, messageCount, onViewTerminal }: ChatSurfaceProps) {
   const aui = useAui();
   const renderedMessageCount = useAuiState((value) => value.thread.messages.length);
-  const hasSnapshot = useChatState((state) => Boolean(state.session.snapshot));
-  const streamId = useChatState((state) => state.session.streamId);
-  const presentationRevision = useChatState((state) => state.session.presentationRevision);
-  const snapshotSessionId = useChatState((state) => state.session.snapshot?.sessionId);
-  const transcriptRevision = useChatState((state) => state.session.transcriptRevision);
-  const savedPresentation = useChatState((state) => state.presentation);
-  const historyLoading = useChatState(sessionHistoryLoading);
-  const archived = useChatState((state) => state.archive.some((group) => group.sessions.some((row) => row.sessionId === state.selectedSessionId)));
-  const historyEnd = useChatState((state) => state.session.snapshot?.messageEntryIds?.at(-1));
-  const operation = useChatState((state) => state.session.snapshot?.operation);
-  const recentOperations = useChatState((state) => state.session.snapshot?.recentOperations);
+  const hasSnapshot = useWorkbench((state) => Boolean(state.session.snapshot));
+  const streamId = useWorkbench((state) => state.session.streamId);
+  const presentationRevision = useWorkbench((state) => state.session.presentationRevision);
+  const snapshotSessionId = useWorkbench((state) => state.session.snapshot?.sessionId);
+  const transcriptRevision = useWorkbench((state) => state.session.transcriptRevision);
+  const savedPresentation = useWorkbench((state) => state.presentation);
+  const historyLoading = useWorkbench(sessionHistoryLoading);
+  const archived = useWorkbench((state) => state.archive.some((group) => group.sessions.some((row) => row.sessionId === state.selectedSessionId)));
+  const historyEnd = useWorkbench((state) => state.session.snapshot?.messageEntryIds?.at(-1));
+  const operation = useWorkbench((state) => state.session.snapshot?.operation);
+  const recentOperations = useWorkbench((state) => state.session.snapshot?.recentOperations);
   const { busy } = useBusy();
   const outcome = lastOperationOutcome({ operation, recentOperations }, busy);
   const [restoredPresentation, setRestoredPresentation] = useState<RestoredPresentation | null>(null);

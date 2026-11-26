@@ -4,10 +4,10 @@ import { useState } from "react";
 import type { MouseEvent } from "react";
 import type { ChatActions } from "../thread/chat-actions-types.ts";
 import type { KernelEvent } from "../conversation/conversation-types.ts";
-import type { BackgroundTask, KernelCell } from "./background-task-types.ts";
+import type { BackgroundTask, KernelCell, TerminalTask } from "./background-task-types.ts";
 import { IconChevronUp } from "@tabler/icons-react";
-import { useChatState } from "../thread/use-chat-state.ts";
-import { useChatStore } from "../thread/use-chat-store.ts";
+import { useWorkbench } from "../../workbench/subscription/use-workbench.ts";
+import { useWorkbenchStore } from "../../workbench/subscription/use-workbench-store.ts";
 import { cellStopKey } from "../../workbench/store/messages/cell-stop-key.js";
 import { formatElapsed } from "../transcript/tool-calls/format-elapsed.ts";
 import { useTicker } from "../transcript/tool-calls/use-ticker.ts";
@@ -20,22 +20,16 @@ import { BackgroundTaskRow } from "./BackgroundTaskRow.tsx";
 
 const NO_CELLS: readonly KernelCell[] = [];
 
-type BackgroundTasksProps = { sessionId: string; actions: ChatActions; onViewTerminal: (sessionId: string, task: BackgroundTask) => void; onRevealKernel: (event: { preventDefault: () => void }, cell: KernelEvent) => void };
-
-// createWorkbenchActions (web/workbench) does not expose setNotice yet, so this report fails when it runs; the workbench batch owns the fix.
-function reportInterruptFailure(actions: ChatActions) {
-  const { setNotice } = actions as ChatActions & { setNotice: (message: string, level: string) => void };
-  setNotice("终端中断请求失败。", "warning");
-}
+type BackgroundTasksProps = { sessionId: string; actions: ChatActions; onViewTerminal: (sessionId: string, task: TerminalTask) => void; onRevealKernel: (event: { preventDefault: () => void }, cell: KernelEvent) => void };
 
 export function BackgroundTasks({ sessionId, actions, onViewTerminal, onRevealKernel }: BackgroundTasksProps) {
-  const store = useChatStore();
-  const streamId = useChatState((state) => state.session.streamId);
-  const cells = useChatState((state) => state.session.snapshot?.sessionId === sessionId ? state.session.snapshot.kernel?.activeCells ?? NO_CELLS : NO_CELLS);
-  const terminals = useChatState((state) => state.session.snapshot?.sessionId === sessionId ? state.session.snapshot.terminals : null);
-  const prompts = useChatState((state) => state.session.extensionUi?.prompts);
-  const connected = useChatState((state) => state.session.connection === "connected");
-  const pending = useChatState((state) => state.session.pending);
+  const store = useWorkbenchStore();
+  const streamId = useWorkbench((state) => state.session.streamId);
+  const cells = useWorkbench((state) => state.session.snapshot?.sessionId === sessionId ? state.session.snapshot.kernel?.activeCells ?? NO_CELLS : NO_CELLS);
+  const terminals = useWorkbench((state) => state.session.snapshot?.sessionId === sessionId ? state.session.snapshot.terminals : null);
+  const prompts = useWorkbench((state) => state.session.extensionUi?.prompts);
+  const connected = useWorkbench((state) => state.session.connection === "connected");
+  const pending = useWorkbench((state) => state.session.pending);
   const [open, setOpen] = useState(() => readFoldPreference(sessionId));
   const tasks = backgroundTasks(cells, terminals);
   const now = useTicker(tasks.some((task) => !task.waitingForAsk));
@@ -58,9 +52,9 @@ export function BackgroundTasks({ sessionId, actions, onViewTerminal, onRevealKe
     const isCurrent = () => {
       const state = store.getSnapshot();
       return state.selectedSessionId === sessionId && state.session.streamId === streamId && state.session.connection === "connected"
-        && state.session.snapshot?.terminals?.some((terminal) => terminal.name === task.name && terminal.generation === task.generation && terminal.runningCommand?.id === task.commandId);
+        && state.session.snapshot?.terminals?.some((terminal) => terminal.name === task.name && terminal.generation === task.generation && terminal.runningCommand?.id === task.commandId) === true;
     };
-    interruptTerminal(actions.api, sessionId, task, isCurrent, () => reportInterruptFailure(actions));
+    interruptTerminal(actions.api, sessionId, task, isCurrent, () => actions.setNotice("终端中断请求失败。", "warning"));
   };
   // A stop is pending per cell identity; a stopping or freezing cell keeps its row but needs no second request.
   const canInterrupt = (task: BackgroundTask) => connected && (task.kind !== "kernel" || (task.status === "running" && !pending.has(cellStopKey(task))));

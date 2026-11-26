@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { useEffect } from "react";
 import type { CSSProperties } from "react";
 import { Prompt } from "./Prompt.tsx";
-import type { ExtensionAction, ExtensionPrompt } from "./extension-render-types.ts";
+import type { ExtensionAction, ExtensionPrompt } from "../../workbench/store/extension-ui/extension-render-types.ts";
 
 export type OverlayGeometry = { width: number; height: number; cellWidth: number; cellHeight: number };
 type OverlayProps = { prompt: ExtensionPrompt; index: number; actions: ExtensionAction; geometry: OverlayGeometry };

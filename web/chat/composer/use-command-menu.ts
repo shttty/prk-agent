@@ -3,7 +3,7 @@ import { webCommands } from "./commands/web-commands.ts";
 import { commandRedirect } from "./commands/command-redirect.ts";
 import { commandCandidates } from "./commands/command-candidates.ts";
 import type { NativeCommand } from "./composer-types.ts";
-export function useCommandMenu({ composerText, commands, popupDismissed }: { composerText: string; commands: NativeCommand[] | undefined; popupDismissed: boolean }) {
+export function useCommandMenu({ composerText, commands, popupDismissed }: { composerText: string; commands: readonly NativeCommand[] | undefined; popupDismissed: boolean }) {
   const normalizedComposerText = composerText.trimStart();
   const allCommands = useMemo(() => commands || [], [commands]);
   const visibleCommands = useMemo(() => webCommands(allCommands), [allCommands]);

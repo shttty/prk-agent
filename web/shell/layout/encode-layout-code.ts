@@ -1,7 +1,7 @@
 import { LAYOUT } from "./layout-constants.ts";
 import { layout } from "./layout-store.ts";
 import { readGrid } from "./read-grid.ts";
-import type { LayoutCodeContext, LayoutValues } from "./layout-types.ts";
+import type { LayoutCodeContext } from "./layout-types.ts";
 
 export const LAYOUT_CODE_PREFIX = "PRKL1.";
 
@@ -10,7 +10,7 @@ export const LAYOUT_CODE_PREFIX = "PRKL1.";
 export async function encodeLayoutCode(context: LayoutCodeContext) {
   const values = layout.get();
   const grid = context.sessionId ? { sessionId: context.sessionId, value: readGrid(context.sessionId) } : null;
-  const json = JSON.stringify({ layout: Object.fromEntries(Object.keys(LAYOUT).map((name) => [name, values[name as keyof LayoutValues]])), grid, context });
+  const json = JSON.stringify({ layout: Object.fromEntries(Object.entries(values).filter(([name]) => name in LAYOUT)), grid, context });
   const zipped = new Uint8Array(await new Response(new Blob([json]).stream().pipeThrough(new CompressionStream("gzip"))).arrayBuffer());
   let binary = "";
   for (const byte of zipped) binary += String.fromCharCode(byte);

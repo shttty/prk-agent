@@ -24,7 +24,7 @@ export function useDialogRouting({ sessionRequest, setDialog, actions, setSideba
       setDialogSerial((value) => value + 1);
       setDialog({ type, targetName: targetName || sessionId, sessionId, ...(project === undefined ? {} : { project }) });
     };
-    const sessionAction = async (type: string, name: string) => {
+    const routeSessionAction = async (type: string, name: string) => {
       const request = ++sessionRequest.current;
       setDialog(null);
       setSidebarOpen(false);
@@ -38,6 +38,8 @@ export function useDialogRouting({ sessionRequest, setDialog, actions, setSideba
       setDialogSerial((value) => value + 1);
       setDialog({ type, targetName: name, sessionId: name });
     };
+    // The store actions report their own failures (banner, notice); nothing is left to catch here.
+    const sessionAction = (type: string, name: string) => { void routeSessionAction(type, name); };
     return { selectSession, open, openSettings: () => showSettings(null), sessionAction };
   }, [sessionRequest, setDialog, actions, setSidebarOpen, setSettingsSection, setSettingsOpen, setDialogSerial, store]);
 }

@@ -5,6 +5,7 @@ import { isRecord } from "./is-record.ts";
  * fields are validated by parseSavedLayout, which is the only caller outside this file. */
 export function leaves(node: unknown): SavedGroup[] | null {
   if (!isRecord(node)) return null;
+  // External input boundary: saved layout JSON; parseSavedLayout validates the group fields.
   if (node.type === "leaf") return isRecord(node.data) ? [node.data as unknown as SavedGroup] : null;
   if (node.type !== "branch" || !Array.isArray(node.data) || !node.data.length) return null;
   const out: SavedGroup[] = [];

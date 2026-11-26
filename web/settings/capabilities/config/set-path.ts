@@ -1,5 +1,7 @@
 import type { ConfigValues } from "../capability-types.ts";
 
+function isObject(value: unknown): value is ConfigValues { return typeof value === "object" && value !== null; }
+
 /** A copy of `object` with the dot path `key` set to `value` (objects on the way are created where missing). */
 export function setPath(object: ConfigValues | undefined, key: string, value: unknown): ConfigValues {
   const parts = key.split(".");
@@ -9,8 +11,8 @@ export function setPath(object: ConfigValues | undefined, key: string, value: un
     const child = node[part];
     if (child === null || typeof child !== "object") node[part] = {};
     const entered = node[part];
-    if (entered === null || typeof entered !== "object") break;
-    node = entered as ConfigValues;
+    if (!isObject(entered)) break;
+    node = entered;
   }
   node[parts.at(-1) ?? key] = value;
   return next;

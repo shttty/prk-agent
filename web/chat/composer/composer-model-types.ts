@@ -1,5 +1,5 @@
 import type { ChangeEvent, FormEvent, KeyboardEvent, RefObject } from "react";
-import type { ChatAttachment, ChatReference } from "../thread/chat-state-types.ts";
+import type { StoredAttachment, StoredReference } from "../../workbench/session-storage/session-storage-types.ts";
 import type { useAttachmentInput } from "./attachments/use-attachment-input.ts";
 import type { AttachmentLimits, ComposerCommand, ExtensionCompletion, ExtensionCompletionItem, QueueMode, ReferenceCandidateView, Setter } from "./composer-types.ts";
 
@@ -15,8 +15,8 @@ export type ComposerModel = {
   commandMenuOpen: boolean; candidateOptions: ComposerCommand[]; candidateIndex: number; selectCandidate: (command: ComposerCommand | undefined) => void;
   setCandidateIndex: Setter<number>; setHelpCommand: Setter<ComposerCommand | null>;
   plainSuggested: boolean; commandElsewhere: string | null; unknownControl: boolean; normalizedComposerText: string; plainMode: boolean; setPlainMode: Setter<boolean>;
-  replaceReference: (reference: ChatReference, index: number) => void;
-  attach: ReturnType<typeof useAttachmentInput>; attachments: ChatAttachment[]; attachedReferences: ChatReference[]; catalogAttachments: AttachmentLimits | undefined;
+  replaceReference: (reference: StoredReference, index: number) => void;
+  attach: ReturnType<typeof useAttachmentInput>; attachments: StoredAttachment[]; attachedReferences: StoredReference[]; catalogAttachments: AttachmentLimits | undefined;
   status: string | undefined; connected: boolean; queueMode: QueueMode; composerText: string;
   inputChanged: (event: ChangeEvent<HTMLTextAreaElement>) => void; setExtensionCursor: Setter<number>; composingRef: RefObject<boolean>; setComposition: Setter<boolean>;
   uploadFiles: (files: Iterable<File> | ArrayLike<File>) => Promise<void>;

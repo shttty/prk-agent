@@ -25,13 +25,13 @@ export function useSoulFile(api: PageApi) {
   const adopt = useCallback((next: SoulView) => { setView(next); setDraft(next.content); setConflict(false); setError(""); setWaiting(false); }, []);
   const load = useCallback(() => {
     setBusy(true);
-    return api.get(PATH).then(adopt).catch((cause: unknown) => { if (isConnectionFailure(cause)) setWaiting(true); else setError(toFailure(cause).message); }).finally(() => setBusy(false));
+    return api.get<SoulView>(PATH).then(adopt).catch((cause: unknown) => { if (isConnectionFailure(cause)) setWaiting(true); else setError(toFailure(cause).message); }).finally(() => setBusy(false));
   }, [api, adopt]);
   useEffect(() => { void load(); }, [load]);
   useRelink(load, waiting);
   const save = async () => {
     setBusy(true); setError("");
-    try { adopt(await api.post(PATH, { content: draft, revision: view?.revision })); }
+    try { adopt(await api.post<SoulView>(PATH, { content: draft, revision: view?.revision })); }
     catch (cause) {
       if (toFailure(cause).code === "CONFLICT") setConflict(true);
       else setError(pageErrorMessage(cause));

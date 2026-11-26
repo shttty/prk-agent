@@ -22,7 +22,7 @@ export default function MemoryDialog({ actions, mobile }: { actions: PageActions
   const { listing, busy, error, setError, setEditor } = memory;
   const [selected, setSelected] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const currentInstance = useWorkbench((state: WorkbenchState) => state.sessions.get(state.selectedSessionId)?.target);
+  const currentInstance = useWorkbench((state: WorkbenchState) => state.selectedSessionId ? state.sessions.get(state.selectedSessionId)?.target : undefined);
   const layers = listing.layers.filter((layer) => layer.scope !== "project");
   const documentsOf = (name: string) => listing.memories.filter((document) => document.target === name);
   const items: { id: string; label: string; count?: number }[] = [

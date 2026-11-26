@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import type { PopoverProps } from "@mantine/core";
 import { Flex, Popover } from "@mantine/core";
 import { useContext } from "react";
-import type { ManagedSessionSnapshot } from "../../../src/gateway/wire/web-types.ts";
 import type { CssVars, PageActions } from "./page-types.ts";
 import { MonitorPill } from "../../monitor/button/MonitorPill.jsx";
 import Chat from "../../chat/thread/Chat.jsx";
@@ -10,6 +9,8 @@ import Crossfade from "../../design-system/crossfade/Crossfade.tsx";
 import { SessionHeading } from "./chrome/SessionHeading.tsx";
 import { HEADING_ROOM } from "./page-constants.ts";
 import { StageCorner } from "../stage/stage-corner.ts";
+import type { SelectedRow } from "../../workbench/store/store-types.ts";
+import type { TerminalTask } from "../../chat/background-tasks/background-task-types.ts";
 
 // The panel's placement (Floating UI): under the pill, right edges aligned, never flipped above it. Each time it is
 // placed the panel fits the window's height. Documented exception to native layout: the chat column also learns how far
@@ -22,9 +23,9 @@ const PANEL_PLACEMENT: PopoverProps["middlewares"] = { flip: false, size: { padd
 } } };
 
 type ChatColumnProps = {
-  mobile: boolean; actions: PageActions; sessionRow: ManagedSessionSnapshot; selectedSessionId: string | null; banners: ReactNode; bannerBottom: number;
+  mobile: boolean; actions: PageActions; sessionRow: SelectedRow; selectedSessionId: string | null; banners: ReactNode; bannerBottom: number;
   expandSessionBar: ReactNode; chatWidth: number; monitor: "chip" | "panel" | "overlay"; monitorUnfolded: boolean; monitorPanel: ReactNode;
-  onToggleMonitor: () => void; onViewTerminal: (sessionId: string, terminal: { name: string; generation: string }) => void;
+  onToggleMonitor: () => void; onViewTerminal: (sessionId: string, terminal: TerminalTask) => void;
 };
 
 /** The conversation column. Desktop: a card whose top is one control strip, a row laid out by Flex: the session sidebar's

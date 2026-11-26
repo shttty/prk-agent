@@ -1,6 +1,6 @@
 import type { HostedExtensionUiSnapshot } from "../../../../src/gateway/wire/web-types.ts";
 import type { StoreContext } from "../store-context-types.ts";
-import type { ExtensionUiRender } from "../store-types.ts";
+import type { ExtensionRender } from "./extension-render-types.ts";
 import { isRecord } from "../../payloads/is-record.ts";
 import { extensionUiRevision } from "./extension-ui-revision.ts";
 import { patchSession } from "../updates/patch-session.ts";
@@ -12,7 +12,7 @@ export function acceptExtensionUi(ctx: StoreContext, value: unknown, { rendered 
   if (revision === null) return false;
   const previous = extensionUiRevision(rendered ? ctx.state.session.extensionUiRender : ctx.state.session.extensionUi);
   if (previous !== null && revision < previous) return false;
-  // The Gateway builds both shapes; the revision above is the only field the store reads.
-  patchSession(ctx, rendered ? { extensionUiRender: value as ExtensionUiRender } : { extensionUi: value as unknown as HostedExtensionUiSnapshot }, { displayOnly });
+  // External input boundary: the Gateway builds both shapes; the revision above is the only field the store checks.
+  patchSession(ctx, rendered ? { extensionUiRender: value as unknown as ExtensionRender } : { extensionUi: value as unknown as HostedExtensionUiSnapshot }, { displayOnly });
   return true;
 }

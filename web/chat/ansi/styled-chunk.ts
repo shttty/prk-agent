@@ -24,10 +24,12 @@ export const tokenOf = new Map<string, string>(Object.entries(webTheme.colors).f
 
 export const STYLES = new Set(["bold", "dim", "italic", "underline", "strikethrough"]);
 
+function isNamedColor(color: string): color is keyof typeof NAMED_TONES { return color in NAMED_TONES; }
+
 export function foreground(fg: string): { token?: string; tone?: string; color?: string } {
   if (!fg) return {};
   const token = tokenOf.get(fg);
   if (token) return { token, tone: toneOf.get(token) };
   const color = fg.replace(/^ansi-/, "");
-  return { color, tone: color in NAMED_TONES ? NAMED_TONES[color as keyof typeof NAMED_TONES] : undefined };
+  return { color, tone: isNamedColor(color) ? NAMED_TONES[color] : undefined };
 }

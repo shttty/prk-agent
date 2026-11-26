@@ -4,12 +4,12 @@ import { useRef } from "react";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useEffectEvent } from "react";
-import { useChatState } from "../thread/use-chat-state.ts";
+import { useWorkbench } from "../../workbench/subscription/use-workbench.ts";
 import { useStopTarget } from "../../workbench/subscription/use-stop-target.js";
-import { useChatStore } from "../thread/use-chat-store.ts";
+import { useWorkbenchStore } from "../../workbench/subscription/use-workbench-store.ts";
 import type { ChatActions } from "../thread/chat-actions-types.ts";
 import type { OverlayGeometry } from "./Overlay.tsx";
-import type { ExtensionPrompt } from "./extension-render-types.ts";
+import type { ExtensionPrompt } from "../../workbench/store/extension-ui/extension-render-types.ts";
 import { extensionUiRenderTriggerKey } from "./extension-ui-render-trigger-key.ts";
 import { stripAnsi } from "../ansi/strip-ansi.ts";
 import { pruneAskDrafts } from "../ask/prune-ask-drafts.ts";
@@ -26,19 +26,19 @@ import { Overlay } from "./Overlay.tsx";
  * entries live under the composer (ExtensionStatus), notices as toasts (ExtensionToasts).
  */
 export const ExtensionUI = memo(function ExtensionUI({ actions }: { actions: ChatActions }) {
-  const store = useChatStore();
-  const render = useChatState((state) => state.session.extensionUiRender);
-  const snapshot = useChatState((state) => state.session.extensionUi);
-  const streamId = useChatState((state) => state.session.streamId);
-  const clientId = useChatState((state) => state.session.extensionUiClientId);
-  const toolContents = useChatState((state) => state.session.toolContents);
-  const askSession = useChatState((state) => state.session.snapshot?.sessionId || state.selectedSessionId || "");
+  const store = useWorkbenchStore();
+  const render = useWorkbench((state) => state.session.extensionUiRender);
+  const snapshot = useWorkbench((state) => state.session.extensionUi);
+  const streamId = useWorkbench((state) => state.session.streamId);
+  const clientId = useWorkbench((state) => state.session.extensionUiClientId);
+  const toolContents = useWorkbench((state) => state.session.toolContents);
+  const askSession = useWorkbench((state) => state.session.snapshot?.sessionId || state.selectedSessionId || "");
   const stopTarget = useStopTarget();
   const hostRef = useRef<HTMLDivElement>(null);
   const metricRef = useRef<HTMLSpanElement>(null);
   // The terminal size the Gateway renders plugin components at: host width and viewport height over one measured character cell.
   const [geometry, setGeometry] = useState<OverlayGeometry>({ width: 0, height: 0, cellWidth: 1, cellHeight: 1 });
-  const renderTriggerKey = useChatState((state) => extensionUiRenderTriggerKey(state, geometry));
+  const renderTriggerKey = useWorkbench((state) => extensionUiRenderTriggerKey(state, geometry));
   useEffect(() => {
     const host = hostRef.current;
     const metric = metricRef.current;

@@ -1,9 +1,8 @@
 import { memo, Fragment, type ReactNode } from "react";
 import { Modal } from "@mantine/core";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
-import type { SessionRow } from "../session-row-types.ts";
+import type { SessionRow } from "../../workbench/store/store-types.ts";
 import type { WorkbenchActions } from "../workbench-actions-types.ts";
-import type { WorkbenchReads } from "../workbench-reads-types.ts";
 import { ArchiveConfirmation } from "./ArchiveConfirmation.tsx";
 import { ArchiveProjectConfirmation } from "./ArchiveProjectConfirmation.tsx";
 import { CreateDialog } from "./CreateDialog.tsx";
@@ -16,12 +15,13 @@ import { RoleDialog } from "./RoleDialog.tsx";
 import type { DialogRequest } from "./dialog-request-types.ts";
 import { dialogTitle } from "./dialog-title.ts";
 import "./dialogs.css";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 
 type SessionDialogsProps = { actions: WorkbenchActions; dialog: DialogRequest | null; mobile: boolean; onClose: () => void; contentKey: number | string };
 
 function SessionDialogs({ actions, dialog, mobile, onClose, contentKey }: SessionDialogsProps) {
   const type = dialog?.type;
-  const sessionRow: SessionRow | undefined = useWorkbench((state: WorkbenchReads) => (dialog?.targetName || state.selectedSessionId) ? state.sessions.get(dialog?.targetName || state.selectedSessionId || "") : undefined);
+  const sessionRow: SessionRow | undefined = useWorkbench((state: WorkbenchState) => (dialog?.targetName || state.selectedSessionId) ? state.sessions.get(dialog?.targetName || state.selectedSessionId || "") : undefined);
   const content = (): ReactNode => {
     if (!dialog) return null;
     const common = { actions, onClose, sessionRow };

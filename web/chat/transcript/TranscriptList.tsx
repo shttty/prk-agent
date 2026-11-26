@@ -1,7 +1,7 @@
 import { useContext, useCallback, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ThreadPrimitive, unstable_useThreadMessageIds, useAui, useAuiState } from "@assistant-ui/react";
 import { defaultRangeExtractor, useVirtualizer } from "@tanstack/react-virtual";
-import { useChatState } from "../thread/use-chat-state.ts";
+import { useWorkbench } from "../../workbench/subscription/use-workbench.ts";
 import { PresentationContext } from "./presentation-context.ts";
 import { MessageView } from "./MessageView.tsx";
 import { HistoryPagination } from "./HistoryPagination.tsx";
@@ -14,7 +14,7 @@ import type { RevealOptions, TranscriptListHandle, ViewportRef } from "./scroll-
 import type { useHistoryPagination } from "./use-history-pagination.ts";
 import type { TranscriptDisplay } from "./presentation-types.ts";
 import type { Virtualizer } from "@tanstack/react-virtual";
-import type { PresentationAnchor } from "./presentation-types.ts";
+import type { PresentationAnchor } from "../../workbench/session-storage/session-storage-types.ts";
 
 type TranscriptListProps = { ref: Ref<TranscriptListHandle>; viewportRef: ViewportRef; history: ReturnType<typeof useHistoryPagination>; following: boolean; mayFollow: () => boolean };
 type RowHeight = { width: number; height: number; display: TranscriptDisplay | undefined };
@@ -32,7 +32,7 @@ const COMPONENTS = { Message: TranscriptMessage };
 
 export function TranscriptList({ ref, viewportRef, history, following, mayFollow }: TranscriptListProps) {
   const display = useContext(PresentationContext)?.transcriptDisplay;
-  const cells = useChatState((state) => state.session.snapshot?.kernelCells);
+  const cells = useWorkbench((state) => state.session.snapshot?.kernelCells);
   const imageCounts = useMemo(() => new Map(cells?.filter(({ imageCount }) => imageCount > 0).map(({ toolCallId, imageCount }) => [toolCallId, imageCount])), [cells]);
   const ids = unstable_useThreadMessageIds();
   const aui = useAui();

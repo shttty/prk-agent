@@ -1,5 +1,5 @@
 import type { DragEvent } from "react";
-import type { SessionRow } from "../session-row-types.ts";
+import type { SessionRow } from "../../workbench/store/store-types.ts";
 import type { SessionDrag } from "./sidebar-types.ts";
 
 /** The row's drag start/end handlers; undefined when dragging is off (not the project view, or a project change is in flight). */

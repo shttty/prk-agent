@@ -9,13 +9,13 @@ import { FormError } from "../../design-system/form-error/FormError.tsx";
 import { Group } from "@mantine/core";
 import { Button } from "@mantine/core";
 import type { ArchivePreview } from "../../../src/gateway/wire/web-types.ts";
-import type { SessionRow } from "../session-row-types.ts";
+import type { SessionRow } from "../../workbench/store/store-types.ts";
 import type { WorkbenchActions } from "../workbench-actions-types.ts";
-import type { WorkbenchReads } from "../workbench-reads-types.ts";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 type ArchiveConfirmationProps = { actions: WorkbenchActions; onClose: () => void; sessionRow: SessionRow | undefined };
 
 export function ArchiveConfirmation({ actions, onClose, sessionRow }: ArchiveConfirmationProps) {
-  const archiving = useWorkbench((state: WorkbenchReads) => state.session.pending.has("archiving"));
+  const archiving = useWorkbench((state: WorkbenchState) => state.session.pending.has("archiving"));
   const [preview, setPreview] = useState<ArchivePreview | null>(null);
   const [error, setError] = useState("");
   useEffect(() => {
@@ -24,7 +24,7 @@ export function ArchiveConfirmation({ actions, onClose, sessionRow }: ArchiveCon
     setError("");
     if (!sessionRow?.sessionId) return undefined;
     actions.archivePreview(sessionRow.sessionId)
-      .then((value: ArchivePreview) => { if (live) setPreview(value); })
+      .then((value) => { if (live) setPreview(value); })
       .catch((cause: unknown) => { if (live) setError(cause instanceof Error ? cause.message : "读取受影响的会话失败。"); });
     return () => { live = false; };
   }, [actions, sessionRow?.sessionId]);

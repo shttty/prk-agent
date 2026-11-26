@@ -1,11 +1,11 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { ManagedSessionSnapshot } from "../../../../src/gateway/wire/web-types.ts";
 import type { LayoutState } from "../../layout/layout-types.ts";
 import { MONITOR_ROOM } from "../page-constants.ts";
 import { layout } from "../../layout/layout-store.ts";
 import { setWorkspaceOpen } from "./set-workspace-open.ts";
+import type { SelectedRow } from "../../../workbench/store/store-types.ts";
 type MonitorFoldOptions = {
-  mobile: boolean; fit: { chat: number } | null; chrome: LayoutState; monitorPeek: boolean; sessionRow: ManagedSessionSnapshot | undefined; monitorSheet: boolean;
+  mobile: boolean; fit: { chat: number } | null; chrome: LayoutState; monitorPeek: boolean; sessionRow: SelectedRow | undefined; monitorSheet: boolean;
   sidebarOpen: boolean; setMonitorPeek: Dispatch<SetStateAction<boolean>>; workspaceOpen: boolean; setMonitorSheet: Dispatch<SetStateAction<boolean>>;
 };
 

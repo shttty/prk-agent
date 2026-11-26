@@ -1,8 +1,8 @@
 import { MAX_ATTACHMENT_BYTES } from "./attachment-constants.ts";
 import { catalogMimeTypes } from "./catalog-mime-types.ts";
 import { bytesToBase64 } from "./bytes-to-base64.ts";
-import type { AttachmentLimits, ChatAttachment } from "../composer-types.ts";
-export async function browserAttachment(file: File, limits: AttachmentLimits = {}): Promise<ChatAttachment & { size: number }> {
+import type { AttachmentLimits, StoredAttachment } from "../composer-types.ts";
+export async function browserAttachment(file: File, limits: AttachmentLimits = {}): Promise<StoredAttachment & { size: number }> {
   const maxItem = Number.isSafeInteger(limits.maxDecodedBytesPerItem)
     ? limits.maxDecodedBytesPerItem ?? MAX_ATTACHMENT_BYTES
     : Number.isSafeInteger(limits.maxItemBytes) ? limits.maxItemBytes ?? MAX_ATTACHMENT_BYTES : MAX_ATTACHMENT_BYTES;

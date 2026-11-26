@@ -6,11 +6,11 @@ import { Text } from "@mantine/core";
 import { FormError } from "../../design-system/form-error/FormError.tsx";
 import { projectCatalog } from "../sidebar/grouping/project-catalog.ts";
 import type { SessionControl } from "../../../src/gateway/wire/web-types.ts";
-import type { SessionRow, SessionRows } from "../session-row-types.ts";
+import type { SessionRow, SessionRows } from "../../workbench/store/store-types.ts";
 import type { WorkbenchActions } from "../workbench-actions-types.ts";
 import { HolderChange } from "./HolderChange.tsx";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
-import type { WorkbenchReads } from "../workbench-reads-types.ts";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 
 const labelOf = (sessionRow: SessionRow | undefined) => sessionRow?.label.trim() || sessionRow?.sessionId || "";
 
@@ -23,8 +23,8 @@ type RoleDialogProps = { actions: WorkbenchActions; onClose: () => void; session
 export function RoleDialog({ actions, onClose, sessionRow, role }: RoleDialogProps) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const control: SessionControl | null = useWorkbench((state: WorkbenchReads) => state.sessionControl);
-  const sessions: SessionRows = useWorkbench((state: WorkbenchReads) => state.sessions);
+  const control: SessionControl | null = useWorkbench((state: WorkbenchState) => state.sessionControl);
+  const sessions: SessionRows = useWorkbench((state: WorkbenchState) => state.sessions);
   const holderId = role === "root" ? control?.rootSessionId : control?.supervisors[sessionRow?.projectId ?? ""];
   const holder = holderId ? sessions.get(holderId) ?? null : null;
   const project = projectCatalog([...sessions.values()]).find((item) => item.id === sessionRow?.projectId);

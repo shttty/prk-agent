@@ -12,6 +12,6 @@ export type DerivationDefaults = Required<Omit<DerivationDraft, "defaultToolMode
 /** `/derivation`: the saved configuration and the defaults. */
 export type DerivationReply = { derivation?: Partial<DerivationDraft> & { roles?: Record<string, RoleConfig> }; defaults?: Partial<DerivationDefaults> };
 
-export type ModelOption = { value: string; label?: string; provider?: string; thinkingLevels?: string[] };
+export type ModelOption = { value: string; label?: string; provider?: string; thinkingLevels?: readonly string[] };
 
 export type RoleEditorState = { mode: "create" | "edit"; name: string; originalName: string; role: RoleConfig; builtin?: boolean };

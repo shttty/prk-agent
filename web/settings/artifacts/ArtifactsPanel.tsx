@@ -40,7 +40,7 @@ export default function ArtifactsPanel({ actions }: { actions: PageActions }) {
   useEffect(() => {
     const current = ++generation.current;
     setBusy(true);
-    actions.api.get("/artifacts").then((result: ArtifactList) => {
+    actions.api.get<ArtifactList>("/artifacts").then((result) => {
       if (current === generation.current) { setData(result); setWaiting(false); }
     }).catch((cause: unknown) => {
       if (current !== generation.current) return;
@@ -63,8 +63,9 @@ export default function ArtifactsPanel({ actions }: { actions: PageActions }) {
   };
   const upload = (event: FormEvent) => {
     event.preventDefault();
+    if (!file) return;
     const query = new URLSearchParams({ name: form.name, version: form.version, platform: form.platform, ...(form.sha256 ? { sha256: form.sha256 } : {}) });
-    void mutate(() => actions.api.upload(`/artifacts/upload?${query}`, file), () => { setUploading(false); setFile(null); setForm(EMPTY_FORM); });
+    void mutate(() => actions.api.upload<ArtifactList>(`/artifacts/upload?${query}`, file), () => { setUploading(false); setFile(null); setForm(EMPTY_FORM); });
   };
   const field = (key: keyof ArtifactForm) => ({ value: form[key], onChange: (event: { currentTarget: { value: string } }) => setForm({ ...form, [key]: event.currentTarget.value }) });
 

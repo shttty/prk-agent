@@ -1,5 +1,4 @@
-import type { HostedExtensionUiSnapshot, HostedNode } from "../../../src/gateway/wire/web-types.ts";
-import type { ExtensionMessageRender, ExtensionRenderEntry } from "../conversation/conversation-types.ts";
+import type { HostedExtensionUiSnapshot, HostedNode } from "../../../../src/gateway/wire/web-types.ts";
 
 type SnapshotPrompt = HostedExtensionUiSnapshot["prompts"][number];
 
@@ -14,9 +13,13 @@ export type ExtensionPrompt = Omit<SnapshotPrompt, "overlay"> & {
   overlay?: OverlayOptions; node?: HostedNode; overlays?: ExtensionOverlay[]; parentId?: string; focus?: boolean; visible?: boolean;
 };
 
+export type ExtensionRenderEntry = { id: string; hidden?: boolean; visible?: boolean; node?: HostedNode; text?: string; beforeEntryId?: string | null; position?: number; createdAt?: unknown };
+export type ExtensionMessageRender = { node?: HostedNode; text?: string; hidden?: boolean; visible?: boolean };
+
 /** The Gateway's last component render for this client (`session.extensionUiRender`). */
 export type ExtensionRender = {
-  revision?: number;
+  revision: number;
+  streamId?: string;
   header?: HostedNode;
   footer?: HostedNode;
   widgets?: ExtensionWidget[];

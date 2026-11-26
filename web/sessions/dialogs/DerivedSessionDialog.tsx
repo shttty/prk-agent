@@ -11,9 +11,9 @@ import { Group } from "@mantine/core";
 import { Button } from "@mantine/core";
 import { Select } from "@mantine/core";
 import { FormError } from "../../design-system/form-error/FormError.tsx";
-import type { SessionRow, SessionRows } from "../session-row-types.ts";
+import type { SessionRow, SessionRows } from "../../workbench/store/store-types.ts";
 import type { WorkbenchActions } from "../workbench-actions-types.ts";
-import type { WorkbenchReads } from "../workbench-reads-types.ts";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 
 /** A session under `name` in the parent chain cannot become its parent (the Gateway refuses the cycle). */
 function descendsFrom(sessions: SessionRows, candidate: string, name: string | undefined) {
@@ -28,8 +28,8 @@ function descendsFrom(sessions: SessionRows, candidate: string, name: string | u
 type DerivedSessionDialogProps = { actions: WorkbenchActions; onClose: () => void; sessionRow: SessionRow | undefined };
 
 export function DerivedSessionDialog({ actions, onClose, sessionRow }: DerivedSessionDialogProps) {
-  const sessions: SessionRows = useWorkbench((state: WorkbenchReads) => state.sessions);
-  const managing = useWorkbench((state: WorkbenchReads) => state.session.pending.has("sessionManaging"));
+  const sessions: SessionRows = useWorkbench((state: WorkbenchState) => state.sessions);
+  const managing = useWorkbench((state: WorkbenchState) => state.session.pending.has("sessionManaging"));
   const derivation = sessionRow?.derivation;
   const [owner, setOwner] = useState("");
   const [confirming, setConfirming] = useState(false);

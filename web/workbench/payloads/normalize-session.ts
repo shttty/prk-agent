@@ -6,5 +6,6 @@ import { stampMonitor } from "../../monitor/readings/stamp-monitor.js";
 export function normalizeSession(value: unknown): SessionRow | null {
   if (!isRecord(value) || typeof value.sessionId !== "string" || !value.sessionId.trim()) return null;
   const { machine: _machine, machineId: _machineId, monitor, ...sessionRow } = value;
+  // External input boundary: a Gateway session row, checked by its sessionId.
   return { ...(sessionRow as Omit<SessionRow, "monitor">), ...(isRecord(monitor) ? { monitor: stampMonitor(monitor) } : {}) };
 }

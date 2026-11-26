@@ -8,4 +8,3 @@
 .diagnostics summary { cursor: pointer; font-size: 14px; padding: 8px 0; }
 .activity-feed { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
 .activity-card { border: 1px solid var(--pi-line); border-radius: var(--pi-radius-sm); padding: 12px; min-width: 0; overflow-wrap: anywhere; background: var(--pi-surface); }
-.activity-output { max-height: 240px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: 12px/1.6 var(--pi-font-mono); font-variant-ligatures: none; }

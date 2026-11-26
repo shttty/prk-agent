@@ -1,15 +1,15 @@
 import "./send/send.css";
 import { memo } from "react";
 import { Button, Group, Text } from "@mantine/core";
-import { useChatState } from "../thread/use-chat-state.ts";
+import { useWorkbench } from "../../workbench/subscription/use-workbench.ts";
 import type { ChatActions } from "../thread/chat-actions-types.ts";
 import { sendStatusOf } from "./send-status.ts";
 export const SendStatus = memo(function SendStatus({ actions }: { actions: ChatActions }) {
-  const submitting = useChatState((state) => state.session.pending.has("sending"));
-  const sleeping = useChatState((state) => (state.session.snapshot?.state || (state.selectedSessionId ? state.sessions.get(state.selectedSessionId)?.state : undefined)) === "sleeping");
-  const localMessages = useChatState((state) => state.session.localMessages);
-  const reconnecting = useChatState((state) => state.session.pending.has("reconnecting"));
-  const restoredDraft = useChatState((state) => state.session.restoredDraft);
+  const submitting = useWorkbench((state) => state.session.pending.has("sending"));
+  const sleeping = useWorkbench((state) => (state.session.snapshot?.state || (state.selectedSessionId ? state.sessions.get(state.selectedSessionId)?.state : undefined)) === "sleeping");
+  const localMessages = useWorkbench((state) => state.session.localMessages);
+  const reconnecting = useWorkbench((state) => state.session.pending.has("reconnecting"));
+  const restoredDraft = useWorkbench((state) => state.session.restoredDraft);
   const { sendStatus, unknownInput, resendable, sendStatusState, restoreStatus, restoredCount, restoredReason } = sendStatusOf({ submitting, sleeping, localMessages, reconnecting, restoredDraft });
   const unknownActions = unknownInput && !submitting;
   return <>

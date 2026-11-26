@@ -15,7 +15,7 @@ import { ResultImages } from "./ResultImages.tsx";
 import type { ReactNode } from "react";
 import type { Payload } from "../../../payload/is-payload.ts";
 import type { ToolCallPart } from "../../../conversation/conversation-types.ts";
-import type { ExtensionToolRender } from "../../../extension-ui/extension-render-types.ts";
+import type { ExtensionToolRender } from "../../../../workbench/store/extension-ui/extension-render-types.ts";
 import type { parseDiff } from "../../../tool-text/parse-diff.ts";
 export const NO_INPUT = "（无输入）";
 

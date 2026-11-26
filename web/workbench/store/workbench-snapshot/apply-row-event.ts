@@ -18,6 +18,7 @@ export function applyRowEvent(ctx: StoreContext, payload: Record<string, unknown
   if ((payload.type === "session_unarchived" || payload.type === "session_purged") && group) archive = archive.filter((entry) => entry.group !== group);
   const archiveGroup = details.archiveGroup;
   if ((payload.type === "session_archived" || payload.type === "archive_group_updated") && isRecord(archiveGroup) && typeof archiveGroup.group === "string" && Array.isArray(archiveGroup.sessions)) {
+    // External input boundary: the Gateway builds archive groups; group and sessions were checked above.
     const updated = archiveGroup as unknown as ArchiveGroup;
     archive = [updated, ...archive.filter((entry) => entry.group !== updated.group)].sort((left, right) => String(right.at).localeCompare(String(left.at)));
   }

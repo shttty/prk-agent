@@ -6,5 +6,6 @@ import { isRecord } from "../../payloads/is-record.ts";
 export async function browseTarget(ctx: StoreContext, connection: TargetConnection, path: string): Promise<AbsoluteListing> {
   const result = await postJson(`${ctx.apiRoot}/targets/browse`, { connection, path });
   if (!isRecord(result) || !Array.isArray(result.entries)) throw new Error("服务未返回有效的目录结果。");
+  // External input boundary: the Gateway's directory listing; entries were checked to be a list above.
   return result as unknown as AbsoluteListing;
 }

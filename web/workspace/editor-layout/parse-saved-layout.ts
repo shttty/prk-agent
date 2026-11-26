@@ -52,5 +52,6 @@ export function parseSavedLayout(raw: string, hosted: Record<string, string> = {
   }
   if (placed.size !== ids.length) return null;
   // Only the grid is kept: floating/popout/edge groups are not part of this editor.
+  // External input boundary: saved layout JSON; its leaves and panels were validated above, the grid shape is dockview's own.
   return { grid: saved.grid as SerializedDockview["grid"], panels, ...(typeof saved.activeGroup === "string" ? { activeGroup: saved.activeGroup } : {}) };
 }

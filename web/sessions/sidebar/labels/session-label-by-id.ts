@@ -1,4 +1,4 @@
-import type { SessionRows } from "../../session-row-types.ts";
+import type { SessionRows } from "../../../workbench/store/store-types.ts";
 
 export function sessionLabelById(sessions: SessionRows, id: string | null | undefined): string {
   const value = id?.trim();

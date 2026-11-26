@@ -1,5 +1,5 @@
 import { safeText } from "../../../workbench/payloads/safe-text.js";
-import type { NativeFeedback } from "../conversation-types.ts";
+import type { NativeFeedback } from "../../../workbench/store/store-types.ts";
 import { makeTextMessage } from "./make-text-message.ts";
 import { nativePayloadText } from "./native-payload-text.ts";
 
@@ -9,10 +9,10 @@ export function makeNativeFeedbackMessage(feedback: NativeFeedback, id: string, 
   const status = safeText(feedback.status) || "unknown";
   const action = safeText(feedback.action) || "native";
   const command = (safeText(feedback.command) || action).replace(/^\/+/, "");
-  const message = (safeText(feedback.message) || safeText(feedback.content)).trim();
+  const message = safeText(feedback.message).trim();
   const boilerplate = message === `/${action} completed.` || message === "正在执行…"
     || (action === "compact" && status === "cancelled" && /^compaction (?:cancelled|aborted)\.?$/i.test(message));
   const payload = nativePayloadText(action, feedback.data, status);
   const text = [`/${command} · ${statusLabels[status] ?? statusLabels.unknown}`, !boilerplate && message, payload].filter(Boolean).join("\n");
-  return makeTextMessage(text, id, createdAt, "system", { nativeFeedback: true, requestId: safeText(feedback.requestId), status, action, ...(feedback.data === undefined ? {} : { data: feedback.data }), ...(Array.isArray(feedback.attachments) ? { attachments: feedback.attachments } : {}), ...(Array.isArray(feedback.references) ? { references: feedback.references } : {}) });
+  return makeTextMessage(text, id, createdAt, "system", { nativeFeedback: true, requestId: safeText(feedback.requestId), status, action, ...(feedback.data === undefined ? {} : { data: feedback.data }) });
 }

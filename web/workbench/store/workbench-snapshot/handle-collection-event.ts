@@ -1,5 +1,5 @@
 import type { StoreContext } from "../store-context-types.ts";
-import type { MonitorReading, SessionRow } from "../store-types.ts";
+import type { SessionRow } from "../store-types.ts";
 import { parseEvent } from "../../payloads/parse-event.ts";
 import { isRecord } from "../../payloads/is-record.ts";
 import { closeEventSource } from "../session-stream/close-event-source.ts";
@@ -52,7 +52,7 @@ export function handleCollectionEvent(ctx: StoreContext, current: EventSource, e
   }
   if (type === "session_monitor" && sessionId && isRecord(details.monitor) && ctx.state.sessions.has(sessionId)) {
     // The Gateway's own reading; this page only adds when it arrived.
-    updateSessionRow(ctx, sessionId, { monitor: stampMonitor(details.monitor) as MonitorReading });
+    updateSessionRow(ctx, sessionId, { monitor: stampMonitor(details.monitor) });
   }
   if (type === "session_attention_changed" && sessionId && ctx.state.sessions.has(sessionId)) {
     updateSessionRow(ctx, sessionId, { blocked: details.blocked === true, asking: details.asking === true, stopped: details.stopped === true, retryPending: details.retryPending === true, background: details.background === true });

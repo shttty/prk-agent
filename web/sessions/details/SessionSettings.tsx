@@ -12,7 +12,7 @@ import type { WorkbenchActions } from "../workbench-actions-types.ts";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import { resolveSessionSettingsFlags } from "./resolve-session-settings-flags.ts";
 import { resolveSettingValues, type LoadedSettings, type SettingValues } from "./resolve-setting-values.ts";
-import type { WorkbenchReads } from "../workbench-reads-types.ts";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 const SETTING_ROWS: [keyof SettingValues, string, string][] = [
   ["autoCompaction", "自动压缩", "快满时把早先的对话压成摘要。"],
   ["autoRetry", "自动重试", "过载、限流等临时错误自动重试。"],
@@ -23,17 +23,17 @@ type SessionSettingsProps = { actions: WorkbenchActions; opened: boolean };
 export function SessionSettings({ actions, opened }: SessionSettingsProps) {
   const [loaded, setLoaded] = useState<LoadedSettings | null>(null);
   const [saving, setSaving] = useState("");
-  const hostState = useWorkbench((state: WorkbenchReads) => state.session.snapshot?.state);
-  const connection = useWorkbench((state: WorkbenchReads) => state.session.connection);
-  const nativePending = useWorkbench((state: WorkbenchReads) => state.session.pending.has("nativeActionPending"));
+  const hostState = useWorkbench((state: WorkbenchState) => state.session.snapshot?.state);
+  const connection = useWorkbench((state: WorkbenchState) => state.session.connection);
+  const nativePending = useWorkbench((state: WorkbenchState) => state.session.pending.has("nativeActionPending"));
   const { live, idle } = resolveSessionSettingsFlags({ connection, hostState, nativePending });
-  const delegation = useWorkbench((state: WorkbenchReads) => delegationLevel(state.session.snapshot));
-  const catalogCurrent = useWorkbench((state: WorkbenchReads) => state.session.nativeCatalog?.value?.target?.current);
-  const streamId = useWorkbench((state: WorkbenchReads) => state.session.streamId);
-  const snapshotSessionId = useWorkbench((state: WorkbenchReads) => state.session.snapshot?.sessionId);
+  const delegation = useWorkbench((state: WorkbenchState) => delegationLevel(state.session.snapshot));
+  const catalogCurrent = useWorkbench((state: WorkbenchState) => state.session.nativeCatalog?.value?.target?.current);
+  const streamId = useWorkbench((state: WorkbenchState) => state.session.streamId);
+  const snapshotSessionId = useWorkbench((state: WorkbenchState) => state.session.snapshot?.sessionId);
   const sessionKey = `${streamId || ""}:${snapshotSessionId || ""}`;
-  const queue = useWorkbench((state: WorkbenchReads) => state.queue);
-  const selectedSessionId = useWorkbench((state: WorkbenchReads) => state.selectedSessionId);
+  const queue = useWorkbench((state: WorkbenchState) => state.queue);
+  const selectedSessionId = useWorkbench((state: WorkbenchState) => state.selectedSessionId);
   useEffect(() => {
     if (!opened || !idle) return undefined;
     let active = true;

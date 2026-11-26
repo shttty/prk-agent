@@ -1,5 +1,5 @@
 /** One configured memory layer as `/memory/list` returns it. */
-export type MemoryLayer = { name: string; scope: string };
+export type MemoryLayer = { name: string; scope: string; capacityCharacters: number; soft: boolean };
 
 /** One memory file: a layer's single document, or one instance's / project's. */
 export type MemoryDocumentData = { target: string; instance?: string; project?: string; entries: string[]; chars: number; limit: number; overLimit: boolean; soft?: boolean; deleted?: boolean };

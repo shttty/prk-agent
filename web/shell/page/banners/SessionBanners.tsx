@@ -8,6 +8,7 @@ import { Group } from "@mantine/core";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { useWorkbench } from "../../../workbench/subscription/use-workbench.js";
+import { selectedListedRow } from "../../../workbench/payloads/selected-listed-row.ts";
 import type { PublicExecutionTarget } from "../../../../src/gateway/wire/web-types.ts";
 import type { PageActions } from "../page-types.ts";
 import BannerRow from "./BannerRow.tsx";
@@ -21,8 +22,8 @@ import { formatBytes } from "../../../monitor/readings/format-bytes.js";
 type SessionBannersProps = { actions: PageActions; onBottom: (bottom: number) => void };
 
 export const SessionBanners = memo(function SessionBanners({ actions, onBottom }: SessionBannersProps) {
-  const sessionRow = useWorkbench((state: WorkbenchState) => state.sessions.get(state.selectedSessionId));
-  const status = useWorkbench((state: WorkbenchState) => state.session.snapshot?.state || state.sessions.get(state.selectedSessionId)?.state);
+  const sessionRow = useWorkbench(selectedListedRow);
+  const status = useWorkbench((state: WorkbenchState) => state.session.snapshot?.state || selectedListedRow(state)?.state);
   const notice = useWorkbench((state: WorkbenchState) => state.session.banner);
   const error = useWorkbench((state: WorkbenchState) => state.session.error);
   const catalogError = useWorkbench((state: WorkbenchState) => state.session.nativeCatalog.error);
@@ -33,7 +34,7 @@ export const SessionBanners = memo(function SessionBanners({ actions, onBottom }
   const snapshotRequiresReload = useWorkbench((state: WorkbenchState) => state.session.snapshot?.requiresReload);
   const modelFallback = useWorkbench((state: WorkbenchState) => state.session.snapshot?.modelFallback);
   // The session's instance is being deployed (a create, wake or reload waits for it): the Gateway's own progress.
-  const environment = useWorkbench((state: WorkbenchState) => state.targets.find((target: PublicExecutionTarget) => target.id === state.sessions.get(state.selectedSessionId)?.target)?.environment);
+  const environment = useWorkbench((state: WorkbenchState) => state.targets.find((target: PublicExecutionTarget) => target.id === selectedListedRow(state)?.target)?.environment);
   const scope = useWorkbench((state: WorkbenchState) => `${state.selectedSessionId ?? ""}:${state.session.snapshot?.sessionId ?? ""}`);
   const [foldedFor, setFoldedFor] = useState<string | null>(null);
   const closed = sessionRow?.state === "closed";
@@ -61,7 +62,7 @@ export const SessionBanners = memo(function SessionBanners({ actions, onBottom }
         <Button id="acknowledge-model-fallback" size="compact-xs" variant="subtle" color="gray" disabled={!connected || nativePending} onClick={() => void actions.executeNativeAction("acknowledge-model-fallback", {}, { transcript: false })}>确认</Button>
       </Group>
     </Alert> : null,
-    sessionRow && ["checking", "transferring"].includes(environment?.status) ? <Alert key="environment" id="environment-banner" data-environment-status={environment.status} data-percent={environment.percent} color="gray" icon={<IconInfoCircle size={18} />} role="status">
+    sessionRow && environment && ["checking", "transferring"].includes(environment.status) ? <Alert key="environment" id="environment-banner" data-environment-status={environment.status} data-percent={environment.percent} color="gray" icon={<IconInfoCircle size={18} />} role="status">
       <Text size="sm">正在准备环境…{environment.status === "transferring" && environment.totalBytes > 0 ? ` ${formatBytes(environment.transferredBytes)} / ${formatBytes(environment.totalBytes)} · ${Math.floor(environment.percent)}%` : ""}</Text>
     </Alert> : null,
     sessionRow && catalogError ? <Alert key="catalog" color="yellow" icon={<IconInfoCircle size={18} />} role="status">原生能力目录不可用：{catalogError}</Alert> : null,

@@ -6,10 +6,10 @@ import { browseDirectory } from "../../../instances/directory-picker/browse-dire
 import { isAbsolutePath } from "../../../instances/directory-picker/is-absolute-path.ts";
 import type { ConfigurationIssue, EditableExecutionTarget } from "../../../../src/gateway/wire/web-types.ts";
 import type { DirectoryState } from "../../../instances/directory-picker/directory-types.ts";
-import type { SessionRow } from "../../session-row-types.ts";
+import type { SessionRow } from "../../../workbench/store/store-types.ts";
 import type { WorkbenchActions } from "../../workbench-actions-types.ts";
 import { useWorkbench } from "../../../workbench/subscription/use-workbench.js";
-import type { WorkbenchReads } from "../../workbench-reads-types.ts";
+import type { WorkbenchState } from "../../../workbench/store/store-types.ts";
 /** The chosen instance's stored config, the session's working directory and the directory picker for Create/Retarget. */
 type SessionEnvironmentOptions = { create?: boolean; sessionRow?: Pick<SessionRow, "target" | "cwd">; setLabel?: (label: string) => void };
 
@@ -20,7 +20,7 @@ export function useSessionEnvironment(actions: WorkbenchActions, targetName: str
   const [error, setError] = useState("");
   const [directory, setDirectory] = useState<DirectoryState>(EMPTY_DIRECTORY);
   const [directoryOpen, setDirectoryOpen] = useState(false);
-  const configurationIssue: ConfigurationIssue | undefined = useWorkbench((state: WorkbenchReads) => state.targets.find((item) => item.id === targetName)?.configurationIssue);
+  const configurationIssue: ConfigurationIssue | undefined = useWorkbench((state: WorkbenchState) => state.targets.find((item) => item.id === targetName)?.configurationIssue);
   const requestRef = useRef(0);
   const browseSerial = useRef(0);
   const mountedRef = useRef(true);

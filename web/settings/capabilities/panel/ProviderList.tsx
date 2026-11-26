@@ -1,5 +1,4 @@
 import type { CapabilityCtx, CapabilityGroup } from "../capability-types.ts";
-import type { ProviderCategory } from "../provider-categories.ts";
 import { TextInput } from "@mantine/core";
 import { ActionIcon } from "@mantine/core";
 import { Tooltip } from "@mantine/core";
@@ -42,7 +41,8 @@ export function ProviderList({ ctx }: { ctx: CapabilityCtx }) {
       {waiting ? <LinkWait /> : null}
       {(waiting ? [] : visible).map((item) => {
         const category = categoryKey(item);
-        const label = category.startsWith("remote:") ? `${targets?.find((target) => target.id === item.instance)?.label ?? item.instance} ${CATEGORY_LABEL.remote}` : CATEGORY_LABEL[category as ProviderCategory];
+        const kind = categoryOf(item.id);
+        const label = item.instance && kind === "remote" ? `${targets?.find((target) => target.id === item.instance)?.label ?? item.instance} ${CATEGORY_LABEL.remote}` : CATEGORY_LABEL[kind];
         const head = headed && category !== lastCategory ? <div key={`category:${category}`} className="settings-list-category" data-category={category}>{label}</div> : null;
         lastCategory = category;
         const match = hits(item);

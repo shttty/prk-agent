@@ -15,12 +15,12 @@ import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import { runDialogAction } from "../dialogs/run-dialog-action.ts";
 import { FormError } from "../../design-system/form-error/FormError.tsx";
 import { ConfigurationIssueBadge } from "../../instances/configuration-issue/ConfigurationIssueBadge.tsx";
-import type { WorkbenchReads } from "../workbench-reads-types.ts";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 /** `+` (new session on this instance) and `…` (settings / delete) of an instance group header, with the delete confirmation. */
 type InstanceGroupActionsProps = { group: SessionGroup; actions: WorkbenchActions; creating: boolean; onOpen: OpenDialog };
 
 export function InstanceGroupActions({ group, actions, creating, onOpen }: InstanceGroupActionsProps) {
-  const targetMutating = useWorkbench((state: WorkbenchReads) => state.pending.has("targetMutating"));
+  const targetMutating = useWorkbench((state: WorkbenchState) => state.pending.has("targetMutating"));
   const [pendingDelete, setPendingDelete] = useState<PublicExecutionTarget | null>(null);
   const [deleteError, setDeleteError] = useState("");
   const closeDelete = () => { setPendingDelete(null); setDeleteError(""); };

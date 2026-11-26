@@ -17,7 +17,7 @@ export function rowHandlers(ctx: Pick<CapabilityCtx, "peekRef" | "timers" | "sho
     onPointerDown: (event) => {
       if (event.pointerType === "mouse") return;
       const row = rowOf(event.currentTarget);
-      const state = { x: event.clientX, y: event.clientY, fired: false, sticky: Boolean(entry.library), timer: undefined as ReturnType<typeof setTimeout> | undefined };
+      const state: { x: number; y: number; fired: boolean; sticky: boolean; timer: ReturnType<typeof setTimeout> | undefined } = { x: event.clientX, y: event.clientY, fired: false, sticky: Boolean(entry.library), timer: undefined };
       state.timer = setTimeout(() => {
         state.fired = true; swallow.current = true;
         showPeek({ entry, row, mode: "touch", x: state.x, y: state.y, pinned: state.sticky });

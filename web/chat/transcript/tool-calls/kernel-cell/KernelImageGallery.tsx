@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { ImageThumbnail } from "../../image-viewer/ImageThumbnail.tsx";
 import { imageKey } from "../../image-viewer/image-key.ts";
-import { useChatState } from "../../../thread/use-chat-state.ts";
+import { useWorkbench } from "../../../../workbench/subscription/use-workbench.ts";
 import { PresentationContext } from "../../presentation-context.ts";
 import { resultImageSource } from "../body/result-image-source.ts";
 import { isPayload } from "../../../payload/is-payload.ts";
@@ -14,7 +14,7 @@ export function KernelImageGallery({ part }: { part: ToolCallPart }) {
   const context = useContext(PresentationContext);
   const sessionId = context?.sessionId;
   const { toolCallId, metadata } = part;
-  const delivery = useChatState((state) => state.session.snapshot?.sessionId === sessionId
+  const delivery = useWorkbench((state) => state.session.snapshot?.sessionId === sessionId
     ? state.session.snapshot?.kernelCells?.find((cell) => cell.toolCallId === toolCallId) : undefined);
   if (!context || !sessionId || context.showImages === false) return null;
   const key = JSON.stringify([context.streamId, sessionId, toolCallId]);

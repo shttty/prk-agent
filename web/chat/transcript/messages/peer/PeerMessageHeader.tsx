@@ -6,14 +6,14 @@ import { IconMessageForward } from "@tabler/icons-react";
 import type { MessageCustom } from "../../../conversation/conversation-types.ts";
 import { PresentationContext } from "../../presentation-context.ts";
 import { shortSessionId } from "../../tool-calls/short-session-id.ts";
-import { useChatState } from "../../../thread/use-chat-state.ts";
+import { useWorkbench } from "../../../../workbench/subscription/use-workbench.ts";
 /**
  * Sender line of a Gateway-stamped agent message; the name opens the sender's session when it still exists.
  * A child's report replaces the "from" prefix with what it reports (`outcome`).
  */
 export function PeerMessageHeader({ peer, outcome = "" }: { peer: NonNullable<MessageCustom["peerMessage"]>; outcome?: string }) {
   const context = useContext(PresentationContext);
-  const known = useChatState((state) => state.sessions.get(peer.sender));
+  const known = useWorkbench((state) => state.sessions.get(peer.sender));
   const name = known?.label || peer.label || shortSessionId(peer.sender);
   const kind = peer.label ? "会话" : "Agent";
   const open = known && context ? () => { void context.actions.selectSession(peer.sender); } : null;

@@ -1,9 +1,9 @@
-import type { RestoredPresentation, SavedPresentation, ScrollRef, SetState, TranscriptListHandle, ViewportRef } from "./scroll-types.ts";
+import type { RestoredPresentation, Presentation, ScrollRef, SetState, TranscriptListHandle, ViewportRef } from "./scroll-types.ts";
 
 type RestoreScroll = {
   viewportRef: ViewportRef; listRef: ScrollRef<TranscriptListHandle | null>; hasSnapshot: boolean; sessionId: string | undefined; restoredSessionRef: ScrollRef<string | null | undefined>;
-  followRef: ScrollRef<boolean>; streamId: string | null; presentationRevision: number; savedPresentation: SavedPresentation | null; scrollReady: boolean;
-  renderedMessageCount: number; messageCount: number; restoringScrollRef: ScrollRef<boolean>; lastScrollTopRef: ScrollRef<number>; presentation: SavedPresentation;
+  followRef: ScrollRef<boolean>; streamId: string | null; presentationRevision: number; savedPresentation: Presentation | null; scrollReady: boolean;
+  renderedMessageCount: number; messageCount: number; restoringScrollRef: ScrollRef<boolean>; lastScrollTopRef: ScrollRef<number>; presentation: Presentation;
   setFollowOutput: (follow: boolean) => void; setRestoredPresentation: SetState<RestoredPresentation | null>; setAwayFromBottom: SetState<boolean>;
 };
 

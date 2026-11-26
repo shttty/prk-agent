@@ -12,13 +12,13 @@ import { stateLabel } from "../sidebar/labels/state-label.ts";
 import InlineAlert from "../../design-system/inline-alert/InlineAlert.tsx";
 import { sessionLabelById } from "../sidebar/labels/session-label-by-id.ts";
 import type { ArchivePreview, ArchivePreviewSession } from "../../../src/gateway/wire/web-types.ts";
-import type { SessionRows } from "../session-row-types.ts";
-import type { WorkbenchReads } from "../workbench-reads-types.ts";
+import type { SessionRows } from "../../workbench/store/store-types.ts";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 /** Archive preview body shared by the session and project confirmations: the affected tree(s), busy warning and retained sessions. `root` omitted = several roots. */
 type ArchivePreviewListProps = { sessions: readonly ArchivePreviewSession[]; root?: string; retained: ArchivePreview["retained"] };
 
 export function ArchivePreviewList({ sessions, root, retained }: ArchivePreviewListProps) {
-  const knownSessions: SessionRows = useWorkbench((state: WorkbenchReads) => state.sessions);
+  const knownSessions: SessionRows = useWorkbench((state: WorkbenchState) => state.sessions);
   const running = sessions.filter((node) => BUSY_STATES.has(node.state)).length;
   return <>
     <SessionTree nodes={sessions} root={root} renderNode={(node) => <span className="management-affected-node" data-affected={node.sessionId}>

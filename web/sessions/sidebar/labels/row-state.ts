@@ -1,4 +1,4 @@
-import type { SessionRow } from "../../session-row-types.ts";
+import type { SessionRow } from "../../../workbench/store/store-types.ts";
 import { BUSY_STATES } from "../sidebar-constants.ts";
 import { stateLabel } from "./state-label.ts";
 import { stateTone, type StateTone } from "./state-tone.ts";

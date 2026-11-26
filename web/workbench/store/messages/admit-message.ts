@@ -128,7 +128,7 @@ export async function admitMessage(ctx: StoreContext, message: string, queue: Se
     // wake): it was definitely not sent. Say why; keep the draft.
     if (error instanceof RequestError && error.details?.submitted === false) {
       // An instance still missing its command or interpreter refuses with `details.configurationIssue`.
-      const issue = isRecord(error.details.configurationIssue) ? error.details.configurationIssue : null;
+      const issue = isRecord(error.details.configurationIssue) ? { code: safeText(error.details.configurationIssue.code) } : null;
       const reason = issue ? `${issueLabel(issue)}：补全实例设置后再发送。` : safeText(error.details.reason);
       const stage = error.details.stage === "wake" || error.details.stage === "runtime" ? error.details.stage : "kernel";
       // A failed environment deployment gets one sentence; its reason folds under the banner's details.

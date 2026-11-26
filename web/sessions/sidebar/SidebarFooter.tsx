@@ -3,17 +3,17 @@ import { IconMoon, IconSettings, IconSun } from "@tabler/icons-react";
 import StatusDot from "../../design-system/status-dot/StatusDot.tsx";
 import { useThemeToggle } from "../../design-system/theme/use-theme-toggle.ts";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
-import type { WorkbenchReads } from "../workbench-reads-types.ts";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 
 type SidebarFooterProps = { themeToggle: boolean; onSettings: () => void };
 
 /** The connection line (the selected session's stream, else the service) with the theme and settings buttons. */
 export function SidebarFooter({ themeToggle, onSettings }: SidebarFooterProps) {
   const toggleTheme = useThemeToggle();
-  const service: WorkbenchReads["service"] = useWorkbench((state: WorkbenchReads) => state.service);
-  const selectedSessionId: string | null = useWorkbench((state: WorkbenchReads) => state.selectedSessionId);
-  const sessionConnection: WorkbenchReads["session"]["connection"] = useWorkbench((state: WorkbenchReads) => state.session.connection);
-  const reconnecting = useWorkbench((state: WorkbenchReads) => state.session.pending.has("reconnecting"));
+  const service: WorkbenchState["service"] = useWorkbench((state: WorkbenchState) => state.service);
+  const selectedSessionId: string | null = useWorkbench((state: WorkbenchState) => state.selectedSessionId);
+  const sessionConnection: WorkbenchState["session"]["connection"] = useWorkbench((state: WorkbenchState) => state.session.connection);
+  const reconnecting = useWorkbench((state: WorkbenchState) => state.session.pending.has("reconnecting"));
   const connection = selectedSessionId ? sessionConnection : service === "ready" ? "connected" : service === "loading" ? "connecting" : "disconnected";
   const label = selectedSessionId
     ? reconnecting ? "正在重新连接…" : connection === "connected" ? "实时更新" : connection === "connecting" ? "正在连接…" : "未连接"

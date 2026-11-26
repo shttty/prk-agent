@@ -25,7 +25,7 @@ export function useMemoryListing(api: PageApi) {
   const reload = useCallback(() => {
     const current = ++generation.current;
     setBusy(true);
-    api.post("/memory/list", {}).then((result: MemoryListing) => {
+    api.post<MemoryListing>("/memory/list", {}).then((result) => {
       if (current === generation.current) { setListing(result); setWaiting(false); }
     }).catch((cause: unknown) => {
       if (current !== generation.current) return;
@@ -44,7 +44,7 @@ export function useMemoryListing(api: PageApi) {
     const current = generation.current;
     setBusy(true); setError("");
     try {
-      const result: MemoryListing = await api.post(path, request);
+      const result = await api.post<MemoryListing>(path, request);
       if (current !== generation.current) return;
       setListing(result); setEditor(null); setDeletion(null);
     } catch (cause) {

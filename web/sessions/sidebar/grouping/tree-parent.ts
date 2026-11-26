@@ -1,4 +1,4 @@
-import type { SessionRows } from "../../session-row-types.ts";
+import type { SessionRows } from "../../../workbench/store/store-types.ts";
 import type { SidebarItem } from "../sidebar-types.ts";
 import { visibleOwner } from "./visible-owner.ts";
 import { viewGroupKey } from "./view-group-key.ts";

@@ -6,7 +6,7 @@ import { alertsOf } from "../../monitor/readings/alerts-of.ts";
 import { deltaLabel } from "../../monitor/readings/delta-label.ts";
 import { RoleBadges } from "../roles/RoleBadges.tsx";
 import { sessionRoles } from "../roles/session-roles.ts";
-import type { SessionRow as SessionRowData } from "../session-row-types.ts";
+import type { SessionRow as SessionRowData } from "../../workbench/store/store-types.ts";
 import { CLOSED_STATES } from "./grouping/closed-last.ts";
 import { highestUnder } from "./grouping/highest-under.ts";
 import { statusPriority } from "./grouping/status-priority.ts";

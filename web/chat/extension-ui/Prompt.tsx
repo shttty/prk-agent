@@ -9,7 +9,7 @@ import { AnsiText } from "../ansi/AnsiText.tsx";
 import { stripAnsi } from "../ansi/strip-ansi.ts";
 import { Countdown } from "./Countdown.tsx";
 import { optionsFor } from "./options-for.ts";
-import type { ExtensionAction, ExtensionPrompt } from "./extension-render-types.ts";
+import type { ExtensionAction, ExtensionPrompt } from "../../workbench/store/extension-ui/extension-render-types.ts";
 import { ExtensionNode } from "./ExtensionNode.tsx";
 /** A plugin dialog (select / confirm / input / editor) or a non-overlay `ctx.ui.custom`: a card in the tray above the composer. */
 export function Prompt({ prompt, actions }: { prompt: ExtensionPrompt; actions: ExtensionAction }) {

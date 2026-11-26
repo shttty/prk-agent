@@ -33,7 +33,7 @@ export function useTerminalSync({ engine, api, sessionId, enabled, hidden, refre
     if (!enabled || hidden) return undefined;
     let live = true;
     let timer = 0;
-    const load = () => api.get(base).then((result) => {
+    const load = () => api.get<{ terminals?: (TerminalMetadata & { name: string })[] }>(base).then((result) => {
       if (!live) return;
       const terminals: (TerminalMetadata & { name: string })[] = result?.terminals || [];
       const names = terminals.map((item) => item.name);

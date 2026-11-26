@@ -1,13 +1,13 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useMemo, useState, type MouseEvent } from "react";
 import { ActionIcon, Box, Button, Flex, Group, SegmentedControl, Text, Tooltip } from "@mantine/core";
 import { IconLayoutSidebarLeftCollapse, IconPlus, IconServer2 } from "@tabler/icons-react";
 import type { PublicExecutionTarget } from "../../../src/gateway/wire/web-types.ts";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
-import type { SessionRows, UnreadableIssue } from "../session-row-types.ts";
+import type { SessionRows } from "../../workbench/store/store-types.ts";
+import type { UnreadableSession } from "../../workbench/payloads/payload-types.ts";
 import { UnreadableReason } from "../unreadable/UnreadableReason.tsx";
 import { UnreadableRow } from "../unreadable/UnreadableRow.tsx";
 import type { WorkbenchActions } from "../workbench-actions-types.ts";
-import type { WorkbenchReads } from "../workbench-reads-types.ts";
 import { GroupHeader } from "./GroupHeader.tsx";
 import { InstanceGroupActions } from "./InstanceGroupActions.tsx";
 import { ProjectGroupActions } from "./ProjectGroupActions.tsx";
@@ -25,10 +25,11 @@ import "./sidebar.css";
 import "./tree-lines.css";
 import "./group-header.css";
 import "./badges.css";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 
 type SidebarProps = {
   actions: WorkbenchActions;
-  onCollapse?: () => void;
+  onCollapse?: (event: MouseEvent<HTMLElement>) => void;
   themeToggle: boolean;
   onOpen: OpenDialog;
   onSettings: () => void;
@@ -38,21 +39,21 @@ type SidebarProps = {
 
 /** Session list region: subscribes to the fields below only, so stream deltas, typing and telemetry leave it alone. */
 export const Sidebar = memo(function Sidebar({ actions, onCollapse, themeToggle, onOpen, onSettings, onSelected, onSessionAction }: SidebarProps) {
-  const viewMode: WorkbenchReads["viewMode"] = useWorkbench((state: WorkbenchReads) => state.viewMode);
-  const sessions: SessionRows = useWorkbench((state: WorkbenchReads) => state.sessions);
-  const targetList: PublicExecutionTarget[] = useWorkbench((state: WorkbenchReads) => state.targets);
-  const unreadableSessions: UnreadableIssue[] = useWorkbench((state: WorkbenchReads) => state.unreadableSessions);
-  const selectedSessionId: string | null = useWorkbench((state: WorkbenchReads) => state.selectedSessionId);
-  const service: WorkbenchReads["service"] = useWorkbench((state: WorkbenchReads) => state.service);
-  const creating = useWorkbench((state: WorkbenchReads) => state.pending.has("creating"));
+  const viewMode: WorkbenchState["viewMode"] = useWorkbench((state: WorkbenchState) => state.viewMode);
+  const sessions: SessionRows = useWorkbench((state: WorkbenchState) => state.sessions);
+  const targetList: PublicExecutionTarget[] = useWorkbench((state: WorkbenchState) => state.targets);
+  const unreadableSessions: UnreadableSession[] = useWorkbench((state: WorkbenchState) => state.unreadableSessions);
+  const selectedSessionId: string | null = useWorkbench((state: WorkbenchState) => state.selectedSessionId);
+  const service: WorkbenchState["service"] = useWorkbench((state: WorkbenchState) => state.service);
+  const creating = useWorkbench((state: WorkbenchState) => state.pending.has("creating"));
   // Row menus: which session actions are in flight (SessionRow reads only these).
-  const sessionControl: RowContext["sessionControl"] = useWorkbench((state: WorkbenchReads) => state.sessionControl);
-  const nativeActionPending = useWorkbench((state: WorkbenchReads) => state.session.pending.has("nativeActionPending"));
-  const renaming = useWorkbench((state: WorkbenchReads) => state.session.pending.has("renaming"));
-  const sessionManaging = useWorkbench((state: WorkbenchReads) => state.session.pending.has("sessionManaging"));
-  const recovering = useWorkbench((state: WorkbenchReads) => state.session.pending.has("recovering"));
-  const archiving = useWorkbench((state: WorkbenchReads) => state.session.pending.has("archiving"));
-  const projectMutating = useWorkbench((state: WorkbenchReads) => state.pending.has("projectMutating"));
+  const sessionControl: RowContext["sessionControl"] = useWorkbench((state: WorkbenchState) => state.sessionControl);
+  const nativeActionPending = useWorkbench((state: WorkbenchState) => state.session.pending.has("nativeActionPending"));
+  const renaming = useWorkbench((state: WorkbenchState) => state.session.pending.has("renaming"));
+  const sessionManaging = useWorkbench((state: WorkbenchState) => state.session.pending.has("sessionManaging"));
+  const recovering = useWorkbench((state: WorkbenchState) => state.session.pending.has("recovering"));
+  const archiving = useWorkbench((state: WorkbenchState) => state.session.pending.has("archiving"));
+  const projectMutating = useWorkbench((state: WorkbenchState) => state.pending.has("projectMutating"));
   const rowContext = useMemo<RowContext>(() => ({ sessions, selectedSessionId, sessionControl, nativeActionPending, renaming, sessionManaging, recovering, archiving, projectMutating }),
     [sessions, selectedSessionId, sessionControl, nativeActionPending, renaming, sessionManaging, recovering, archiving, projectMutating]);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});

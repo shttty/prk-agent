@@ -70,9 +70,9 @@ export default function CapabilitiesPanel({ kind, actions, session = false, inst
     setLoading(true); setRefreshing(refresh); setError("");
     try {
       const [settings, catalog, saved]: [CapabilityData, CapabilityData["catalog"] | null, Record<string, LibraryEntry[]>] = await Promise.all([
-        refresh ? actions.api.post("/capabilities/refresh", instance ? { instance } : {}) : actions.api.get(instance ? `/capabilities?instance=${encodeURIComponent(instance)}` : "/capabilities"),
-        session ? actions.nativeData("capabilities") : null,
-        actions.api.post(`/${kind}/list`, {}),
+        refresh ? actions.api.post<CapabilityData>("/capabilities/refresh", instance ? { instance } : {}) : actions.api.get<CapabilityData>(instance ? `/capabilities?instance=${encodeURIComponent(instance)}` : "/capabilities"),
+        session ? actions.nativeData<NonNullable<CapabilityData["catalog"]>>("capabilities") : null,
+        actions.api.post<Record<string, LibraryEntry[]>>(`/${kind}/list`, {}),
       ]);
       if (current !== generation.current) return;
       if (session && !catalog) throw new Error("会话工具设置读取失败。");

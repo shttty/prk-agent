@@ -1,6 +1,6 @@
 import { ActionIcon, Menu } from "@mantine/core";
 import { IconDots } from "@tabler/icons-react";
-import type { SessionRow } from "../session-row-types.ts";
+import type { SessionRow } from "../../workbench/store/store-types.ts";
 import { CLONEABLE_STATES } from "./sidebar-constants.ts";
 import type { RowContext, SessionAction } from "./sidebar-types.ts";
 

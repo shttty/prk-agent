@@ -31,6 +31,7 @@ import { noteScroll } from "./drafts/note-scroll.ts";
 import { flushScroll } from "./drafts/flush-scroll.ts";
 import { clearError } from "./notices/clear-error.ts";
 import { clearNotice } from "./notices/clear-notice.ts";
+import { setNotice } from "./notices/set-notice.ts";
 import { sendMessage } from "./messages/send-message.ts";
 import { cancelOperation } from "./messages/cancel-operation.ts";
 import { reconnect } from "./session-stream/reconnect.ts";
@@ -68,7 +69,7 @@ export function createWorkbenchActions(ctx: StoreContext) {
     loadToolContent: bind(loadToolContent),
     loadTranscriptContent: bind(loadTranscriptContent),
     loadHistoryPage: bind(loadHistoryPage),
-    nativeData: bind(nativeData),
+    nativeData: <Data extends Record<string, unknown> = Record<string, unknown>>(action: string, args?: Record<string, unknown>) => nativeData<Data>(ctx, action, args),
     executeNativeAction: bind(executeNativeAction),
     forkMessage: bind(forkMessage),
     rerunMessage: bind(rerunMessage),
@@ -86,6 +87,7 @@ export function createWorkbenchActions(ctx: StoreContext) {
     flushScroll: bind(flushScroll),
     clearError: bind(clearError),
     clearNotice: bind(clearNotice),
+    setNotice: bind(setNotice),
     sendMessage: bind(sendMessage),
     resendUnknownSends: bind(resendUnknownSends),
     returnUnknownSends: bind(returnUnknownSends),
@@ -114,9 +116,10 @@ export function createWorkbenchActions(ctx: StoreContext) {
     // Errors are `RequestError`s: `.code`, `.details` and `.status` come from the backend body.
     api: {
       root: ctx.apiRoot,
-      get: (path: string) => getJson(`${ctx.apiRoot}${path}`),
-      post: bind(postSettled),
-      upload: (path: string, file: Blob) => requestJson(`${ctx.apiRoot}${path}`, { method: "POST", headers: { "Content-Type": "application/octet-stream" }, body: file }),
+      // External input boundary: the reply type is the caller's statement of the endpoint's contract (docs/contract.md); bodies are taken as sent.
+      get: <Reply>(path: string) => getJson(`${ctx.apiRoot}${path}`) as Promise<Reply>,
+      post: <Reply>(path: string, payload?: unknown) => postSettled(ctx, path, payload) as Promise<Reply>,
+      upload: <Reply>(path: string, file: Blob) => requestJson(`${ctx.apiRoot}${path}`, { method: "POST", headers: { "Content-Type": "application/octet-stream" }, body: file }) as Promise<Reply>,
     },
   };
 }

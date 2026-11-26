@@ -4,6 +4,7 @@ import { isRecord } from "../is-record.ts";
 /** A truncated-content preview as the Gateway sends it with a tool call or result; anything else is no preview. */
 export function toolPreview(value: unknown): ToolContentPreview | undefined {
   return isRecord(value) && typeof value.preview === "string" && typeof value.version === "string"
+    // External input boundary: preview and version were checked above.
     ? value as unknown as ToolContentPreview
     : undefined;
 }

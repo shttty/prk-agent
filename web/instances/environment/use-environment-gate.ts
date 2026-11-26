@@ -1,8 +1,8 @@
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import type { WorkbenchActions } from "../../sessions/workbench-actions-types.ts";
-import type { WorkbenchReads } from "../../sessions/workbench-reads-types.ts";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import type { EnvironmentFailure, TargetEnvironment } from "./environment-types.ts";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 
 // This page's own reasons to stop waiting; the Gateway's own failures arrive as the snapshot's `error`.
 const STOPPED = {
@@ -20,9 +20,9 @@ type Held = { streamId: string; revision: number };
  * `onReady` when the deploy fails, the Gateway stream changes (restart), the page loses its workbench stream, or the page
  * closes; only a new explicit `start` tries again. `target` defaults to `targetName` (the editor names a just-saved one). */
 export function useEnvironmentGate(actions: WorkbenchActions, targetName: string) {
-  const environment: TargetEnvironment | null = useWorkbench((state: WorkbenchReads) => state.targets.find((target) => target.id === targetName)?.environment ?? null);
-  const losses: number = useWorkbench((state: WorkbenchReads) => state.workbenchLinkLosses);
-  const linked: boolean = useWorkbench((state: WorkbenchReads) => state.workbenchLinked);
+  const environment: TargetEnvironment | null = useWorkbench((state: WorkbenchState) => state.targets.find((target) => target.id === targetName)?.environment ?? null);
+  const losses: number = useWorkbench((state: WorkbenchState) => state.workbenchLinkLosses);
+  const linked: boolean = useWorkbench((state: WorkbenchState) => state.workbenchLinked);
   const [intent, setIntent] = useState<Intent | null>(null);
   const [failure, setFailure] = useState<EnvironmentFailure | null>(null);
   const [posting, setPosting] = useState(false);

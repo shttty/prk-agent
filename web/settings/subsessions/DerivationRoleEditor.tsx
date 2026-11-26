@@ -16,7 +16,7 @@ const ALL_THINKING = ["off", "minimal", "low", "medium", "high", "xhigh"];
 type RoleDraft = { name: string; description: string; model: string; thinkingLevel: string; toolMode: string; isolated: string; instructions: string; capabilities: Record<string, boolean> };
 
 type DerivationRoleEditorProps = {
-  editor: RoleEditorState; existingNames: string[]; models: ModelOption[]; catalog: CapabilityCatalog | null; busy: boolean; saving: boolean; error: string;
+  editor: RoleEditorState; existingNames: string[]; models: readonly ModelOption[]; catalog: CapabilityCatalog | null; busy: boolean; saving: boolean; error: string;
   onSave: (name: string, role: RoleConfig, originalName: string) => void; onCancel: () => void;
 };
 

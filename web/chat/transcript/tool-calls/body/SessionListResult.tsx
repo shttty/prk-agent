@@ -1,11 +1,11 @@
 import type { SessionListRow } from "../../../tool-text/session-list-rows.ts";
-import { useChatState } from "../../../thread/use-chat-state.ts";
+import { useWorkbench } from "../../../../workbench/subscription/use-workbench.ts";
 import { RoleBadges } from "../../../../sessions/roles/RoleBadges.jsx";
 import { label as stateLabel } from "../../../../sessions/details/status-label.js";
 
 /** Reachable sessions with state, control roles and current parent; legacy history may also carry project/creator. */
 export function SessionListResult({ rows }: { rows: SessionListRow[] }) {
-  const sessions: Map<string, { label?: string; projectId?: string; projectName?: string }> | undefined = useChatState((state: { sessions?: Map<string, { label?: string; projectId?: string; projectName?: string }> }) => state.sessions);
+  const sessions: Map<string, { label?: string; projectId?: string; projectName?: string }> | undefined = useWorkbench((state: { sessions?: Map<string, { label?: string; projectId?: string; projectName?: string }> }) => state.sessions);
   const labelOf = (id: string) => rows.find((row) => row.sessionId === id)?.sessionName
     || sessions?.get(id)?.label || id;
   const projectOf = (id: string) => [...(sessions?.values() ?? [])].find((sessionRow) => sessionRow.projectId === id && sessionRow.projectName)?.projectName || id;

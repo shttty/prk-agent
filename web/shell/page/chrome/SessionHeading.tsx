@@ -1,11 +1,12 @@
 import type { WorkbenchState } from "../page-types.ts";
-import type { ManagedSessionSnapshot, PublicExecutionTarget } from "../../../../src/gateway/wire/web-types.ts";
+import type { PublicExecutionTarget } from "../../../../src/gateway/wire/web-types.ts";
 import { AnsiText } from "../../../chat/ansi/AnsiText.jsx";
 import { useWorkbench } from "../../../workbench/subscription/use-workbench.js";
+import type { SelectedRow } from "../../../workbench/store/store-types.ts";
 
 /** Desktop: which session this is, on one quiet line in the chat column's control strip (no title bar of its own):
  * name · 子会话 (derived sessions) · instance · model. Every part comes from the workbench row and the live snapshot. */
-export function SessionHeading({ sessionRow }: { sessionRow: ManagedSessionSnapshot }) {
+export function SessionHeading({ sessionRow }: { sessionRow: SelectedRow }) {
   const instance = useWorkbench((state: WorkbenchState) => state.targets.find((target: PublicExecutionTarget) => target.id === sessionRow.target)?.label) || sessionRow.target || "";
   const snapshotModel = useWorkbench((state: WorkbenchState) => state.session.snapshot?.model);
   const pluginTitle = useWorkbench((state: WorkbenchState) => state.session.extensionUi?.title);

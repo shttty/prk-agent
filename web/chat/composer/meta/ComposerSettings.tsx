@@ -10,7 +10,7 @@ import { useComposerSettings } from "./use-composer-settings.ts";
 import type { ChatActions } from "../../thread/chat-actions-types.ts";
 import type { ComposerTier } from "./composer-tier.ts";
 import type { KeyboardEvent } from "react";
-import { useChatState } from "../../thread/use-chat-state.ts";
+import { useWorkbench } from "../../../workbench/subscription/use-workbench.ts";
 const chevron = <IconChevronDown size={12} stroke={1.8} />;
 // Which settings leave the row for the model menu, per tier.
 const FOLDED: Partial<Record<ComposerTier, SettingKind[]>> = { phone: ["thinking", "toolMode"], folded: ["toolMode"] };
@@ -24,8 +24,8 @@ const FOLDED: Partial<Record<ComposerTier, SettingKind[]>> = { phone: ["thinking
 export const ComposerSettings = memo(function ComposerSettings({ actions, tier }: { actions: ChatActions; tier: ComposerTier }) {
   const settings = useComposerSettings();
   const { thinkingLevel, thinkingLevels, toolMode } = settings;
-  const contextUsage = useChatState((state) => state.session.snapshot?.contextUsage);
-  const sessionKey = useChatState((state) => `${state.selectedSessionId}:${state.session.streamId || ""}:${state.session.snapshot?.sessionId || ""}`);
+  const contextUsage = useWorkbench((state) => state.session.snapshot?.contextUsage);
+  const sessionKey = useWorkbench((state) => `${state.selectedSessionId}:${state.session.streamId || ""}:${state.session.snapshot?.sessionId || ""}`);
   const folded = FOLDED[tier] || [];
   // The selects sit inside the composer form: Enter on a closed select must not submit the draft.
   const keepDraft = (event: KeyboardEvent) => { if (event.key === "Enter") event.preventDefault(); };

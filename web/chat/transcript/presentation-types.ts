@@ -1,6 +1,6 @@
 import type { KernelEvent, MessageStatus } from "../conversation/conversation-types.ts";
 import type { ChatActions } from "../thread/chat-actions-types.ts";
-import type { ExtensionRender } from "../extension-ui/extension-render-types.ts";
+import type { ExtensionRender } from "../../workbench/store/extension-ui/extension-render-types.ts";
 import type { KernelImageLoader } from "./tool-calls/kernel-cell/kernel-image-types.ts";
 
 export type TurnFoldMode = "segmented" | "whole";
@@ -24,7 +24,4 @@ export type PresentationValue = {
   expandThinking: boolean;
 };
 
-/** The saved scroll position and open disclosures of one session. */
-export type SavedPresentation = { scrollTop: number; anchor: PresentationAnchor | null; openedTools: string[] };
-export type PresentationAnchor = { index?: number; key: string; role?: string; text?: string; offset?: number };
 export type { MessageStatus };

@@ -3,20 +3,20 @@ import { ActionIcon, Flex, Loader, Tabs, Text } from "@mantine/core";
 import { IconChevronLeft } from "@tabler/icons-react";
 import { labelForTarget } from "../../sessions/sidebar/labels/label-for-target.ts";
 import type { WorkbenchActions } from "../../sessions/workbench-actions-types.ts";
-import type { WorkbenchReads } from "../../sessions/workbench-reads-types.ts";
 import CapabilitiesPanel from "../../settings/capabilities/CapabilitiesPanel.jsx";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import { TargetEditor } from "../editor/TargetEditor.tsx";
 import type { EditorConfig } from "../editor/editor-types.ts";
 import "./instance-settings.css";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 
 type InstanceSettingsProps = { actions: WorkbenchActions; id: string; mobile: boolean; onClose: () => void; onBack?: () => void };
 
 /** One instance's settings: its connection config (the same editor) and default tool/Skills switches. Opened from the
  * sidebar group menu (a dialog) and from the settings window's instance page (`onBack` set: embedded with a back button). */
 export function InstanceSettings({ actions, id, mobile, onClose, onBack }: InstanceSettingsProps) {
-  const target = useWorkbench((state: WorkbenchReads) => state.targets.find((item) => item.id === id));
-  const [tab, setTab] = useState<string>("connection");
+  const target = useWorkbench((state: WorkbenchState) => state.targets.find((item) => item.id === id));
+  const [tab, setTab] = useState<"connection" | "tools" | "skills">("connection");
   const [config, setConfig] = useState<EditorConfig | null>(null);
   useEffect(() => {
     let live = true;
@@ -28,7 +28,7 @@ export function InstanceSettings({ actions, id, mobile, onClose, onBack }: Insta
     <Flex component="header" align="center" gap={8} className="instance-settings-head">
       {onBack && <ActionIcon data-action="close-instance-settings" variant="subtle" color="gray" aria-label="返回" onClick={onBack}><IconChevronLeft size={18} /></ActionIcon>}
       {onBack && <Text component="strong" fw={700}>{labelForTarget(target)}</Text>}
-      <Tabs value={tab} onChange={(value) => setTab(value ?? "connection")} flex={1} miw={0}>
+      <Tabs value={tab} onChange={(value) => setTab(value === "tools" || value === "skills" ? value : "connection")} flex={1} miw={0}>
         <Tabs.List>
           <Tabs.Tab value="connection" data-instance-tab="connection">连接</Tabs.Tab>
           <Tabs.Tab value="tools" data-instance-tab="tools">工具</Tabs.Tab>

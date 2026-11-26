@@ -4,12 +4,12 @@ import { Text } from "@mantine/core";
 import { Button } from "@mantine/core";
 import { IconArrowBackUp } from "@tabler/icons-react";
 import type { ChatActions } from "../thread/chat-actions-types.ts";
-import { useChatState } from "../thread/use-chat-state.ts";
+import { useWorkbench } from "../../workbench/subscription/use-workbench.ts";
 const QUEUE_GROUPS = [["steering", "补充当前任务"], ["followUp", "排到下一轮"]] as const;
 export const PendingQueue = memo(function PendingQueue({ actions }: { actions: ChatActions }) {
-  const queuedMessages = useChatState((state) => state.session.snapshot?.queuedMessages);
-  const receiving = useChatState((state) => state.session.snapshot?.receivingUserText);
-  const disabled = useChatState((state) => state.session.connection !== "connected" || state.session.pending.has("nativeActionPending"));
+  const queuedMessages = useWorkbench((state) => state.session.snapshot?.queuedMessages);
+  const receiving = useWorkbench((state) => state.session.snapshot?.receivingUserText);
+  const disabled = useWorkbench((state) => state.session.connection !== "connected" || state.session.pending.has("nativeActionPending"));
   const queuedGroups = QUEUE_GROUPS.map(([key, label]) => ({ key, label, texts: queuedMessages?.[key] ?? [] }));
   const hasQueuedMessages = queuedGroups.some((group) => group.texts.length > 0);
   return (

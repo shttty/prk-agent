@@ -26,7 +26,10 @@ export function projectConversation(state: ConversationState): TranscriptMessage
     if (!cached) continue;
     const inputPreview = record.call.inputPreview;
     const outputPreview = readPreview(record.result?.outputPreview) || record.run?.outputPreview;
-    if (inputPreview && cached.inputVersion === inputPreview.version) record.call = { ...record.call, args: cached.args, arguments: cached.args, argumentsError: cached.argumentsError, inputLoaded: true };
+    if (inputPreview && cached.inputVersion === inputPreview.version) {
+      const args = isPayload(cached.args) ? cached.args : undefined;
+      record.call = { ...record.call, args, arguments: args, argumentsError: cached.argumentsError, inputLoaded: true };
+    }
     if (outputPreview && cached.outputVersion === outputPreview.version) {
       record.call = { ...record.call, outputLoaded: true };
       if (record.result !== undefined || record.run?.ended) record.result = { ...(isPayload(cached.result) ? cached.result : {}), outputPreview };

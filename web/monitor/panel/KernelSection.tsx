@@ -3,7 +3,7 @@ import { Badge, Button, Group } from "@mantine/core";
 import { IconEraser, IconPlayerStop, IconRefresh } from "@tabler/icons-react";
 import InlineAlert from "../../design-system/inline-alert/InlineAlert.tsx";
 import type { KernelSnapshot } from "../../../src/gateway/wire/web-types.ts";
-import type { SessionRow } from "../../sessions/session-row-types.ts";
+import type { SelectedRow } from "../../workbench/store/store-types.ts";
 import type { WorkbenchActions } from "../../sessions/workbench-actions-types.ts";
 import { useStopTarget } from "../../workbench/subscription/use-stop-target.js";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
@@ -13,22 +13,22 @@ import { kernelMemory } from "../readings/kernel-memory.ts";
 import { MemoryMeter } from "./MemoryMeter.tsx";
 import { SectionTitle } from "./SectionTitle.tsx";
 import { KERNEL_LABELS, enc } from "./monitor-panel-constants.ts";
-import type { WorkbenchReads } from "../../sessions/workbench-reads-types.ts";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 
-type KernelSectionProps = { actions: WorkbenchActions; sessionRow: SessionRow };
+type KernelSectionProps = { actions: WorkbenchActions; sessionRow: SelectedRow };
 
 export function KernelSection({ actions, sessionRow }: KernelSectionProps) {
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
-  const live = useWorkbench((state: WorkbenchReads) => state.selectedSessionId === sessionRow.sessionId);
-  const liveState: SessionRow["state"] | undefined = useWorkbench((state: WorkbenchReads) => state.session.snapshot?.state);
-  const liveKernel: KernelSnapshot | undefined = useWorkbench((state: WorkbenchReads) => state.session.snapshot?.kernel);
+  const live = useWorkbench((state: WorkbenchState) => state.selectedSessionId === sessionRow.sessionId);
+  const liveState = useWorkbench((state: WorkbenchState) => state.session.snapshot?.state);
+  const liveKernel: KernelSnapshot | undefined = useWorkbench((state: WorkbenchState) => state.session.snapshot?.kernel);
   const kernel = live ? liveKernel ?? sessionRow.kernel : sessionRow.kernel;
   const memory = kernelMemory(kernel?.memory);
   const sessionState = live ? liveState ?? sessionRow.state : sessionRow.state;
   const maintainable = sessionState === "idle" && kernel?.state === "idle" && kernel.connectionStatus === "connected";
   const stopTarget = useStopTarget();
-  const connected = useWorkbench((state: WorkbenchReads) => state.session.connection === "connected" && !state.session.pending.has("stopping"));
+  const connected = useWorkbench((state: WorkbenchState) => state.session.connection === "connected" && !state.session.pending.has("stopping"));
   const running = live && connected && Boolean(stopTarget);
   const act = async (name: string, run: () => Promise<unknown>) => {
     setBusy(name);

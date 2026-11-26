@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { ActionIcon, Flex, Group, Stack, Text, Title, Tooltip, VisuallyHidden } from "@mantine/core";
 import { IconLayoutSidebarRight, IconMenu2, IconMoon, IconSun } from "@tabler/icons-react";
-import type { ManagedSessionSnapshot } from "../../../../src/gateway/wire/web-types.ts";
 import type { WorkbenchState } from "../page-types.ts";
 import { AnsiText } from "../../../chat/ansi/AnsiText.jsx";
 import { label } from "../../../sessions/details/status-label.js";
@@ -10,10 +9,11 @@ import StatusDot from "../../../design-system/status-dot/StatusDot.tsx";
 import MonitorButton from "../../../monitor/button/MonitorButton.jsx";
 import { useWorkbench } from "../../../workbench/subscription/use-workbench.js";
 import { useThemeToggle } from "../../../design-system/theme/use-theme-toggle.ts";
+import type { SelectedRow } from "../../../workbench/store/store-types.ts";
 
 type TopbarProps = {
   mobile: boolean;
-  sessionRow: ManagedSessionSnapshot | undefined;
+  sessionRow: SelectedRow | undefined;
   status: string | undefined;
   place: string;
   sidebarOpen: boolean;

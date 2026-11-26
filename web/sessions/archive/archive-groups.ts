@@ -1,5 +1,5 @@
 import type { ArchiveGroup } from "../../../src/gateway/wire/web-types.ts";
-import type { UnreadableIssue } from "../session-row-types.ts";
+import type { UnreadableSession } from "../../workbench/payloads/payload-types.ts";
 import type { UnreadableItem } from "../sidebar/sidebar-types.ts";
 import { unreadableItem } from "../unreadable/unreadable-item.ts";
 
@@ -7,7 +7,7 @@ import { unreadableItem } from "../unreadable/unreadable-item.ts";
 export type ArchiveGroupView = Omit<ArchiveGroup, "label"> & { unreadable: UnreadableItem[] };
 
 /** Archive groups for the list: the Gateway's groups, each with the unreadable sessions archived in it; a group that holds only unreadable sessions is built from them. Only issues located in the archive belong here. */
-export function archiveGroups(archive: readonly ArchiveGroup[], issues: readonly UnreadableIssue[]): ArchiveGroupView[] {
+export function archiveGroups(archive: readonly ArchiveGroup[], issues: readonly UnreadableSession[]): ArchiveGroupView[] {
   const groups: ArchiveGroupView[] = archive.map((group) => ({ ...group, unreadable: [] }));
   for (const issue of issues) {
     if (issue.location !== "archived" || !issue.archived) continue;

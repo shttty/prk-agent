@@ -8,5 +8,6 @@ export async function getTarget(ctx: StoreContext, id: string): Promise<Editable
   const body = await getJson(`${ctx.apiRoot}/targets/${encodeURIComponent(id)}`);
   const target = isRecord(body) && isRecord(body.target) ? body.target : body;
   if (!isRecord(target) || safeText(target.id) !== id) throw new Error("服务未返回匹配的实例配置。");
+  // External input boundary: the Gateway's instance config; its id was checked above.
   return target as unknown as EditableExecutionTarget;
 }

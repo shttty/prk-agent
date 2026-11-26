@@ -2,11 +2,11 @@ import StatusDot from "../../design-system/status-dot/StatusDot.tsx";
 import { RunTime } from "../../sessions/children/RunTime.tsx";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import type { PublicExecutionTarget } from "../../../src/gateway/wire/web-types.ts";
-import type { SessionRows } from "../../sessions/session-row-types.ts";
+import type { SessionRows } from "../../workbench/store/store-types.ts";
 import { childSessions } from "../readings/child-sessions.ts";
 import { childrenSummary } from "../readings/children-summary.ts";
 import { FoldSection } from "./FoldSection.tsx";
-import type { WorkbenchReads } from "../../sessions/workbench-reads-types.ts";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 
 type ChildrenSectionProps = { sessionId: string; now: number; onSelect?: (sessionId: string) => void };
 
@@ -14,8 +14,8 @@ type ChildrenSectionProps = { sessionId: string; now: number; onSelect?: (sessio
  * carries `startedAt`, how long it has run (total once delivered, with `finishedAt`). A click selects the child.
  * The heading counts them by state in one muted line, folded or open. */
 export function ChildrenSection({ sessionId, now, onSelect }: ChildrenSectionProps) {
-  const sessions: SessionRows = useWorkbench((state: WorkbenchReads) => state.sessions);
-  const targets: PublicExecutionTarget[] = useWorkbench((state: WorkbenchReads) => state.targets);
+  const sessions: SessionRows = useWorkbench((state: WorkbenchState) => state.sessions);
+  const targets: PublicExecutionTarget[] = useWorkbench((state: WorkbenchState) => state.targets);
   const children = childSessions(sessions, sessionId, targets);
   if (!children.length) return null;
   const { counts, text } = childrenSummary(children);

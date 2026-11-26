@@ -8,5 +8,6 @@ export async function inspectTarget(ctx: StoreContext, connection: TargetConnect
   const result = await postJson(`${ctx.apiRoot}/targets/inspect`, { connection });
   if (!isRecord(result) || typeof result.hostname !== "string" || !Array.isArray(result.pythonCandidates)
     || (connection.python !== undefined && (!isRecord(result.python) || typeof result.python.version !== "string"))) throw new Error("服务未返回有效的验证结果。");
+  // External input boundary: the Gateway's verification result; hostname and interpreter fields were checked above.
   return result as unknown as InspectTargetResult;
 }

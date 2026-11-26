@@ -7,14 +7,14 @@ import { FormError } from "../../design-system/form-error/FormError.tsx";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import { SessionTree } from "../dialogs/SessionTree.tsx";
 import { sessionKindLabel } from "../dialogs/session-kind-label.ts";
-import type { SessionRows, UnreadableIssue } from "../session-row-types.ts";
+import type { SessionRows } from "../../workbench/store/store-types.ts";
+import type { UnreadableSession } from "../../workbench/payloads/payload-types.ts";
 import { instanceGroups } from "../sidebar/grouping/instance-groups.ts";
 import { projectGroups } from "../sidebar/grouping/project-groups.ts";
 import { targetMap } from "../sidebar/grouping/target-map.ts";
 import { sessionTargetLabel } from "../sidebar/labels/session-target-label.ts";
-import { useWorkbenchSnapshot } from "../use-workbench-snapshot.ts";
+import { useWorkbenchStore } from "../../workbench/subscription/use-workbench-store.ts";
 import type { WorkbenchActions } from "../workbench-actions-types.ts";
-import type { WorkbenchReads } from "../workbench-reads-types.ts";
 import { ArchiveUnreadableRow } from "../unreadable/ArchiveUnreadableRow.tsx";
 import { UnreadableReason } from "../unreadable/UnreadableReason.tsx";
 import { archiveGroups, type ArchiveGroupView } from "./archive-groups.ts";
@@ -22,19 +22,20 @@ import { formatArchiveTime } from "./format-archive-time.ts";
 import "../sidebar/group-header.css";
 import "../sidebar/badges.css";
 import "./archive.css";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 
 type ArchiveDialogProps = { actions: WorkbenchActions; onViewHistory?: () => void };
 type ViewMode = "instances" | "projects";
 
 export function ArchiveDialog({ actions, onViewHistory }: ArchiveDialogProps) {
-  const snapshot = useWorkbenchSnapshot();
-  const targetList: PublicExecutionTarget[] = useWorkbench((state: WorkbenchReads) => state.targets);
-  const sessions: SessionRows = useWorkbench((state: WorkbenchReads) => state.sessions);
-  const archive: ArchiveGroup[] = useWorkbench((state: WorkbenchReads) => state.archive);
-  const unreadableSessions: UnreadableIssue[] = useWorkbench((state: WorkbenchReads) => state.unreadableSessions);
-  const mutating = useWorkbench((state: WorkbenchReads) => state.pending.has("archiveMutating"));
+  const store = useWorkbenchStore();
+  const targetList: PublicExecutionTarget[] = useWorkbench((state: WorkbenchState) => state.targets);
+  const sessions: SessionRows = useWorkbench((state: WorkbenchState) => state.sessions);
+  const archive: ArchiveGroup[] = useWorkbench((state: WorkbenchState) => state.archive);
+  const unreadableSessions: UnreadableSession[] = useWorkbench((state: WorkbenchState) => state.unreadableSessions);
+  const mutating = useWorkbench((state: WorkbenchState) => state.pending.has("archiveMutating"));
   // Starts in the sidebar's view, then switches on its own.
-  const [viewMode, setViewMode] = useState<ViewMode>(() => snapshot().viewMode);
+  const [viewMode, setViewMode] = useState<ViewMode>(() => store.getSnapshot().viewMode);
   const [filter, setFilter] = useState("");
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const [confirming, setConfirming] = useState<string | null>(null);

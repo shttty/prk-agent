@@ -4,7 +4,7 @@ import { executeNativeAction } from "./execute-native-action.ts";
 import { setDraft } from "../drafts/set-draft.ts";
 import { sendMessage } from "../messages/send-message.ts";
 
-export async function rerunMessage(ctx: StoreContext, message: NativeMessageRef, { mode, destination }: { mode: "retry" | "edit"; destination?: "new" }): Promise<boolean> {
+export async function rerunMessage(ctx: StoreContext, message: NativeMessageRef, { mode, destination }: { mode: "retry" | "edit"; destination?: "new" | "here" }): Promise<boolean> {
   const custom = message.metadata?.custom;
   if (ctx.state.session.pending.has("nativeActionPending") || message.role !== "user" || !custom?.entryId || typeof custom.rerunText !== "string"
     || custom.entrySessionId !== ctx.state.selectedSessionId) return false;

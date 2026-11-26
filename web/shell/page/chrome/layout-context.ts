@@ -1,8 +1,8 @@
 
-import type { ManagedSessionSnapshot } from "../../../../src/gateway/wire/web-types.ts";
 import type { LayoutCodeContext } from "../../layout/layout-types.ts";
+import type { SelectedRow } from "../../../workbench/store/store-types.ts";
 
-export const layoutContext = (mobile: boolean, sessionRow: ManagedSessionSnapshot | undefined, closed: boolean, status: string | undefined, filesOpen: boolean): LayoutCodeContext => ({
+export const layoutContext = (mobile: boolean, sessionRow: SelectedRow | undefined, closed: boolean, status: string | undefined, filesOpen: boolean): LayoutCodeContext => ({
     viewport: { width: window.innerWidth, height: window.innerHeight },
     devicePixelRatio: window.devicePixelRatio,
     breakpoint: mobile ? "phone" : "desktop",

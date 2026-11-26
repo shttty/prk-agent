@@ -1,5 +1,5 @@
 import type { PublicExecutionTarget } from "../../../src/gateway/wire/web-types.ts";
-import type { SessionRows } from "../../sessions/session-row-types.ts";
+import type { SessionRows } from "../../workbench/store/store-types.ts";
 import { rowState, type RowState } from "../../sessions/sidebar/labels/row-state.ts";
 
 export type ChildSession = { sessionId: string; label: string; place: string; state: RowState; startedAt?: number; finishedAt?: number };

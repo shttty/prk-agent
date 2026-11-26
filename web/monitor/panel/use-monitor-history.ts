@@ -38,13 +38,13 @@ export default function useMonitorHistory(actions: WorkbenchActions, sessionId: 
     const beat = async () => {
       let next = 10000;
       try {
-        const reply = await actions.api.post(`${path}/focus`, { open: true });
+        const reply = await actions.api.post<{ leaseMs: number }>(`${path}/focus`, { open: true });
         next = Math.max(1, Math.floor(reply.leaseMs / 3));
       } catch { /* the next heartbeat retries */ }
       if (live) timer = setTimeout(() => void beat(), next);
     };
     setError("");
-    actions.api.get(`${path}/history`).then((reply: MonitorHistory) => {
+    actions.api.get<MonitorHistory>(`${path}/history`).then((reply) => {
       if (!live) return;
       ingest(reply);
       void beat();

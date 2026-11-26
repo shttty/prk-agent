@@ -1,5 +1,5 @@
 import LeaveList from "../../design-system/motion/LeaveList.tsx";
-import { useChatState } from "../thread/use-chat-state.ts";
+import { useWorkbench } from "../../workbench/subscription/use-workbench.ts";
 import { useState } from "react";
 import { useEffectEvent } from "react";
 import { useEffect } from "react";
@@ -24,8 +24,8 @@ const findThread = () => document.querySelector<HTMLElement>(".pi-thread");
 
 /** Plugin `notify` warning/error as toasts over the top of the transcript: notices of this session raised within TOAST_MS. */
 export function ExtensionToasts() {
-  const sessionId = useChatState((state) => state.session.snapshot?.sessionId);
-  const notifications = useChatState((state) => state.session.extensionUi?.notifications);
+  const sessionId = useWorkbench((state) => state.session.snapshot?.sessionId);
+  const notifications = useWorkbench((state) => state.session.extensionUi?.notifications);
   const [now, setNow] = useState(() => Date.now());
   const [dismissed, setDismissed] = useState(() => new Set());
   const toasts = (notifications || []).filter((notice): notice is typeof notice & { type: ToastType } => isToastType(notice.type) && notice.sessionId === sessionId && !dismissed.has(notice.id) && now - new Date(notice.createdAt).getTime() < TOAST_MS[notice.type]);

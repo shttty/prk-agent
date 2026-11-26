@@ -1,4 +1,4 @@
-import type { SessionRows } from "../../session-row-types.ts";
+import type { SessionRows } from "../../../workbench/store/store-types.ts";
 import type { SidebarItem } from "../sidebar-types.ts";
 
 /** Current manager of a derived session, when that manager is visible. */

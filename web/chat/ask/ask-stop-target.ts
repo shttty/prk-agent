@@ -1,7 +1,7 @@
+import type { StopTarget } from "../../workbench/store/messages/message-types.ts";
 import type { AskPrompt } from "./ask-types.ts";
 
 type CellRef = { kernelId: string; cellId: string };
-export type StopTarget = { sessionId: string; streamId?: string | null; operationId?: string; cellOnly?: boolean; cell?: CellRef };
 
 /** Stop target of an ask card. An ask raised by a yielded cell stops only that cell (`cellOnly`); a foreground ask
  * stops the turn and names its own cell instead of a guessed one. */

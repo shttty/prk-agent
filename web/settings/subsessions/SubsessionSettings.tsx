@@ -44,7 +44,7 @@ export default function SubsessionSettings({ actions }: { actions: PageActions; 
   const [draft, setDraft] = useState(() => draftFromDerivation(null, FALLBACK_DEFAULTS));
   const [roles, setRoles] = useState<Record<string, RoleConfig>>({});
   // Only the initial list: the page loads its own catalog below.
-  const [models, setModels] = useState<ModelOption[]>(() => initialModels || []);
+  const [models, setModels] = useState<readonly ModelOption[]>(() => initialModels || []);
   const [catalog, setCatalog] = useState<CapabilityCatalog | null>(null);
   const [editor, setEditor] = useState<RoleEditorState | null>(null);
   const [loading, setLoading] = useState(true);
@@ -69,10 +69,10 @@ export default function SubsessionSettings({ actions }: { actions: PageActions; 
     setLoading(true);
     setError("");
     Promise.all([
-      actions.api.get("/derivation"),
-      actions.api.get("/models").catch(() => null),
-      actions.api.get("/capabilities").catch(() => null),
-    ]).then(([derivationRes, modelsRes, capabilitiesRes]: [DerivationReply, { models?: ModelOption[] } | null, { catalog?: CapabilityCatalog } | null]) => {
+      actions.api.get<DerivationReply>("/derivation"),
+      actions.api.get<{ models?: ModelOption[] }>("/models").catch(() => null),
+      actions.api.get<{ catalog?: CapabilityCatalog }>("/capabilities").catch(() => null),
+    ]).then(([derivationRes, modelsRes, capabilitiesRes]) => {
       if (current !== generation.current) return;
       applyResponse(derivationRes);
       setWaiting(false);

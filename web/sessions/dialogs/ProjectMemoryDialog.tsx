@@ -10,19 +10,12 @@ import type { WorkbenchActions } from "../workbench-actions-types.ts";
 import "../../settings/memory/memory.css";
 
 /** One project's memory file, edited through the same listing and change API as the global memory page. */
-/** The part of the memory listing this dialog reads (`useMemoryListing` in settings/memory). */
-type MemoryListing = {
-  error?: string;
-  layers: { name: string; scope: string; capacityCharacters: number; soft: boolean }[];
-  memories: { target: string; project?: string }[];
-};
-
 type ProjectMemoryDialogProps = { actions: WorkbenchActions; project: ProjectPayload };
 
 export function ProjectMemoryDialog({ actions, project }: ProjectMemoryDialogProps) {
   const memory = useMemoryListing(actions.api);
   const { busy, error } = memory;
-  const listing: MemoryListing = memory.listing;
+  const { listing } = memory;
   const layer = listing.layers.find((item) => item.scope === "project");
   // A project registers its record when first assigned; until the listing knows it, its file is simply empty.
   const document = layer && (listing.memories.find((item) => item.target === layer.name && item.project === project.id)

@@ -5,7 +5,8 @@ import { toolPart } from "../tools/tool-part.ts";
 import { startedAtValue } from "../tools/started-at-value.ts";
 import { thinkingPart } from "../messages/thinking-part.ts";
 import { hiddenThinkingLabel } from "../messages/hidden-thinking-label.ts";
-import type { ConversationState, MessagePart, MessageStatus, StreamSegment, ToolRecord, TranscriptMessage } from "../conversation-types.ts";
+import type { StreamSegment } from "../../../workbench/store/store-types.ts";
+import type { ConversationState, MessagePart, MessageStatus, ToolRecord, TranscriptMessage } from "../conversation-types.ts";
 
 type OperationTurn = { segments: StreamSegment[]; tools: { key: string; record: ToolRecord }[] };
 

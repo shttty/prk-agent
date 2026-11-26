@@ -7,6 +7,7 @@ export function normalizeSnapshot(value: unknown): NormalizedSnapshot | null {
   if (!isRecord(value) || typeof value.sessionId !== "string" || typeof value.streamId !== "string" || !value.streamId
     || typeof value.sequence !== "number" || !Number.isSafeInteger(value.sequence) || typeof value.state !== "string"
     || !Array.isArray(value.messages)) return null;
+  // External input boundary: identity, sequence, state and messages were checked above; the rest is taken as sent.
   const snapshot = value as unknown as SessionHostSnapshot;
   return { ...snapshot, recentOperations: snapshot.recentOperations ?? [] };
 }

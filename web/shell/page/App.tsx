@@ -46,6 +46,7 @@ import { Notification } from "@mantine/core";
 import { Loader } from "@mantine/core";
 import { Text } from "@mantine/core";
 import { AppDialogs } from "./dialogs/AppDialogs.tsx";
+import { selectedListedRow } from "../../workbench/payloads/selected-listed-row.ts";
 import { findSessionRow } from "../../workbench/payloads/find-session-row.js";
 export const WorkspacePane = lazy(() => import("../../workspace/pane/WorkspacePane.tsx"));
 // Desktop: chat and workspace share one dockview grid (dockview, the panels' code) loaded with the first session.
@@ -56,12 +57,12 @@ export const MonitorPanel = lazy(() => import("../../monitor/panel/MonitorPanel.
 export default function App({ store }: { store: PageStore }) {
   const selectedSessionId = useWorkbench((state: WorkbenchState) => state.selectedSessionId);
   const sessionRow = useWorkbench((state: WorkbenchState) => findSessionRow(state, state.selectedSessionId));
-  const status = useWorkbench((state: WorkbenchState) => state.session.snapshot?.state || state.sessions.get(state.selectedSessionId)?.state);
+  const status = useWorkbench((state: WorkbenchState) => state.session.snapshot?.state || selectedListedRow(state)?.state);
   const recovering = useWorkbench((state: WorkbenchState) => state.session.pending.has("recovering"));
   const notice = useWorkbench((state: WorkbenchState) => state.session.notice);
   const service = useWorkbench((state: WorkbenchState) => state.service);
   const hasTargets = useWorkbench((state: WorkbenchState) => state.targets.length > 0);
-  const targetLabel = useWorkbench((state: WorkbenchState) => state.targets.find((target: PublicExecutionTarget) => target.id === state.sessions.get(state.selectedSessionId)?.target)?.label);
+  const targetLabel = useWorkbench((state: WorkbenchState) => state.targets.find((target: PublicExecutionTarget) => target.id === selectedListedRow(state)?.target)?.label);
   const terminalRefreshKey = useWorkbench((state: WorkbenchState) => `${state.session.streamId || ""}:${state.session.terminalRefreshKey}`);
   const actions = store.actions;
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -93,13 +94,13 @@ export default function App({ store }: { store: PageStore }) {
   // the modal itself stays mounted so closing returns focus to whatever opened the first dialog.
   const [dialogSerial, setDialogSerial] = useState(0);
   const collapseSessionBar = useCallback((event: MouseEvent<HTMLElement>) => { layout.set({ sessionOpen: false }); handFocus(event, "expand-session-sidebar"); }, []);
-  const activeSessionId = useWorkbench((state: WorkbenchState) => state.sessions.has(state.selectedSessionId) ? state.selectedSessionId : null);
+  const activeSessionId = useWorkbench((state: WorkbenchState) => state.selectedSessionId && state.sessions.has(state.selectedSessionId) ? state.selectedSessionId : null);
   const closed = status === "closed" || sessionRow?.state === "closed";
   // No runtime and its last start failed; the next message tries again.
   const unavailable = Boolean(sessionRow && (status === "unavailable" || sessionRow.state === "unavailable"));
   // Every session has a Jupyter workspace; terminals additionally need a live runtime.
   const workspaceSessionId = activeSessionId;
-  const terminalSessionId = workspaceSessionId && !closed && !unavailable && status !== "closed" ? workspaceSessionId : null;
+  const terminalSessionId = workspaceSessionId && !closed && !unavailable ? workspaceSessionId : null;
   const workspaceAvailable = Boolean(workspaceSessionId || terminalSessionId);
   useTerminalShortcut({ enabled: workspaceAvailable });
   useEffect(() => { if (workspaceOpen && workspaceSessionId) setSeenWorkspace(workspaceSessionId); }, [workspaceOpen, workspaceSessionId]);
@@ -157,7 +158,7 @@ export default function App({ store }: { store: PageStore }) {
   const { monitorNarrow, monitorUnfolded, toggleMonitor } = useMonitorFold({ mobile, fit: mobile ? null : { chat: chatWidth }, chrome, monitorPeek, sessionRow, monitorSheet, sidebarOpen, setMonitorPeek, workspaceOpen: workspaceShown, setMonitorSheet });
   const monitorPlace = !sessionRow ? "" : targetLabel || sessionRow.target || "";
   // Keyed per session: its chart history (samples received while shown) starts over for another session.
-  const monitorPanel = monitorUnfolded ? <Suspense fallback={null}><MonitorPanel key={sessionRow.sessionId} actions={actions} sessionRow={sessionRow} mobile={mobile} place={monitorPlace} onOpenDiff={openMonitorDiff} onSelectSession={selectMonitorChild} /></Suspense> : null;
+  const monitorPanel = monitorUnfolded && sessionRow ? <Suspense fallback={null}><MonitorPanel key={sessionRow.sessionId} actions={actions} sessionRow={sessionRow} mobile={mobile} place={monitorPlace} onOpenDiff={openMonitorDiff} onSelectSession={selectMonitorChild} /></Suspense> : null;
   const onEditorOpen = useCallback((open: boolean) => setEditorOpen({ sessionId: workspaceSessionId, open }), [workspaceSessionId]);
   const resetLayout = useCallback(() => resetPageLayout(workspaceSessionId, seenWorkspace === workspaceSessionId), [workspaceSessionId, seenWorkspace]);
   const layoutContext = useCallback(() => pageLayoutContext(mobile, sessionRow, closed, status, filesOpen), [mobile, sessionRow, closed, status, filesOpen]);
@@ -183,8 +184,8 @@ export default function App({ store }: { store: PageStore }) {
       {sessionRow ? <div className="chat-container">{mobile && monitorPanel}<div className="pi-stage">
         {mobile ? <div className="pi-columns">
           {chatColumn}
-          {workspaceSessionId && seenWorkspace === workspaceSessionId ? <Suspense fallback={null}><WorkspacePane key={workspaceSessionId} api={actions.api} sessionId={workspaceSessionId} target={sessionRow.target} cwd={sessionRow.cwd} hidden={!workspaceOpen} controls={workspaceOpen ? closeWorkspace : null} place={monitorPlace} refreshKey={terminalRefreshKey} terminalEnabled={Boolean(terminalSessionId)} onEditorOpen={onEditorOpen} diffRequest={diffRequest} onDiffServed={clearDiffRequest} terminalRequest={terminalRequest} onTerminalServed={clearTerminalRequest} onQuote={quoteToComposer} /></Suspense> : null}
-        </div> : <Suspense fallback={null}><DesktopStage key={workspaceSessionId} api={actions.api} sessionId={workspaceSessionId} target={sessionRow.target} cwd={sessionRow.cwd} place={monitorPlace} refreshKey={terminalRefreshKey}
+          {workspaceSessionId && seenWorkspace === workspaceSessionId ? <Suspense fallback={null}><WorkspacePane key={workspaceSessionId} api={actions.api} sessionId={workspaceSessionId} target={sessionRow.target ?? ""} cwd={sessionRow.cwd ?? ""} hidden={!workspaceOpen} controls={workspaceOpen ? closeWorkspace : null} place={monitorPlace} refreshKey={terminalRefreshKey} terminalEnabled={Boolean(terminalSessionId)} onEditorOpen={onEditorOpen} diffRequest={diffRequest} onDiffServed={clearDiffRequest} terminalRequest={terminalRequest} onTerminalServed={clearTerminalRequest} onQuote={quoteToComposer} /></Suspense> : null}
+        </div> : <Suspense fallback={null}><DesktopStage key={workspaceSessionId} api={actions.api} sessionId={workspaceSessionId ?? ""} target={sessionRow.target ?? ""} cwd={sessionRow.cwd ?? ""} place={monitorPlace} refreshKey={terminalRefreshKey}
           terminalEnabled={Boolean(terminalSessionId)} workspaceAvailable={workspaceAvailable} recoverButton={recoverButton} chat={chatColumn} onShape={setStageShape} onEditorOpen={onEditorOpen} diffRequest={diffRequest} onDiffServed={clearDiffRequest} terminalRequest={terminalRequest} onTerminalServed={clearTerminalRequest} onQuote={quoteToComposer} /></Suspense>}
       </div></div> : <section className="empty-view" id="empty-view">
         {banners}

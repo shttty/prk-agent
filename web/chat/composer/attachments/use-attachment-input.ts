@@ -4,9 +4,9 @@ import { useCallback } from "react";
 import type { ChangeEvent } from "react";
 import { addAttachments } from "./add-attachments.ts";
 import { attachmentAccept } from "./attachment-accept.ts";
-import type { AttachmentLimits, ChatAttachment } from "../composer-types.ts";
+import type { AttachmentLimits, StoredAttachment } from "../composer-types.ts";
 
-type AttachmentInput = { attachments: ChatAttachment[]; onChange: (attachments: ChatAttachment[]) => void; limits: AttachmentLimits | undefined };
+type AttachmentInput = { attachments: StoredAttachment[]; onChange: (attachments: StoredAttachment[]) => void; limits: AttachmentLimits | undefined };
 
 /**
  * `attachments` is the list this field owns and `onChange` receives its next value. Returns `add(files, replaceAt)`

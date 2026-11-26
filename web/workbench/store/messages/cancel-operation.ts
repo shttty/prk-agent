@@ -16,7 +16,7 @@ import { setNotice } from "../notices/set-notice.ts";
 import { cellStopKey } from "./cell-stop-key.ts";
 
 /** Stop the selected session's turn and/or a live cell; resolves true when the Gateway took the request. */
-export async function cancelOperation(ctx: StoreContext, target?: StopTarget, askId?: string): Promise<boolean> {
+export async function cancelOperation(ctx: StoreContext, target?: StopTarget | null, askId?: string): Promise<boolean> {
   const { state } = ctx;
   const name = state.selectedSessionId;
   const pendingKey = target?.cellOnly && target.cell ? cellStopKey(target.cell) : "stopping";

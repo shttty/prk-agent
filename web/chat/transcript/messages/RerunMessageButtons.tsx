@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ActionIcon } from "@mantine/core";
 import { IconPencil } from "@tabler/icons-react";
 import { IconRefresh } from "@tabler/icons-react";
-import { useChatState } from "../../thread/use-chat-state.ts";
+import { useWorkbench } from "../../../workbench/subscription/use-workbench.ts";
 import { RERUN_LABELS, RerunDialog } from "./RerunDialog.tsx";
 import type { RerunRequest } from "./RerunDialog.tsx";
 import type { MessageCustom } from "../../conversation/conversation-types.ts";
@@ -11,9 +11,9 @@ import type { ChatActions } from "../../thread/chat-actions-types.ts";
 type RerunMessageButtonsProps = { message: { role: string; metadata: { custom: MessageCustom } }; actions: ChatActions; onError: (text: string) => void };
 
 export function RerunMessageButtons({ message, actions, onError }: RerunMessageButtonsProps) {
-  const hostState = useChatState((state) => state.session.snapshot?.state);
-  const connected = useChatState((state) => state.session.connection === "connected");
-  const nativePending = useChatState((state) => state.session.pending.has("nativeActionPending"));
+  const hostState = useWorkbench((state) => state.session.snapshot?.state);
+  const connected = useWorkbench((state) => state.session.connection === "connected");
+  const nativePending = useWorkbench((state) => state.session.pending.has("nativeActionPending"));
   const [retrying, setRetrying] = useState(false);
   const [rerun, setRerun] = useState<RerunRequest | null>(null);
   const [dialogMounted, setDialogMounted] = useState(false);

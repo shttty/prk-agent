@@ -27,7 +27,7 @@ import { useTicker } from "./use-ticker.ts";
 import { TOOL_STATE_ICONS } from "./tool-call-constants.ts";
 import { toolTitle } from "./tool-title.ts";
 import { peerSendSummary } from "./peer-send-summary.ts";
-import { useChatState } from "../../thread/use-chat-state.ts";
+import { useWorkbench } from "../../../workbench/subscription/use-workbench.ts";
 import type { ToolRowProps } from "./tool-row-types.ts";
 import { isPayload } from "../../payload/is-payload.ts";
 import { KernelCellBody } from "./kernel-cell/KernelCellBody.tsx";
@@ -67,7 +67,7 @@ export function ToolRow({ toolCallId, toolName, title, argsText, result, artifac
   const diff = kind === "edit" ? details?.diff : undefined;
   const parsedDiff = useMemo(() => (typeof diff === "string" ? parseDiff(diff) : null), [diff]);
   // Only session_send rows name a session; others do not subscribe to the session list.
-  const sessions = useChatState((state) => (toolName === "session_send" ? state.sessions : null));
+  const sessions = useWorkbench((state) => (toolName === "session_send" ? state.sessions : null));
   // The call title heads the row; only a file path stays beside it, since the body does not repeat it.
   const summaryLine = title ? (FILE_TOOLS.has(kind) ? toolHeadline(kind, toolArgs, code) : "") : peerSendSummary(toolName, code, sessions) ?? toolHeadline(kind, toolArgs, code);
   // A default-shell plugin renderCall is the collapsed header (like Pi's own tool row) unless a call title heads the row; a renderer error falls back to name + args.

@@ -1,5 +1,6 @@
 import type { PublicExecutionTarget, SessionControl } from "../../../src/gateway/wire/web-types.ts";
-import type { SessionRow, SessionRows, UnreadableIssue } from "../session-row-types.ts";
+import type { SessionRow, SessionRows } from "../../workbench/store/store-types.ts";
+import type { UnreadableSession } from "../../workbench/payloads/payload-types.ts";
 
 /** A row of an unreadable session, shaped for grouping; the optional fields stay empty so it reads like a `SessionRow`. */
 export type UnreadableItem = {
@@ -8,7 +9,7 @@ export type UnreadableItem = {
   label: string;
   target: string;
   state: "unreadable";
-  unreadable: UnreadableIssue;
+  unreadable: UnreadableSession;
   projectId?: undefined;
   projectName?: undefined;
   projectCreated?: undefined;

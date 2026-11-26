@@ -9,5 +9,6 @@ export async function archiveProjectPreview(ctx: StoreContext, projectId: string
   if (!isRecord(body) || body.projectId !== projectId || !Array.isArray(body.sessions) || !Array.isArray(body.retained)) {
     throw new Error("服务未返回有效的项目归档预览。");
   }
+  // External input boundary: the Gateway's preview; project and lists were checked above.
   return body as unknown as ProjectArchivePreview;
 }

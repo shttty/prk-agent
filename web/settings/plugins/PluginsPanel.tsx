@@ -48,14 +48,14 @@ export default function PluginsPanel({ actions, gatewayRestartUnit, mobile, onOp
   useEffect(() => {
     const current = ++generation.current;
     setData(null); setBusy(true); setFailure(null);
-    actions.api.get("/plugins").then((result: PluginListData) => {
+    actions.api.get<PluginListData>("/plugins").then((result) => {
       if (current === generation.current) { setData(result); setWaiting(false); }
     }).catch((cause: unknown) => {
       if (current !== generation.current) return;
       if (isConnectionFailure(cause)) setWaiting(true);
       else setFailure({ source: null, ...toFailure(cause) });
     }).finally(() => { if (current === generation.current) setBusy(false); });
-    actions.api.get("/capabilities").then((result: { catalog: PluginCatalog }) => { if (current === generation.current) setCatalog(result.catalog); }).catch(() => {});
+    actions.api.get<{ catalog: PluginCatalog }>("/capabilities").then((result) => { if (current === generation.current) setCatalog(result.catalog); }).catch(() => {});
     return () => { generation.current = current + 1; };
   }, [actions, attempt]);
 
@@ -63,7 +63,7 @@ export default function PluginsPanel({ actions, gatewayRestartUnit, mobile, onOp
     const current = generation.current;
     setBusy(true); setFailure(null);
     try {
-      const result: PluginListData = await actions.api.post(path, payload);
+      const result = await actions.api.post<PluginListData>(path, payload);
       if (current !== generation.current) return;
       setData(result); after?.();
     } catch (cause) {

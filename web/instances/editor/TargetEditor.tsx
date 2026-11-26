@@ -4,8 +4,7 @@ import type { EditableExecutionTarget } from "../../../src/gateway/wire/web-type
 import InlineAlert from "../../design-system/inline-alert/InlineAlert.tsx";
 import { makeId } from "../../sessions/dialogs/make-id.ts";
 import type { WorkbenchActions } from "../../sessions/workbench-actions-types.ts";
-import { useWorkbenchSnapshot } from "../../sessions/use-workbench-snapshot.ts";
-import type { WorkbenchReads } from "../../sessions/workbench-reads-types.ts";
+import { useWorkbenchStore } from "../../workbench/subscription/use-workbench-store.ts";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import { ConfigurationIssueNotice } from "../configuration-issue/ConfigurationIssueNotice.tsx";
 import { browseDirectory } from "../directory-picker/browse-directory.ts";
@@ -23,6 +22,7 @@ import { pickerStartDirectory } from "./picker-start-directory.ts";
 import { saveBlocker } from "./save-blocker.ts";
 import { targetPayload } from "./target-payload.ts";
 import { useDraftInspection } from "./use-draft-inspection.ts";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 
 // A complete connection starts deployment, using an explicit Python or its managed environment (docs/wire/targets.md).
 const DEPLOYING = new Set(["checking", "transferring", "failed"]);
@@ -46,10 +46,10 @@ function LoadFailure({ failure, onClose }: { failure: ConfigLoadFailure; onClose
 type TargetFormProps = { actions: WorkbenchActions; existingId: string | null; initialConfig: EditableExecutionTarget | null; onClose: () => void };
 
 function TargetForm({ actions, existingId, initialConfig, onClose }: TargetFormProps) {
-  const snapshot = useWorkbenchSnapshot();
-  const sessionError: string | null = useWorkbench((state: WorkbenchReads) => state.session.error);
-  const mutating = useWorkbench((state: WorkbenchReads) => state.pending.has("targetMutating"));
-  const issue = useWorkbench((state: WorkbenchReads) => existingId ? state.targets.find((item) => item.id === existingId)?.configurationIssue : undefined);
+  const store = useWorkbenchStore();
+  const sessionError: string | null = useWorkbench((state: WorkbenchState) => state.session.error);
+  const mutating = useWorkbench((state: WorkbenchState) => state.pending.has("targetMutating"));
+  const issue = useWorkbench((state: WorkbenchState) => existingId ? state.targets.find((item) => item.id === existingId)?.configurationIssue : undefined);
   const [form, setForm] = useState<DraftForm>(() => {
     const label = initialConfig?.label.trim() ?? "";
     return {
@@ -115,9 +115,9 @@ function TargetForm({ actions, existingId, initialConfig, onClose }: TargetFormP
     setError({});
     actions.saveTarget(target, existingId || null).then((result: unknown) => {
       if (!mountedRef.current) return;
-      if (result !== true) return setError(result instanceof Error ? targetError(result) : { text: snapshot().session.error || "" });
+      if (result !== true) return setError(result instanceof Error ? targetError(result) : { text: store.getSnapshot().session.error || "" });
       const id = existingId || target.id;
-      const saved = snapshot().targets.find((item) => item.id === id);
+      const saved = store.getSnapshot().targets.find((item) => item.id === id);
       const held = saved?.environment;
       // The Gateway deploys on a save that completes or changes the connection/interpreter (docs/wire/targets.md,
       // 实例环境下发); its save answer may still predate that task, so the editor decides from what it saved and

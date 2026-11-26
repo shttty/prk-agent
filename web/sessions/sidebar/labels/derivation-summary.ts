@@ -1,4 +1,4 @@
-import type { SessionRow, SessionRows } from "../../session-row-types.ts";
+import type { SessionRow, SessionRows } from "../../../workbench/store/store-types.ts";
 import { sessionLabelById } from "./session-label-by-id.ts";
 
 export function derivationSummary(sessionRow: SessionRow, sessions: SessionRows): string {

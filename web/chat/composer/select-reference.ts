@@ -1,12 +1,12 @@
 import { safeText } from "../../workbench/payloads/safe-text.js";
 import type { ChatActions } from "../thread/chat-actions-types.ts";
-import type { ChatReference, ReferenceCandidateView, Setter } from "./composer-types.ts";
+import type { StoredReference, ReferenceCandidateView, Setter } from "./composer-types.ts";
 import { replaceReferenceToken } from "./references/replace-reference-token.ts";
 import { referenceAvailable } from "./references/reference-available.ts";
 
 type SelectReference = {
   referenceBase: string; setComposerText: (text: string) => void; composerText: string; setPopupDismissed: Setter<boolean>; rowTarget: string | undefined;
-  rowSessionId: string | undefined; snapshotSessionId: string | undefined; attachedReferences: ChatReference[]; actions: ChatActions;
+  rowSessionId: string | undefined; snapshotSessionId: string | undefined; attachedReferences: StoredReference[]; actions: ChatActions;
 };
 
 export function selectReference({ referenceBase, setComposerText, composerText, setPopupDismissed, rowTarget, rowSessionId, snapshotSessionId, attachedReferences, actions }: SelectReference, reference: ReferenceCandidateView | undefined) {
@@ -23,7 +23,7 @@ export function selectReference({ referenceBase, setComposerText, composerText, 
     const target = safeText(reference.target) || safeText(rowTarget);
     const sessionId = safeText(reference.sessionId) || safeText(snapshotSessionId) || safeText(rowSessionId);
     if (!path || !target || !sessionId) return;
-    const value: ChatReference = { type: "target-file", source: "session-target", target, sessionId, path, name: shown };
+    const value: StoredReference = { type: "target-file", source: "session-target", target, sessionId, path, name: shown };
     const existing = attachedReferences.findIndex((entry) => entry.path === path && entry.target === target && entry.sessionId === sessionId);
     actions.setReferences(existing >= 0 ? attachedReferences : [...attachedReferences, value]);
     setComposerText(replaceReferenceToken(composerText, `@${shown} `));

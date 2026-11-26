@@ -1,4 +1,4 @@
-import type { LocalMessage } from "../thread/chat-state-types.ts";
+import type { LocalMessage } from "../../workbench/store/store-types.ts";
 
 // The line under the composer: what happened to the last send (and how many stopped inputs came back to the composer).
 type SendStatusInput = { submitting: boolean; sleeping: boolean; localMessages: Map<string, LocalMessage>; reconnecting: boolean; restoredDraft: { count?: number; reason?: string } | null };

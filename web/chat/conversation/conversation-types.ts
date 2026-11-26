@@ -1,5 +1,7 @@
-import type { HostedExtensionUiSnapshot, HostedNode, KernelCellDelivery, PeerMessage, SessionHostSnapshot, ToolContentPreview } from "../../../src/gateway/wire/web-types.ts";
-import type { ExtensionRender } from "../extension-ui/extension-render-types.ts";
+import type { HostedExtensionUiSnapshot, HostedNode, KernelCellDelivery, PeerMessage, SessionHostSnapshot, ToolContent, ToolContentPreview } from "../../../src/gateway/wire/web-types.ts";
+import type { ToolRun } from "../../workbench/payloads/tool-runs/tool-run-types.ts";
+import type { NativeFeedback, StreamSegment } from "../../workbench/store/store-types.ts";
+import type { ExtensionRender } from "../../workbench/store/extension-ui/extension-render-types.ts";
 import type { MemoryNoticeDetails } from "../memory-notice/MemoryNotice.tsx";
 import type { Payload } from "../payload/is-payload.ts";
 
@@ -93,39 +95,9 @@ export type ToolCall = {
   createdAt?: unknown;
 };
 
-/** A live tool run from the workbench store. */
-export type ToolRun = {
-  key?: string;
-  sessionId?: string;
-  operationId?: string;
-  toolCallId?: string;
-  id?: string;
-  toolName?: string;
-  code?: string;
-  inputPreview?: ToolContentPreview;
-  outputPreview?: ToolContentPreview;
-  startedAt?: string;
-  endedAt?: string;
-  ended?: boolean;
-  unknown?: boolean;
-  isError?: boolean;
-  output?: string;
-  partialResult?: unknown;
-  result?: unknown;
-  resultValue?: unknown;
-};
+/** `run` is partial: a result that arrived by content load fills `output` before any live run exists. */
+export type ToolRecord = { call: ToolCall; result?: Payload; run?: Partial<ToolRun> };
 
-export type ToolRecord = { call: ToolCall; result?: Payload; run?: ToolRun };
-
-/** Loaded full tool content, cached by the store per call. */
-export type ToolContentCache = { inputVersion?: string; outputVersion?: string; args?: Payload; argumentsError?: string; result?: unknown };
-
-export type StreamSegment = { text: string; part?: string; afterTools?: number };
-
-export type NativeFeedback = { requestId?: string; cancellable?: boolean; status?: string; action?: string; command?: string; message?: string; content?: string; data?: unknown; attachments?: Attachment[]; references?: Reference[] };
-
-export type ExtensionRenderEntry = { id: string; hidden?: boolean; visible?: boolean; node?: HostedNode; text?: string; beforeEntryId?: string | null; position?: number; createdAt?: unknown };
-export type ExtensionMessageRender = { node?: HostedNode; text?: string; hidden?: boolean; visible?: boolean };
 
 export type ConversationSnapshot = Partial<Pick<SessionHostSnapshot, "sessionId" | "state" | "operation" | "messageEntryIds" | "compactions" | "historyBefore" | "historyForkBefore">> & { messages?: readonly unknown[] };
 
@@ -139,7 +111,7 @@ export type ConversationState = {
     extensionUi?: { notifications?: readonly ExtensionNotification[]; hiddenThinkingLabel?: string } | null;
     extensionUiRender?: Pick<ExtensionRender, "entries" | "messages" | "streaming" | "hiddenThinkingLabel"> | null;
     toolRuns: Map<string, ToolRun>;
-    toolContents?: Map<string, ToolContentCache>;
+    toolContents?: Map<string, ToolContent>;
     streams: Map<string, StreamSegment[]>;
     operations: Map<string, { completion?: unknown }>;
     nativeFeedback: NativeFeedback[];

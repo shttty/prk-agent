@@ -7,7 +7,7 @@ import { Group } from "@mantine/core";
 import { Button } from "@mantine/core";
 import { ArchivePreviewList } from "./ArchivePreviewList.tsx";
 import { ArchiveProjectOutcome, type ProjectOutcome } from "./ArchiveProjectOutcome.tsx";
-import type { ProjectArchivePreview, ProjectArchiveResult } from "../../../src/gateway/wire/web-types.ts";
+import type { ProjectArchivePreview } from "../../../src/gateway/wire/web-types.ts";
 import type { ProjectPayload } from "../sidebar/sidebar-types.ts";
 import type { WorkbenchActions } from "../workbench-actions-types.ts";
 import { FormError } from "../../design-system/form-error/FormError.tsx";
@@ -25,7 +25,7 @@ export function ArchiveProjectConfirmation({ actions, onClose, project }: Archiv
     setError("");
     if (!project?.id) return undefined;
     actions.archiveProjectPreview(project.id)
-      .then((value: ProjectArchivePreview) => { if (live) setPreview(value); })
+      .then((value) => { if (live) setPreview(value); })
       .catch((cause: unknown) => { if (live) setError(cause instanceof Error ? cause.message : "读取受影响的会话失败。"); });
     return () => { live = false; };
   }, [actions, project?.id]);
@@ -35,7 +35,8 @@ export function ArchiveProjectConfirmation({ actions, onClose, project }: Archiv
     setArchiving(true);
     setError("");
     try {
-      const result: ProjectArchiveResult = await actions.archiveProject(project.id);
+      const result = await actions.archiveProject(project.id);
+      if (!result) throw new Error("归档结果未确认。");
       if (!result.error) onClose();
       else setOutcome({ archived: result.archived, unarchived: result.unarchived, error: result.error, unknown: false });
     } catch (cause) {

@@ -12,7 +12,7 @@ export function KernelExecutionSetting({ api }: { api: PageApi }) {
   const [status, setStatus] = useState("loading");
   useEffect(() => {
     let current = true;
-    api.get(path).then(({ asyncExecution }) => {
+    api.get<{ asyncExecution: boolean }>(path).then(({ asyncExecution }) => {
       if (!current) return;
       setValue(asyncExecution);
       setStatus("ready");
@@ -24,7 +24,7 @@ export function KernelExecutionSetting({ api }: { api: PageApi }) {
     setValue(enabled);
     setStatus("saving");
     try {
-      const { asyncExecution } = await api.post(path, { asyncExecution: enabled });
+      const { asyncExecution } = await api.post<{ asyncExecution: boolean }>(path, { asyncExecution: enabled });
       setValue(asyncExecution);
       setStatus("ready");
     } catch {

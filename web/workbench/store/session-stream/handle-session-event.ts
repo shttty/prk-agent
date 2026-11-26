@@ -45,6 +45,7 @@ function appendMessage(ctx: StoreContext, event: SessionHostEvent, message: Reco
   const streams = assistant && ctx.state.session.streams.has(operationId)
     ? new Map([...ctx.state.session.streams].filter(([key]) => key !== operationId))
     : ctx.state.session.streams;
+  // External input boundary: the Gateway's SDK message, taken as sent.
   const stored = message as unknown as SessionHostSnapshot["messages"][number];
   const next = assistant && message.stopReason === "error"
     ? snapshot

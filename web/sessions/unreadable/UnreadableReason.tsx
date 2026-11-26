@@ -1,11 +1,11 @@
 import { Modal } from "@mantine/core";
 import { Stack } from "@mantine/core";
 import { Text } from "@mantine/core";
-import type { UnreadableIssue } from "../session-row-types.ts";
+import type { UnreadableSession } from "../../workbench/payloads/payload-types.ts";
 import { unreadableIdentity } from "./unreadable-identity.ts";
 import "./unreadable.css";
 /** Why one session cannot be read. Shows only the diagnosis (and the session file); it never opens the session and invents no identity. */
-type UnreadableReasonProps = { issue: UnreadableIssue | undefined; onClose: () => void };
+type UnreadableReasonProps = { issue: UnreadableSession | undefined; onClose: () => void };
 
 export function UnreadableReason({ issue, onClose }: UnreadableReasonProps) {
   return <Modal opened={Boolean(issue)} onClose={onClose} title="无法读取会话" centered size={460} closeButtonProps={{ id: "close-unreadable-session-reason", "aria-label": "关闭" }}>

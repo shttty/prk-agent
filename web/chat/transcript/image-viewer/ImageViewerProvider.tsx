@@ -1,7 +1,7 @@
 import { useCallback, useContext, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useAui } from "@assistant-ui/react";
-import { useChatStore } from "../../thread/use-chat-store.ts";
+import { useWorkbenchStore } from "../../../workbench/subscription/use-workbench-store.ts";
 import { PresentationContext } from "../presentation-context.ts";
 import { projectedMessage } from "../../conversation/messages/projected-message.ts";
 import { isPayload } from "../../payload/is-payload.ts";
@@ -16,7 +16,7 @@ type Gallery = { items: ImageItem[]; index: number; identity: string };
 
 export function ImageViewerProvider({ children, identity }: { children: ReactNode; identity: string }) {
   const aui = useAui();
-  const store = useChatStore();
+  const store = useWorkbenchStore();
   const context = useContext(PresentationContext);
   const [gallery, setGallery] = useState<Gallery | null>(null);
   const trigger = useRef<HTMLElement | null>(null);

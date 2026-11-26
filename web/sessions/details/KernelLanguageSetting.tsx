@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Alert, Button, Group, Input, SegmentedControl, Text } from "@mantine/core";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import type { WorkbenchActions } from "../workbench-actions-types.ts";
-import type { WorkbenchReads } from "../workbench-reads-types.ts";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 
 const LANGUAGES = [{ value: "python", label: "Python" }, { value: "bun", label: "Bun" }];
 
@@ -11,9 +11,9 @@ const LANGUAGES = [{ value: "python", label: "Python" }, { value: "bun", label: 
 type KernelLanguageSettingProps = { actions: WorkbenchActions; blocked: boolean };
 
 export function KernelLanguageSetting({ actions, blocked }: KernelLanguageSettingProps) {
-  const language = useWorkbench((state: WorkbenchReads) => state.session.snapshot?.kernelLanguage ?? "python");
-  const running = useWorkbench((state: WorkbenchReads) => (state.session.snapshot?.kernel?.activeCells?.length ?? 0) > 0);
-  const available = useWorkbench((state: WorkbenchReads) => state.session.nativeCatalog?.value?.actions?.some((item) => item.name === "kernel-language"));
+  const language = useWorkbench((state: WorkbenchState) => state.session.snapshot?.kernelLanguage ?? "python");
+  const running = useWorkbench((state: WorkbenchState) => (state.session.snapshot?.kernel?.activeCells?.length ?? 0) > 0);
+  const available = useWorkbench((state: WorkbenchState) => state.session.nativeCatalog?.value?.actions?.some((item) => item.name === "kernel-language"));
   const [requested, setRequested] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const disabled = blocked || running || !available || saving;

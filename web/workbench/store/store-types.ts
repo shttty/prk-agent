@@ -1,18 +1,17 @@
 import type {
-  ArchiveGroup, HostedExtensionUiSnapshot, ModelCatalog, NativeActionResult, NativeCatalog, NativeReferenceCandidate, OperationCompletion,
-  SessionControl, SessionHostSnapshot, SessionMonitor, SessionSnapshot, SessionState, ToolContent,
+  ArchiveGroup, ArchivedSession, HostedExtensionUiSnapshot, ModelCatalog, NativeActionResult, NativeCatalog, NativeReferenceCandidate, OperationCompletion,
+  SessionControl, SessionHostSnapshot, SessionSnapshot, SessionState, ToolContent,
 } from "../../../src/gateway/wire/web-types.ts";
 import type { Presentation, StoredAttachment, StoredReference } from "../session-storage/session-storage-types.ts";
 import type { ToolRun } from "../payloads/tool-runs/tool-run-types.ts";
 import type { UnreadableSession } from "../payloads/payload-types.ts";
+import type { StampedMonitor } from "../../monitor/readings/monitor-types.ts";
+import type { ExtensionRender } from "./extension-ui/extension-render-types.ts";
 import type { TargetRow } from "./targets/target-types.ts";
 
 export type Tone = "notice" | "warning" | "error";
 
 export type Loadable<T> = { value: T | null; loading: boolean; error: string | null };
-
-/** A monitor reading as the page holds it: the Gateway's numbers plus when this page received them. */
-export type MonitorReading = SessionMonitor & { receivedAt: number };
 
 /**
  * A session row of the list. `waking` and the flags are the page's own bookkeeping on top of the Gateway's row: `done`
@@ -20,7 +19,7 @@ export type MonitorReading = SessionMonitor & { receivedAt: number };
  */
 export type SessionRow = Omit<SessionSnapshot, "state" | "monitor" | "compacting" | "blocked" | "asking" | "stopped" | "retryPending" | "background"> & {
   state: SessionState | "waking";
-  monitor?: MonitorReading;
+  monitor?: StampedMonitor;
   compacting?: boolean;
   blocked?: boolean;
   asking?: boolean;
@@ -29,6 +28,15 @@ export type SessionRow = Omit<SessionSnapshot, "state" | "monitor" | "compacting
   background?: boolean;
   done?: boolean;
 };
+
+/** An archived session shaped to read like a `SessionRow`: the live fields a stored session lacks stay empty. */
+export type ArchivedRow = ArchivedSession & { state?: undefined; cwd?: undefined; derivation?: undefined; monitor?: undefined; kernel?: undefined; recovery?: undefined; requiresReload?: undefined; configurationIssue?: undefined };
+
+/** The selected session's row: a listed one, or an archived one (read-only history). */
+export type SelectedRow = SessionRow | ArchivedRow;
+
+/** Read-only view of the session list for helpers that only look rows up. */
+export type SessionRows = ReadonlyMap<string, SessionRow>;
 
 export type BannerKind = "send-rejected" | "cancel-pending" | "recovery";
 
@@ -86,8 +94,6 @@ export type ReferenceCandidates = { value: NativeReferenceCandidate[]; truncated
 /** Text put back into the composer, and why: `undelivered` sends never ran; otherwise a stopped operation's queued inputs. */
 export type RestoredDraft = { count: number; operationId?: string; reason?: "undelivered" };
 
-/** A rendered extension view: raw nodes the Gateway built for this client, newer revisions replace older. */
-export type ExtensionUiRender = { revision: number; streamId?: string; [field: string]: unknown };
 
 export type SessionPendingKey =
   | "stopping" | `stopping:${string}` | "reconnecting" | "sending" | "nativeActionPending"
@@ -104,7 +110,7 @@ export type SelectedSessionState = {
   historyPage: { loading: boolean; error: string };
   historyPageRevision: number;
   extensionUi: HostedExtensionUiSnapshot | null;
-  extensionUiRender: ExtensionUiRender | null;
+  extensionUiRender: ExtensionRender | null;
   extensionUiClientId: string;
   extensionUiRenderRequest: number;
   extensionUiRenderAcceptedRequest: number;

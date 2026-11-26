@@ -1,10 +1,10 @@
 import { useState } from "react";
 import type { ArchiveGroup } from "../../../src/gateway/wire/web-types.ts";
-import type { WorkbenchReads } from "../workbench-reads-types.ts";
-import type { SessionRows } from "../session-row-types.ts";
+import type { SessionRows } from "../../workbench/store/store-types.ts";
 import type { ProjectPayload } from "../sidebar/sidebar-types.ts";
 import { projectCatalog } from "../sidebar/grouping/project-catalog.ts";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 
 // A dialog-local option, never a Gateway project identity (which cannot contain '/').
 export const DRAFT_PROJECT = "draft/project";
@@ -27,8 +27,8 @@ export type ProjectChoice = {
  * (an existing `{id,name}`, or `null` = ungrouped). Names are unique; the Gateway enforces it again.
  */
 export function useProjectChoice(initialId = ""): ProjectChoice {
-  const sessions: SessionRows = useWorkbench((state: WorkbenchReads) => state.sessions);
-  const archive: ArchiveGroup[] = useWorkbench((state: WorkbenchReads) => state.archive);
+  const sessions: SessionRows = useWorkbench((state: WorkbenchState) => state.sessions);
+  const archive: ArchiveGroup[] = useWorkbench((state: WorkbenchState) => state.archive);
   const projects = projectCatalog([...sessions.values(), ...archive.flatMap((group) => group.sessions)]);
   const [selected, setSelected] = useState<string | null>(initialId || null);
   const [draft, setDraft] = useState("");

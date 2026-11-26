@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { Button, Flex, Text } from "@mantine/core";
 import InlineAlert from "../../design-system/inline-alert/InlineAlert.tsx";
-import type { SessionRow } from "../../sessions/session-row-types.ts";
+import type { SelectedRow } from "../../workbench/store/store-types.ts";
 import type { WorkbenchActions } from "../../sessions/workbench-actions-types.ts";
 import { machinePoint } from "../readings/machine-point.ts";
 import { ChangesSection } from "./ChangesSection.tsx";
@@ -17,7 +17,7 @@ import { useTicker } from "./use-ticker.ts";
 import "@fontsource-variable/manrope/wght.css";
 import "./monitor-panel.css";
 
-type MonitorPanelProps = { actions: WorkbenchActions; sessionRow: SessionRow; mobile?: boolean; place: string; onOpenDiff: (path: string) => void; onSelectSession?: (sessionId: string) => void };
+type MonitorPanelProps = { actions: WorkbenchActions; sessionRow: SelectedRow; mobile?: boolean; place: string; onOpenDiff: (path: string) => void; onSelectSession?: (sessionId: string) => void };
 
 /** Monitor region: memoized; its sections subscribe to the store fields they read. */
 function MonitorPanel({ actions, sessionRow, mobile, place, onOpenDiff, onSelectSession }: MonitorPanelProps) {

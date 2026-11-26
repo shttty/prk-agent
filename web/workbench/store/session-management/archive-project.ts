@@ -10,5 +10,6 @@ export async function archiveProject(ctx: StoreContext, projectId: string): Prom
   if (!isRecord(body) || body.projectId !== projectId || !Array.isArray(body.archived) || !Array.isArray(body.unarchived)) {
     throw new Error("项目归档结果未确认。");
   }
+  // External input boundary: the Gateway's archive outcome; project and lists were checked above.
   return body as unknown as ProjectArchiveResult;
 }

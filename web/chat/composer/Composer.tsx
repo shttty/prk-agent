@@ -25,7 +25,7 @@ import { QUEUE_LABELS } from "./composer-constants.ts";
 import { QUEUE_SHORT } from "./composer-constants.ts";
 import { ExtensionCompletionMenu } from "./extension-completion/ExtensionCompletionMenu.tsx";
 import { ReferenceMenu } from "./references/ReferenceMenu.tsx";
-import { useChatState } from "../thread/use-chat-state.ts";
+import { useWorkbench } from "../../workbench/subscription/use-workbench.ts";
 import { useStopTarget } from "../../workbench/subscription/use-stop-target.js";
 import { useElementSize } from "@mantine/hooks";
 import { useMediaQuery } from "@mantine/hooks";
@@ -39,7 +39,7 @@ export function Composer({ actions, model }: { actions: ChatActions; model: Comp
   const { submitDraft, busy, commandMenuOpen, candidateOptions, candidateIndex, selectCandidate, setCandidateIndex, setHelpCommand, referenceMenuOpen, references, referenceCandidates, referenceIndex, plainSuggested, commandElsewhere, unknownControl, normalizedComposerText, plainMode, setPlainMode, replaceReference, attach, attachments, attachedReferences, catalogAttachments, status, connected, queueMode, composerText, inputChanged, setExtensionCursor, composingRef, setComposition, uploadFiles, resumable, sleeping, selectedSessionId, uiLoading, handleInputKeyDown, setComposerValue, findCurrentPage, setShortcutsOpen, cancelling, hasDraft, submitting, otherQueue, compacting } = model;
   const stopTarget = useStopTarget();
   const maxBytes = catalogAttachments?.maxAugmentedMessageBytes;
-  const stopping = useChatState((state) => state.session.pending.has("stopping"));
+  const stopping = useWorkbench((state) => state.session.pending.has("stopping"));
   const canStop = Boolean(stopTarget && connected && !cancelling && !stopping);
   const footer = useElementSize();
   const phone = useMediaQuery("(max-width: 700px)", false, { getInitialValueInEffect: false });
@@ -77,7 +77,7 @@ export function Composer({ actions, model }: { actions: ChatActions; model: Comp
                 readOnly={submitting}
                 data-queue={queueMode}
                 value={composerText}
-                onFocus={sleeping ? actions.wakeSession : undefined}
+                onFocus={sleeping ? () => void actions.wakeSession() : undefined}
                 onChange={(event) => {
                   if (sleeping) void actions.wakeSession();
                   inputChanged(event);

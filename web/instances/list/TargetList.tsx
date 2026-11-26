@@ -6,18 +6,18 @@ import { runDialogAction } from "../../sessions/dialogs/run-dialog-action.ts";
 import { labelForTarget } from "../../sessions/sidebar/labels/label-for-target.ts";
 import { LocalBadge } from "../../sessions/sidebar/LocalBadge.tsx";
 import type { WorkbenchActions } from "../../sessions/workbench-actions-types.ts";
-import type { WorkbenchReads } from "../../sessions/workbench-reads-types.ts";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import { ConfigurationIssueBadge } from "../configuration-issue/ConfigurationIssueBadge.tsx";
 import "./list.css";
+import type { WorkbenchState } from "../../workbench/store/store-types.ts";
 
 type TargetListProps = { actions: WorkbenchActions; onEdit: (id: string) => void; onAdd: () => void; onSettings: (id: string) => void; loadingId: string | null };
 
 export function TargetList({ actions, onEdit, onAdd, onSettings, loadingId }: TargetListProps) {
-  const targets: PublicExecutionTarget[] = useWorkbench((state: WorkbenchReads) => state.targets);
-  const reloading = useWorkbench((state: WorkbenchReads) => state.pending.has("reloadingTargets"));
-  const mutating = useWorkbench((state: WorkbenchReads) => state.pending.has("targetMutating"));
-  const sessionError: string | null = useWorkbench((state: WorkbenchReads) => state.session.error);
+  const targets: PublicExecutionTarget[] = useWorkbench((state: WorkbenchState) => state.targets);
+  const reloading = useWorkbench((state: WorkbenchState) => state.pending.has("reloadingTargets"));
+  const mutating = useWorkbench((state: WorkbenchState) => state.pending.has("targetMutating"));
+  const sessionError: string | null = useWorkbench((state: WorkbenchState) => state.session.error);
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const [error, setError] = useState("");
   const busy = mutating || loadingId !== null;
@@ -28,7 +28,7 @@ export function TargetList({ actions, onEdit, onAdd, onSettings, loadingId }: Ta
   }
   return (
     <Stack gap="md">
-      <Group justify="space-between"><Button id="add-target" onClick={onAdd}>添加实例</Button><Button variant="default" onClick={() => actions.reloadTargets()} loading={reloading || mutating}>刷新配置</Button></Group>
+      <Group justify="space-between"><Button id="add-target" onClick={onAdd}>添加实例</Button><Button variant="default" onClick={() => void actions.reloadTargets()} loading={reloading || mutating}>刷新配置</Button></Group>
       <FormError>{error || sessionError}</FormError>
       {!targets.length && <Text size="sm" c="dimmed">暂无服务端实例配置。</Text>}
       {targets.map((target) => <Card key={target.id} withBorder padding="sm">

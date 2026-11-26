@@ -1,5 +1,5 @@
 import type { Dispatch, RefObject, SetStateAction } from "react";
-import type { PresentationAnchor, SavedPresentation } from "./presentation-types.ts";
+import type { Presentation } from "../../workbench/session-storage/session-storage-types.ts";
 
 /** A disclosure toggled by the reader: where it was, so the scroll can keep it there. */
 export type PendingDisclosure = { node: Element; top: number; scrollTop: number };
@@ -17,4 +17,4 @@ export type TranscriptListHandle = {
   beforePrepend: () => void;
 };
 export type RevealOptions = { offset?: number; openDetails?: boolean; prepare?: (row: HTMLElement) => Element | null; onReveal?: () => void };
-export type { PresentationAnchor, SavedPresentation };
+export type { Presentation };

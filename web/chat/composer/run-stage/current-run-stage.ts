@@ -1,11 +1,11 @@
-import type { ChatState } from "../../thread/chat-state-types.ts";
 import { isBusy } from "../../conversation/is-busy.ts";
 import { toolTitle } from "../../transcript/tool-calls/tool-title.ts";
+import type { WorkbenchState } from "../../../workbench/store/store-types.ts";
 /**
  * What the selected session is doing right now, as `{stage, text}`: sending until the Gateway admits the request,
  * then the operation's live stage (waiting for the model by default). Null when idle.
  */
-export function currentRunStage(state: ChatState): { stage: string; text: string } | null {
+export function currentRunStage(state: WorkbenchState): { stage: string; text: string } | null {
   if (state.session.pending.has("sending")) return { stage: "sending", text: "发送中…" };
   if (!isBusy(state)) return null;
   if (state.session.snapshot?.operation?.kind === "compact") return { stage: "compacting", text: "压缩中…" };

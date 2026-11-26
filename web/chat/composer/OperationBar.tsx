@@ -6,7 +6,7 @@ import { Button } from "@mantine/core";
 import { UnstyledButton } from "@mantine/core";
 import { safeText } from "../../workbench/payloads/safe-text.js";
 import type { ChatActions } from "../thread/chat-actions-types.ts";
-import { useChatState } from "../thread/use-chat-state.ts";
+import { useWorkbench } from "../../workbench/subscription/use-workbench.ts";
 import { WorkingIndicator } from "../extension-ui/WorkingIndicator.tsx";
 import { ExtensionStatus } from "../extension-ui/ExtensionStatus.tsx";
 import { AnsiText } from "../ansi/AnsiText.tsx";
@@ -17,19 +17,19 @@ import { revealUserPrompt } from "./reveal-user-prompt.ts";
 export const OperationBar = memo(function OperationBar({ actions }: { actions: ChatActions }) {
   const { busy: running, cancelling } = useBusy();
   // Sending shows before the Gateway admits the request, while the session may still be idle.
-  const stage = useChatState((state) => currentRunStage(state)?.stage);
-  const stageText = useChatState((state) => currentRunStage(state)?.text);
+  const stage = useWorkbench((state) => currentRunStage(state)?.stage);
+  const stageText = useWorkbench((state) => currentRunStage(state)?.text);
   const busy = running || stage === "sending";
   // The Gateway's attention flags on the session row (the sidebar's 等待处理): the run is waiting on the user, not working.
-  const waitingFor = useChatState((state) => {
+  const waitingFor = useWorkbench((state) => {
     const row = state.selectedSessionId ? state.sessions.get(state.selectedSessionId) : undefined;
     return row?.asking ? "asking" : row?.blocked ? "blocked" : null;
   });
   // Plugin setStatus entries share the running strip above the composer.
-  const statusEntries = useChatState((state) => state.session.extensionUi?.status || state.session.extensionUiRender?.status);
-  const feedback = useChatState((state) => state.session.nativeFeedback);
-  const working = useChatState((state) => state.session.extensionUi?.working);
-  const connected = useChatState((state) => state.session.connection === "connected");
+  const statusEntries = useWorkbench((state) => state.session.extensionUi?.status || state.session.extensionUiRender?.status);
+  const feedback = useWorkbench((state) => state.session.nativeFeedback);
+  const working = useWorkbench((state) => state.session.extensionUi?.working);
+  const connected = useWorkbench((state) => state.session.connection === "connected");
   const statusCount = (statusEntries || []).length;
   const runningNative = feedback.findLast((item) => item.status === "running");
   const compacting = stage === "compacting";

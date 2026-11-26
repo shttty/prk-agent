@@ -12,7 +12,7 @@ export function ToolTitleSetting({ api }: { api: PageApi }) {
   const [status, setStatus] = useState("loading");
   useEffect(() => {
     let current = true;
-    api.get(path).then(({ enabled }) => {
+    api.get<{ enabled: boolean }>(path).then(({ enabled }) => {
       if (!current) return;
       setValue(enabled);
       setStatus("ready");
@@ -24,7 +24,7 @@ export function ToolTitleSetting({ api }: { api: PageApi }) {
     setValue(enabled);
     setStatus("saving");
     try {
-      const saved = await api.post(path, { enabled });
+      const saved = await api.post<{ enabled: boolean }>(path, { enabled });
       setValue(saved.enabled);
       setStatus("ready");
     } catch {

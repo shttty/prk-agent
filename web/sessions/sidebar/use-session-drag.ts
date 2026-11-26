@@ -1,5 +1,5 @@
 import { useState, type DragEvent } from "react";
-import type { SessionRow, SessionRows } from "../session-row-types.ts";
+import type { SessionRow, SessionRows } from "../../workbench/store/store-types.ts";
 import type { WorkbenchActions } from "../workbench-actions-types.ts";
 import { canDropSessionToGroup } from "./grouping/can-drop-session-to-group.ts";
 import { projectPayloadForGroup } from "./grouping/project-payload-for-group.ts";

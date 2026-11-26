@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import type { PublicExecutionTarget } from "../../../src/gateway/wire/web-types.ts";
-import type { SessionRow, SessionRows, UnreadableIssue } from "../session-row-types.ts";
+import type { SessionRow, SessionRows } from "../../workbench/store/store-types.ts";
+import type { UnreadableSession } from "../../workbench/payloads/payload-types.ts";
 import { closedLast } from "./grouping/closed-last.ts";
 import { instanceGroups } from "./grouping/instance-groups.ts";
 import { projectGroups } from "./grouping/project-groups.ts";
@@ -12,7 +13,7 @@ import { MAX_TREE_DEPTH } from "./sidebar-constants.ts";
 import type { SessionGroup, SidebarItem, TreeState } from "./sidebar-types.ts";
 
 /** The sidebar's rows arranged for the current view: instance or project groups, derived sessions nested under their manager. */
-export function useSidebarGroups(sessions: SessionRows, targetList: PublicExecutionTarget[], unreadableSessions: UnreadableIssue[], projectView: boolean) {
+export function useSidebarGroups(sessions: SessionRows, targetList: PublicExecutionTarget[], unreadableSessions: UnreadableSession[], projectView: boolean) {
   const [collapsedNodes, setCollapsedNodes] = useState<ReadonlySet<string>>(() => new Set());
   // Derived sessions hang under their current manager (the relation deletion cascades along) when both sit in the same
   // group of the current view; expanded by default.

@@ -1,12 +1,13 @@
 import { safeText } from "../../../workbench/payloads/safe-text.js";
 import { isPayload } from "../../payload/is-payload.ts";
 import type { Payload } from "../../payload/is-payload.ts";
-import type { ToolCall, ToolCallPart, ToolRun } from "../conversation-types.ts";
+import type { ToolRun } from "../../../workbench/payloads/tool-runs/tool-run-types.ts";
+import type { ToolCall, ToolCallPart } from "../conversation-types.ts";
 import { argsText } from "./args-text.ts";
 import { toolId } from "./tool-id.ts";
 import { readPreview } from "./read-preview.ts";
 import { unwrapToolCall } from "./unwrap-tool-call.ts";
-export function toolPart(call: ToolCall, result: Payload | undefined, live: ToolRun | undefined): ToolCallPart {
+export function toolPart(call: ToolCall, result: Payload | undefined, live: Partial<ToolRun> | undefined): ToolCallPart {
   const id = toolId(call, "tool-call");
   const name = safeText(call.toolName) || safeText(call.name) || safeText(live?.toolName) || "tool";
   const settled: unknown = result !== undefined ? result : live?.ended ? (live.unknown ? { outcome: "unknown" } : live.resultValue ?? live.result) : result;

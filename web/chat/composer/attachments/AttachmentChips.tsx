@@ -1,9 +1,9 @@
 import { Group } from "@mantine/core";
 import { Badge } from "@mantine/core";
 import { ActionIcon } from "@mantine/core";
-import type { ChatAttachment } from "../composer-types.ts";
+import type { StoredAttachment } from "../composer-types.ts";
 import { IconX } from "@tabler/icons-react";
-type AttachmentChipsProps = { attachments: readonly ChatAttachment[] | undefined; onReplace: (index: number) => void; onRemove: (index: number) => void; title: string | undefined };
+type AttachmentChipsProps = { attachments: readonly StoredAttachment[] | undefined; onReplace: (index: number) => void; onRemove: (index: number) => void; title: string | undefined };
 
 export function AttachmentChips({ attachments, onReplace, onRemove, title }: AttachmentChipsProps) {
   if (!attachments?.length) return null;
