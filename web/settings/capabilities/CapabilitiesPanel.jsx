@@ -29,6 +29,9 @@ import { Text } from "@mantine/core";
 import { Group } from "@mantine/core";
 import { Button } from "@mantine/core";
 import "../list-page/list-page.css";
+import { isConnectionFailure } from "../../workbench/store/requests/is-connection-failure.js";
+import { useRelink } from "../list-page/use-relink.js";
+import { LinkWait } from "../list-page/LinkWait.jsx";
 import "./capabilities.css";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 export default function CapabilitiesPanel({ kind, actions, session = false, instance = "", sessionKey = "", localTools, mobile = false, initialProvider }) {
@@ -42,6 +45,7 @@ export default function CapabilitiesPanel({ kind, actions, session = false, inst
   const [refreshing, setRefreshing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [waiting, setWaiting] = useState(false);
   const [deletion, setDeletion] = useState(null);
   const [frame, setFrame] = useState(null);
   const [sheet, setSheet] = useState({ id: null, open: false });
@@ -69,10 +73,16 @@ export default function CapabilitiesPanel({ kind, actions, session = false, inst
       if (session && !catalog) throw new Error("会话工具设置读取失败。");
       setData({ ...settings, catalog: session ? catalog : settings.catalog });
       setLibrary(latest(saved[kind]));
-    } catch (cause) { if (current === generation.current) setError(cause.message); }
+      setWaiting(false);
+    } catch (cause) {
+      if (current !== generation.current) return;
+      if (isConnectionFailure(cause)) setWaiting(true);
+      else setError(cause.message);
+    }
     finally { if (current === generation.current) { setLoading(false); setRefreshing(false); } }
   }, [actions, kind, session, instance]);
   useEffect(() => { void load(); return invalidate; }, [load, sessionKey, localTools, invalidate]);
+  useRelink(() => void load(), waiting);
   // Provider list scroll offset per page.
   const scrollKey = `${instance ? `instance:${instance}` : session ? "session" : "global"}:${kind}`;
   const restored = useRef(false);
@@ -152,10 +162,10 @@ export default function CapabilitiesPanel({ kind, actions, session = false, inst
   const sheetGroup = providers.find((item) => item.id === sheet.id);
   // The card shows the entry as it is now (a switch may have changed since it opened).
   const peekEntry = peek ? entries.find((entry) => entry.id === peek.entry.id) ?? null : null;
-  const ctx = { kind, actions, targets, session, instance, sessionKey, localTools, mobile, data, setData, library, setLibrary, selected, setSelected, query, setQuery, loading, setLoading, refreshing, setRefreshing, saving, setSaving, error, setError, deletion, setDeletion, frame, setFrame, sheet, setSheet, config, setConfig, drafts, setDrafts, configs, setConfigs, pathDraft, setPathDraft, written, setWritten, peek, setPeek, peekOpen, setPeekOpen, generation, listRef, invalidate, rootRef, load, peekRef, timers, press, swallow, showPeek, hidePeek, scheduleHide, rowHandlers, catalog, savedGroup, savedLabel, savedEmpty, entries, names, groups, counts, providers, needle, hits, visible, current, scope, scopeLabel, pending, partial, disabled, configurable, shadower, configGroup, terminal, providerConfig, sheetGroup, peekEntry, change, mutateLibrary, saveTerminal, callConfig, openConfig };
+  const ctx = { kind, actions, targets, session, instance, sessionKey, localTools, mobile, data, setData, library, setLibrary, selected, setSelected, query, setQuery, loading, setLoading, refreshing, setRefreshing, saving, setSaving, error, setError, deletion, setDeletion, frame, setFrame, sheet, setSheet, config, setConfig, drafts, setDrafts, configs, setConfigs, pathDraft, setPathDraft, written, setWritten, peek, setPeek, peekOpen, setPeekOpen, generation, listRef, invalidate, rootRef, load, peekRef, timers, press, swallow, showPeek, hidePeek, scheduleHide, rowHandlers, waiting, catalog, savedGroup, savedLabel, savedEmpty, entries, names, groups, counts, providers, needle, hits, visible, current, scope, scopeLabel, pending, partial, disabled, configurable, shadower, configGroup, terminal, providerConfig, sheetGroup, peekEntry, change, mutateLibrary, saveTerminal, callConfig, openConfig };
   return <div ref={rootRef} className="capabilities-panel settings-list-page" data-kind={kind} data-scope={instance ? "instance" : session ? "session" : "global"} data-layout={mobile ? "stack" : "split"} aria-busy={loading || saving}>
     <ProviderList ctx={ctx} />
-    {!mobile ? <Crossfade className="settings-detail-host" layerKey={pending ? "loading" : "list"}>{pending ? <div className="capability-loading" data-status="loading"><Loader size="sm" color="gray" /></div> : <ProviderDetail ctx={ctx} item={current} />}</Crossfade> : null}
+    {!mobile ? <Crossfade className="settings-detail-host" layerKey={pending ? "loading" : "list"}>{pending ? <div className="capability-loading" data-status="loading"><Loader size="sm" color="gray" /></div> : waiting ? <LinkWait /> : <ProviderDetail ctx={ctx} item={current} />}</Crossfade> : null}
     <CapabilityLayers ctx={ctx} />
     <Peek peek={peek} open={peekOpen} frame={frame} onPointerEnter={() => clearTimeout(timers.current.hide)} onPointerLeave={(event) => { if (event.pointerType === "mouse") scheduleHide(); }}>
       <PeekEntry ctx={ctx} />

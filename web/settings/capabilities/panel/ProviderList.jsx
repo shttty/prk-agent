@@ -12,10 +12,11 @@ import { splitGroupName } from "../split-group-name.js";
 import { ProviderName } from "../ProviderName.jsx";
 import { ProviderPolicyAlert } from "../../provider-policy/ProviderPolicyAlert.jsx";
 import { ListRow } from "../../list-page/ListRow.jsx";
+import { LinkWait } from "../../list-page/LinkWait.jsx";
 
 /** Source column of the tools and Skills pages: search and refresh, sources by category, totals at the foot. */
 export function ProviderList({ ctx }) {
-  const { hidePeek, mobile, setSheet, setSelected, kind, query, setQuery, pending, entries, providers, session, refreshing, loading, saving, load, data, error, listRef, visible, targets, hits, counts, current, needle, catalog } = ctx;
+  const { hidePeek, mobile, setSheet, setSelected, kind, query, setQuery, pending, entries, providers, session, refreshing, loading, saving, load, data, error, waiting, listRef, visible, targets, hits, counts, current, needle, catalog } = ctx;
   const choose = (id) => {
     hidePeek();
     if (mobile) setSheet({ id, open: true });
@@ -36,7 +37,8 @@ export function ProviderList({ ctx }) {
     {kind === "tools" ? (catalog?.providerErrors || []).map((item, index) => <ProviderPolicyAlert key={`${item.providerId}-${item.operation}-${index}`} item={item} />) : null}
     <div className="settings-list-scroll" id={`${kind}-sources`} ref={listRef} role="listbox" aria-label="来源" aria-busy={loading || saving}>
       {pending ? <div className="capability-loading" data-status="loading"><Loader size="sm" color="gray" /></div> : null}
-      {visible.map((item) => {
+      {waiting ? <LinkWait /> : null}
+      {(waiting ? [] : visible).map((item) => {
         const category = categoryKey(item);
         const label = category.startsWith("remote:") ? `${targets?.find((target) => target.id === item.instance)?.label ?? item.instance} ${CATEGORY_LABEL.remote}` : CATEGORY_LABEL[category];
         const head = headed && category !== lastCategory ? <div key={`category:${category}`} className="settings-list-category" data-category={category}>{label}</div> : null;
@@ -47,8 +49,8 @@ export function ProviderList({ ctx }) {
           <ProviderName item={item} parts={splitGroupName(item)} />
         </ListRow>];
       })}
-      {!loading && !visible.length ? <Text size="sm" c="dimmed" id={`${kind}-empty`}>{needle ? "无匹配" : "暂无内容"}</Text> : null}
+      {!loading && !waiting && !visible.length ? <Text size="sm" c="dimmed" id={`${kind}-empty`}>{needle ? "无匹配" : "暂无内容"}</Text> : null}
     </div>
-    {pending ? null : <div className="settings-list-foot" data-count={entries.length}>{providers.length} 个来源 · {entries.length} 项</div>}
+    {pending || waiting ? null : <div className="settings-list-foot" data-count={entries.length}>{providers.length} 个来源 · {entries.length} 项</div>}
   </section>;
 }

@@ -10,6 +10,10 @@ import { DerivationDefaultsSection } from "./DerivationDefaultsSection.jsx";
 import { DerivationRoleEditor } from "./DerivationRoleEditor.jsx";
 import { DerivationRolesSection } from "./DerivationRolesSection.jsx";
 import "./subsessions.css";
+import { isConnectionFailure } from "../../workbench/store/requests/is-connection-failure.js";
+import { pageErrorMessage } from "../../workbench/store/requests/page-error-message.js";
+import { useRelink } from "../list-page/use-relink.js";
+import { LinkWait } from "../list-page/LinkWait.jsx";
 
 const FALLBACK_DEFAULTS = {
   defaultToolMode: "code",
@@ -41,6 +45,9 @@ export default function SubsessionSettings({ actions }) {
   const [catalog, setCatalog] = useState(null);
   const [editor, setEditor] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [waiting, setWaiting] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  useRelink(() => setAttempt((value) => value + 1), waiting);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -65,15 +72,18 @@ export default function SubsessionSettings({ actions }) {
     ]).then(([derivationRes, modelsRes, capabilitiesRes]) => {
       if (current !== generation.current) return;
       applyResponse(derivationRes);
+      setWaiting(false);
       if (Array.isArray(modelsRes?.models)) setModels(modelsRes.models);
       if (capabilitiesRes?.catalog) setCatalog(capabilitiesRes.catalog);
     }).catch((cause) => {
-      if (current === generation.current) setError(cause?.message || "子会话设置读取失败。");
+      if (current !== generation.current) return;
+      if (isConnectionFailure(cause)) setWaiting(true);
+      else setError(cause?.message || "子会话设置读取失败。");
     }).finally(() => {
       if (current === generation.current) setLoading(false);
     });
     return invalidate;
-  }, [actions, applyResponse, invalidate]);
+  }, [actions, applyResponse, invalidate, attempt]);
 
   const persist = async (nextDraft, nextRoles, onSuccess) => {
     const current = generation.current;
@@ -87,12 +97,13 @@ export default function SubsessionSettings({ actions }) {
       applyResponse(response?.derivation ? response : { derivation: payload, defaults });
       onSuccess?.();
     } catch (cause) {
-      if (current === generation.current) setError(cause?.message || "子会话设置保存失败。");
+      if (current === generation.current && pageErrorMessage(cause)) setError(cause.message || "子会话设置保存失败。");
     } finally {
       if (current === generation.current) setSaving(false);
     }
   };
 
+  if (waiting) return <LinkWait />;
   if (loading) {
     return <div className="capability-loading" data-status="loading"><Loader size="sm" color="gray" /></div>;
   }

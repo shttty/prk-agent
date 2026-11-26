@@ -13,6 +13,8 @@ import InlineAlert from "../../design-system/inline-alert/InlineAlert.jsx";
 import { PrkSwitch } from "../../design-system/switch/PrkSwitch.jsx";
 import LayerCard from "./LayerCard.jsx";
 import OverrideForm from "./OverrideForm.jsx";
+import { pageErrorMessage } from "../../workbench/store/requests/page-error-message.js";
+import { useRelink } from "../list-page/use-relink.js";
 
 const without = (object, field) => { const next = { ...object }; delete next[field]; return next; };
 const setField = (object, field, value) => value === undefined ? without(object, field) : { ...object, [field]: value };
@@ -32,10 +34,11 @@ export default function LayerConfig({ api, onSaved }) {
       const [shared, override] = await Promise.all(["shared", "override"].map((which) => api.post("/memory/config/get", { file: which })));
       setViews({ shared, override });
       setDrafts({ shared: shared.document ?? { layers: [] }, override: override.document ?? {} });
-    } catch (cause) { setError({ message: cause.message }); }
+    } catch (cause) { if (pageErrorMessage(cause)) setError({ message: cause.message }); }
     finally { setBusy(false); }
   }, [api]);
   useEffect(() => { void load(); }, [load]);
+  useRelink(load);
 
   const view = views[file];
   const draft = drafts[file];
@@ -47,7 +50,7 @@ export default function LayerConfig({ api, onSaved }) {
       setViews((current) => ({ ...current, [file]: saved }));
       setDrafts((current) => ({ ...current, [file]: saved.document ?? {} }));
       onSaved();
-    } catch (cause) { setError({ message: cause.message, conflict: cause.code === "CONFLICT" }); }
+    } catch (cause) { if (pageErrorMessage(cause)) setError({ message: cause.message, conflict: cause.code === "CONFLICT" }); }
     finally { setBusy(false); }
   };
 

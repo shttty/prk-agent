@@ -12,6 +12,8 @@ import { PluginDetail } from "./PluginDetail.jsx";
 import { PluginFailure } from "./PluginFailure.jsx";
 import { GatewayRestartNotice } from "./GatewayRestartNotice.jsx";
 import { pluginToolGroups } from "./plugin-tool-groups.js";
+import { isConnectionFailure } from "../../workbench/store/requests/is-connection-failure.js";
+import { useRelink } from "../list-page/use-relink.js";
 import "./plugins.css";
 /** The one plugin list (`/api/plugins`, docs/wire/plugin-config.md#pi-packages): Pi packages from npm or a Gateway
  * directory, each enabled or not and placed on the session host or the Gateway. Saved changes apply to new, woken or
@@ -27,18 +29,23 @@ export default function PluginsPanel({ actions, gatewayRestartUnit, mobile, onOp
   const [installing, setInstalling] = useState(false);
   const [selected, setSelected] = useState(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [waiting, setWaiting] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  useRelink(() => setAttempt((value) => value + 1), waiting);
   const generation = useRef(0);
   useEffect(() => {
     const current = ++generation.current;
     setData(null); setBusy(true); setFailure(null);
     actions.api.get("/plugins").then((result) => {
-      if (current === generation.current) setData(result);
+      if (current === generation.current) { setData(result); setWaiting(false); }
     }).catch((cause) => {
-      if (current === generation.current) setFailure({ source: null, message: cause.message, code: cause.code, details: cause.details });
+      if (current !== generation.current) return;
+      if (isConnectionFailure(cause)) setWaiting(true);
+      else setFailure({ source: null, message: cause.message, code: cause.code, details: cause.details });
     }).finally(() => { if (current === generation.current) setBusy(false); });
     actions.api.get("/capabilities").then((result) => { if (current === generation.current) setCatalog(result.catalog); }).catch(() => {});
     return () => { generation.current = current + 1; };
-  }, [actions]);
+  }, [actions, attempt]);
 
   const mutate = async (failureSource, path, payload, after) => {
     const current = generation.current;
@@ -48,7 +55,7 @@ export default function PluginsPanel({ actions, gatewayRestartUnit, mobile, onOp
       if (current !== generation.current) return;
       setData(result); after?.();
     } catch (cause) {
-      if (current === generation.current) setFailure({ source: failureSource, message: cause.message, code: cause.code, details: cause.details });
+      if (current === generation.current && !isConnectionFailure(cause)) setFailure({ source: failureSource, message: cause.message, code: cause.code, details: cause.details });
     } finally { if (current === generation.current) setBusy(false); }
   };
   const install = (source, location) => void mutate(null, "/plugins/install", { source, location }, () => setInstalling(false));
@@ -64,7 +71,7 @@ export default function PluginsPanel({ actions, gatewayRestartUnit, mobile, onOp
 
   return <>
     <SplitPage id="plugins-manager" mobile={mobile} aria-busy={busy} sheetOpen={sheetOpen} onCloseSheet={() => setSheetOpen(false)} sheetId="plugin-sheet" backAction="close-plugin" detail={detail}
-      list={<PluginList data={data} busy={busy} active={active?.source} mobile={mobile} installing={installing} setInstalling={setInstalling} onInstall={install} onChoose={choose}
+      list={<PluginList data={data} busy={busy} waiting={waiting} active={active?.source} mobile={mobile} installing={installing} setInstalling={setInstalling} onInstall={install} onChoose={choose}
         formFailure={failure && failure.source === null ? failure : null} restartNotice={data?.restartRequired ? <GatewayRestartNotice unit={gatewayRestartUnit} api={actions.api} /> : null} />} />
     <Modal id="plugin-uninstall-dialog" opened={Boolean(removal)} onClose={() => { if (!busy) setRemoval(null); }} title="卸载插件" centered size="sm">
       <Stack gap="md">

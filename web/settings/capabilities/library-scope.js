@@ -1,3 +1,4 @@
+import { pageErrorMessage } from "../../workbench/store/requests/page-error-message.js";
 import { latest } from "./latest.js";
 export function libraryScope({ sessions, targets, generation, setSaving, setError, setLibrary, actions }) {
   const projects = new Map();
@@ -19,7 +20,7 @@ export function libraryScope({ sessions, targets, generation, setSaving, setErro
       try {
         const result = await actions.api.post(`/skills/${encodeURIComponent(entry.name)}/scope`, { scope: value });
         if (current === generation.current) setLibrary(latest(result.skills));
-      } catch (cause) { if (current === generation.current) setError(cause.message); }
+      } catch (cause) { if (current === generation.current) setError(pageErrorMessage(cause)); }
       finally { setSaving(false); }
     },
   };

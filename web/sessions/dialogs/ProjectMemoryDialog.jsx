@@ -4,6 +4,7 @@ import InlineAlert from "../../design-system/inline-alert/InlineAlert.jsx";
 import MemoryDocument from "../../settings/memory/MemoryDocument.jsx";
 import MemoryDeleteDialog from "../../settings/memory/MemoryDeleteDialog.jsx";
 import { useMemoryListing } from "../../settings/memory/use-memory-listing.js";
+import { LinkWait } from "../../settings/list-page/LinkWait.jsx";
 import "../../settings/memory/memory.css";
 
 /** One project's memory file, edited through the same listing and change API as the global memory page. */
@@ -18,7 +19,7 @@ export function ProjectMemoryDialog({ actions, project }) {
     <Stack gap="sm" id="project-memory" data-project={project.id} aria-busy={busy}>
       {listing.error ? <InlineAlert size="sm">{listing.error}</InlineAlert> : null}
       {error ? <InlineAlert id="memory-error" size="sm">{error}</InlineAlert> : null}
-      {document ? <MemoryDocument document={document} memory={memory} empty="这个项目还没有记忆。" />
+      {memory.waiting ? <LinkWait /> : document ? <MemoryDocument document={document} memory={memory} empty="这个项目还没有记忆。" />
         : busy ? null : <Text size="sm" c="dimmed" data-empty="true">记忆配置里没有项目层。</Text>}
     </Stack>
     <MemoryDeleteDialog memory={memory} />

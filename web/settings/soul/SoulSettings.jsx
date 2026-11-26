@@ -10,6 +10,7 @@ import InlineAlert from "../../design-system/inline-alert/InlineAlert.jsx";
 import { highlightExtensions } from "../../workspace/file-editor/FileBody.jsx";
 import { useLanguage } from "../../workspace/file-editor/use-language.js";
 import { useSoulFile } from "./use-soul-file.js";
+import { LinkWait } from "../list-page/LinkWait.jsx";
 import "../../workspace/file-editor/file-editor.css";
 import "./soul.css";
 
@@ -20,7 +21,7 @@ export default function SoulSettings({ api }) {
   const scheme = useComputedColorScheme("light");
   const language = useLanguage("soul.md");
   const extensions = useMemo(() => [EditorView.lineWrapping, ...(language ? [language] : []), ...highlightExtensions], [language]);
-  if (!view) return <div className="soul-settings" id="soul-settings" aria-busy={busy}>{error ? <InlineAlert id="soul-error" size="sm">{error}</InlineAlert> : <Loader size="sm" color="gray" />}</div>;
+  if (!view) return <div className="soul-settings" id="soul-settings" aria-busy={busy}>{soul.waiting ? <LinkWait /> : error ? <InlineAlert id="soul-error" size="sm">{error}</InlineAlert> : <Loader size="sm" color="gray" />}</div>;
   if (!view.configured) return <div className="soul-settings" id="soul-settings" data-configured="false"><Text className="soul-note">未配置 session.soulFile</Text></div>;
   const over = new TextEncoder().encode(draft).length > view.maxBytes;
   return <div className="soul-settings" id="soul-settings" data-configured="true" data-dirty={String(dirty)} data-conflict={String(conflict)} aria-busy={busy}>

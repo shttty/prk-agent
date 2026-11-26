@@ -13,7 +13,7 @@ export async function requestJson(ctx, path, options = {}) {
   try { response = await fetch(request); }
   catch (error) {
     if (error?.name !== "TypeError" || request.signal.aborted) throw error;
-    throw new Error("无法连接工作台服务。", { cause: error });
+    throw Object.assign(new Error("无法连接工作台服务。", { cause: error }), { status: 0 });
   }
   return readJsonResponse(await response.text(), response.status);
 }

@@ -12,6 +12,10 @@ import { FileInput } from "@mantine/core";
 import { Text } from "@mantine/core";
 import { Badge } from "@mantine/core";
 import { Modal } from "@mantine/core";
+import { isConnectionFailure } from "../../workbench/store/requests/is-connection-failure.js";
+import { pageErrorMessage } from "../../workbench/store/requests/page-error-message.js";
+import { useRelink } from "../list-page/use-relink.js";
+import { LinkWait } from "../list-page/LinkWait.jsx";
 import "./artifacts.css";
 export const bytes = (size) => size < 1024 ? `${size} B` : size < 1024 * 1024 ? `${(size / 1024).toFixed(1)} KB` : `${(size / 1024 / 1024).toFixed(1)} MB`;
 
@@ -23,18 +27,23 @@ export default function ArtifactsPanel({ actions }) {
   const [form, setForm] = useState({ name: "", version: "", platform: "x86_64", sha256: "" });
   const [file, setFile] = useState(null);
   const [deletion, setDeletion] = useState(null);
+  const [waiting, setWaiting] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  useRelink(() => setAttempt((value) => value + 1), waiting);
   const generation = useRef(0);
   const invalidate = useCallback(() => { generation.current++; }, []);
   useEffect(() => {
     const current = ++generation.current;
     setBusy(true);
     actions.api.get("/artifacts").then((result) => {
-      if (current === generation.current) setData(result);
+      if (current === generation.current) { setData(result); setWaiting(false); }
     }).catch((cause) => {
-      if (current === generation.current) setError(cause.message);
+      if (current !== generation.current) return;
+      if (isConnectionFailure(cause)) setWaiting(true);
+      else setError(cause.message);
     }).finally(() => { if (current === generation.current) setBusy(false); });
     return invalidate;
-  }, [actions, invalidate]);
+  }, [actions, invalidate, attempt]);
 
   const mutate = async (operation, after) => {
     const current = generation.current;
@@ -44,7 +53,7 @@ export default function ArtifactsPanel({ actions }) {
       if (current !== generation.current) return;
       setData(result); after?.();
     } catch (cause) {
-      if (current === generation.current) setError(cause.message);
+      if (current === generation.current) setError(pageErrorMessage(cause));
     } finally { if (current === generation.current) setBusy(false); }
   };
   const upload = (event) => {
@@ -59,6 +68,7 @@ export default function ArtifactsPanel({ actions }) {
       <h3 className="artifacts-heading">远程工具</h3>
       <Button id="artifacts-open-upload" size="xs" variant="default" disabled={busy} onClick={() => setUploading(!uploading)}>上传新版本</Button>
     </Group>
+    {waiting && !data ? <LinkWait /> : null}
     {error && !deletion ? <InlineAlert id="artifacts-error" size="sm">{error}</InlineAlert> : null}
     {uploading ? <form id="artifacts-upload-form" onSubmit={upload}>
       <Stack gap="sm">

@@ -4,6 +4,7 @@ import InlineAlert from "../../design-system/inline-alert/InlineAlert.jsx";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import { SplitPage } from "../list-page/SplitPage.jsx";
 import { DetailHeader } from "../list-page/DetailHeader.jsx";
+import { LinkWait } from "../list-page/LinkWait.jsx";
 import MemoryLayerList from "./MemoryLayerList.jsx";
 import MemoryDocuments from "./MemoryDocuments.jsx";
 import MemoryDeleteDialog from "./MemoryDeleteDialog.jsx";
@@ -37,7 +38,7 @@ export default function MemoryDialog({ actions, mobile }) {
         {!listing.enabled && !listing.error ? <Text id="memory-disabled" size="sm" c="dimmed">记忆已关闭。修改配置后需重启 Gateway。</Text> : null}
         {listing.error ? <InlineAlert id="memory-config-error" size="sm">{listing.error}</InlineAlert> : null}
         {error ? <InlineAlert id="memory-error" size="sm">{error}</InlineAlert> : null}
-        {layer ? <MemoryDocuments layer={layer} documents={documentsOf(layer.name)} memory={memory} currentInstance={currentInstance} />
+        {memory.waiting ? <LinkWait /> : layer ? <MemoryDocuments layer={layer} documents={documentsOf(layer.name)} memory={memory} currentInstance={currentInstance} />
           : active === CONFIG ? <LayerConfig api={actions.api} onSaved={memory.reload} /> : null}
       </div>
     </div>;

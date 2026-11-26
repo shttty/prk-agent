@@ -51,6 +51,17 @@ test("composer and viewport stay put through send, wait, thinking, output, tool 
     await f.page.locator("#open-tool-library").click();
     await f.page.locator('#tools-sources [data-provider="group:tools:library"][data-count="0"]').waitFor();
     await f.page.locator('[data-provider-section="group:tools:library"] [data-empty="saved"]').waitFor();
+    // While the link is down the banner reports it; settings pages wait instead of repeating it, then load on their own.
+    await f.page.context().setOffline(true);
+    for (const [section, root] of [["#open-memory", "#memory-manager"], ["#open-skill-library", "#settings-content"], ["#open-plugins", "#plugins-manager"]]) {
+      await f.page.locator(section).click();
+      await f.page.locator(`${root} [data-waiting="link"]`).first().waitFor();
+      assert.equal(await f.page.locator("#settings-content [role=alert], #settings-content .mantine-Alert-root").count(), 0, section);
+    }
+    await f.page.context().setOffline(false);
+    await f.page.locator("#plugins-empty").waitFor();
+    await f.page.locator("#open-skill-library").click();
+    await f.page.locator('#skills-sources [data-provider="group:skills:shared"]').waitFor();
     await f.page.locator("#close-settings").click();
     await f.page.evaluate(() => document.fonts.ready);
     await f.page.locator("#composer").fill("Check layout");
