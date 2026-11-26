@@ -1,0 +1,7 @@
+# Existing structure violations of this scope (rules: lines, exports, name). The list only shrinks: fix the file, then delete its line.
+exports web/chat/ask/answers/tab-label.js
+exports web/chat/background-tasks/fold-preference.js
+exports web/chat/code/highlight-lines.js
+exports web/chat/extension-ui/widgets/todo/parse-todo-widget.js
+exports web/chat/session-usage/usage-rows.js
+exports web/chat/transcript/messages/MessageMenu.jsx

@@ -1,0 +1,21 @@
+# Existing structure violations of this scope (rules: lines, exports, name). The list only shrinks: fix the file, then delete its line.
+exports src/config/execution-target/validation/bun-package-options.ts
+exports src/gateway/wire/method-parameters/validate-session-params.ts
+exports src/kernel/cell/read-cell.ts
+exports src/kernel/kernel-options.ts
+exports src/kernel/output/capture-image.ts
+exports src/kernel/output/format-running-cell.ts
+exports src/remote-extensions/sdk-context/create-context.mjs
+exports src/remote-extensions/sdk-context/session/read-cwd.mjs
+name src/remote-extensions/sdk-context/session/read-session-manager.mjs
+exports src/remote-extensions/session-load/catalog/inspect.ts
+exports src/remote-extensions/ui/warn-ui-capability.mjs
+exports src/sessions/history/kernel-cells/append-cell-receipt.ts
+exports src/sessions/history/kernel-cells/read-deliveries.ts
+exports src/sessions/history/kernel-cells/read-result.ts
+exports src/sessions/history/kernel-cells/retain-unsaved-cell.ts
+exports src/sessions/history/project-branch-page.ts
+exports src/sessions/memory/layers/load-layer-settings.ts
+exports src/sessions/memory/layers/read-layer-config.ts
+exports src/sessions/runtime/kernel/bun-configuration.ts
+exports src/target-environment/python/run-python-bootstrap-command.ts

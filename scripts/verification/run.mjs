@@ -25,6 +25,7 @@ try {
     run("web typecheck", node, ["node_modules/typescript/bin/tsc", "-p", "web/tsconfig.json"], 59),
     run("web lint", node, [npm, "--prefix", "web", "run", "lint"], 59),
     run("contract lint", node, ["scripts/verification/lint-contract.mjs"], 59),
+    run("structure lint", node, ["scripts/verification/lint-structure.mjs"], 59),
   ]);
   const fastInBudget = summarize("npm test", 60);
   const fastPassed = fast.every(Boolean) && fastInBudget;

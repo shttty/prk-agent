@@ -1,0 +1,4 @@
+# Existing structure violations of this scope (rules: lines, exports, name). The list only shrinks: fix the file, then delete its line.
+exports web/workspace/file-store/is-dirty.js
+exports web/workspace/file-store/load.js
+exports web/workspace/terminal/terminal-theme.js

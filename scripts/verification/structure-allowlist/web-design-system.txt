@@ -1,0 +1,4 @@
+# Existing structure violations of this scope (rules: lines, exports, name). The list only shrinks: fix the file, then delete its line.
+exports web/design-system/motion/motion-token.js
+name web/design-system/theme/color-scheme-manager.js
+exports web/design-system/theme/css-variables-resolver.js

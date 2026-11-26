@@ -1,0 +1,5 @@
+# Existing structure violations of this scope (rules: lines, exports, name). The list only shrinks: fix the file, then delete its line.
+lines test/browser/conversation/layout.test.mjs
+exports test/fixtures/gateway/assemble-gateway.mjs
+exports test/fixtures/gateway/prepare-artifacts.mjs
+name test/fixtures/kernel/verify-file-helpers.mjs

@@ -1,0 +1,4 @@
+# Existing structure violations of this scope (rules: lines, exports, name). The list only shrinks: fix the file, then delete its line.
+exports web/sessions/details/session-settings-state.js
+exports web/sessions/sidebar/grouping/highest-under.js
+exports web/sessions/sidebar/grouping/project-drop.js
