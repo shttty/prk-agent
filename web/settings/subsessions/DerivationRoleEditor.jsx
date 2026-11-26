@@ -7,7 +7,7 @@ import { Textarea } from "@mantine/core";
 import { TextInput } from "@mantine/core";
 import { IconChevronLeft } from "@tabler/icons-react";
 import InlineAlert from "../../design-system/inline-alert/InlineAlert.jsx";
-import { THINKING_LABELS } from "../../chat/composer/meta/ComposerMeta.jsx";
+import { THINKING_LABELS } from "../../chat/composer/meta/thinking-labels.js";
 import { RoleCapabilitiesPanel } from "./RoleCapabilitiesPanel.jsx";
 
 const ALL_THINKING = ["off", "minimal", "low", "medium", "high", "xhigh"];

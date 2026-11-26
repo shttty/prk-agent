@@ -1,59 +1,65 @@
-.pi-composer-meta {
+/* Session settings inside the composer's bottom row: "+", then the setting pills, then the context ring and send. The
+   pills read as quiet secondary controls; the row never wraps, the model pill gives way first (ellipsis), and
+   Composer.jsx moves thinking and tool mode into the "+" menu when the row is too narrow for them. */
+.pi-composer-settings {
   min-width: 0;
-  min-height: 1.9rem;
   display: flex;
+  flex: 1 1 auto;
   align-items: center;
-  gap: .1rem;
-  margin: .3rem .2rem 0;
+  gap: 4px;
 }
 
-.pi-meta-spacer { flex: 1 1 auto; }
+.pi-setting-select { flex: 0 0 auto; min-width: 0; }
 
-.pi-meta-local-controls { display: flex; align-items: center; flex: 0 0 auto; margin-inline-start: auto; gap: .3rem; }
+.pi-setting-select.pi-model-select { flex-shrink: 1; }
 
-.pi-meta-select { flex: 0 1 auto; min-width: 0; }
-
-.pi-composer-meta .pi-meta-select input {
+.pi-composer-settings .pi-setting-select input {
   field-sizing: content;
   min-width: 3rem;
-  max-width: 15rem;
-  height: 1.8rem;
-  min-height: 1.8rem;
-  border-radius: 999px;
-  padding: 0 1.5rem 0 .6rem;
+  max-width: 100%;
+  height: 1.75rem;
+  min-height: 1.75rem;
+  border: 1px solid var(--pi-line-strong);
+  border-radius: var(--pi-radius-pill);
+  padding: 0 1.45rem 0 .65rem;
+  background: transparent;
   color: var(--pi-muted);
   font-size: .78rem;
   font-weight: 500;
   text-overflow: ellipsis;
   cursor: pointer;
-  transition: background var(--pi-motion-fast), color var(--pi-motion-fast);
+  transition: background var(--pi-motion-fast), color var(--pi-motion-fast), border-color var(--pi-motion-fast);
 }
 
-.pi-composer-meta .pi-meta-select input:hover:not(:disabled) { color: var(--pi-ink); background: var(--pi-hover); }
+.pi-composer-settings .pi-model-select input { max-width: min(100%, 15rem); }
 
-.pi-composer-meta .pi-meta-select input:focus { color: var(--pi-ink); background: var(--pi-hover); }
+.pi-composer-settings:not([data-tier="full"]) .pi-model-select input { max-width: min(100%, 9rem); }
 
-.pi-composer-meta .pi-meta-select input:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: 0; }
+.pi-composer-settings .pi-setting-select input:hover:not(:disabled),
+.pi-composer-settings .pi-setting-select input:focus { border-color: var(--pi-faint); background: var(--pi-hover); color: var(--pi-ink); }
 
-.pi-composer-meta .pi-meta-select input:disabled { opacity: .6; background: transparent; cursor: default; }
+.pi-composer-settings .pi-setting-select input:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: 1px; }
 
-.pi-composer-meta .pi-meta-select input::placeholder { color: var(--pi-faint); }
+.pi-composer-settings .pi-setting-select input:disabled { opacity: .6; background: transparent; cursor: default; }
 
-.pi-composer-meta .pi-meta-select [data-position="right"] { width: 1.4rem; color: var(--pi-faint); pointer-events: none; }
+.pi-composer-settings .pi-setting-select input::placeholder { color: var(--pi-faint); }
 
-.pi-model-error { margin: .15rem .6rem 0; overflow-wrap: anywhere; }
+.pi-composer-settings .pi-setting-select [data-position="right"] { width: 1.35rem; color: var(--pi-faint); pointer-events: none; }
+
+.pi-model-error { margin: .3rem .6rem 0; overflow-wrap: anywhere; }
 
 .pi-context-usage {
-  height: 1.8rem;
+  height: 1.75rem;
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
   gap: .35rem;
-  border-radius: 999px;
+  border-radius: var(--pi-radius-pill);
   padding: 0 .55rem;
   color: var(--pi-muted);
   font-size: .75rem;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .pi-context-usage:focus-visible { outline: 2px solid var(--pi-accent-ring); }
@@ -63,7 +69,7 @@
 .pi-context-usage:hover,
 .pi-context-usage[aria-expanded="true"] { color: var(--pi-ink); background: var(--pi-hover); }
 
-/* Usage popover under the composer (portalled, so only :root tokens apply). */
+/* Usage popover above the composer (portalled, so only :root tokens apply). */
 
 .pi-usage-popover { border: 1px solid var(--pi-line); background: var(--pi-surface); padding: .8rem .9rem .75rem; }
 
@@ -79,18 +85,6 @@
 
 .pi-context-usage[data-tone="high"] .pi-context-fill { stroke: var(--pi-danger); }
 
-/* Phone: one row (model, thinking, tool mode, context) at tighter padding so it fits a 390px screen; when it does not,
-   it scrolls sideways (never wraps) with a fade on the right edge while more lies beyond. Every control keeps its own
-   content width (no shrink, no cap: a capped readonly input scrolls its text to the end on Android and cuts off its
-   start). */
 @media (max-width: 700px) {
-  .pi-composer-meta { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; gap: 0; margin-inline: 0; }
-  .pi-composer-meta::-webkit-scrollbar { display: none; }
-  .pi-composer-meta[data-more="true"] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent); }
-  .pi-composer-meta > * { flex-shrink: 0; }
-  .pi-composer-meta .pi-meta-select input, .pi-composer-meta .pi-model-select input { min-width: 2rem; max-width: none; padding: 0 1.05rem 0 .4rem; }
-  .pi-composer-meta .pi-meta-select [data-position="right"] { width: 1rem; }
-  .pi-composer-meta .pi-meta-spacer { flex: 1 0 0; }
-  .pi-composer-meta .pi-meta-local-controls { margin-inline-start: 0; }
-  .pi-composer-meta .pi-context-usage { padding: 0 .35rem; }
+  .pi-context-usage { padding: 0 .4rem; }
 }

@@ -27,12 +27,20 @@ import { ExtensionCompletionMenu } from "./extension-completion/ExtensionComplet
 import { ReferenceMenu } from "./references/ReferenceMenu.jsx";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import { useStopTarget } from "../../workbench/subscription/use-stop-target.js";
+import { useElementSize } from "@mantine/hooks";
+import { useMediaQuery } from "@mantine/hooks";
+import { ComposerSettings } from "./meta/ComposerSettings.jsx";
+import { SettingsMenuItems } from "./meta/SettingsMenuItems.jsx";
 /** The composer form; ComposerDock owns its state and passes it as `model`. */
 export function Composer({ actions, model }) {
   const { submitDraft, busy, commandMenuOpen, candidateOptions, candidateIndex, selectCandidate, setCandidateIndex, setHelpCommand, referenceMenuOpen, references, referenceCandidates, referenceIndex, plainSuggested, commandElsewhere, unknownControl, normalizedComposerText, plainMode, setPlainMode, replaceReference, attach, attachments, attachedReferences, catalogAttachments, status, connected, queueMode, composerText, inputChanged, setExtensionCursor, composingRef, setComposition, uploadFiles, resumable, sleeping, selectedSessionId, uiLoading, handleInputKeyDown, setComposerValue, findCurrentPage, setShortcutsOpen, cancelling, hasDraft, submitting, otherQueue, compacting } = model;
   const stopTarget = useStopTarget();
   const stopping = useWorkbench((state) => state.session.pending.has("stopping"));
   const canStop = Boolean(stopTarget && connected && !cancelling && !stopping);
+  const footer = useElementSize();
+  const phone = useMediaQuery("(max-width: 700px)", false, { getInitialValueInEffect: false });
+  // Row width in px (0 before the first measurement) decides how much of the session settings fits beside "+" and send.
+  const tier = phone || (footer.width && footer.width < 500) ? "compact" : footer.width && footer.width < 640 ? "short" : "full";
   const onStop = () => { if (canStop) void actions.cancelOperation(stopTarget); };
   const onKeyDown = (event) => {
     if (event.key !== "Escape") return submitting ? undefined : handleInputKeyDown(event);
@@ -90,7 +98,7 @@ export function Composer({ actions, model }) {
               >
                 <Textarea rows={1} className="pi-composer-input" />
               </ComposerPrimitive.Input>
-              <Group className="pi-composer-footer composer-footer" justify="space-between" gap="xs" wrap="nowrap">
+              <Group ref={footer.ref} className="pi-composer-footer composer-footer" gap={6} wrap="nowrap">
                 <VisuallyHidden id="input-count">{composerText.length} / {MAX_TEXT}</VisuallyHidden>
                 <input {...attach.inputProps} />
                 {/* Menu.Target overwrites its child's id with the menu id, so the stable id lives on Menu. */}
@@ -103,8 +111,10 @@ export function Composer({ actions, model }) {
                     <Menu.Item leftSection={<IconSlash size={16} stroke={1.7} />} onClick={() => { setComposerValue("/"); window.setTimeout(() => document.getElementById("composer")?.focus(), 0); }}>命令</Menu.Item>
                     <Menu.Item id="find-current-page" leftSection={<IconSearch size={16} stroke={1.7} />} onClick={findCurrentPage}>查找当前页</Menu.Item>
                     <Menu.Item id="open-shortcuts" leftSection={<IconKeyboard size={16} stroke={1.7} />} onClick={() => setShortcutsOpen(true)}>快捷键</Menu.Item>
+                    {tier === "compact" ? <SettingsMenuItems actions={actions} /> : null}
                   </Menu.Dropdown>
                 </Menu>
+                <ComposerSettings actions={actions} tier={tier} />
                 <Group className="pi-composer-actions" gap={6} wrap="nowrap">
                   {busy || stopTarget?.cell ? <Tooltip label="停止任务" openDelay={400}><ActionIcon id="cancel-operation" className="pi-composer-stop" type="button" variant="filled" radius="xl" size={34} onClick={onStop} disabled={!canStop} aria-label="停止任务"><IconPlayerStopFilled size={14} /></ActionIcon></Tooltip> : null}
                   {busy && !compacting

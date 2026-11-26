@@ -4,7 +4,7 @@ import { Group } from "@mantine/core";
 import { Text } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import InlineAlert from "../../design-system/inline-alert/InlineAlert.jsx";
-import { THINKING_LABELS } from "../../chat/composer/meta/ComposerMeta.jsx";
+import { THINKING_LABELS } from "../../chat/composer/meta/thinking-labels.js";
 
 export function DerivationRolesSection({ roles, builtinRoles, busy, error, onAdd, onEdit, onDelete }) {
   const entries = Object.entries(roles || {});

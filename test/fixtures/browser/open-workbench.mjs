@@ -36,7 +36,7 @@ export async function browserFixture(t, { viewport = { width: 1440, height: 1000
   if (init) await init(page);
   const open = async (id) => {
     await page.goto(new URL(`#sessionId=${id}`, url).href);
-    await page.locator("#chat-thinking-select:not(:disabled)").waitFor();
+    await page.locator("#chat-model-select:not(:disabled)").waitFor();
   };
   return { ...f, page, open };
 }

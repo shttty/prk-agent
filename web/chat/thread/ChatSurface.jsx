@@ -41,7 +41,7 @@ import { TranscriptSearch } from "../transcript/TranscriptSearch.jsx";
 import { PendingQueue } from "../composer/PendingQueue.jsx";
 import { OperationBar } from "../composer/OperationBar.jsx";
 import { ComposerDock } from "../composer/ComposerDock.jsx";
-import { ComposerMeta } from "../composer/ComposerMeta.jsx";
+import { ModelCatalogAlert } from "../composer/meta/ModelCatalogAlert.jsx";
 import { SendStatus } from "../composer/SendStatus.jsx";
 import { useBusy } from "../composer/use-busy.js";
 import { useHistoryPagination } from "../transcript/use-history-pagination.js";
@@ -173,7 +173,7 @@ export function ChatSurface({ actions, messageCount, onViewTerminal }) {
               <ExtensionUI actions={actions} />
               <ComposerDock actions={actions} onFindInPage={findCurrentPage} onSend={followLatest} />
               <SendStatus />
-              <ComposerMeta actions={actions} />
+              <ModelCatalogAlert />
             </>}
           </Box>
           <ExtensionRegion actions={actions} placement="footer" />
