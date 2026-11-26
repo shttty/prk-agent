@@ -25,6 +25,7 @@ import { DiffPanel } from "../diff-view/DiffPanel.tsx";
 import { DiffTab } from "../diff-view/DiffTab.tsx";
 import { TerminalTab } from "../terminal/TerminalTab.tsx";
 import { nextShellName } from "../terminal/next-shell-name.ts";
+import { DebugToolsMenu } from "../debug-tools/DebugToolsMenu.tsx";
 import { useSessionWorkspace } from "../session-workspace/use-session-workspace.ts";
 import { WorkspaceDialogs } from "../session-workspace/WorkspaceDialogs.tsx";
 import "./pane.css";
@@ -96,6 +97,7 @@ export default function WorkspacePane({ api, sessionId, target, cwd, hidden, con
     <Group component="header" className="pi-pane-bar" gap={5} wrap="nowrap" h="2.6rem" px="0.5rem">
       <Tooltip label="目录"><ActionIcon id="toggle-tree" size={26} variant={sheet ? "light" : "subtle"} color="gray" aria-label="目录" aria-pressed={sheet} onClick={() => setSheet((value) => !value)}><IconFolder size={17} /></ActionIcon></Tooltip>
       {terminalEnabled ? <Tooltip label="新终端"><ActionIcon id="new-terminal" size={26} variant="subtle" color="gray" aria-label="新终端" onClick={newTerminal}><IconTerminal2 size={17} /></ActionIcon></Tooltip> : null}
+      <DebugToolsMenu engine={engine} onOpened={() => setSheet(false)} />
       <Box flex={1} />
       <Group gap={2} wrap="nowrap" className="pi-pane-controls">{controls}</Group>
     </Group>

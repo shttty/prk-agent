@@ -5,6 +5,8 @@ import { FILE_COMPONENT } from "./editor-layout-constants.ts";
 import { DIFF_COMPONENT } from "./editor-layout-constants.ts";
 import { TERMINAL_COMPONENT } from "./editor-layout-constants.ts";
 import { TERMINAL_RENDERER } from "./editor-layout-constants.ts";
+import { PROMPT_COMPONENT } from "./editor-layout-constants.ts";
+import { PROMPT_PANEL_ID } from "./editor-layout-constants.ts";
 import { terminalPanelId } from "./terminal-panel-id.ts";
 /** A dock layout this module wrote, or null. `hosted`: panels the host page put in the grid itself (`{ id: component }`,
  * e.g. the desktop stage's chat), taken as they are. */
@@ -33,6 +35,11 @@ export function parseSavedLayout(raw: string, hosted: Record<string, string> = {
       const name = panel.params?.name;
       if (typeof name !== "string" || !name || id !== terminalPanelId(name)) return null;
       panels[id] = { ...panel, renderer: TERMINAL_RENDERER };
+      continue;
+    }
+    if (component === PROMPT_COMPONENT) {
+      if (id !== PROMPT_PANEL_ID) return null;
+      panels[id] = panel;
       continue;
     }
     const path = panel.params?.path;

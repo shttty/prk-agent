@@ -10,3 +10,7 @@ export const TERMINAL_COMPONENT = "terminal";
 // as its group. dockview's "always" overlay is repositioned one animation frame after the group is laid out, so on a shrink
 // (e.g. the workspace leaving the main stage) the wider overlay painted over the neighbouring group for that frame.
 export const TERMINAL_RENDERER = "onlyWhenVisible";
+
+// The prompt viewer of the debug tools: one panel per session, no params.
+export const PROMPT_COMPONENT = "prompt";
+export const PROMPT_PANEL_ID = "prompt";

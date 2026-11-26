@@ -15,6 +15,7 @@ export type Engine = {
   paths: () => string[];
   count: () => number;
   openDiff: (path: string) => string;
+  openPrompt: () => void;
   activePath: () => string | null;
   close: (id: string) => void;
   closePaths: (gone: string) => void;

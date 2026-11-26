@@ -45,6 +45,7 @@ import { StageCorner } from "./stage-corner.ts";
 import { StageTree } from "./StageTree.tsx";
 import { CornerActions } from "./CornerActions.tsx";
 import { LayoutMenu } from "./presets/LayoutMenu.tsx";
+import { DebugToolsMenu } from "../../workspace/debug-tools/DebugToolsMenu.tsx";
 import { applyPreset } from "./presets/apply-preset.ts";
 import { presetOf } from "./presets/preset-of.ts";
 import { BUILTIN_PRESETS } from "./presets/builtin-presets.ts";
@@ -161,7 +162,7 @@ export default function DesktopStage({ api, sessionId, target, cwd, place, refre
   // The buttons are plain content of whichever region holds the stage's top-right corner: a pinned, open directory (its
   // header), else the chat column's strip while the chat holds the corner, else the corner group's tab row.
   const host: StageControlsHost = open && treePinned && treeOpen ? "tree" : chatCorner ? "chat" : "dock";
-  const controls = <StageControls recoverButton={recoverButton} workspaceAvailable={workspaceAvailable} open={open} terminalEnabled={terminalEnabled} treeOpen={treeOpen} treePinned={treePinned} onNewTerminal={newTerminal}
+  const controls = <StageControls recoverButton={recoverButton} workspaceAvailable={workspaceAvailable} open={open} terminalEnabled={terminalEnabled} treeOpen={treeOpen} treePinned={treePinned} onNewTerminal={newTerminal} debugMenu={<DebugToolsMenu engine={engine} />}
     layoutMenu={dock ? <LayoutMenu onApply={arrange} onCapture={() => presetOf(dock.grid.toJSON(), open, dock.liveMain(), dock.sizing.get())} /> : null} />;
   const treeStyle: CssVars = { "--pi-tree-width": `${treeWidth}px` };
   return <div className="pi-desktop-stage" id="desktop-stage" ref={frame} data-open={open ? "true" : undefined} style={treeStyle}>

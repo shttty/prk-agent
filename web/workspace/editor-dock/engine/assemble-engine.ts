@@ -9,6 +9,7 @@ import { findByPath } from "./find-by-path.ts";
 import { paths } from "./paths.ts";
 import { count } from "./count.ts";
 import { openDiff } from "./open-diff.ts";
+import { openPrompt } from "./open-prompt.ts";
 import { close } from "./close.ts";
 import { closePaths } from "./close-paths.ts";
 import { renamePaths } from "./rename-paths.ts";
@@ -36,6 +37,7 @@ export function createEngine(api: EngineHost): Engine {
     paths: () => paths(ctx),
     count: () => count(ctx),
     openDiff: (path) => openDiff(ctx, path),
+    openPrompt: () => openPrompt(ctx),
     close: (id) => close(ctx, id),
     closePaths: (gone) => closePaths(ctx, gone),
     renamePaths: (from, to) => renamePaths(ctx, from, to),
@@ -56,6 +58,7 @@ export function createEngine(api: EngineHost): Engine {
     paths: ctx.paths,
     count: ctx.count,
     openDiff: ctx.openDiff,
+    openPrompt: ctx.openPrompt,
     activePath: ctx.activePath,
     close: ctx.close,
     closePaths: ctx.closePaths,

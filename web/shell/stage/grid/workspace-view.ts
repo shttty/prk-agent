@@ -4,15 +4,16 @@ import type { Extent, StageApi } from "./grid-types.ts";
 import { FILE_COMPONENT } from "../../../workspace/editor-layout/editor-layout-constants.ts";
 import { DIFF_COMPONENT } from "../../../workspace/editor-layout/editor-layout-constants.ts";
 import { TERMINAL_COMPONENT } from "../../../workspace/editor-layout/editor-layout-constants.ts";
+import { PROMPT_COMPONENT } from "../../../workspace/editor-layout/editor-layout-constants.ts";
 import { placePanel } from "./place-panel.ts";
 
-const WORK = new Set([FILE_COMPONENT, DIFF_COMPONENT, TERMINAL_COMPONENT]);
+const WORK = new Set([FILE_COMPONENT, DIFF_COMPONENT, TERMINAL_COMPONENT, PROMPT_COMPONENT]);
 
 const isWorkPanel = (panel: IDockviewPanel) => WORK.has(panel.api.component);
 
 const isWorkGroup = (group: DockviewGroupPanel) => group.panels.some(isWorkPanel);
 
-/** The stage grid as the workspace engine (editor-dock/engine) expects its dock: only the file, diff and shell tabs and
+/** The stage grid as the workspace engine (editor-dock/engine) expects its dock: only the file, diff, prompt and shell tabs and
  * the groups holding them, so its counts, placement and active-tab tracking work unchanged; the chat is invisible to
  * it. While the chat is focused, the active group is the workspace group used last. New tabs land by `placePanel`.
  * `size()`: the grid element's size. Returns the view plus `dispose`. */

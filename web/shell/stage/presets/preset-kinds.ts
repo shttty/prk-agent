@@ -2,10 +2,11 @@ import type { PresetKind } from "./preset-types.ts";
 import { FILE_COMPONENT } from "../../../workspace/editor-layout/editor-layout-constants.ts";
 import { DIFF_COMPONENT } from "../../../workspace/editor-layout/editor-layout-constants.ts";
 import { TERMINAL_COMPONENT } from "../../../workspace/editor-layout/editor-layout-constants.ts";
+import { PROMPT_COMPONENT } from "../../../workspace/editor-layout/editor-layout-constants.ts";
 import { CHAT_COMPONENT } from "../grid/stage-constants.ts";
 
-// What a layout records of a group: which kinds of panel it holds. Files and diffs are one kind.
-export const KINDS: Record<string, PresetKind> = { [CHAT_COMPONENT]: "chat", [FILE_COMPONENT]: "files", [DIFF_COMPONENT]: "files", [TERMINAL_COMPONENT]: "terminal" };
+// What a layout records of a group: which kinds of panel it holds. Files, diffs and the prompt viewer are one kind.
+export const KINDS: Record<string, PresetKind> = { [CHAT_COMPONENT]: "chat", [FILE_COMPONENT]: "files", [DIFF_COMPONENT]: "files", [PROMPT_COMPONENT]: "files", [TERMINAL_COMPONENT]: "terminal" };
 
 export const WORK_KINDS: PresetKind[] = ["files", "terminal"];
 

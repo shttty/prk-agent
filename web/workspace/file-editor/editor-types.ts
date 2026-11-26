@@ -1,3 +1,4 @@
+import type { PromptReport } from "../../../src/gateway/wire/web-types.ts";
 import type { FileStore } from "../file-store/file-store-types.ts";
 
 /** What the unified-diff request replies with (a monitor diff of one file). */
@@ -8,5 +9,6 @@ export type EditorContextValue = {
   store: FileStore;
   requestClose: (id: string, path: string) => void;
   loadDiff: (path: string) => Promise<DiffReply>;
+  loadPrompt: () => Promise<PromptReport>;
   closeTab: (id: string) => void;
 };

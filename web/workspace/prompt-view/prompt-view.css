@@ -1,0 +1,5 @@
+.pi-prompt-bar { flex: 0 0 auto; border-bottom: 1px solid var(--pi-line); }
+.pi-prompt-body { flex: 1; min-height: 0; overflow: auto; }
+.pi-prompt-row { border: 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; border-radius: var(--pi-radius-sm); }
+.pi-prompt-row:hover { background: var(--pi-hover); }
+.pi-prompt-text { margin: 0; max-height: 20rem; width: 100%; overflow: auto; padding: .5rem .65rem; border-radius: var(--pi-radius-sm); background: var(--pi-code-bg); color: var(--pi-code-ink); font: .74rem/1.5 var(--pi-font-mono); font-variant-ligatures: none; white-space: pre-wrap; overflow-wrap: anywhere; }

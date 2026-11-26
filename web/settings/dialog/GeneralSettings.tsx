@@ -18,6 +18,7 @@ import GatewayRestartSettings from "../gateway-restart/GatewayRestartSettings.ts
 import { KernelExecutionSetting } from "./KernelExecutionSetting.tsx";
 import { ToolTitleSetting } from "./ToolTitleSetting.tsx";
 import { TerminalDisplaySettings } from "./TerminalDisplaySettings.tsx";
+import { DebugModeSetting } from "./DebugModeSetting.tsx";
 type GeneralStatus = { kind: "reset" } | { kind: "copied" } | { kind: "manual"; code: string };
 
 type GeneralSettingsProps = { onReset: () => void; layoutContext: () => LayoutCodeContext; gatewayRestartUnit: string | null | undefined; api: PageApi };
@@ -59,6 +60,10 @@ export function GeneralSettings({ onReset, layoutContext, gatewayRestartUnit, ap
     </section>
     <KernelExecutionSetting api={api} />
     <ToolTitleSetting api={api} />
+    <section className="settings-section" data-section="debug">
+      <h3 className="pi-settings-heading">调试</h3>
+      <div className="pi-settings-group"><DebugModeSetting /></div>
+    </section>
     <GatewayRestartSettings unit={gatewayRestartUnit} api={api} />
   </div>;
 }

@@ -7,6 +7,7 @@ import { useRef } from "react";
 import { useState } from "react";
 import type { PageApi } from "../../shell/page/page-types.ts";
 import type { Engine } from "../editor-dock/engine/engine-types.ts";
+import type { PromptReport } from "../../../src/gateway/wire/web-types.ts";
 import type { DiffReply } from "../file-editor/editor-types.ts";
 import type { TerminalContextValue } from "../terminal/terminal-types.ts";
 import type { CloseConfirm, TerminalRequest } from "./workspace-types.ts";
@@ -42,8 +43,9 @@ export function useSessionWorkspace({ api, sessionId, target, engine, place, ter
     if (store.isDirty(path)) setConfirmClose({ id, path }); else engineRef.current?.close(id);
   }, [store]);
   const loadDiff = useCallback((path: string): Promise<DiffReply> => api.post(`/sessions/${encodeURIComponent(sessionId)}/monitor/diff`, { path }), [api, sessionId]);
+  const loadPrompt = useCallback(() => api.get<PromptReport>(`/sessions/${encodeURIComponent(sessionId)}/prompt`), [api, sessionId]);
   const closeTab = useCallback((id: string) => engineRef.current?.close(id), []);
-  const editor = useMemo(() => ({ store, requestClose, loadDiff, closeTab }), [store, requestClose, loadDiff, closeTab]);
+  const editor = useMemo(() => ({ store, requestClose, loadDiff, loadPrompt, closeTab }), [store, requestClose, loadDiff, loadPrompt, closeTab]);
   const end = useEndTerminal({ api, sessionId, engine });
   const { listed, metadata, noteGeneration } = useTerminalSync({ engine, api, sessionId, enabled: terminalEnabled, hidden, refreshKey, onShown });
   const shown = useEffectEvent(() => onShown?.());
