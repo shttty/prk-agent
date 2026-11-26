@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import type { ThemeImport } from "../../../../shared/themes.js";
+import type { ThemeImport } from "../../../../shared/themes.ts";
 import type { ThemesState } from "../theme-store-state.ts";
 
 export function importTheme(ctx: ThemesState, value: unknown): ThemeImport {

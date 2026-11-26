@@ -1,5 +1,5 @@
 import type { HostContext, Operation } from "../host-types.ts";
-import { parsePeerMessages } from "../../../../shared/session-messages/parse-peer-messages.js";
+import { parsePeerMessages } from "../../../../shared/session-messages/parse-peer-messages.ts";
 import { clearQueue } from "./clear-sdk-queue.ts";
 import { recordDiscard } from "../inbox/record-discarded-peer.ts";
 

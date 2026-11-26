@@ -1,5 +1,5 @@
 import type { HostContext, Operation } from "../host-types.ts";
-import { parsePeerMessages } from "../../../../shared/session-messages/parse-peer-messages.js";
+import { parsePeerMessages } from "../../../../shared/session-messages/parse-peer-messages.ts";
 import { recordDiscard } from "./record-discarded-peer.ts";
 
 /** clearQueue transfers ownership back from Pi; consumed transcript messages are never replayed. */

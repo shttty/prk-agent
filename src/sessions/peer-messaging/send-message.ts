@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { PeerDelivery, PeerMessage } from "../../../shared/session-messages/message-types.js";
+import type { PeerDelivery, PeerMessage } from "../../../shared/session-messages/message-types.ts";
 import type { MessagingContext } from "./message-types.ts";
 
 export async function send(ctx: MessagingContext, actor: string, to: string, message: string, replyTo?: string, expectReply?: boolean, delivery: PeerDelivery = "steer") {

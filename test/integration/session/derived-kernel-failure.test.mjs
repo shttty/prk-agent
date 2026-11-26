@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { parsePeerMessages } from "../../../shared/session-messages/parse-peer-messages.js";
+import { parsePeerMessages } from "../../../shared/session-messages/parse-peer-messages.ts";
 import { gatewayFixture, text } from "../../fixtures/gateway/assemble-gateway.mjs";
 import { until } from "../../fixtures/until.mjs";
 

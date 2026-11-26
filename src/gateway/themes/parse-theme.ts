@@ -1,5 +1,5 @@
 import Color from "colorjs.io";
-import { builtinThemes, type ThemeDocument } from "../../../shared/themes.js";
+import { builtinThemes, type ThemeDocument } from "../../../shared/themes.ts";
 import { object } from "../wire/is-record.ts";
 import { WireError } from "../wire/create-error.ts";
 

@@ -1,4 +1,4 @@
-import type { PeerDelivery, PeerMessage } from "../../../../shared/session-messages/message-types.js";
+import type { PeerDelivery, PeerMessage } from "../../../../shared/session-messages/message-types.ts";
 import type { PeerReceipt } from "../../../sessions/host/host-types.ts";
 import { requireSource } from "../binding/require-active-source.ts";
 import type { HostBindingContext } from "../host-binding-state.ts";

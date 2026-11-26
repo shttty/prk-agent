@@ -7,7 +7,7 @@ import type { SessionOptions, ToolMode } from "../../config/session/session-opti
 import type { DelegationLevel } from "../../config/session/delegation-levels.ts";
 import type { HostedExtensionUI, HostedExtensionUiSnapshot } from "../extension-ui/ui-types.ts";
 import type { ExtensionHandlerScope } from "../extension-invocation/invocation-types.ts";
-import type { PeerDelivery, PeerMessage } from "../../../shared/session-messages/message-types.js";
+import type { PeerDelivery, PeerMessage } from "../../../shared/session-messages/message-types.ts";
 import type { CancelRequest, CancelResult, KernelInterruptRequest, KernelInterruptResult } from "./operations/cancel-types.ts";
 import type { HostOperationSnapshot, Operation, OperationCompletion, OperationCompletionObserver, OperationKind } from "./operations/operation-types.ts";
 export type { HostOperationSnapshot, Operation, OperationCompletion, OperationCompletionObserver, OperationCompletionStatus, OperationKind } from "./operations/operation-types.ts";

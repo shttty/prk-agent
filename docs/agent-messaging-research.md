@@ -112,7 +112,7 @@
 
 当前实现入口为 `src/sessions/peer-messaging/assemble-peer-messaging.ts`；Gateway 绑定在 `src/gateway/peer-messages/open-peer-messages.ts`，接收方 inbox 与 `admit` 分别在 `src/sessions/host/inbox/receive-peer.ts`、`src/sessions/host/input/admit-input.ts`，`turn_end` 接入点在 `src/sessions/runtime/conversation/bind-session-hooks.ts`。原 2026-09-28 调查记录的是当时 Gateway 第 802 行、SessionHost 第 341 行，不是当前源码坐标。
 
-第一版接收方输入是带来源 envelope 的用户消息，忙碌积压以 `[agent-messages]` 合并。当前使用 `[session-messages]`，格式与解析分别位于 `shared/session-messages/format-peer-messages.js`、`parse-peer-messages.js`；Web 同伴卡片与 Gateway 共用解析器，不改变 SDK 投递语义。原第一版的普通用户气泡是当时呈现；2026-09-29 补充记录见下方。
+第一版接收方输入是带来源 envelope 的用户消息，忙碌积压以 `[agent-messages]` 合并。当前使用 `[session-messages]`，格式与解析分别位于 `shared/session-messages/format-peer-messages.ts`、`parse-peer-messages.ts`；Web 同伴卡片与 Gateway 共用解析器，不改变 SDK 投递语义。原第一版的普通用户气泡是当时呈现；2026-09-29 补充记录见下方。
 
 **已验证（2026-09-28）：**
 

@@ -8,9 +8,9 @@ import type { ArtifactUploadRequest } from "../../artifacts/store/store-types.ts
 import type { ToolLibraryEntry } from "../../codemode/tool-library/library-types.ts";
 import type { ToolLibraryAction } from "../../codemode/tool-library/library-types.ts";
 import type { SkillLibraryEntry } from "../../sessions/skill-library/skill-types.ts";
-import type { ThemeLibrary } from "../../../shared/themes.js";
-import type { ThemePreview } from "../../../shared/themes.js";
-import type { ThemeImport } from "../../../shared/themes.js";
+import type { ThemeLibrary } from "../../../shared/themes.ts";
+import type { ThemePreview } from "../../../shared/themes.ts";
+import type { ThemeImport } from "../../../shared/themes.ts";
 import type { MemoryListing } from "../../sessions/memory/memory-types.ts";
 import type { LayerConfigFile, LayerConfigView } from "../../sessions/memory/layers/read-layer-config.ts";
 import type { PluginConfigView } from "../../sessions/plugin-config/config-types.ts";

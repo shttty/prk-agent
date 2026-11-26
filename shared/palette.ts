@@ -5,7 +5,9 @@
 // Swapping a theme = replacing this object; theme.js derives the rest (Mantine's variables, the --pi-* CSS variables).
 // Text-bearing tokens must reach WCAG AA 4.5 on every surface.
 
-export const palette = {
+export type Scheme = { tokens: Record<string, string>; scales: { accent: string[]; gray: string[]; dark?: string[] } };
+
+export const palette: Record<"light" | "dark", Scheme> = {
   // Light (2026-10-17, "D"): the session sidebar sits flat on a hue-free canvas, chat / workspace / terminal are white
   // cards on it; floating layers are translucent white (blur in CSS); soft, short shadows. Sea-teal accent; code uses
   // GitHub Light (comment uses Primer fg.muted to reach AA).
@@ -154,7 +156,7 @@ export const palette = {
 };
 
 // Scheme-independent hues for Mantine components that ask for blue / green / violet by name.
-export const hues = {
+export const hues: Record<"blue" | "green" | "violet", string[]> = {
   blue: ["#EAF2F4", "#D3E3E8", "#AFCBD4", "#86AFBD", "#6297A8", "#4A8296", "#3D6F82", "#325B6B", "#274855", "#1C3540"],
   green: ["#EEF4EF", "#DCE8DE", "#BFD5C4", "#A1C0A9", "#86AD91", "#6E9A7B", "#5C8569", "#4B6E57", "#3B5745", "#2B4033"],
   violet: ["#F4EFF4", "#E7DDE8", "#D2C0D4", "#BCA1BF", "#A886AC", "#966F9A", "#7F5C83", "#684B6B", "#523B55", "#3C2B3E"],

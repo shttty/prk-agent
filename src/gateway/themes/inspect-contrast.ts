@@ -1,5 +1,5 @@
 import Color from "colorjs.io";
-import { resolvedTokens, type ThemeDocument } from "../../../shared/themes.js";
+import { resolvedTokens, type ThemeDocument } from "../../../shared/themes.ts";
 import { over } from "./contrast/over.ts";
 import { c as readColor } from "./contrast/read-color.ts";
 import { mix } from "./contrast/mix.ts";

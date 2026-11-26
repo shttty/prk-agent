@@ -1,6 +1,6 @@
 import type { HostContext } from "../host-types.ts";
-import type { PeerMessage } from "../../../../shared/session-messages/message-types.js";
-import { formatPeerMessages } from "../../../../shared/session-messages/format-peer-messages.js";
+import type { PeerMessage } from "../../../../shared/session-messages/message-types.ts";
+import { formatPeerMessages } from "../../../../shared/session-messages/format-peer-messages.ts";
 import { refused } from "./refused.ts";
 import { admit } from "../input/admit-input.ts";
 
@@ -17,12 +17,13 @@ export async function flushPeerInbox(ctx: HostContext, delivery: "steer" | "foll
     batch.push(entry.message);
     return false;
   });
-  if (!batch.length) return;
+  const [first] = batch;
+  if (!first) return;
   ctx.inboxChars -= batch.reduce((chars, message) => chars + message.body.length, 0);
   const flushing = Promise.withResolvers<void>();
   ctx.flushingInbox = flushing.promise;
   const request = {
-    requestId: `session-message:${batch[0].messageId}`,
+    requestId: `session-message:${first.messageId}`,
     message: formatPeerMessages(batch),
     ...(queued ? { queue: delivery } : {}),
   };
@@ -32,7 +33,7 @@ export async function flushPeerInbox(ctx: HostContext, delivery: "steer" | "foll
       if (disposition === "handled") refuse("handled by an input extension");
     });
     if (!admission.accepted) { refuse(admission.error); return; }
-    for (let index = 1; index < batch.length; index++) ctx.active?.requestIds.add(`session-message:${batch[index].messageId}`);
+    for (const { messageId } of batch.slice(1)) ctx.active?.requestIds.add(`session-message:${messageId}`);
     if (queued) await admission.invocation;
     else void admission.invocation.catch(refuse);
   } catch (error) { refuse(error); }

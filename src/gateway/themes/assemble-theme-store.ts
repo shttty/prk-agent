@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import type { ThemeLibrary, ThemePreview, ThemeImport } from "../../../shared/themes.js";
+import type { ThemeLibrary, ThemePreview, ThemeImport } from "../../../shared/themes.ts";
 import type { ThemesState } from "./theme-store-state.ts";
 import { list } from "./documents/list.ts";
 import { preview } from "./contrast/preview.ts";

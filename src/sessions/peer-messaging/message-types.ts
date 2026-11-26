@@ -1,6 +1,6 @@
 import type { SessionOptions } from "../../config/session/session-options.ts";
-import type { PeerMessage } from "../../../shared/session-messages/message-types.js";
-import type { PeerDelivery } from "../../../shared/session-messages/message-types.js";
+import type { PeerMessage } from "../../../shared/session-messages/message-types.ts";
+import type { PeerDelivery } from "../../../shared/session-messages/message-types.ts";
 import type { PeerReceipt } from "../host/host-types.ts";
 import type { AgentPeer } from "../../plugins/sessions/session-types.ts";
 export interface AgentMessagingEnvironment {

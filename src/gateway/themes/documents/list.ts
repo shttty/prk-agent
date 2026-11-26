@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { builtinThemes, type ThemeLibrary } from "../../../../shared/themes.js";
+import { builtinThemes, type ThemeLibrary } from "../../../../shared/themes.ts";
 import type { ThemesState } from "../theme-store-state.ts";
 import { parseTheme } from "../parse-theme.ts";
 

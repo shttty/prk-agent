@@ -121,6 +121,7 @@ export function render(ctx: UiContext, width: number, height: number, clientId: 
     let beforeEntryId: string | null = null;
     for (let index = visible.length - 1; index >= 0; index--) {
       const entry = visible[index];
+      if (!entry) continue;
       if (messageIds.has(entry.id)) beforeEntryId = entry.id;
       if (entry.type !== "custom") continue;
       const renderer = ctx.session.extensionRunner.getEntryRenderer(entry.customType);

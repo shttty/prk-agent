@@ -1,4 +1,4 @@
-import type { PeerMessage } from "../../../../shared/session-messages/message-types.js";
+import type { PeerMessage } from "../../../../shared/session-messages/message-types.ts";
 import { describeError } from "../../../diagnostics/session-errors/describe-error.ts";
 import type { HostContext } from "../host-types.ts";
 import { recordDiscard } from "./record-discarded-peer.ts";

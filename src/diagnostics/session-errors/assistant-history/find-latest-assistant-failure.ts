@@ -6,7 +6,7 @@ export function latestAssistantFailure(session: Pick<AgentSession, "messages">, 
   const messages = session?.messages ?? [];
   for (let index = messages.length - 1; index >= Math.max(0, after, messages.length - options.errorLookbackMessages); index -= 1) {
     const message = messages[index];
-    if (message.role === "assistant" && message.stopReason === "error") return message;
+    if (message?.role === "assistant" && message.stopReason === "error") return message;
   }
   return undefined;
 }

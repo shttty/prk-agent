@@ -34,7 +34,10 @@ export function projectBranchPage(manager: SessionManager, cursor: HistoryPageCu
   if (end < 0) return null;
 
   const starts: number[] = [];
-  for (let i = end - 1; i >= 0 && starts.length <= PAGE_TURNS; i--) if (isUser(branch[i])) starts.push(i);
+  for (let i = end - 1; i >= 0 && starts.length <= PAGE_TURNS; i--) {
+    const entry = branch[i];
+    if (entry && isUser(entry)) starts.push(i);
+  }
   if (starts.length <= PAGE_TURNS) starts[Math.max(0, starts.length - 1)] = 0;
   else starts.pop();
 
@@ -55,7 +58,7 @@ export function projectBranchPage(manager: SessionManager, cursor: HistoryPageCu
       }
     }
     const candidate = {
-      historyBefore: start ? branch[start].id : null,
+      historyBefore: start ? branch[start]?.id ?? null : null,
       historyForkBefore: previousReply(branch, start),
       compactions: compactionMarks.filter(({ index, anchor }) =>
         (anchor >= start && (anchor < end || before === undefined)) || (index >= start && index < end)).map(({ entry }) => entry),
@@ -89,7 +92,7 @@ function isUser(entry: SessionEntry): boolean {
 function previousReply(branch: SessionEntry[], start: number): string | null {
   for (let i = start - 1; i >= 0; i--) {
     const entry = branch[i];
-    if (entry.type === "message" && entry.message.role === "assistant" && Array.isArray(entry.message.content)
+    if (entry?.type === "message" && entry.message.role === "assistant" && Array.isArray(entry.message.content)
       && !entry.message.content.some((part) => part.type === "toolCall")) return entry.id;
   }
   return null;
@@ -103,6 +106,7 @@ function projectCompactionMarks(branch: SessionEntry[]) {
     let anchor = positions.get(entry.firstKeptEntryId) ?? index;
     while (anchor < branch.length) {
       const candidate = branch[anchor];
+      if (!candidate) break;
       if (candidate.type === "message" || candidate.type === "custom_message" || (candidate.type === "branch_summary" && candidate.summary)) break;
       anchor++;
     }

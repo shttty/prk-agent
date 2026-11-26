@@ -1,6 +1,6 @@
 export type PeerDelivery = "steer" | "followUp" | "abort";
 
-export interface PeerMessage {
+export type PeerMessage = {
   readonly label: string;
   readonly sender: string;
   readonly messageId: string;
@@ -10,4 +10,4 @@ export interface PeerMessage {
   /** Recipient host/stream-local transport order; assigned by receivePeer, never by the sender. */
   readonly arrival?: number;
   readonly batch?: { readonly id: string; readonly index: number; readonly count: number };
-}
+};

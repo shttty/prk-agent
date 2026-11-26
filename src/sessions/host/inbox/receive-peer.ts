@@ -1,5 +1,5 @@
 import type { HostContext, PeerReceipt } from "../host-types.ts";
-import type { PeerDelivery, PeerMessage } from "../../../../shared/session-messages/message-types.js";
+import type { PeerDelivery, PeerMessage } from "../../../../shared/session-messages/message-types.ts";
 import { flushPeerInbox } from "./flush-peer-inbox.ts";
 import { requestCancel } from "../operations/request-cancel.ts";
 

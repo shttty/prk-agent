@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { formatPeerMessages } from "../../../shared/session-messages/format-peer-messages.js";
-import { parsePeerMessages } from "../../../shared/session-messages/parse-peer-messages.js";
+import { formatPeerMessages } from "../../../shared/session-messages/format-peer-messages.ts";
+import { parsePeerMessages } from "../../../shared/session-messages/parse-peer-messages.ts";
 import { projectPeerBody } from "../../../web/chat/transcript/messages/peer/project-peer-body.js";
 
 const result = { id: "r1", summary: "## Done\n\n- shipped", artifacts: ["/w/shot.png", "/w/notes.md", 7], startedAt: 1_000, finishedAt: 61_000,

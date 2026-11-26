@@ -12,7 +12,7 @@ export function oneBinding(entries: readonly SessionEntry[], limits: LimitsOptio
   const bindings = entries.filter((entry): entry is Extract<SessionEntry, { type: "custom" }> => entry.type === "custom" && entry.customType === BINDING_TYPE);
   if (bindings.length === 0) return undefined;
   if (bindings.length !== 1) invalid("binding (duplicate entries)");
-  const data: unknown = bindings[0].data;
+  const data: unknown = bindings[0]?.data;
   if (!isRecord(data)) invalid("binding data at /");
   const allowed = ["target", "version", "cwd", "sessionId"];
   const badKey = Object.keys(data).find((key) => !allowed.includes(key))

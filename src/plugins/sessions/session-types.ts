@@ -1,5 +1,5 @@
 import type { Static } from "typebox";
-import type { PeerDelivery } from "../../../shared/session-messages/message-types.js";
+import type { PeerDelivery } from "../../../shared/session-messages/message-types.ts";
 import type { LimitsOptions } from "../../config/limits/limits-options.ts";
 import type { DEFAULT_DERIVED_SCHEMAS } from "./default-schema.ts";
 

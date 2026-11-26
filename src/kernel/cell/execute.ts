@@ -20,7 +20,7 @@ import { publishFinished } from "./publish-finished.ts";
 import { recordCallback } from "../callback/record-callback.ts";
 import { interrupt } from "../process/interrupt.ts";
 import { readExecutionCapacity } from "../process/read-execution-capacity.ts";
-import { taskName } from "../../../shared/background-task-name.js";
+import { taskName } from "../../../shared/background-task-name.ts";
 
 export async function execute(ctx: KernelContext, foregroundOnly: boolean, owner: KernelExecutionOwner | undefined, toolCallId: string,
   args: Static<typeof pythonParameters>, signal?: AbortSignal, onUpdate?: KernelCell["onUpdate"], sdk?: ExtensionToolContext): Promise<KernelToolResult> {

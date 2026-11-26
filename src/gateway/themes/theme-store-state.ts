@@ -1,4 +1,4 @@
-import type { ThemeLibrary, ThemePreview } from "../../../shared/themes.js";
+import type { ThemeLibrary, ThemePreview } from "../../../shared/themes.ts";
 
 export interface ThemesState {
   readonly directory: string;

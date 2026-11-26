@@ -1,4 +1,4 @@
-import type { ThemePreview } from "../../../../shared/themes.js";
+import type { ThemePreview } from "../../../../shared/themes.ts";
 import { parseTheme } from "../parse-theme.ts";
 import { themeWarnings } from "../inspect-contrast.ts";
 

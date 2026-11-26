@@ -12,8 +12,8 @@ export function readDerivedSession(manager: SessionManager, schemas: DerivedSess
   const entries = projectAuthorityEntries(manager, schemas.limits);
   for (let index = entries.length - 1; index >= 0; index--) {
     const entry = entries[index];
-    if (entry.type === "custom" && entry.customType === DERIVED_DETACHED_TYPE) return undefined;
-    if (entry.type !== "custom" || entry.customType !== DERIVED_SESSION_TYPE) continue;
+    if (entry?.type === "custom" && entry.customType === DERIVED_DETACHED_TYPE) return undefined;
+    if (entry?.type !== "custom" || entry.customType !== DERIVED_SESSION_TYPE) continue;
     if (!Value.Check(schemas.infoSchema, entry.data)) {
       const [, errors] = Schema.Errors(schemas.infoSchema, entry.data);
       throw new Error(`Invalid persisted derived-session metadata: ${errors.map((error) => `${error.instancePath || "/"}: ${error.message}`).join("; ")}`);

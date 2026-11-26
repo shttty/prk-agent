@@ -27,7 +27,7 @@ export function observeSdkEvents(ctx: HostContext, event: AgentSessionEvent): vo
   if (event.type === "agent_end" && !event.willRetry && !("willContinue" in event && event.willContinue === true)) {
     for (let index = event.messages.length - 1; index >= 0; index--) {
       const message = event.messages[index];
-      if (message.role !== "assistant") continue;
+      if (message?.role !== "assistant") continue;
       if (message.stopReason === "error" && ctx.active) ctx.active.error = message.errorMessage ?? "SDK operation failed.";
       break;
     }
