@@ -1,24 +1,16 @@
-.plugin-source { flex: 1; min-width: 0; }
-.plugin-install-location { width: 120px; flex-shrink: 0; }
 .plugin-rejection { display: flex; flex-direction: column; gap: 8px; }
 .plugin-failure-message { overflow-wrap: anywhere; }
 .plugin-failure-code code { font-family: var(--pi-font-mono); overflow-wrap: anywhere; }
-.plugin-list { display: flex; flex-direction: column; }
-.plugin-row { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 14px 0; border-bottom: 1px solid var(--pi-line); }
-.plugin-row:first-child { border-top: 1px solid var(--pi-line-strong); }
-.plugin-row-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.plugin-row-title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.plugin-row-title h4 { margin: 0; font-family: var(--pi-font-mono); font-variant-ligatures: none; font-size: 14px; overflow-wrap: anywhere; }
-.plugin-row-version { color: var(--pi-muted); font-weight: normal; }
-.plugin-row-source, .plugin-uninstall-name code { font-family: var(--pi-font-mono); font-size: 12px; color: var(--pi-muted); overflow-wrap: anywhere; }
-.plugin-row .mantine-NativeSelect-root { width: 150px; flex-shrink: 0; }
-.plugin-row-commands { display: flex; flex-direction: column; gap: 3px; margin: 0; padding: 0; list-style: none; font-size: 12px; color: var(--pi-muted); }
-.plugin-row-commands li { display: flex; gap: 10px; min-width: 0; }
-.plugin-row-commands code { flex: none; font-family: var(--pi-font-mono); color: var(--pi-ink); }
-.plugin-row-commands span { min-width: 0; overflow-wrap: anywhere; }
-@media (max-width: 600px) {
-  .plugin-row-commands li { flex-direction: column; gap: 0; }
-  /* The source gets its own line; location and install share the next. */
-  .plugin-source { flex-basis: 100%; }
-  .plugin-install-location { flex: 1; }
-}
+.plugin-install { display: flex; flex-direction: column; gap: 6px; }
+.plugin-install .mantine-NativeSelect-root { flex: 1; min-width: 0; }
+.plugin-list-notice { padding: 4px 12px; }
+.plugin-source-line, .plugin-uninstall-name code { font-family: var(--pi-font-mono); font-size: 12px; color: var(--pi-muted); overflow-wrap: anywhere; }
+.plugin-field { font-size: 13px; color: var(--pi-ink); }
+.plugin-field-label { min-width: 64px; color: var(--pi-muted); font-size: 12px; }
+.plugin-commands { display: flex; flex-direction: column; gap: 6px; }
+.plugin-commands ul { display: flex; flex-direction: column; gap: 3px; margin: 0; padding: 0; list-style: none; font-size: 12px; color: var(--pi-muted); }
+.plugin-commands li { display: flex; gap: 10px; min-width: 0; }
+.plugin-commands code { flex: none; font-family: var(--pi-font-mono); color: var(--pi-ink-2); }
+.plugin-commands li span { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 600px) { .plugin-commands li { flex-direction: column; gap: 0; } }
+.plugin-list .settings-list-top > .mantine-Button-root { flex: none; }

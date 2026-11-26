@@ -18,7 +18,7 @@ export function Peek({ peek, open, frame, onPointerEnter, onPointerLeave, childr
       Object.assign(card.style, { left: `${left}px`, top: `${top}px`, transformOrigin: `${x - left}px ${top < y ? "bottom" : "top"}` });
     } else {
       // Inside the right block on both axes: never over the provider list or the window header.
-      const column = (peek.row.closest(".capability-detail-host") ?? frame).getBoundingClientRect();
+      const column = (peek.row.closest(".settings-detail-host") ?? frame).getBoundingClientRect();
       card.style.maxWidth = `${Math.max(240, column.width - 32)}px`;
       card.style.maxHeight = `${Math.max(160, column.height - 16)}px`;
       const width = card.offsetWidth, height = card.offsetHeight, row = peek.row.getBoundingClientRect();

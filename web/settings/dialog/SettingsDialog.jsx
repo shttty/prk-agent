@@ -33,6 +33,9 @@ function SettingsDialog({ opened, onClose, fullScreen, initialSection, actions, 
     setSection(first); setShown(first);
   }, [opened, initialSection, fullScreen]);
   const open = (id) => { setSection(id); setShown(id); };
+  // A plugin's 在工具页查看 opens the tools page on that plugin's source.
+  const [toolsFocus, setToolsFocus] = useState(null);
+  const openTools = (provider) => { setToolsFocus(provider); open("tools"); };
   const page = shown;
   const title = sections.find(([id]) => id === page)?.[1];
   const mode = fullScreen ? (section ? "content" : "list") : "desktop";
@@ -59,9 +62,9 @@ function SettingsDialog({ opened, onClose, fullScreen, initialSection, actions, 
         {page === "soul" ? <div className="pi-settings-page" id="settings-soul"><SoulSettings api={actions.api} /></div> : null}
         {page === "memory" ? <MemoryDialog actions={actions} mobile={fullScreen} /> : null}
         {page === "artifacts" ? <div className="pi-settings-page"><ArtifactsPanel actions={actions} /></div> : null}
-        {page === "plugins" ? <div className="pi-settings-page" id="settings-plugins"><PluginsPanel actions={actions} gatewayRestartUnit={gatewayRestartUnit} /></div> : null}
+        {page === "plugins" ? <PluginsPanel actions={actions} gatewayRestartUnit={gatewayRestartUnit} mobile={fullScreen} onOpenTools={openTools} /> : null}
         {page === "archive" ? <div className="pi-settings-page" id="settings-archive"><ArchiveDialog actions={actions} onViewHistory={onClose} /></div> : null}
-        {page === "tools" || page === "skills" ? <CapabilitiesPanel key={page} kind={page} actions={actions} mobile={fullScreen} /> : null}
+        {page === "tools" || page === "skills" ? <CapabilitiesPanel key={page} kind={page} actions={actions} mobile={fullScreen} initialProvider={page === "tools" ? toolsFocus ?? undefined : undefined} /> : null}
       </Crossfade>
     </div>
   </Modal>;

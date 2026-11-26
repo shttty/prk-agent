@@ -3,24 +3,10 @@
 .memory-usage { margin-bottom: 4px; color: var(--pi-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
 .memory-usage[data-over-limit="true"] { color: var(--pi-warn); }
 .memory-empty { padding: 10px 0; color: var(--pi-muted); font-size: 13px; }
-.memory-hint { flex: none; padding: 10px 20px 14px; color: var(--pi-muted); font-size: 12px; }
-/* Memory page: the tools page's list | detail layout; the list keeps its natural height, the detail scrolls. */
-.memory-detail { height: 100%; }
-.memory-detail > .memory-detail-head { padding-inline: 24px; }
-/* Neutral selection (no hued fill or accent bar), per the sidebar's selection rule. */
-.memory-layers .capability-provider[aria-selected="true"] { background: var(--pi-sidebar-active); }
-.memory-layers .capability-provider[aria-selected="true"]::before { content: none; }
-.memory-detail-body { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 10px; padding: 12px 24px 32px; }
-.capability-sheet .memory-detail > .memory-detail-head { padding-inline: 8px 14px; }
-.capability-sheet .memory-detail-body { padding: 10px 14px 24px; }
 /* Entries are separated by rules; their actions appear on hover or focus, and stay visible on touch screens. */
 .memory-entry { display: flex; align-items: flex-start; gap: 8px; padding: 9px 0; }
 .memory-entries > * + * { border-top: 1px solid var(--pi-line); }
 .memory-entry-content { flex: 1; min-width: 0; color: var(--pi-ink); font-size: 14px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
-.memory-entry-actions { flex: none; }
-@media (hover: hover) and (pointer: fine) {
-  .memory-entry:not(:hover):not(:focus-within) .memory-entry-actions { opacity: 0; }
-}
 .memory-editor { padding: 9px 0; }
 .memory-document-foot { margin-top: 4px; }
 .memory-document-foot .mantine-Button-root { padding-inline: 6px; border-radius: var(--pi-radius-pill); }

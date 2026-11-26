@@ -28,14 +28,15 @@ import { Stack } from "@mantine/core";
 import { Text } from "@mantine/core";
 import { Group } from "@mantine/core";
 import { Button } from "@mantine/core";
+import "../list-page/list-page.css";
 import "./capabilities.css";
 import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
-export default function CapabilitiesPanel({ kind, actions, session = false, instance = "", sessionKey = "", localTools, mobile = false }) {
+export default function CapabilitiesPanel({ kind, actions, session = false, instance = "", sessionKey = "", localTools, mobile = false, initialProvider }) {
   const sessions = useWorkbench((state) => state.sessions);
   const targets = useWorkbench((state) => state.targets);
   const [data, setData] = useState(null);
   const [library, setLibrary] = useState([]);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState(initialProvider ?? null);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -152,9 +153,9 @@ export default function CapabilitiesPanel({ kind, actions, session = false, inst
   // The card shows the entry as it is now (a switch may have changed since it opened).
   const peekEntry = peek ? entries.find((entry) => entry.id === peek.entry.id) ?? null : null;
   const ctx = { kind, actions, targets, session, instance, sessionKey, localTools, mobile, data, setData, library, setLibrary, selected, setSelected, query, setQuery, loading, setLoading, refreshing, setRefreshing, saving, setSaving, error, setError, deletion, setDeletion, frame, setFrame, sheet, setSheet, config, setConfig, drafts, setDrafts, configs, setConfigs, pathDraft, setPathDraft, written, setWritten, peek, setPeek, peekOpen, setPeekOpen, generation, listRef, invalidate, rootRef, load, peekRef, timers, press, swallow, showPeek, hidePeek, scheduleHide, rowHandlers, catalog, savedGroup, savedLabel, savedEmpty, entries, names, groups, counts, providers, needle, hits, visible, current, scope, scopeLabel, pending, partial, disabled, configurable, shadower, configGroup, terminal, providerConfig, sheetGroup, peekEntry, change, mutateLibrary, saveTerminal, callConfig, openConfig };
-  return <div ref={rootRef} className="capabilities-panel" data-kind={kind} data-scope={instance ? "instance" : session ? "session" : "global"} data-layout={mobile ? "stack" : "split"} aria-busy={loading || saving}>
+  return <div ref={rootRef} className="capabilities-panel settings-list-page" data-kind={kind} data-scope={instance ? "instance" : session ? "session" : "global"} data-layout={mobile ? "stack" : "split"} aria-busy={loading || saving}>
     <ProviderList ctx={ctx} />
-    {!mobile ? <Crossfade className="capability-detail-host" layerKey={pending ? "loading" : "list"}>{pending ? <div className="capability-loading" data-status="loading"><Loader size="sm" color="gray" /></div> : <ProviderDetail ctx={ctx} item={current} inSheet={false} />}</Crossfade> : null}
+    {!mobile ? <Crossfade className="settings-detail-host" layerKey={pending ? "loading" : "list"}>{pending ? <div className="capability-loading" data-status="loading"><Loader size="sm" color="gray" /></div> : <ProviderDetail ctx={ctx} item={current} />}</Crossfade> : null}
     <CapabilityLayers ctx={ctx} />
     <Peek peek={peek} open={peekOpen} frame={frame} onPointerEnter={() => clearTimeout(timers.current.hide)} onPointerLeave={(event) => { if (event.pointerType === "mouse") scheduleHide(); }}>
       <PeekEntry ctx={ctx} />

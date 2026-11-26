@@ -1,6 +1,6 @@
 import { createPortal } from "react-dom";
 import { ProviderDetail } from "./ProviderDetail.jsx";
-import { DetailSheet } from "./DetailSheet.jsx";
+import { DetailSheet } from "../../list-page/DetailSheet.jsx";
 import { CATEGORY_LABEL } from "../provider-categories.js";
 import { categoryOf } from "../provider-categories.js";
 import { ActionIcon } from "@mantine/core";
@@ -10,7 +10,7 @@ export function CapabilityLayers({ ctx }) {
   const { frame, mobile, sheet, setSheet, sheetGroup, configurable, config, setConfig, configGroup } = ctx;
 return frame ? createPortal(<>
     {mobile ? <DetailSheet open={sheet.open} onClose={() => setSheet((state) => ({ ...state, open: false }))} closeAction="close-provider" id="capability-sheet" data-provider={sheetGroup?.id}>
-      <ProviderDetail ctx={ctx} item={sheetGroup} inSheet={true} />
+      <ProviderDetail ctx={ctx} item={sheetGroup} onBack={() => setSheet((state) => ({ ...state, open: false }))} />
     </DetailSheet> : null}
     {configurable ? <div className="capability-layer is-config" data-open={String(config.open)}>
       <div className="config-scrim" data-action="close-config" onClick={() => setConfig((state) => ({ ...state, open: false }))} />

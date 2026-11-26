@@ -1,0 +1,53 @@
+/* Settings list | detail pages (memory, tools, Skills, plugins): one list column, one detail pane, one phone sheet. */
+.settings-list-page { position: relative; min-width: 0; min-height: 0; height: 100%; display: flex; }
+.settings-list { width: 288px; flex: none; display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--pi-line); }
+.settings-list-page[data-layout="stack"] .settings-list { width: 100%; border-right: 0; }
+.settings-list-top { display: flex; align-items: center; gap: 6px; padding: 14px 12px 4px; }
+.settings-list-top > :first-child { flex: 1; min-width: 0; }
+.settings-list-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 8px 14px; }
+.settings-list-foot { flex: none; padding: 10px 20px 14px; color: var(--pi-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.settings-list-category { padding: 14px 10px 4px; color: var(--pi-faint); font-size: 11.5px; letter-spacing: .06em; }
+.settings-list-row { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 5px 8px 5px 12px; border-radius: var(--pi-radius-sm); color: var(--pi-ink); font-size: 13.5px; cursor: pointer; }
+.settings-list-row:hover { background: var(--pi-sidebar-hover); }
+.settings-list-row[aria-selected="true"] { background: var(--pi-sidebar-active); }
+.settings-list-row:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: -2px; }
+.settings-list-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.settings-list-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.settings-list-meta { overflow: hidden; color: var(--pi-muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.settings-list-count { flex: none; min-width: 20px; color: var(--pi-faint); font-size: 12px; font-variant-numeric: tabular-nums; text-align: right; }
+.settings-list-page[data-layout="stack"] .settings-list-row { min-height: 50px; font-size: 15px; }
+.settings-detail-host { flex: 1; min-width: 0; }
+.settings-detail { height: 100%; min-width: 0; overflow-y: auto; }
+.settings-detail-body { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 10px; padding: 12px 24px 32px; }
+.settings-detail-head { position: sticky; top: 0; z-index: var(--pi-z-raised); display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 10px 24px; background: var(--pi-surface); border-bottom: 1px solid var(--pi-line); }
+.settings-detail-title { flex: 1; min-width: 0; }
+.settings-detail-title h3 { margin: 0; overflow: hidden; color: var(--pi-ink); font-size: 16px; font-weight: 600; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+.settings-detail-meta { margin-top: 1px; overflow: hidden; color: var(--pi-muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.settings-detail-actions { flex: none; display: flex; align-items: center; gap: 6px; }
+.settings-danger { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--pi-line); }
+.settings-danger-copy { min-width: 0; display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.settings-danger-copy span { color: var(--pi-muted); font-size: 12px; }
+/* Phone detail sheet over the list. */
+.settings-sheet-layer { display: contents; }
+.settings-sheet-scrim { position: absolute; inset: 0; z-index: var(--pi-z-settings-sheet); opacity: 0; pointer-events: none; cursor: pointer; background: var(--pi-scrim); transition: opacity var(--pi-motion-base) var(--pi-motion-ease-out); }
+.settings-sheet-layer[data-open="true"] > .settings-sheet-scrim { opacity: 1; pointer-events: auto; }
+.settings-sheet { position: absolute; top: 0; right: 0; bottom: 0; z-index: var(--pi-z-settings-sheet); width: min(calc(100% - 36px), 460px); display: flex; flex-direction: column; overflow: hidden;
+  background: var(--pi-surface); border-left: 1px solid var(--pi-line); border-radius: var(--pi-radius-lg) 0 0 var(--pi-radius-lg); box-shadow: var(--pi-shadow-overlay);
+  transform: translateX(100%); opacity: .6; visibility: hidden; will-change: transform, opacity;
+  transition: transform var(--pi-motion-base) var(--pi-motion-ease-out), opacity var(--pi-motion-base) var(--pi-motion-ease-out), visibility 0s var(--pi-motion-base); }
+.settings-sheet-layer[data-open="true"] > .settings-sheet { transform: none; opacity: 1; visibility: visible; transition: transform var(--pi-motion-base) var(--pi-motion-ease-out), opacity var(--pi-motion-base) var(--pi-motion-ease-out); }
+.settings-sheet > * { flex: 1; min-height: 0; padding-bottom: env(safe-area-inset-bottom); }
+.settings-sheet .settings-detail-head { padding-inline: 8px 14px; }
+.settings-sheet .settings-detail-body { padding: 10px 14px 24px; }
+/* Small switches on these pages: accent when on, neutral grey when off, no knob glyphs. */
+:is(.settings-list-page, .settings-sheet) { --pill-w: 34px; --pill-h: 18px; --pill-knob: 14px; --prk-state-on: var(--pi-accent); --prk-state-lazy: color-mix(in srgb, var(--pi-accent) 45%, var(--prk-state-off)); }
+@media (pointer: coarse) { :is(.settings-list-page, .settings-sheet) { --pill-w: 42px; --pill-h: 24px; --pill-knob: 20px; } }
+:is(.settings-list-page, .settings-sheet) :is(.prk-pill-knob svg, .prk-pill-track > .mantine-Switch-thumb.prk-pill-knob::after) { display: none; }
+:is(.settings-list-page, .settings-sheet) .tri-status { display: none; }
+/* Row actions (edit, delete, promote…) show on hover or focus; touch screens keep them visible. */
+.settings-row-actions { flex: none; }
+@media (hover: hover) and (pointer: fine) {
+  .settings-hover-row:not(:hover):not(:focus-within) .settings-row-actions { opacity: 0; }
+}
+/* A switch held off by its group stays readable. */
+:is(.settings-list-page, .settings-sheet) :is(.mantine-Switch-input:disabled + .prk-pill-track, .tri[data-disabled="true"] .tri-track) { opacity: .7; }

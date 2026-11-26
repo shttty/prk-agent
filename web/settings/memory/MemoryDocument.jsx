@@ -7,6 +7,7 @@ import { Textarea } from "@mantine/core";
 import { IconPencil } from "@tabler/icons-react";
 import { IconTrash } from "@tabler/icons-react";
 import { IconPlus } from "@tabler/icons-react";
+import "../list-page/list-page.css";
 
 const sameDocument = (left, right) => left?.target === right.target && left?.instance === right.instance && left?.project === right.project;
 const scopeOf = (document) => ({ ...(document.instance ? { instance: document.instance } : {}), ...(document.project ? { project: document.project } : {}) });
@@ -27,9 +28,9 @@ export default function MemoryDocument({ document, memory, empty = "还没有条
     {document.entries.length === 0 && !editing ? <Text className="memory-empty" data-empty="true">{empty}</Text> : null}
     <div className="memory-entries">
       {document.entries.map((entry, index) => editing?.old_text === entry ? form()
-        : <article className="memory-entry" key={index} data-memory-entry={index}>
+        : <article className="memory-entry settings-hover-row" key={index} data-memory-entry={index}>
           <div className="memory-entry-content" data-field="content">{entry}</div>
-          <Group className="memory-entry-actions" gap={2} wrap="nowrap">
+          <Group className="settings-row-actions" gap={2} wrap="nowrap">
             <ActionIcon variant="subtle" color="gray" size="sm" aria-label="编辑" title="编辑" data-action="memory-edit" disabled={busy} onClick={() => setEditor({ ...scope, old_text: entry, content: entry })}><IconPencil size={14} /></ActionIcon>
             <ActionIcon variant="subtle" color="gray" size="sm" aria-label="删除" title="删除" data-action="memory-remove" disabled={busy} onClick={() => setDeletion({ ...scope, old_text: entry })}><IconTrash size={14} /></ActionIcon>
           </Group>

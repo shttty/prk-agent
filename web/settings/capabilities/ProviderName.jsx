@@ -9,6 +9,6 @@ export function ProviderName({ item, parts }) {
     setCut(node.scrollWidth > node.clientWidth || [...node.children].some((child) => child.scrollWidth > child.clientWidth));
   };
   return <Tooltip label={item.name} disabled={!cut} multiline maw={420} position="top-start" openDelay={150} style={{ overflowWrap: "anywhere" }}>
-    <span className="capability-provider-name" data-split={parts ? "true" : undefined} onMouseEnter={measure}>{parts ? <GroupName parts={parts} /> : item.name}</span>
+    <span className="settings-list-name capability-provider-name" data-split={parts ? "true" : undefined} onMouseEnter={measure}>{parts ? <GroupName parts={parts} /> : item.name}</span>
   </Tooltip>;
 }
