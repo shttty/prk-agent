@@ -10,7 +10,7 @@ import { skillDirectoryLabel } from "./origins/format-skill-directory-label.ts";
 
 export function skillOrigin(skill: Skill, shared: string, agentDir: string, target?: SkillDirectory): Origin {
   if (target) return { group: skillDirectoryGroup(target), groupLabel: skillDirectoryLabel(target), source: skill.filePath };
-  if (within(shared, skill.filePath)) return { group: "group:skills:shared", groupLabel: "PRK 共享库", source: skill.filePath };
+  if (within(shared, skill.filePath)) return { group: "group:skills:shared", groupLabel: "沉淀 Skills", source: skill.filePath };
   if (skill.sourceInfo.origin === "package") {
     const name = packageName(skill.sourceInfo);
     return { group: `group:skills:package:${name}`, groupLabel: name, source: skill.filePath };

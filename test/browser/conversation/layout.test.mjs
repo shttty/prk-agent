@@ -48,6 +48,9 @@ test("composer and viewport stay put through send, wait, thinking, output, tool 
     await f.page.locator("#soul-save").click();
     await f.page.locator('#soul-settings[data-dirty="false"]').waitFor();
     assert.equal((await f.request("soulGet", {})).content, "Fixture persona. Edited.");
+    await f.page.locator("#open-tool-library").click();
+    await f.page.locator('#tools-sources [data-provider="group:tools:library"][data-count="0"]').waitFor();
+    await f.page.locator('[data-provider-section="group:tools:library"] [data-empty="saved"]').waitFor();
     await f.page.locator("#close-settings").click();
     await f.page.evaluate(() => document.fonts.ready);
     await f.page.locator("#composer").fill("Check layout");

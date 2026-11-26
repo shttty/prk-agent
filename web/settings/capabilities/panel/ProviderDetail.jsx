@@ -16,6 +16,7 @@ import { Badge } from "@mantine/core";
 import { IconLock } from "@tabler/icons-react";
 import { PrkSwitch } from "../../../design-system/switch/PrkSwitch.jsx";
 import { Text } from "@mantine/core";
+import { statusLabels } from "../library-actions.js";
 
 /** Name + one grey line; badges ride on the name line. */
 function Copy({ name, title, description, children, handlers }) {
@@ -27,14 +28,14 @@ function Copy({ name, title, description, children, handlers }) {
 
 /** One provider: its group line (same selector as the members, 混合 when they disagree) and its member lines. */
 function ProviderSection({ ctx, item, active, collapsed, onToggle, back }) {
-  const { hits, drafts, counts, configurable, openConfig, kind, loading, saving, peekOpen, peek, rowHandlers, scopeLabel, disabled, change, entries } = ctx;
+  const { hits, drafts, counts, configurable, openConfig, kind, loading, saving, peekOpen, peek, rowHandlers, scopeLabel, disabled, change, entries, savedGroup, savedEmpty, needle } = ctx;
   const { rows } = hits(item);
   const dirty = drafts[item.id] !== undefined;
   const tools = kind === "tools";
   const members = entries.filter((entry) => entry.group === item.id);
   const grouped = groupItem(item);
   const mode = tools ? groupMode(grouped.item, members) : undefined;
-  const count = counts.get(item.id);
+  const count = counts.get(item.id) ?? 0;
   return <section className="capability-section" data-provider-section={item.id}>
     <header className="capability-group capability-line" data-capability-group={item.id} data-state={!item.enabled ? "off" : mode === null ? "mixed" : "on"}>
       {back}
@@ -55,7 +56,7 @@ function ProviderSection({ ctx, item, active, collapsed, onToggle, back }) {
         data-available={String(entry.available !== false)} data-module={entry.module} data-pending={entry.pending ? "true" : undefined} data-overrides-builtin={entry.overridesBuiltin ? "true" : undefined}
         data-peeking={peekOpen && peek?.entry.id === entry.id ? "true" : undefined} id={entry.library ? `${kind}-entry-${encodeURIComponent(entry.library.name)}` : undefined} data-status={entry.library?.status}>
         <Copy name={entry.name} description={firstSentence(entry.description)} handlers={rowHandlers(entry)}>
-          {entry.library ? <Badge component="span" variant="light" color="gray" size="xs" tt="none" className="capability-stage" data-status={entry.library.status} data-manual={String(entry.library.manual)}>{entry.library.status}</Badge> : null}
+          {entry.library ? <Badge component="span" variant="light" color="gray" size="xs" tt="none" className="capability-stage" data-status={entry.library.status} data-manual={String(entry.library.manual)}>{statusLabels[entry.library.status] ?? entry.library.status}</Badge> : null}
           {entry.library?.scope ? <Badge component="span" variant="light" color="gray" size="xs" tt="none" className="capability-stage capability-scope" data-scope={entry.library.scope}>{scopeLabel(entry.library.scope)}</Badge> : null}
           {entry.shadowedBy ? <Badge component="span" variant="outline" color="gray" size="xs" tt="none" className="capability-stage capability-shadowed" data-shadowed="true">被覆盖</Badge> : null}
           {entry.overridesBuiltin ? <Badge component="span" variant="light" color="gray" size="xs" tt="none" className="capability-stage" data-overrides-builtin="true">覆盖内置</Badge> : null}
@@ -67,7 +68,7 @@ function ProviderSection({ ctx, item, active, collapsed, onToggle, back }) {
           : tools ? <ModeControl ctx={ctx} item={entry} />
             : <span className="capability-pair"><OverrideControl ctx={ctx} id={entry.id} overridden={entry.overridden} /><PrkSwitch size="sm" data-action="toggle-capability" aria-label={entry.name} checked={entry.locked === true || entry.configured === true} disabled={disabled(entry)} onChange={(event) => void change(entry.id, event.currentTarget.checked)} /></span>}
       </div>)}
-      {!rows.length ? <Text size="sm" c="dimmed">无匹配</Text> : null}
+      {!rows.length ? <Text size="sm" c="dimmed" data-empty={item.id === savedGroup && !needle ? "saved" : "match"}>{item.id === savedGroup && !needle ? savedEmpty : "无匹配"}</Text> : null}
     </div>}
   </section>;
 }

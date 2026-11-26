@@ -4,12 +4,13 @@ import { Group } from "@mantine/core";
 import { rowActions } from "./library-actions.js";
 import { Button } from "@mantine/core";
 import { operationLabels } from "./library-actions.js";
+import { statusLabels } from "./library-actions.js";
 import "./library-details.css";
 export function LibraryDetails({ entry, kind, busy, onAction, scope }) {
   const skill = kind === "skills";
   return <>
     <header className="library-entry-header">
-      <p data-status={entry.status} data-manual={String(entry.manual)} data-version={entry.version}>{entry.status}{entry.manual ? " · 手动" : ""}{entry.version ? ` · v${entry.version}` : ""}</p>
+      <p data-status={entry.status} data-manual={String(entry.manual)} data-version={entry.version}>{statusLabels[entry.status] ?? entry.status}{entry.manual ? " · 手动" : ""}{entry.version ? ` · v${entry.version}` : ""}</p>
       <div className="library-entry-facts">
         <span data-field="distinct-sessions" data-count={entry.distinctSessions}>使用会话 {entry.distinctSessions}</span>
         {!skill ? <span data-field="successful-calls" data-count={entry.successfulCalls}>成功调用 {entry.successfulCalls}</span> : null}

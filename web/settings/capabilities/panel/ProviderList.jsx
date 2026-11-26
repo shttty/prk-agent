@@ -42,10 +42,10 @@ export function ProviderList({ ctx }) {
         const head = category !== lastCategory ? <div key={`category:${category}`} className="capability-category" data-category={category}>{label}</div> : null;
         lastCategory = category;
         const match = hits(item), parts = splitGroupName(item);
-        return [head, <div key={item.id} role="option" tabIndex={0} className="capability-provider" data-provider={item.id} data-count={counts.get(item.id)} data-enabled={String(item.enabled === true)}
+        return [head, <div key={item.id} role="option" tabIndex={0} className="capability-provider" data-provider={item.id} data-count={counts.get(item.id) ?? 0} data-enabled={String(item.enabled === true)}
           aria-selected={!mobile && current?.id === item.id} onClick={() => choose(item.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); choose(item.id); } }}>
           <ProviderName item={item} parts={parts} />
-          <span className="capability-count" data-hit={String(!match.all)}>{match.all ? counts.get(item.id) : match.rows.length}</span>
+          <span className="capability-count" data-hit={String(!match.all)}>{match.all ? counts.get(item.id) ?? 0 : match.rows.length}</span>
         </div>];
       })}
       {!loading && !visible.length ? <Text size="sm" c="dimmed" id={`${kind}-empty`}>{needle ? "无匹配" : "暂无内容"}</Text> : null}

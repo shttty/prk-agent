@@ -85,7 +85,7 @@ export default function CapabilitiesPanel({ kind, actions, session = false, inst
     return () => { if (list) scrollMemory.set(scrollKey, list.scrollTop); };
   }, [scrollKey]);
   const pending = loading && !data;
-  const { catalog, savedGroup, savedLabel, entries, names, groups, counts, providers } = buildCapabilityCatalog(data, kind, library);
+  const { catalog, savedGroup, savedLabel, savedEmpty, entries, names, groups, counts, providers } = buildCapabilityCatalog(data, kind, library);
   const { needle, hits, visible, current } = capabilityHits(entries, query, providers, selected);
   const partial = (item) => item.enabled && entries.some((entry) => entry.group === item.id && entry.catalogued && !entry.configured && !entry.locked);
   const disabled = (entry) => saving || entry.locked || entry.available === false || !entry.groupEnabled;
@@ -151,7 +151,7 @@ export default function CapabilitiesPanel({ kind, actions, session = false, inst
   const sheetGroup = providers.find((item) => item.id === sheet.id);
   // The card shows the entry as it is now (a switch may have changed since it opened).
   const peekEntry = peek ? entries.find((entry) => entry.id === peek.entry.id) ?? null : null;
-  const ctx = { kind, actions, targets, session, instance, sessionKey, localTools, mobile, data, setData, library, setLibrary, selected, setSelected, query, setQuery, loading, setLoading, refreshing, setRefreshing, saving, setSaving, error, setError, deletion, setDeletion, frame, setFrame, sheet, setSheet, config, setConfig, drafts, setDrafts, configs, setConfigs, pathDraft, setPathDraft, written, setWritten, peek, setPeek, peekOpen, setPeekOpen, generation, listRef, invalidate, rootRef, load, peekRef, timers, press, swallow, showPeek, hidePeek, scheduleHide, rowHandlers, catalog, savedGroup, savedLabel, entries, names, groups, counts, providers, needle, hits, visible, current, scope, scopeLabel, pending, partial, disabled, configurable, shadower, configGroup, terminal, providerConfig, sheetGroup, peekEntry, change, mutateLibrary, saveTerminal, callConfig, openConfig };
+  const ctx = { kind, actions, targets, session, instance, sessionKey, localTools, mobile, data, setData, library, setLibrary, selected, setSelected, query, setQuery, loading, setLoading, refreshing, setRefreshing, saving, setSaving, error, setError, deletion, setDeletion, frame, setFrame, sheet, setSheet, config, setConfig, drafts, setDrafts, configs, setConfigs, pathDraft, setPathDraft, written, setWritten, peek, setPeek, peekOpen, setPeekOpen, generation, listRef, invalidate, rootRef, load, peekRef, timers, press, swallow, showPeek, hidePeek, scheduleHide, rowHandlers, catalog, savedGroup, savedLabel, savedEmpty, entries, names, groups, counts, providers, needle, hits, visible, current, scope, scopeLabel, pending, partial, disabled, configurable, shadower, configGroup, terminal, providerConfig, sheetGroup, peekEntry, change, mutateLibrary, saveTerminal, callConfig, openConfig };
   return <div ref={rootRef} className="capabilities-panel" data-kind={kind} data-scope={instance ? "instance" : session ? "session" : "global"} data-layout={mobile ? "stack" : "split"} aria-busy={loading || saving}>
     <ProviderList ctx={ctx} />
     {!mobile ? <Crossfade className="capability-detail-host" layerKey={pending ? "loading" : "list"}>{pending ? <div className="capability-loading" data-status="loading"><Loader size="sm" color="gray" /></div> : <ProviderDetail ctx={ctx} item={current} inSheet={false} />}</Crossfade> : null}
