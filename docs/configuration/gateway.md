@@ -34,6 +34,19 @@
 
 CLI listener/socket overrides: [模块约定](../configuration.md#约定).
 
+## `metrics`
+
+Prometheus metrics and stall logging in the Gateway process; series, semantics and log format are in [Gateway metrics](../metrics.md). The endpoint host is fixed to `127.0.0.1`.
+
+| Key | Default | Range / meaning |
+| --- | --- | --- |
+| `enabled` | true | Serve `GET /metrics` on `127.0.0.1:<port>`. Off: no listener; hook and event-loop timing and the stall log still run. A busy port stops the Gateway from starting, like a busy socket path. |
+| `port` | 9464 | **port**; TCP port of the loopback listener. |
+| `stallThresholdMs` | 200 | **timer**; a synchronous section (plugin handler call, frame serialization, history load) or an event-loop window with delay at or above this writes a `Gateway stall` log line and counts in `prk_stalls_total`. |
+| `eventLoopWindowMs` | 1000 | **timer**; the event-loop delay histogram is read and reset at this period; `prk_eventloop_delay_seconds` and `prk_eventloop_utilization_ratio` describe the last finished window. Shorter windows log a stall sooner. |
+
+Restart the Gateway after changing it.
+
 ## `limits`
 
 | Key | Default | Range / meaning |

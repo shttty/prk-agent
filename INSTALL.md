@@ -236,10 +236,32 @@ systemctl --user start prk.target
 
 已经有自己写的 PRK unit 时，先 `systemctl --user disable --now <旧的 gateway/api/ui unit>`，再按上面安装这套；两套同时启用会抢端口和 Gateway socket。
 
+### 查看 Gateway 指标
+
+Gateway 在 `127.0.0.1:9464`（`config.toml` 的 `[metrics]`，默认开启）提供 Prometheus 文本指标，只听 loopback。它描述的是 Gateway 进程本身：事件循环延迟、每个插件钩子的同步耗时、大帧序列化和历史加载的耗时与字节数、各状态会话数、模型请求时长。指标清单和含义见 [docs/metrics.md](docs/metrics.md)。
+
+```sh
+curl -s http://127.0.0.1:9464/metrics | grep -E '^prk_(eventloop|stalls|plugin_hook_sync_seconds_(count|sum))'
+journalctl --user -u prk-gateway | grep 'Gateway stall'   # 超过阈值（默认 200 ms）的卡顿日志
+```
+
+Prometheus 抓取：Prometheus 和 Gateway 在同一台机器上时，加一个 job 即可；不在同一台时用 SSH 隧道把端口转过去，不要把监听地址改成非 loopback（该地址没有配置项）。
+
+```yaml
+scrape_configs:
+  - job_name: prk-gateway
+    scrape_interval: 15s
+    static_configs:
+      - targets: ["127.0.0.1:9464"]
+```
+
+整个网页同时卡住时，先看 `prk_eventloop_window_max_seconds` 在 0.2 s 以上的桶，再用 `prk_plugin_hook_sync_seconds` 按 `plugin`、`event` 找出同步耗时最长的钩子。Gateway 卡死时抓取会超时，`up` 变 0。
+
 ## 排错
 
 | 现象 | 看哪里 / 怎么处理 |
 |---|---|
+| 所有会话同时卡住 | `journalctl --user -u prk-gateway \| grep 'Gateway stall'`：`kind=plugin_hook` 指出插件和事件，`kind=history_load`/`frame_*` 指出大文件或大帧，只有 `kind=event_loop` 说明阻塞来自没被计时的同步代码。详见 [docs/metrics.md](docs/metrics.md)。 |
 | `start` 报 `gateway is not ready` 或 `gateway exited` | `scripts/prk.sh logs gateway`。`$H/agent/settings.json` 里有不随包提供的插件来源时，Gateway 启动会先尝试下载，内网要等到超时。 |
 | 某个插件没加载 | 网页「插件」页看错误；`logs gateway` 里搜插件名。随包插件缺文件时重新跑 `scripts/prk.sh install --gateway-stopped`。 |
 | 日志最后一行是 `Gateway command failed`，前面有某个插件的 warning | 那个插件在启动时发了通知，Gateway 因此拒绝启动。在 `$H/agent/settings.json` 里把它的 `enabled` 改成 `false`（这时网页还打不开），再 `start`。 |

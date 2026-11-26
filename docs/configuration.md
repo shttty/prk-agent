@@ -93,7 +93,7 @@ At startup Gateway logs one line per provider with `proxy`, without credentials:
 
 ## `config.toml`: global settings
 
-`config.toml` groups: `derivation`, `session`, `codemode`, `trace`, `kernel`, `namespace`, `gateway`, `http`, `limits`, `tools`, `skills`, `learning`, `memory`, `extensions`, `remoteHost`, `workspace`, `terminal`, `monitor`, `artifacts`, `toolContent`, `kernelTools`, `processWindow`, `references`, `targetConnection`. Instance fields, including a root `instances` key, are rejected as unknown fields; normal startup reads only the current format.
+`config.toml` groups: `derivation`, `session`, `codemode`, `trace`, `kernel`, `namespace`, `gateway`, `http`, `limits`, `tools`, `skills`, `learning`, `memory`, `extensions`, `remoteHost`, `workspace`, `terminal`, `monitor`, `metrics`, `artifacts`, `toolContent`, `kernelTools`, `processWindow`, `references`, `targetConnection`. Instance fields, including a root `instances` key, are rejected as unknown fields; normal startup reads only the current format.
 Top-level `targetCacheRoot` selects the [target cache root](configuration/execution.md#targetcacheroot-top-level). Top-level `pythonIndexUrl` supplies the default [PyPI mirror for instances](configuration/instances.md); omit both global and instance mirrors to keep uv offline.
 Loading/defaults: [模块约定](configuration.md#约定); numeric validation: [模块约定](configuration.md#约定).
 Instance/config persistence: [模块约定](configuration.md#约定); reload boundaries: [模块约定](wire/targets.md#约定)、[模块约定](configuration.md#约定).
@@ -318,6 +318,10 @@ See [`terminal` configuration](configuration/workspace.md#terminal).
 ## `monitor`
 
 See [`monitor` configuration](configuration/workspace.md#monitor).
+
+## `metrics`
+
+See [`metrics` configuration](configuration/gateway.md#metrics) and [Gateway metrics](metrics.md).
 
 ## `gateway`
 
