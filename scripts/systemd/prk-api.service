@@ -1,0 +1,17 @@
+[Unit]
+Description=PRK API
+PartOf=prk.target
+# Wants, not Requires: restarting the Gateway (Settings, Restart Gateway) must not restart the API; it reconnects itself.
+Wants=prk-gateway.service
+After=prk-gateway.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/prk
+ExecStart=/usr/bin/env bash %h/prk/scripts/prk.sh run api
+# The API exits while no Gateway answers (for example during the Gateway's first start).
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=prk.target

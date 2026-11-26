@@ -1,0 +1,14 @@
+[Unit]
+Description=PRK web UI
+PartOf=prk.target
+After=prk-api.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/prk/web
+ExecStart=/usr/bin/env bash %h/prk/scripts/prk.sh run ui
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=prk.target

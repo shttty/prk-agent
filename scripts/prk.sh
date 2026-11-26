@@ -25,10 +25,11 @@ main() {
   case "${1:-}" in
     install) shift; install "$@" ;;
     start) start ;;
+    run) case "${2:-}" in gateway|api|ui) run "$2" ;; *) die "usage: prk.sh run ${COMPONENTS[*]}" ;; esac ;;
     stop) stop ;;
     status) status ;;
     logs) case "${2:-}" in gateway|api|ui) tail -n 100 -f "$RUN/$2.log" ;; *) die "usage: prk.sh logs ${COMPONENTS[*]}" ;; esac ;;
-    *) die "usage: prk.sh install|start|stop|status|logs NAME" ;;
+    *) die "usage: prk.sh install|start|stop|status|logs NAME|run NAME" ;;
   esac
 }
 
@@ -107,19 +108,42 @@ import_tools() {
 }
 
 start() {
-  [ -n "${PRK_MODEL:-}" ] || die "PRK_MODEL is not set (edit $PRK_HOME/prk.env)"
-  [ -d "$ROOT/node_modules" ] && [ -d "$ROOT/web/dist" ] || die "run scripts/prk.sh install first"
+  installed
   mkdir -p "$RUN"
   local socket=()
   [ -z "${PRK_SOCKET:-}" ] || socket=(--socket "$PRK_SOCKET")
-  launch gateway node "$ROOT/src/main.ts" gateway --model "$PRK_MODEL" "${socket[@]}"
+  component gateway; launch gateway "${CMD[@]}"
   # The web command exits when no Gateway answers; a first start also installs the agent's provider packages.
   wait_until gateway 600 node "$ROOT/src/main.ts" attach workbench "${socket[@]}"
-  launch api node "$ROOT/src/main.ts" web --host 127.0.0.1 --port "$PRK_API_PORT" "${socket[@]}"
+  component api; launch api "${CMD[@]}"
   wait_http api "http://127.0.0.1:$PRK_API_PORT/api/workbench" 200
-  (cd "$ROOT/web" && launch ui env PRK_API="http://127.0.0.1:$PRK_API_PORT" npx vite preview --host "$PRK_UI_HOST" --port "$PRK_UI_PORT" --strictPort)
+  component ui; (cd "$ROOT/web" && launch ui "${CMD[@]}")
   wait_http ui "http://127.0.0.1:$PRK_UI_PORT/" 200
   echo "PRK is up: http://$PRK_UI_HOST:$PRK_UI_PORT/"
+}
+
+# One component in the foreground, for a service manager (scripts/systemd/); it owns restarts and logs.
+run() {
+  installed
+  component "$1"
+  [ "$1" != ui ] || cd "$ROOT/web"
+  exec "${CMD[@]}"
+}
+
+installed() {
+  [ -n "${PRK_MODEL:-}" ] || die "PRK_MODEL is not set (edit $PRK_HOME/prk.env)"
+  [ -d "$ROOT/node_modules" ] && [ -d "$ROOT/web/dist" ] || die "run scripts/prk.sh install first"
+}
+
+# Sets CMD to the command line of a component; start and run share it.
+component() {
+  local socket=()
+  [ -z "${PRK_SOCKET:-}" ] || socket=(--socket "$PRK_SOCKET")
+  case "$1" in
+    gateway) CMD=(node "$ROOT/src/main.ts" gateway --model "$PRK_MODEL" "${socket[@]}") ;;
+    api) CMD=(node "$ROOT/src/main.ts" web --host 127.0.0.1 --port "$PRK_API_PORT" "${socket[@]}") ;;
+    ui) CMD=(env PRK_API="http://127.0.0.1:$PRK_API_PORT" npx vite preview --host "$PRK_UI_HOST" --port "$PRK_UI_PORT" --strictPort) ;;
+  esac
 }
 
 launch() {

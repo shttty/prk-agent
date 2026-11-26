@@ -1,0 +1,7 @@
+# All of PRK: systemctl --user start|stop|restart prk.target
+[Unit]
+Description=PRK (Gateway, API and UI)
+Wants=prk-gateway.service prk-api.service prk-ui.service
+
+[Install]
+WantedBy=default.target

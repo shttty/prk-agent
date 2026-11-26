@@ -182,6 +182,35 @@ scripts/prk.sh logs gateway  # 或 api、ui
 
 pid 和日志在 `.runtime/prk/`。每个组件在自己的进程组里，`stop` 按 UI、API、Gateway 的顺序结束整组。本机及远程 daemon 由 Gateway 按需管理，不需要独立的 Jupyter 服务。
 
+### 用 systemd 用户服务管理
+
+`scripts/systemd/` 里有 `prk-gateway.service`、`prk-api.service`、`prk-ui.service` 和把三者编成一组的 `prk.target`。它们运行 `~/prk` 这个 checkout（可以是目录，也可以是指向当前版本的软链），各自执行 `scripts/prk.sh run <组件>`：在前台起一个组件，设置照样读 `$H/prk.env`。用 systemd 时不要再用 `prk.sh start`/`stop`，两套会抢端口和 Gateway socket。
+
+```sh
+ln -sfn /absolute/path/to/prk-<commit> ~/prk
+mkdir -p ~/.config/systemd/user
+cp ~/prk/scripts/systemd/* ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now prk.target
+loginctl enable-linger "$USER"   # 未登录时也保持运行
+```
+
+systemd 用户实例的 `PATH` 通常不含 nvm 等装的 node，在 `$H/prk.env` 写 `export PATH=/path/to/node/bin:$PATH`。PRK home 不在默认位置时，用 `systemctl --user edit prk-gateway.service`（api、ui 同理）加 `Environment=PRK_HOME=/absolute/path`。日志看 `journalctl --user -u prk-gateway -f`。
+
+升级：
+
+```sh
+systemctl --user stop prk.target
+tar xzf prk-<new>.tar.gz -C /absolute/releases
+cd /absolute/releases/prk-<new> && scripts/prk.sh install --gateway-stopped
+ln -sfn /absolute/releases/prk-<new> ~/prk
+systemctl --user start prk.target
+```
+
+回滚时把 `~/prk` 指回旧目录再 `start`。单独重启 Gateway 不会带着重启 API。
+
+已经有自己写的 PRK unit 时，先 `systemctl --user disable --now <旧的 gateway/api/ui unit>`，再按上面安装这套；两套同时启用会抢端口和 Gateway socket。
+
 ## 排错
 
 | 现象 | 看哪里 / 怎么处理 |

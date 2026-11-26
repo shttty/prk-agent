@@ -1,0 +1,16 @@
+# Runs the checkout at ~/prk (a directory or a symlink to the current release); settings come from <PRK home>/prk.env.
+[Unit]
+Description=PRK Gateway
+PartOf=prk.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/prk
+ExecStart=/usr/bin/env bash %h/prk/scripts/prk.sh run gateway
+Restart=on-failure
+RestartSec=5
+# Sessions, kernels and model terminals live under the Gateway and close with it.
+TimeoutStopSec=30
+
+[Install]
+WantedBy=prk.target
