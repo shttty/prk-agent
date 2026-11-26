@@ -60,8 +60,8 @@ factor = 3
 
 | 目录阶段 / 范围 | 参考形状与规则 |
 | --- | --- |
-| 无 kernel | 静态 prelude 清单、模块名／来源／覆盖／依赖声明；未 inspect 的模块为待加载（[模块约定](kernel-tools.md#约定)）。 |
-| kernel 加载后 | 真实函数 inspect 报告通过 `application/x-prk-tool-catalog+json` 返回成功工具和模块错误（[模块约定](kernel-tools.md#约定)）。 |
+| 无 kernel | 内置工具的冷启动目录：`src/codemode/module-catalog/cold-catalog.json`，真实 inspect 报告的快照（含存根），再加模块名／来源／覆盖／依赖声明；用户新增或覆盖的模块为待加载（[模块约定](kernel-tools.md#约定)）。 |
+| kernel 加载后 | 真实函数 inspect 报告通过 `application/x-prk-tool-catalog+json` 返回成功工具和模块错误；每个函数带 `signature`、`description`、`stub`、`types`（[模块约定](kernel-tools.md#约定)）。 |
 | Gateway 缓存 | PRK home／实例／worker 的范围见 [模块约定](kernel-tools.md#约定)。 |
 | 工具能力 ID | 函数 `kernel:<函数名>`；模块 `kernel:module:<模块名>`；分组 `group:tools:kernel`。 |
 | 模型广告 | 实际可用且启用的函数（[模块约定](kernel-tools.md#约定)）。 |
@@ -69,6 +69,16 @@ factor = 3
 | 模块错误 | [模块约定](kernel-tools.md#约定)；错误包括语法、import、配置、缺依赖和导出名冲突。 |
 
 用户工具目录与全局 Python 安装目录是不同来源。
+
+## 函数存根（提示词就是 docstring）
+
+`<kernel>` 段里每个预装函数的说明是 kernel 用 `inspect`／`typing.get_type_hints` 从函数本身生成的 Python 存根，不再手写：`def` 行（真实签名、类型注解、默认值）加 docstring **首段**；它引用的 TypedDict 按名字排序放在前面。
+
+- 首段写一两句：用途与关键约束／替代关系（如「用它代替 open()/cat」）。细则放在空行之后的后续段落，`help(fn)` 可查，提示里不出现。
+- 返回值写成具名 `TypedDict`，放在被渲染的模块里（如 `files/file_types.py`），键必须与真实返回一致；可选键用 `total=False` 的子类，字段说明用 `Annotated[T, "说明"]`，渲染为行尾注释。
+- 无注解的参数或返回值渲染为 `Any`，不猜测；非字面量默认值渲染为 `...`。两个不同的 TypedDict 同名使该模块不可用。
+- 冷启动目录是内置工具真实 inspect 报告的快照；改了内置函数的签名、注解或 docstring 后须重新生成：`PRK_UPDATE_COLD_CATALOG=1 node --test test/integration/session/kernel-stubs.test.mjs`。同一测试断言快照与真实 kernel 的报告一致，且两条路径渲染的 `<kernel>` 段逐字节相同。
+- cell 里的 `help()` 输出归属该 cell（标准 `help()` 写到 cell 输出之外）。
 
 ## 依赖声明与制品分发
 
@@ -166,14 +176,14 @@ print(batch)
 - 网关只能只读扫描内核工具源码及 `TOML` 声明，不得在网关导入或执行模块。
 - 内核工具必须经目标内核执行通道加载。
 - 模块工具必须仅注册显式标记的公共同步 `Python` 函数。
-- 模块工具签名和描述必须来自真实 `inspect` 结果。
+- 模块工具签名、描述与存根必须来自真实 `inspect` 结果；描述和存根只取 docstring 首段，无注解处必须为 `Any`。
 - 名称冲突必须使该模块不可用，不得覆盖其他模块、旧辅助函数或沉淀工具。
 - 模块初始化除制品请求外不得调用宿主业务。
 - 模块导入前必须解析所声明的二进制依赖。
 - 二进制依赖必须在校验后原子安装。
 - 二进制依赖不得由目标机联网下载。
 - 非空 `Python wheel` 依赖声明必须使模块不可用，不得联网安装、借用网关包或假装安装成功。
-- 首次内核 `inspect` 前只能提供标记待加载的静态辅助函数和模块信息，不得伪造签名。
+- 首次内核 `inspect` 前的内置工具目录必须是真实 `inspect` 报告的快照，渲染的提示不得与 `inspect` 后不同；用户新增或覆盖的模块只能标待加载，不得伪造签名。
 - 列模块目录不得创建内核或请求模型。
 - 模型必须仅看到实际可用且启用的函数。
 - 同一 `Python` 进程重装前导库只能重绑宿主，必须保留已导入模块对象及状态。

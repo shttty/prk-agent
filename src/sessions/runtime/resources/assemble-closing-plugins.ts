@@ -5,15 +5,11 @@ import { assembleToolLibraryPlugin } from "../../../plugins/tool-library/assembl
 import { TOOL_LIBRARY_PLUGIN_NAME } from "../../../plugins/tool-library/plugin-identity.ts";
 import { assembleToolSearchPlugin } from "../../../plugins/tool-search/assemble-tool-search-plugin.ts";
 import { TOOL_SEARCH_PLUGIN_NAME } from "../../../plugins/tool-search/plugin-identity.ts";
-import { isLibraryCallback } from "../../../codemode/kernel-protocol/is-library-callback.ts";
 import { binPrompt } from "../../../codemode/binary-delivery/describe-binaries.ts";
 import type { ConversationContext, RuntimeContext } from "../runtime-state.ts";
-import { capabilityEnabled } from "../capabilities/is-capability-enabled.ts";
 import { toolEnabled } from "../capabilities/is-tool-enabled.ts";
 import { capabilityCatalog } from "../capabilities/get-catalog.ts";
-import { fileHelper } from "../capabilities/file-helper.ts";
 import { kernelCapabilities } from "../kernel/kernel-capabilities.ts";
-import { localEnabled } from "../configuration/read-native-tools.ts";
 import { toolDeclarations } from "../tools/project-declarations.ts";
 import { prepareDeclarations } from "../tools/prepare-declarations.ts";
 import { setKernelLanguage } from "../kernel/set-kernel-language.ts";
@@ -27,7 +23,6 @@ export function assembleClosingPlugins(ctx: RuntimeContext, conversation: Conver
       toolEnabled: () => toolEnabled(ctx, "kernel_code"),
       selectLanguage: setKernelLanguage.bind(undefined, ctx),
       prepareLoadout, afterCompaction: () => ctx.python.afterCompaction(), titleRequired: () => toolTitleEnabled(ctx),
-      callableTools: () => ctx.callbackSession?.getCallableToolNames().filter((name) => !isLibraryCallback(name) && toolEnabled(ctx, name) && (!ctx.nativeNames.has(name) || localEnabled(ctx))) ?? [],
       prompt: () => {
         const snapshot = ctx.python.getSnapshot();
         return {
@@ -35,8 +30,7 @@ export function assembleClosingPlugins(ctx: RuntimeContext, conversation: Conver
           asyncExecution: ctx.python.asyncExecution(), cellTools: toolEnabled(ctx, "kernel_read"), titleRequired: toolTitleEnabled(ctx),
           language: snapshot.language,
           ...(snapshot.state === "not_started" ? {} : { kernelScoped: Boolean(snapshot.memory) }),
-          kernelCapabilities: (name) => kernelCapabilities(ctx, name), capabilityEnabled: (id) => capabilityEnabled(ctx, id, "group:tools:kernel"),
-          fileHelper, binaryPrompt: () => binPrompt(ctx.binDir),
+          kernelCapabilities: (name) => kernelCapabilities(ctx, name), binaryPrompt: () => binPrompt(ctx.binDir),
         };
       },
     }) },

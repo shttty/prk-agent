@@ -28,12 +28,12 @@ def install(payload, host, sdk_source):
                     del sys.modules[imported]
             _package.__dict__.pop(name, None)
     catalog = []
-    # Legacy helpers also use inspect after load. Static metadata is only a cold-start manifest.
+    known_types = {}
+    # Legacy helpers describe themselves like module tools; the cold-start catalog is a snapshot of this report.
     for name, function in host._helper_functions.items():
         if function.__module__.startswith("prk_tools."):
             continue
-        catalog.append({"name": name, "signature": str(inspect.signature(function)),
-                        "description": (inspect.getdoc(function) or "").split("\n")[0],
+        catalog.append({"name": name, **_describe_function(name, function, known_types),
                         "source": "PRK kernel prelude", "available": True})
     for name, entry in sorted(_roots.items()):
         metadata = {"module": name, "source": entry["path"], "overridesBuiltin": entry["overridesBuiltin"],
@@ -52,9 +52,8 @@ def install(payload, host, sdk_source):
                 rows = []
                 try:
                     for key, function in functions:
-                        rows.append({**metadata, "name": key, "signature": str(inspect.signature(function)),
-                                     "description": (inspect.getdoc(function) or "").split("\n")[0], "available": True})
-                except (TypeError, ValueError) as error:
+                        rows.append({**metadata, "name": key, **_describe_function(key, function, known_types), "available": True})
+                except (TypeError, ValueError, NameError) as error:
                     _errors[name] = str(error)
                 else:
                     for key, function in functions:

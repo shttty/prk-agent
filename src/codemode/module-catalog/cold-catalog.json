@@ -1,0 +1,133 @@
+[
+  {
+    "name": "bash",
+    "signature": "(command: str, timeout: float | None = None) -> BashResult",
+    "description": "Run a shell command with stdin closed (prompts read EOF); returns exit code, stdout and stderr.",
+    "stub": "def bash(command: str, timeout: float | None = None) -> BashResult:\n    \"\"\"Run a shell command with stdin closed (prompts read EOF); returns exit code, stdout and stderr.\"\"\"",
+    "types": {
+      "BashResult": "class BashResult(TypedDict):\n    exit_code: int\n    stdout: str\n    stderr: str\n    duration_ms: int\n    timed_out: bool\n    truncated: bool  # always False: output is returned whole"
+    },
+    "source": "PRK kernel prelude",
+    "available": true
+  },
+  {
+    "name": "disk_usage",
+    "signature": "(path: str = '.', depth: int = 1, limit: int = 50, apparent: bool = False) -> DiskUsage",
+    "description": "Directory sizes via dust: the tree under path down to depth, largest first.",
+    "stub": "def disk_usage(\n    path: str = '.',\n    depth: int = 1,\n    limit: int = 50,\n    apparent: bool = False,\n) -> DiskUsage:\n    \"\"\"Directory sizes via dust: the tree under path down to depth, largest first.\"\"\"",
+    "types": {
+      "DiskUsage": "class DiskUsage(TypedDict):\n    path: str\n    bytes: int\n    children: list[DiskUsage]"
+    },
+    "source": "PRK kernel prelude",
+    "available": true
+  },
+  {
+    "name": "edit",
+    "signature": "(path: str, operations: list[ReplaceEdit | InsertEdit]) -> EditResult",
+    "description": "Edit a file by the N#hhh refs that read()/grep() displayed. Use instead of sed/str.replace; batch one file's changes into one call.",
+    "module": "files",
+    "stub": "def edit(path: str, operations: list[ReplaceEdit | InsertEdit]) -> EditResult:\n    \"\"\"Edit a file by the N#hhh refs that read()/grep() displayed. Use instead of sed/str.replace; batch one file's changes into one call.\"\"\"",
+    "types": {
+      "DiffLine": "class DiffLine(TypedDict):\n    number: int\n    ref: str  # N#hhh: '+' and ' ' refs are current, '-' refs are old\n    text: str | None\n    omitted: bool\n    kind: Literal['-', '+', ' ']\n    bytes: NotRequired[int]",
+      "EditResult": "class EditResult(TypedDict):\n    path: str\n    diff: list[DiffLine]\n    truncated: bool\n    tool_content: list[dict[str, Any]]\n    formatted: bool  # a target-side formatter changed the written bytes",
+      "InsertEdit": "class InsertEdit(TypedDict):\n    op: Literal['insert']\n    ref: str\n    where: Literal['before', 'after']\n    text: str",
+      "ReplaceEdit": "class ReplaceEdit(TypedDict):\n    op: Literal['replace']\n    start: str  # ref of the first line replaced\n    end: str  # ref of the last line replaced (inclusive)\n    text: str  # new lines; an empty string deletes the range"
+    },
+    "available": true
+  },
+  {
+    "name": "glob",
+    "signature": "(pattern: str, path: str = '.', hidden: bool = False, gitignore: bool = True, limit: int = 100) -> GlobResult",
+    "description": "List files under path matching an rg glob, sorted, at most 1000 files / 50KB, e.g. glob('src/**/*.py').",
+    "stub": "def glob(\n    pattern: str,\n    path: str = '.',\n    hidden: bool = False,\n    gitignore: bool = True,\n    limit: int = 100,\n) -> GlobResult:\n    \"\"\"List files under path matching an rg glob, sorted, at most 1000 files / 50KB, e.g. glob('src/**/*.py').\"\"\"",
+    "types": {
+      "GlobResult": "class GlobResult(TypedDict):\n    files: list[str]\n    truncated: bool\n    limit_reached: bool\n    output_limited: bool"
+    },
+    "source": "PRK kernel prelude",
+    "available": true
+  },
+  {
+    "name": "grep",
+    "signature": "(pattern: str, path: str = '.', glob: str | None = None, ignore_case: bool = False, literal: bool = False, context: int = 0, limit: int = 100) -> GrepResult",
+    "description": "Search files with ripgrep; match and context refs can go straight to edit(). Use instead of shelling out to grep/rg.",
+    "module": "files",
+    "stub": "def grep(\n    pattern: str,\n    path: str = '.',\n    glob: str | None = None,\n    ignore_case: bool = False,\n    literal: bool = False,\n    context: int = 0,\n    limit: int = 100,\n) -> GrepResult:\n    \"\"\"Search files with ripgrep; match and context refs can go straight to edit(). Use instead of shelling out to grep/rg.\"\"\"",
+    "types": {
+      "GrepFile": "class GrepFile(TypedDict):\n    path: str\n    lines: list[GrepLine]",
+      "GrepLine": "class GrepLine(TypedDict):\n    number: int\n    ref: str  # N#hhh: editable like a read() ref\n    text: str\n    omitted: bool\n    match: bool\n    truncated: bool\n    omitted_chars: int",
+      "GrepResult": "class GrepResult(TypedDict):\n    files: list[GrepFile]  # empty when nothing matched\n    matches: int\n    truncated: bool\n    limit_reached: bool\n    output_limited: bool"
+    },
+    "available": true
+  },
+  {
+    "name": "library_sync",
+    "signature": "() -> list[dict[str, Any]]",
+    "description": "Reload the saved tools into this kernel and return their entries; call a loaded tool directly, never through gateway.call('prk_saved_...').",
+    "stub": "def library_sync() -> list[dict[str, Any]]:\n    \"\"\"Reload the saved tools into this kernel and return their entries; call a loaded tool directly, never through gateway.call('prk_saved_...').\"\"\"",
+    "types": {},
+    "source": "PRK kernel prelude",
+    "available": true
+  },
+  {
+    "name": "ls",
+    "signature": "(path: str = '.', offset: int = 1, limit: int = 500) -> LsResult",
+    "description": "List a directory's direct children, hidden names included and directories ending in '/'; page with next_offset.",
+    "stub": "def ls(path: str = '.', offset: int = 1, limit: int = 500) -> LsResult:\n    \"\"\"List a directory's direct children, hidden names included and directories ending in '/'; page with next_offset.\"\"\"",
+    "types": {
+      "LsResult": "class LsResult(TypedDict):\n    entries: list[str]  # names in case-sensitive order; directories end in '/'\n    total: int\n    truncated: bool\n    next_offset: int | None  # pass as offset to continue; None at the end"
+    },
+    "source": "PRK kernel prelude",
+    "available": true
+  },
+  {
+    "name": "phase",
+    "signature": "(title: str | None) -> None",
+    "description": "Label the current cell's next phase in the UI; does not call the Gateway. phase(None) clears the label.",
+    "stub": "def phase(title: str | None) -> None:\n    \"\"\"Label the current cell's next phase in the UI; does not call the Gateway. phase(None) clears the label.\"\"\"",
+    "types": {},
+    "source": "PRK kernel prelude",
+    "available": true
+  },
+  {
+    "name": "read",
+    "signature": "(path: str, offset: int | None = None, limit: int | None = None) -> ReadResult",
+    "description": "View a text file as N#hhh line refs (up to 2000 lines / 50KB per page) or attach an image. Use instead of open()/cat.",
+    "module": "files",
+    "stub": "def read(path: str, offset: int | None = None, limit: int | None = None) -> ReadResult:\n    \"\"\"View a text file as N#hhh line refs (up to 2000 lines / 50KB per page) or attach an image. Use instead of open()/cat.\"\"\"",
+    "types": {
+      "ReadLine": "class ReadLine(TypedDict):\n    number: int\n    ref: str  # N#hhh: pass to edit() as start/end/ref\n    text: str | None  # None when the line is too long to show; its ref still edits the whole line\n    omitted: bool\n    bytes: NotRequired[int]  # size of an omitted line",
+      "ReadResult": "class ReadResult(TypedDict):\n    path: str\n    lines: list[ReadLine]\n    total_lines: int | None  # None until a scan reaches the end of the file\n    truncated: bool\n    next_offset: int | None  # line number to pass as offset for the next page; None at the end\n    tool_content: list[dict[str, Any]]\n    mime_type: NotRequired[str]  # images only; the image is attached to the cell output\n    size_bytes: NotRequired[int]  # images only"
+    },
+    "available": true
+  },
+  {
+    "name": "tool",
+    "signature": "(function: Callable[..., Any] | None = None, *, persist: bool = False, reason: str | None = None) -> Any",
+    "description": "Preinstalled decorator (never import it): @tool(persist=True, reason='future task class') saves a reusable function to shared staging.",
+    "stub": "def tool(\n    function: Callable[..., Any] | None = None,\n    *,\n    persist: bool = False,\n    reason: str | None = None,\n) -> Any:\n    \"\"\"Preinstalled decorator (never import it): @tool(persist=True, reason='future task class') saves a reusable function to shared staging.\"\"\"",
+    "types": {},
+    "source": "PRK kernel prelude",
+    "available": true
+  },
+  {
+    "name": "tool_bin",
+    "signature": "(name: str) -> str",
+    "description": "Absolute path of a Gateway-distributed Linux CLI on this target, e.g. tool_bin('rg'); needs the instance environment deployed.",
+    "stub": "def tool_bin(name: str) -> str:\n    \"\"\"Absolute path of a Gateway-distributed Linux CLI on this target, e.g. tool_bin('rg'); needs the instance environment deployed.\"\"\"",
+    "types": {},
+    "source": "PRK kernel prelude",
+    "available": true
+  },
+  {
+    "name": "write",
+    "signature": "(path: str, content: str) -> WriteResult",
+    "description": "Create or overwrite a whole file, creating parent directories. For targeted changes use read() then edit().",
+    "module": "files",
+    "stub": "def write(path: str, content: str) -> WriteResult:\n    \"\"\"Create or overwrite a whole file, creating parent directories. For targeted changes use read() then edit().\"\"\"",
+    "types": {
+      "ReadLine": "class ReadLine(TypedDict):\n    number: int\n    ref: str  # N#hhh: pass to edit() as start/end/ref\n    text: str | None  # None when the line is too long to show; its ref still edits the whole line\n    omitted: bool\n    bytes: NotRequired[int]  # size of an omitted line",
+      "WriteResult": "class WriteResult(TypedDict):\n    path: str\n    written: int  # characters written\n    tool_content: list[dict[str, Any]]\n    formatted: NotRequired[bool]\n    lines: NotRequired[list[ReadLine]]  # only when formatted: the file as it is now"
+    },
+    "available": true
+  }
+]

@@ -11,7 +11,8 @@ export function mergeCapabilityCatalog(ctx: HostContext, catalog: CapabilityCata
     const helpers = kernelToolCatalog(ctx.host.paths.home);
     const inspected = new Set(helpers.map((helper) => helper.module));
     for (const entry of catalog.entries) if (!entry.id.startsWith("kernel:") || (entry.pending && !inspected.has(entry.module))) entries.set(key(entry), entry);
-    for (const helper of helpers) {
+    // The typed stubs are for the prompt; the capability catalog does not carry them.
+    for (const { stub: _stub, types: _types, ...helper } of helpers) {
       const id = `kernel:${helper.name}`;
       const previous = candidates.get(`\0${id}`);
       if (previous) entries.set(`\0${id}`, { ...previous, ...helper, error: helper.error, pending: helper.pending, moduleOnly: helper.moduleOnly,

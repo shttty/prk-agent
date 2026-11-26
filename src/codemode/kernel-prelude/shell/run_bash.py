@@ -4,14 +4,24 @@ import os as _os
 import selectors as _selectors
 import signal as _signal
 import subprocess as _subprocess
+from typing import Optional as _Optional, TypedDict as _TypedDict, Annotated as _Annotated
 
 
-def bash(command, timeout=None):
-    """Run bash; return exit_code, raw stdout/stderr, duration_ms, timed_out and truncated=False.
-    Use either bash() or model terminals (terminal_textsend), not both.
+class BashResult(_TypedDict):
+    exit_code: int
+    stdout: str
+    stderr: str
+    duration_ms: int
+    timed_out: bool
+    truncated: _Annotated[bool, "always False: output is returned whole"]
 
-    Stdin is closed (/dev/null): commands that prompt for input read EOF;
-    run those with terminal_textsend.
+
+def bash(command: str, timeout: _Optional[float] = None) -> BashResult:
+    """Run a shell command with stdin closed (prompts read EOF); returns exit code, stdout and stderr.
+
+    Use either bash() or model terminals, not both. Commands that need input belong in a
+    model terminal (terminal_textsend), since stdin here is /dev/null. timeout is in
+    seconds; on expiry the whole process group is killed and timed_out is True.
     """
     if timeout is not None and (not _math.isfinite(timeout) or timeout <= 0):
         raise ValueError("timeout must be a finite positive number of seconds")

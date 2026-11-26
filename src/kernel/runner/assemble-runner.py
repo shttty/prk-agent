@@ -40,7 +40,7 @@ def run_kernel(configuration):
         raise RuntimeError("Ordinary input() is unsupported; use a Gateway ask callback")
 
     ctx.namespace["__builtins__"] = {
-        **vars(builtins), "input": reject_input, "print": functools.partial(print_owned, ctx),
+        **vars(builtins), "input": reject_input, "print": functools.partial(print_owned, ctx), "help": functools.partial(help_owned, ctx),
     }
 
     def interrupt(_signal, _frame):

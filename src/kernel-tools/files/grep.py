@@ -1,13 +1,22 @@
 import contextlib
 from pathlib import Path
+from typing import Optional
 from prk_tool import host, tool
 from .file_state import _ctx
+from .file_types import GrepResult
 from .search.read_search_hits import hits
 
 
 @tool
-def grep(pattern, path=".", glob=None, ignore_case=False, literal=False, context=0, limit=100):
-    """Search target files via tool_bin('rg'); returned match/context N#hhh refs are immediately editable."""
+def grep(pattern: str, path: str = ".", glob: Optional[str] = None, ignore_case: bool = False, literal: bool = False,
+         context: int = 0, limit: int = 100) -> GrepResult:
+    """Search files with ripgrep; match and context refs can go straight to edit(). Use instead of shelling out to grep/rg.
+
+    Uses tool_bin('rg') and its regex and ignore rules; context is at most 10 lines, hits at
+    most 1000, output at most 50KB. Pass literal=True for a fixed string and glob to
+    restrict file names. Rows with match=True are the hits and the rest are context. print(result)
+    shows the refs. An empty files list is a normal no-match result; search errors raise.
+    """
     if type(context) is not int or context < 0:
         raise ValueError("grep context must be a nonnegative integer")
     if type(limit) is not int or limit < 1:

@@ -1,9 +1,22 @@
-def ls(path=".", offset=1, limit=500):
-    """List direct children, including hidden names and directory / suffixes; mapping entries/total/truncated/next_offset, max 2000 / 50KB; print to view.
+from typing import Annotated as _Annotated, Optional as _Optional, TypedDict as _TypedDict
 
-    Names sort case-sensitively before adding /; offset is 1-based, limit positive.
-    Printed names are quoted to escape newlines. Continue with next_offset using
-    the same path; each call rescans the directory, without a frozen snapshot.
+
+class LsResult(_TypedDict):
+    """Typed shape of the mapping ls returns (the runtime class is _LsResult)."""
+    entries: _Annotated[list[str], "names in case-sensitive order; directories end in '/'"]
+    total: int
+    truncated: bool
+    next_offset: _Annotated[_Optional[int], "pass as offset to continue; None at the end"]
+
+
+def ls(path: str = ".", offset: int = 1, limit: int = 500) -> LsResult:
+    """List a directory's direct children, hidden names included and directories ending in '/'; page with next_offset.
+
+    At most 2000 entries / 50KB per page; offset is 1-based and limit positive. print(result)
+    shows one quoted name per line plus a continuation hint. Continue with
+    ls(path, offset=result['next_offset']) on the same path until next_offset is None; each
+    call rescans the directory, so keep it unchanged while paging. Offsets beyond total raise
+    (an empty directory accepts offset=1), as do missing or non-directory paths.
     """
     if type(offset) is not int or offset < 1:
         raise ValueError("ls offset must be a positive 1-based integer")

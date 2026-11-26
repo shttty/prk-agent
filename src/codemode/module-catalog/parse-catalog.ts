@@ -4,6 +4,8 @@ export function parseKernelToolCatalog(value: unknown): KernelHelper[] {
   if (!Array.isArray(value) || !value.every((entry) => entry && typeof entry === "object"
     && typeof entry.name === "string" && typeof entry.signature === "string" && typeof entry.description === "string"
     && typeof entry.available === "boolean"
+    && (entry.moduleOnly === true || entry.available === false || typeof entry.stub === "string")
+    && (entry.types === undefined || isStubTypes(entry.types))
     && (entry.error === undefined || typeof entry.error === "string")
     && (entry.module === undefined || typeof entry.module === "string")
     && (entry.source === undefined || typeof entry.source === "string")
@@ -13,4 +15,8 @@ export function parseKernelToolCatalog(value: unknown): KernelHelper[] {
     throw new Error("Invalid kernel tool catalog report.");
   }
   return value as KernelHelper[];
+}
+
+function isStubTypes(value: unknown): boolean {
+  return Boolean(value) && typeof value === "object" && Object.values(value as object).every((text) => typeof text === "string");
 }

@@ -1,8 +1,12 @@
 import platform as _bin_platform
 
 
-def tool_bin(name):
-    """Absolute path of a verified binary installed by the instance environment deployment."""
+def tool_bin(name: str) -> str:
+    """Absolute path of a Gateway-distributed Linux CLI on this target, e.g. tool_bin('rg'); needs the instance environment deployed.
+
+    The binary is sent and sha256-cached on first use, then verified before each path is returned.
+    Raises ENVIRONMENT_REQUIRED when the instance environment has not been deployed.
+    """
     request = {"name": name, "system": _bin_platform.system(), "machine": _bin_platform.machine()}
     asset = _bin_request(request)
     path = _os.path.join(_os.path.expanduser(_config["targetCacheRoot"]), "bin", asset["sha256"], name)

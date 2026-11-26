@@ -6,6 +6,7 @@ export function buildForkserver(): string {
   const sources = [
     "../runner/cell/pickle_cell_values.py",
     "../runner/output/print_owned.py",
+    "../runner/output/help_owned.py",
     "../runner/output/display.py",
     "../runner/output/collect_figures.py",
   ];

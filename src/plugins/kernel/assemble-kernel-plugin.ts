@@ -16,7 +16,6 @@ export function assembleKernelPlugin(tool: PythonToolClient["tool"], runtime?: {
   toolEnabled(): boolean;
   prepareLoadout: NonNullable<PythonToolClient["tool"]["prepareLoadout"]>;
   afterCompaction(): void;
-  callableTools(): readonly string[];
   prompt(): KernelPromptInput;
   client?: PythonToolClient;
   session?(): AgentSession | undefined;
@@ -48,7 +47,7 @@ export function assembleKernelPlugin(tool: PythonToolClient["tool"], runtime?: {
     pi.on("session_compact", () => runtime.afterCompaction());
     pi.on("context_with_system", (event) => {
       const enabled = runtime.toolEnabled();
-      const kernel = enabled ? renderKernel(runtime.prompt(), runtime.callableTools()) : "";
+      const kernel = enabled ? renderKernel(runtime.prompt()) : "";
       const gatewayCalls = enabled ? renderGatewayCalls(language) : "";
       const titled = runtime.titleRequired?.() === true;
       return { messages: event.messages.map((message) => message.role !== "system" ? message : {

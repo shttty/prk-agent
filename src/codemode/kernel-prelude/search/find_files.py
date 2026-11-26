@@ -1,12 +1,23 @@
-def glob(pattern, path=".", hidden=False, gitignore=True, limit=100):
-    """List files via tool_bin('rg'): sorted relative paths, max 1000 files / 50KB; print the mapping result.
+from typing import TypedDict as _TypedDict
 
-    Returns files=[], truncated, limit_reached, output_limited. rg globs: *.py
-    matches basenames at any depth; src/*.py matches directly in src;
+
+class GlobResult(_TypedDict):
+    """Typed shape of the mapping glob returns (the runtime class is _GlobResult)."""
+    files: list[str]
+    truncated: bool
+    limit_reached: bool
+    output_limited: bool
+
+
+def glob(pattern: str, path: str = ".", hidden: bool = False, gitignore: bool = True, limit: int = 100) -> GlobResult:
+    """List files under path matching an rg glob, sorted, at most 1000 files / 50KB, e.g. glob('src/**/*.py').
+
+    rg globs: *.py matches basenames at any depth; src/*.py matches directly in src;
     src/**/*.py includes src and all descendants (** spans zero or more dirs).
     Hidden paths are excluded unless hidden=True; gitignore=False passes --no-ignore.
     .git directories are always excluded; directory symlinks are not followed.
-    Reads one extra file to detect true truncation. Missing path/rg or invalid glob raises.
+    Reads one extra file to detect true truncation, so limit_reached is exact. Missing
+    path/rg or an invalid glob raises; no matches is files=[]. print(result) shows the paths.
     """
     if type(limit) is not int or limit < 1:
         raise ValueError("glob limit must be a positive integer")

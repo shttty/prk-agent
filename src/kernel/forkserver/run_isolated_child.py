@@ -98,7 +98,7 @@ def run_isolated_child(data):
             raise RuntimeError("Ordinary input() is unsupported; use a Gateway ask callback")
 
         namespace.update(__name__="__main__",
-                         __builtins__={**vars(builtins), "print": partial(print_owned, ctx), "input": reject_input},
+                         __builtins__={**vars(builtins), "print": partial(print_owned, ctx), "help": partial(help_owned, ctx), "input": reject_input},
                          display=partial(_isolated_display, ctx), gateway=_create_gateway(partial(_isolated_callback, ctx)))
         stage = ""
         try:

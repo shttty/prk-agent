@@ -8,6 +8,7 @@ const NATIVE = ["read", "bash", "edit", "write", "grep", "find", "ls"];
 /**
  * Every tool or kernel helper the model's real prompt and tool descriptions name must be offered this turn:
  * declared in the request, enabled in the session's capability catalog, or a helper of the kernel when kernel_code is declared.
+ * The stubs of the <kernel> section are named too: each `def` in them must be a function the running kernel really defines.
  */
 export async function verifyPromptReferences(f, sessionId, messages) {
   const system = getCurrentSystemMessage(messages);
@@ -20,6 +21,8 @@ export async function verifyPromptReferences(f, sessionId, messages) {
   const texts = [["system prompt", getSystemMessageText(system)], ...declared.map((tool) => [`tool ${tool.name}`, tool.description])];
   const dangling = findDanglingReferences(texts, { known, available });
   assert.deepEqual(dangling, [], `the prompt names tools it does not offer: ${JSON.stringify(dangling, null, 1)}`);
+  const stubbed = [...getSystemMessageText(system).matchAll(/^def (\w+)\(/gm)].map((match) => match[1]);
+  assert.deepEqual(stubbed.filter((name) => !helpers.includes(name)), [], "the kernel stubs describe functions the kernel does not define");
 }
 
 async function kernelHelpers(f, sessionId) {

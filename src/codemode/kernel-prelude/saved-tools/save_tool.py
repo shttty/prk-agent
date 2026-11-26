@@ -1,5 +1,16 @@
-def tool(function=None, *, persist=False, reason=None):
-    """@tool(persist=True, reason="future tasks") saves inspected functions to shared staging."""
+from collections.abc import Callable as _Callable
+from typing import Any as _Any, Optional as _Optional
+
+
+def tool(function: _Optional[_Callable[..., _Any]] = None, *, persist: bool = False, reason: _Optional[str] = None) -> _Any:
+    """Preinstalled decorator (never import it): @tool(persist=True, reason='future task class') saves a reusable function to shared staging.
+
+    A persisted tool needs a nonblank reason naming the future tasks that will reuse it, must be
+    a synchronous function without closures, and cannot reuse a prelude helper's name. Do not
+    hand-build source or signature metadata. Distinct native sessions with successful uses can
+    auto-promote a tool; manual promotion is human-only. Without persist=True the function
+    is returned unchanged.
+    """
     def decorate(candidate):
         if not persist:
             return candidate

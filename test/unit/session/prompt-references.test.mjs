@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { STATIC_KERNEL_HELPERS } from "../../../src/codemode/module-catalog/cold-catalog.ts";
 import { renderKernel } from "../../../src/plugins/kernel/prompt/kernel/render.ts";
@@ -11,9 +10,8 @@ import { renderMemory } from "../../../src/plugins/memory/prompt/render.ts";
 import { renderSkills } from "../../../src/sessions/runtime/prompt/skills/render.ts";
 import { findDanglingReferences } from "../../fixtures/prompt/find-dangling-references.mjs";
 
-// The file helpers are the real module's exports; the rest are the kernel prelude's own catalog.
-const files = JSON.parse(/__all__ = (\[.*\])/.exec(readFileSync(new URL("../../../src/kernel-tools/files/__init__.py", import.meta.url), "utf8"))[1]);
-const helpers = [...STATIC_KERNEL_HELPERS, ...files.map((name) => ({ name, signature: "()", description: "", available: true, module: "files" }))];
+// The cold catalog is a snapshot of the real kernel's report: the file module's exports plus the prelude's own helpers.
+const helpers = STATIC_KERNEL_HELPERS;
 const everyTool = ["kernel_code", "kernel_read", "kernel_interrupt", "terminal_textsend", "ask", "memory", "skill_read", "skill_manage", "tool_search", "tool_call",
   "session_spawn", "session_list", "session_send", "session_result"];
 const known = new Set([...everyTool, ...helpers.map(({ name }) => name), "read", "write", "edit", "grep", "glob", "ls", "bash"]);
@@ -23,15 +21,14 @@ const layers = [{ name: "control", explicitOnly: true }, { name: "user" }, { nam
 function kernelInput(callable) {
   return {
     helpers, toolLibrary: true, autoTools: true, asyncExecution: true, cellTools: callable.includes("kernel_read"), titleRequired: false, language: "python",
-    kernelCapabilities: () => true, capabilityEnabled: () => true, binaryPrompt: () => undefined,
-    fileHelper: (list, name) => list.some((helper) => helper.name === name),
+    kernelCapabilities: () => true, binaryPrompt: () => undefined,
   };
 }
 
 function codeMode(callable) {
   const declared = ["kernel_code", ...callable.filter((name) => name.startsWith("kernel_"))];
   const texts = [
-    ["kernel", renderKernel(kernelInput(callable), callable)],
+    ["kernel", renderKernel(kernelInput(callable))],
     ["gateway_calls", renderGatewayCalls("python")],
     ["ask", renderAsk(callable)],
     ["sessions", renderSessions(callable.includes("session_result") ? { depth: 1, parentLabel: "p", isolated: false } : undefined, "restrained", callable)],
@@ -46,6 +43,13 @@ test("code mode prompts name only the tools and kernel helpers the session offer
   assert.deepEqual(codeMode(everyTool.filter((name) => name !== "kernel_code")), []);
   assert.deepEqual(codeMode([]), []);
   assert.deepEqual(codeMode(["ask", "memory"]), []);
+});
+
+test("every function the kernel stubs define is a helper the kernel really has", () => {
+  const stubbed = [...renderKernel(kernelInput(everyTool)).matchAll(/^def (\w+)\(/gm)].map((match) => match[1]);
+  const real = new Set(helpers.map(({ name }) => name));
+  assert.deepEqual(stubbed.filter((name) => !real.has(name)), []);
+  assert.deepEqual([...real].filter((name) => !stubbed.includes(name)), []);
 });
 
 test("direct mode delegation policy names no kernel helper the native tools lack", () => {

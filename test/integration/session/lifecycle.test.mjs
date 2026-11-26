@@ -80,12 +80,14 @@ test("create → stream → stop → sleep → explicitly wake the same SDK sess
   assert.equal(systems.length, 2);
   for (const system of systems) {
     assert.match(system.sections.kernel, /^<kernel>\n/);
-    assert.match(system.sections.kernel, /^bash\(/m);
+    assert.match(system.sections.kernel, /^def bash\(/m);
+    assert.match(system.sections.kernel, /^def read\(/m);
     assert.doesNotMatch(system.sections.kernel, /kernel_read/);
     assert.match(system.sections.gateway_calls, /^<gateway_calls>\n/);
     assert.doesNotMatch(system.sections.tool_catalog, /Use read to examine files/);
   }
-  assert.match(systems[1].sections.kernel, /^read\(/m);
+  // The first request is rendered from the cold catalog, the second from the kernel's own report; the prompt must not change.
+  assert.equal(systems[0].sections.kernel, systems[1].sections.kernel);
   await verifyPromptReferences(f, id, contexts[1]);
 
   const switched = await f.request("nativeAction", {

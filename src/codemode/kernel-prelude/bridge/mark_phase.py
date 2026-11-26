@@ -1,5 +1,8 @@
-def phase(title):
-    """Label the current cell's next phase; does not execute a Gateway operation."""
+from typing import Optional as _Optional
+
+
+def phase(title: _Optional[str]) -> None:
+    """Label the current cell's next phase in the UI; does not call the Gateway. phase(None) clears the label."""
     cell = _current_cell()
     if cell is None:
         return
