@@ -18,8 +18,11 @@ export function projectToolDetails(details: Readonly<Record<string, unknown>>, o
   }
   if (object(details.message)) {
     const message = projectMessage(details.message, options);
-    const content = Array.isArray(message.content) ? message.content.filter((part) => !object(part) || part.type !== "image") : undefined;
-    projected.message = Array.isArray(message.content) && content?.length !== message.content.length ? { ...message, content } : message;
+    // The user message_end replaces the receiving text with the full SDK body, so it keeps its images (bounded by the
+    // attachment limits); every other live message drops them.
+    const keepImages = details.sdkType === "message_end" && message.role === "user";
+    const content = Array.isArray(message.content) && !keepImages ? message.content.filter((part) => !object(part) || part.type !== "image") : undefined;
+    projected.message = Array.isArray(message.content) && content && content.length !== message.content.length ? { ...message, content } : message;
   }
   return projected;
 }
