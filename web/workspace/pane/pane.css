@@ -12,5 +12,5 @@
 .pi-pane-body { position: relative; flex: 1; min-height: 0; display: flex; overflow: hidden; border-radius: inherit; }
 @media (max-width: 48em) {
   .pi-workspace-pane { position: fixed; inset: 0; z-index: var(--pi-z-pane-overlay); width: auto; border: 0; border-radius: 0; box-shadow: var(--pi-shadow); }
-  .pi-pane-bar { flex: 0 0 auto; display: flex; align-items: center; gap: .3rem; height: 2.6rem; padding: 0 .5rem; border-bottom: 1px solid var(--pi-line); background: var(--pi-sidebar); }
+  .pi-pane-bar { flex: 0 0 auto; border-bottom: 1px solid var(--pi-line); background: var(--pi-sidebar); }
 }

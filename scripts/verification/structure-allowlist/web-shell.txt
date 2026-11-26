@@ -1,4 +1,1 @@
 # Existing structure violations of this scope (rules: lines, exports, name). The list only shrinks: fix the file, then delete its line.
-exports web/shell/layout/layout-store.js
-exports web/shell/page/banners/BannerStack.jsx
-exports web/shell/stage/presets/parse-presets.js

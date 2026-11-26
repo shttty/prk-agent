@@ -1,4 +1,1 @@
 # Existing structure violations of this scope (rules: lines, exports, name). The list only shrinks: fix the file, then delete its line.
-exports web/settings/artifacts/ArtifactsPanel.jsx
-exports web/settings/capabilities/panel/tool-mode.js
-exports web/settings/capabilities/panel/use-capability-peek.js

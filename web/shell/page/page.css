@@ -21,55 +21,19 @@
 .desktop-sidebar[hidden] { display: none; }
 .workspace { position: relative; flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
 .topbar {
-  min-height: 70px;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 24px;
   border-bottom: 1px solid var(--pi-line);
   background: var(--pi-bg);
 }
-.topbar-leading, .topbar-heading { min-width: 0; }
-.topbar-heading { display: grid; gap: 2px; }
-.topbar-eyebrow {
-  overflow: hidden;
-  color: var(--pi-muted);
-  font-size: 11px;
-  letter-spacing: .14em;
-  line-height: 1.4;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.topbar-heading h1 {
-  margin: 0;
-  overflow: hidden;
-  color: var(--pi-ink);
-  font-family: var(--pi-font-display);
-  font-size: 23px;
-  font-weight: 500;
-  letter-spacing: .02em;
-  line-height: 1.3;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
+.topbar-eyebrow { color: var(--pi-muted); letter-spacing: .14em; }
+#topbar-title { color: var(--pi-ink); letter-spacing: .02em; }
 .topbar-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  height: 28px;
-  padding: 0 11px;
   border: 1px solid var(--pi-line);
   border-radius: 999px;
   background: var(--pi-surface);
   color: var(--pi-ink-2);
   font-size: 12px;
-  white-space: nowrap;
 }
-.mobile-menu { display: none; }
-/* Desktop has no top bar: the title and status stay in the DOM (page title for assistive tech, state hooks), not on screen. */
-.topbar.is-hidden { position: absolute; width: 1px; height: 1px; min-height: 0; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); border: 0; white-space: nowrap; pointer-events: none; }
 
 .chat-container { position: relative; flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
 .chat-container > * { min-height: 0; }
@@ -86,20 +50,12 @@
 .pi-chatcol > .pi-chat-fade:not([data-fading]) { isolation: auto; }
 .pi-chatcol { --pi-chat-top: 0px; } /* where the thread starts inside the column (toasts offset against it) */
 /* A control strip runs along the chat column's top: leave room for it. */
-.pi-chatcol.has-float { --pi-chat-top: 36px; padding-top: var(--pi-chat-top); }
-.pi-float-left { position: absolute; z-index: var(--pi-z-controls); top: 5px; left: 10px; }
-.pi-controls-slot { width: 26px; height: 26px; }
-.pi-tooltip-anchor { display: inline-flex; }
-/* Control strip (desktop): one row the browser lays out, nothing in it measured: the expand button (session bar
+.pi-chatcol.has-float { --pi-chat-top: 36px; }
+/* Control strip (desktop): a Flex row at the top of the card, nothing in it measured: the expand button (session bar
    folded), the session heading taking what is left (cut with an ellipsis), the monitor pill, and the stage's buttons
    (.pi-chat-corner) while the chat holds the stage's top-right corner. Alone, the pill keeps --pi-monitor-inset from the
    card's edge; beside the buttons, 6px from them. */
-.pi-chat-strip { position: absolute; z-index: var(--pi-z-controls); top: 5px; right: 8px; left: 10px; height: 26px; display: flex; align-items: center; gap: 6px; pointer-events: none; }
-.pi-chat-strip > * { pointer-events: auto; }
-.pi-chat-strip > .pi-float-left { position: static; }
 .pi-session-heading { flex: 1 1 0; min-width: 0; height: 26px; margin-left: 6px; display: flex; align-items: baseline; gap: 8px; overflow: hidden; line-height: 26px; white-space: nowrap; }
-.pi-chat-strip > .pi-session-heading { pointer-events: none; }
-.pi-float-left + .pi-session-heading { margin-left: 2px; }
 .pi-session-heading strong { flex: 0 1 auto; min-width: 0; overflow: hidden; color: var(--pi-ink); font-size: 13.5px; font-weight: 600; text-overflow: ellipsis; }
 .pi-session-fact { flex: 0 1 auto; min-width: 0; overflow: hidden; color: var(--pi-muted); font-size: 12px; text-overflow: ellipsis; }
 .pi-session-fact + .pi-session-fact::before { content: "·"; margin-right: 8px; }
@@ -125,8 +81,8 @@
 .chat-container > .pi-monitor-panel[data-mobile] { position: absolute; z-index: var(--pi-z-monitor); top: 0; right: 8px; left: 8px; max-height: calc(100% - 96px); border-top: 0; border-radius: 0 0 22px 22px; background: var(--pi-surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
 /* Quiet icon groups: neutral grey, no borders, hover tint only. */
 .pi-controls, .pi-pane-controls { display: flex; align-items: center; gap: 2px; }
-.pi-controls .mantine-ActionIcon-root, .pi-pane-controls .mantine-ActionIcon-root, .pi-float-left.mantine-ActionIcon-root { width: 26px; height: 26px; min-width: 26px; min-height: 26px; border: 0; background: transparent; color: var(--pi-muted); }
-.pi-controls .mantine-ActionIcon-root:hover, .pi-pane-controls .mantine-ActionIcon-root:hover, .pi-float-left.mantine-ActionIcon-root:hover { background: var(--pi-hover); color: var(--pi-ink); }
+.pi-controls .mantine-ActionIcon-root, .pi-pane-controls .mantine-ActionIcon-root, .pi-quiet-icon.mantine-ActionIcon-root { border: 0; background: transparent; color: var(--pi-muted); }
+.pi-controls .mantine-ActionIcon-root:hover, .pi-pane-controls .mantine-ActionIcon-root:hover, .pi-quiet-icon.mantine-ActionIcon-root:hover { background: var(--pi-hover); color: var(--pi-ink); }
 .pi-controls .mantine-ActionIcon-root[aria-pressed="true"] { background: var(--pi-hover); color: var(--pi-ink); }
 .pi-controls .mantine-Button-root, .pi-pane-controls .mantine-Button-root { height: 26px; }
 /* No session yet: the page tone, flat (no card on the canvas). */
@@ -166,12 +122,9 @@
   .pi-stage { padding: 0; gap: 0; }
   .pi-chatcol { border: 0; border-radius: 0; }
   .desktop-sidebar { display: none; }
-  .mobile-menu { display: inline-flex; }
-  .topbar { min-height: 58px; padding: 8px 10px; gap: 6px; border-bottom-color: transparent; background: color-mix(in srgb, var(--pi-bg) 82%, transparent); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
-  .topbar-heading h1 { font-size: 18px; }
-  .topbar-eyebrow { font-size: 10px; letter-spacing: .1em; }
-  .topbar-status { height: 26px; padding: 0 8px; border-color: transparent; background: transparent; }
-  .topbar-status-label { display: none; }
+  .topbar { border-bottom-color: transparent; background: color-mix(in srgb, var(--pi-bg) 82%, transparent); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+  .topbar-eyebrow { letter-spacing: .1em; }
+  .topbar-status { border-color: transparent; background: transparent; }
   .workbench-notice { top: 66px; right: 10px; width: min(420px, calc(100vw - 20px)); max-width: calc(100vw - 20px); }
   .empty-view { padding: 24px; }
   .empty-wordmark { font-size: 60px; }

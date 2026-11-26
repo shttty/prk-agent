@@ -10,8 +10,6 @@
   display: flex; /* the grid, then the pinned directory column */
   margin: calc(var(--pi-card-gap) / -2);
   overflow: hidden;
-  /* --pi-dock-reserve (set by the stage): room the corner group's tab row leaves for the floating buttons
-     (TopRightReserve), the pinned tree's header too. */
   --dv-sash-color: transparent;
   --dv-active-sash-color: var(--pi-accent-soft);
   --dv-active-sash-transition-delay: 0s;
@@ -32,9 +30,6 @@
 }
 .pi-stage-grid .dv-groupview:has(> .dv-content-container > .dv-react-part > .pi-chatcol) { border: 0; border-radius: 0; background: transparent; overflow: visible; isolation: auto; }
 .pi-stage-grid .pi-chatcol { height: 100%; }
-/* The group in the stage's top-right corner leaves room in its tab row for the floating buttons (TopRightReserve). */
-.pi-dock-reserve { flex: none; width: 0; height: 100%; }
-.pi-dock-reserve[data-corner] { width: var(--pi-dock-reserve, 0px); }
 /* Handles: the splitter look (6px, accent-soft only on hover or drag, no delay). */
 .pi-stage-grid .dv-split-view-container.dv-horizontal > .dv-sash-container > .dv-sash { width: 6px; margin-left: -1px; }
 .pi-stage-grid .dv-split-view-container.dv-vertical > .dv-sash-container > .dv-sash { height: 6px; margin-top: -1px; }
@@ -43,20 +38,14 @@
    the document became 2px scrollable and a focus change scrolled the whole stage up. Their dialogs are fixed and their
    popovers positioned against the page, so the node itself needs no height. */
 body > #root:has(> #app-shell[data-desktop-stage]) ~ [data-portal] { height: 0; overflow: hidden; }
-/* The stage's buttons (strip and control group, one row) float at the card corner's usual offsets when the chat does
-   not hold that corner; otherwise they sit in the chat column's control strip (page.css). */
-.pi-stage-corner { display: flex; align-items: center; gap: 2px; }
-.pi-desktop-stage > .pi-stage-corner { position: absolute; z-index: var(--pi-z-controls); top: calc(5px + var(--pi-card-gap) / 2); right: calc(8px + var(--pi-card-gap) / 2); }
-
-/* The directory: a popover under the buttons at the stage's top-right, or a card column pinned at the stage's right
-   edge (its header clear of the buttons above it). */
+/* The directory: a popover under the stage's buttons at its top-right (a stage-anchored overlay at fixed offsets, nothing
+   measured), or a card column pinned at the stage's right edge (it then holds the stage's buttons in its header). */
 .pi-desktop-stage > .pi-tree[data-mode="popover"] { top: calc(42px + var(--pi-card-gap) / 2); right: calc(8px + var(--pi-card-gap) / 2); bottom: calc(8px + var(--pi-card-gap) / 2); }
 .pi-desktop-stage > .pi-tree[data-mode="pinned"] { margin: calc(var(--pi-card-gap) / 2); overflow: hidden; border: 1px solid var(--pi-card-line); border-radius: var(--pi-radius-lg); }
-.pi-desktop-stage > .pi-tree[data-mode="pinned"] .pi-files-top { flex-wrap: wrap; padding-right: var(--pi-dock-reserve); }
 .pi-desktop-stage > .pi-stage-tree-splitter { left: auto; right: calc(var(--pi-tree-width) + var(--pi-card-gap) - 3px); }
 
 /* Shell status (connecting, reconnecting, ended, error): one quiet line centred on the terminal's own background
-   instead of the alert bar; a thin spinner while it waits, the danger colour for an error. */
+   instead of the alert bar (an overlay on xterm's host, one of the documented positioned exceptions); a thin spinner while it waits, the danger colour for an error. */
 .pi-desktop-stage .pi-term-view > [data-terminal-status] {
   position: absolute;
   inset: 0;

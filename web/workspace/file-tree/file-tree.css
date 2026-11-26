@@ -36,7 +36,6 @@
 button.pi-files-crumb:hover { color: var(--pi-accent-strong); background: var(--pi-hover); }
 .pi-files-crumb.is-static { color: var(--pi-faint); cursor: default; }
 .pi-files-crumb.is-current { color: var(--pi-ink); font-weight: 600; cursor: default; max-width: 100%; }
-.pi-files-head-gap { flex: 1; }
 .pi-files-list { flex: 1; min-height: 0; overflow: auto; padding: .2rem 0 .75rem; }
 .pi-files-list ul { margin: 0; padding: 0; list-style: none; }
 .pi-files-note { padding: .25rem .5rem; font-size: .76rem; color: var(--pi-faint); }
