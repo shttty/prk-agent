@@ -1,5 +1,5 @@
 /* MesloLGS NF: the powerlevel10k-patched Meslo (Apache-2.0, fonts/MesloLGS-NF-LICENSE.txt). Maple Mono CN is the
-   monospace font (--pi-font-mono, main.jsx); Meslo stays second in that stack only for the Nerd Font icon code points
+   monospace font (--pi-font-mono, main.tsx); Meslo stays second in that stack only for the Nerd Font icon code points
    (terminal prompts), which Maple lacks. It ships with the app because phones have no Nerd Font. A copy installed on the
    machine is used first (no download); the bundled woff2 is the fallback. Faces are fetched only when text in them is drawn. */
 @font-face {

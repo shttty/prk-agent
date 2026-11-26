@@ -1,13 +1,13 @@
 /* Workbench design tokens (fonts, radii, layout, z-index layers, motion). Colours live in shared/palette.js;
    theme.js writes them as --pi-* per colour scheme. */
 :root {
-  /* Every stack ends its CJK in the bundled "Noto Sans SC Variable" (@fontsource-variable/noto-sans-sc, main.jsx; unicode-range
+  /* Every stack ends its CJK in the bundled "Noto Sans SC Variable" (@fontsource-variable/noto-sans-sc, main.tsx; unicode-range
      slices, so only the slices a page draws are fetched). No system CJK font is named: phones and other machines would
      pick their own, and a bare generic `monospace`/`serif` lets fontconfig choose any (often a Kai face). The generic
      keyword stays last only for symbols the bundled fonts lack. */
   --pi-font-ui: "Figtree Variable", "Noto Sans SC Variable", sans-serif;
   --pi-font-display: "LXGW WenKai Screen", "Figtree Variable", "Noto Sans SC Variable", sans-serif; /* titles only (topbar h1, empty view, empty chat) */
-  --pi-font-mono: "PRK Maple Mono CN", "PRK MesloLGS NF", "Noto Sans SC Variable", monospace; /* Maple Mono CN (main.jsx, Regular/Italic/Bold/BoldItalic) draws Latin + CJK + true italics; MesloLGS NF (app/fonts.css) only fills the Nerd Font icon code points; everything monospace incl. the terminal */
+  --pi-font-mono: "PRK Maple Mono CN", "PRK MesloLGS NF", "Noto Sans SC Variable", monospace; /* Maple Mono CN (main.tsx, Regular/Italic/Bold/BoldItalic) draws Latin + CJK + true italics; MesloLGS NF (app/fonts.css) only fills the Nerd Font icon code points; everything monospace incl. the terminal */
   --pi-font-flourish: "Fraunces Variable", Georgia, serif;
   /* Monitor panel titles and numbers only (Manrope loads with the panel): bold CJK sans (Noto Sans SC = Source Han Sans,
      OFL) behind Manrope (OFL) for Latin and tabular figures. */

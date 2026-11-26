@@ -634,7 +634,7 @@ This branch-specific role policy, cwd selection, target default, and SDK/Jupyter
 
 ## 2026-09-22 功能目录迁移
 
-- 按下方“精简项目布局”归类现有文件；只更新导入、资源定位、测试子进程／Python 路径和 npm 命令，不改变业务语义。公共 `src/main.ts`、`web/main.jsx` 与 `scripts/jupyter-server.py` 入口保持不变，不留旧路径转发层。
+- 按下方“精简项目布局”归类现有文件；只更新导入、资源定位、测试子进程／Python 路径和 npm 命令，不改变业务语义。公共 `src/main.ts`、`web/main.tsx` 与 `scripts/jupyter-server.py` 入口保持不变，不留旧路径转发层。
 - 当前可运行命令以 `package.json` 为准。历史审计段与旧回执保留其验收结果。
 - 本轮类型检查、Web 构建、CLI help、SDK／host、Gateway transport、history、main／派生、target reload、Jupyter fixture／spec、kernel recovery 和 native-web 均通过；浏览器实际覆盖桌面与 390px 手机，provider 为受控响应，不代表外部模型或生产部署验收。
 - 现有业务配置、依赖锁与上游安装不变；Web／Gateway／本地 Jupyter 服务保持停止。本轮不提交、推送、部署。
@@ -901,7 +901,7 @@ pi-remote-kernel/
     http/                 # HTTP/SSE 服务与 Gateway 客户端
     shared/               # 共用错误展示与输出处理
   web/
-    main.jsx              # Vite 应用入口
+    main.tsx              # Vite 应用入口
     app/                  # 应用壳、store、events 与会话展示状态
     chat/                 # 对话、剪贴板与聊天样式
     management/           # 实例和会话管理界面
