@@ -8,6 +8,8 @@ export interface KernelPromptInput {
   readonly autoTools: boolean;
   readonly kernelScoped?: boolean;
   readonly asyncExecution: boolean;
+  /** kernel_read and kernel_interrupt are enabled; the kernel plugin group switch can turn them off. */
+  readonly cellTools: boolean;
   readonly language?: KernelLanguage;
   /** Tool titles are on: kernel_code's title is required. */
   readonly titleRequired?: boolean;

@@ -2,11 +2,12 @@ import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import test from "node:test";
-import { fauxAssistantMessage } from "@earendil-works/pi-ai";
+import { fauxAssistantMessage, getCurrentSystemMessage } from "@earendil-works/pi-ai";
 import { gatewayFixture } from "../../fixtures/gateway/assemble-gateway.mjs";
 import { until } from "../../fixtures/until.mjs";
 
 test("create → stream → stop → sleep → explicitly wake the same SDK session", async (t) => {
+  const systems = [];
   const f = await gatewayFixture(t, {
     web: true,
     config: {
@@ -20,7 +21,10 @@ test("create → stream → stop → sleep → explicitly wake the same SDK sess
       extensions: { deny: { tools: ["space_status"] } },
     },
     rate: 30,
-    answer: () => fauxAssistantMessage("streamed words ".repeat(200)),
+    answer(context) {
+      systems.push(getCurrentSystemMessage(context.messages));
+      return fauxAssistantMessage(context.messages.at(-1).role === "toolResult" ? "Awake." : "streamed words ".repeat(200));
+    },
   });
   const directory = join(f.root, "agent", "skills", "reload-test");
   const skill = join(directory, "SKILL.md");
@@ -67,6 +71,19 @@ test("create → stream → stop → sleep → explicitly wake the same SDK sess
   assert.deepEqual(await f.request("wakeSession", { sessionId: id }), { sessionId: id, sleeping: false });
   const awake = await f.request("state", { sessionId: id });
   assert.equal(awake.state, "idle");
+  // A cell after waking lets the kernel report its file helpers. The kernel group switch only hides
+  // kernel_read/interrupt/language; code mode keeps kernel_code and its prompt sections.
+  const cell = { name: "kernel_code", args: { code: "1", title: "Probe" } };
+  assert.equal((await f.complete(id, await f.send(id, `TOOL ${JSON.stringify(cell)}`))).status, "completed");
+  assert.equal(systems.length, 2);
+  for (const system of systems) {
+    assert.match(system.sections.kernel, /^<kernel>\n/);
+    assert.match(system.sections.kernel, /^bash\(/m);
+    assert.doesNotMatch(system.sections.kernel, /kernel_read/);
+    assert.match(system.sections.gateway_calls, /^<gateway_calls>\n/);
+    assert.doesNotMatch(system.sections.tool_catalog, /Use read to examine files/);
+  }
+  assert.match(systems[1].sections.kernel, /^read\(/m);
 
   const switched = await f.request("nativeAction", {
     sessionId: id, requestId: crypto.randomUUID(), action: "capabilities",

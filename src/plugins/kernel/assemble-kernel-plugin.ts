@@ -12,7 +12,7 @@ import { registerLanguageTool } from "./register-language-tool.ts";
 import { requireCellTitle } from "./require-cell-title.ts";
 
 export function assembleKernelPlugin(tool: PythonToolClient["tool"], runtime?: {
-  enabled(): boolean;
+  /** kernel_code is callable; code mode locks it on even when the kernel plugin group is switched off. */
   toolEnabled(): boolean;
   prepareLoadout: NonNullable<PythonToolClient["tool"]["prepareLoadout"]>;
   afterCompaction(): void;
@@ -47,7 +47,7 @@ export function assembleKernelPlugin(tool: PythonToolClient["tool"], runtime?: {
     pi.on("session_shutdown", () => { unsubscribe?.(); stopEvents?.(); });
     pi.on("session_compact", () => runtime.afterCompaction());
     pi.on("context_with_system", (event) => {
-      const enabled = runtime.enabled() && runtime.toolEnabled();
+      const enabled = runtime.toolEnabled();
       const kernel = enabled ? renderKernel(runtime.prompt(), runtime.callableTools()) : "";
       const gatewayCalls = enabled ? renderGatewayCalls(language) : "";
       const titled = runtime.titleRequired?.() === true;

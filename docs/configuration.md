@@ -212,7 +212,7 @@ All nine built-in factories live under `src/plugins/` and use public Pi extensio
 | `tool-library/` · `<inline:tool-library>` | Internal `prk_library_save`, `prk_library_access`, `prk_library_used`, `prk_library_available`; dynamic `prk_saved_*` | — |
 | `tool-search/` · `<inline:tool-search>` | Meta tools `tool_search`, `tool_call` | `<tool_catalog>` |
 
-The first seven factories expose ordinary groups `group:tools:package:<inline:NAME>`. Disable one to hide its tools and prompt sections and reject calls; group-lazy policy affects only callable members. `kernel_code` remains model-only and locked in code mode. Terminal configuration belongs to `<inline:terminals>`.
+The first seven factories expose ordinary groups `group:tools:package:<inline:NAME>`. Disable one to hide its tools and prompt sections and reject calls; group-lazy policy affects only callable members. `kernel_code` remains model-only and locked in code mode, so it keeps `<kernel>` and `<gateway_calls>`; there the kernel group switch only hides `kernel_read`, `kernel_interrupt` and `kernel_language`. Terminal configuration belongs to `<inline:terminals>`.
 
 The B1 tool-library API is preserved: no `tool_save` or `tool_remove` API is introduced. The four internal `prk_library_*` callbacks are filtered from ordinary capability catalogs; saved `prk_saved_*` entries remain independently controlled by `group:tools:library`. Thus `<inline:tool-library>` has no ordinary management members or catalog group row, and its stored global lazy policy currently changes no ordinary declaration. Meta tools likewise have no ordinary catalog rows or group switches; `<tool_catalog>` continues to follow the existing hidden-tool discovery policy.
 

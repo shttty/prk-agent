@@ -1,6 +1,6 @@
 import type { SessionManager } from "@earendil-works/pi-coding-agent";
 import { assembleKernelPlugin } from "../../../plugins/kernel/assemble-kernel-plugin.ts";
-import { KERNEL_PLUGIN_GROUP, KERNEL_PLUGIN_NAME } from "../../../plugins/kernel/plugin-identity.ts";
+import { KERNEL_PLUGIN_NAME } from "../../../plugins/kernel/plugin-identity.ts";
 import { assembleToolLibraryPlugin } from "../../../plugins/tool-library/assemble-tool-library-plugin.ts";
 import { TOOL_LIBRARY_PLUGIN_NAME } from "../../../plugins/tool-library/plugin-identity.ts";
 import { assembleToolSearchPlugin } from "../../../plugins/tool-search/assemble-tool-search-plugin.ts";
@@ -24,7 +24,7 @@ export function assembleClosingPlugins(ctx: RuntimeContext, conversation: Conver
   return [
     { name: KERNEL_PLUGIN_NAME, factory: assembleKernelPlugin(ctx.python.tool, {
       client: ctx.python, session: () => conversation.session, runCallback: conversation.extensionHandlers.runCell,
-      enabled: () => capabilityEnabled(ctx, KERNEL_PLUGIN_GROUP), toolEnabled: () => toolEnabled(ctx, "kernel_code"),
+      toolEnabled: () => toolEnabled(ctx, "kernel_code"),
       selectLanguage: setKernelLanguage.bind(undefined, ctx),
       prepareLoadout, afterCompaction: () => ctx.python.afterCompaction(), titleRequired: () => toolTitleEnabled(ctx),
       callableTools: () => ctx.callbackSession?.getCallableToolNames().filter((name) => !isLibraryCallback(name) && toolEnabled(ctx, name) && (!ctx.nativeNames.has(name) || localEnabled(ctx))) ?? [],
@@ -32,7 +32,7 @@ export function assembleClosingPlugins(ctx: RuntimeContext, conversation: Conver
         const snapshot = ctx.python.getSnapshot();
         return {
           helpers: ctx.helpers, toolLibrary: Boolean(ctx.dependencies.toolLibrary), autoTools: ctx.learningOptions.autoTools,
-          asyncExecution: ctx.python.asyncExecution(), titleRequired: toolTitleEnabled(ctx),
+          asyncExecution: ctx.python.asyncExecution(), cellTools: toolEnabled(ctx, "kernel_read"), titleRequired: toolTitleEnabled(ctx),
           language: snapshot.language,
           ...(snapshot.state === "not_started" ? {} : { kernelScoped: Boolean(snapshot.memory) }),
           kernelCapabilities: (name) => kernelCapabilities(ctx, name), capabilityEnabled: (id) => capabilityEnabled(ctx, id, "group:tools:kernel"),

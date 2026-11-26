@@ -14,7 +14,7 @@ export function renderKernel(input: KernelPromptInput, callable: readonly string
       ? `Use ${signature} for this retained target Python namespace. Pass reset: true to restart the REPL and clear variables.`
       : `Use ${signature} for this retained target Python namespace. The kernel runs inside a cgroup; when its memory is near the limit, del large objects or pass reset: true.`,
     input.asyncExecution
-      ? "kernel_code may return running after yield_s (default: configured foreground wait; 0: immediately). End the turn and wait for completion or running reminders; do not poll. kernel_read and kernel_interrupt are model-only tools outside this busy kernel, not gateway callbacks."
+      ? `kernel_code may return running after yield_s (default: configured foreground wait; 0: immediately). End the turn and wait for completion or running reminders; do not poll.${input.cellTools ? " kernel_read and kernel_interrupt are model-only tools outside this busy kernel, not gateway callbacks." : ""}`
       : "kernel_code waits for completion; yield_s is ignored. Previously yielded cells keep their completion notifications; only that active cell may still be read or interrupted with its cell_id.",
     ...(helpers.length ? [`Helpers on the target cwd, never on the Gateway:\n${helpers.map((helper) => `${helper.name}${helper.signature}: ${helper.description}`).join("\n")}`] : []),
     ...(input.capabilityEnabled("kernel:bash") ? [`bash stdin is closed (/dev/null): commands that prompt for input read EOF.${callable.includes("terminal_textsend") ? " Run those with terminal_textsend." : ""}`] : []),
