@@ -10,6 +10,7 @@ import { packageLoadId } from "../../../src/plugins/package-load/package-load-id
 import { attachPackageLoad } from "../../../src/plugins/package-load/attach-package-load.ts";
 import { unloadedPackageSources } from "../../../src/plugins/package-load/unloaded-package-sources.ts";
 import { validatePackageLoadChange } from "../../../src/plugins/package-load/validate-package-load-change.ts";
+import { unloadedPackages } from "../../../src/sessions/runtime/capabilities/read-unloaded-packages.ts";
 import { createSessionSettings } from "../../../src/sessions/session-settings/create-settings.ts";
 
 const installed = (source, name, enabled = true) => ({ source, name, enabled, location: "gateway" });
@@ -77,4 +78,15 @@ test("denying a package removes it from the settings Pi's loader resolves, and n
   assert.deepEqual(settings.getGlobalSettings().packages.map((pkg) => pkg.source), [tools.source]);
   const unfiltered = createSessionSettings("/work", "/agent", undefined, source);
   assert.deepEqual(unfiltered.getGlobalSettings().packages.map((pkg) => pkg.source), [recall.source, tools.source]);
+});
+
+test("a stored layer that switches a provider package off is refused when the session loads, not ignored", () => {
+  const session = (layers, overrides = {}) => ({ target: { id: "box" }, capabilityOverrides: overrides, dependencies: {
+    modelProviders: registered.modelProviders, capabilityLayers: () => layers,
+    remoteExtensions: () => ({ packages: [recall, tools, installed("/pkg/relay", "relay")] }),
+  } });
+  assert.deepEqual(unloadedPackages(session([{ [packageLoadId(recall.source)]: false }])), [recall.source]);
+  for (const [layers, overrides] of [[[{ [packageLoadId("/pkg/relay")]: false }], {}], [[{}], { [packageLoadId("/pkg/relay")]: false }]]) {
+    assert.throws(() => unloadedPackages(session(layers, overrides)), (error) => error.code === "PROVIDER_POLICY" && error.details.providerErrors[0].providerId === "relay");
+  }
 });
