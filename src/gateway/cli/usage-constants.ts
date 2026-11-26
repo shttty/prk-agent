@@ -2,7 +2,7 @@ export const usage = `Usage:
   node src/main.ts gateway --model PROVIDER/MODEL [--socket PATH]
       [--home DIR] [--extension PATH ...] [--no-skills]
   node src/main.ts attach [--home DIR] [--socket PATH]
-      [workbench|create|reload-targets|state|messages|watch|watch-sessions|send|cancel|reload|close-session|shutdown]
+      [workbench|create|reload-targets|state|messages|prompt|watch|watch-sessions|send|cancel|reload|close-session|shutdown]
       [--session ID] [--target NAME] [--label LABEL] [--cwd PATH] [--message TEXT] [--request-id ID]
       [--queue steer|followUp] [--operation-id ID]
   node src/main.ts web [--home DIR] [--socket PATH] [--host PRIVATE_IP] [--port PORT]
@@ -14,6 +14,7 @@ an Agent or kernel locally. Attach failure exits without starting anything local
 
 attach without an action subscribes to --session and accepts input lines; ordinary text sends a message. /state, /messages, /workbench, /reload-targets, /cancel OPERATION_ID, /reload, /close-session, /shutdown and /quit are explicit commands. Ctrl+D/Ctrl+C disconnect only.
 create --target INSTANCE_ID [--label LABEL] [--cwd PATH] allocates a session and prints its routing identity. Python is configured on the instance. watch streams one session's snapshot/events; watch-sessions streams collection lifecycle changes.
+prompt --session ID prints the last provider request of that running session (system text and sections, declared tools, message counts) and what changed since the one before; it is empty until the session has sent a request and never wakes a sleeping session.
 Reconnect by attaching again: state includes messages and retained outcomes.
 Never automatically retry a send after connection loss (outcome may be unknown).
 Private local Unix socket; application v1 protocol, NOT official stdio JSONL RPC.

@@ -17,6 +17,7 @@ import { createRuntimeChannels } from "../resources/create-target-channels.ts";
 import { resourceDefaults } from "../resources/create-resource-defaults.ts";
 import { createTargetFileTools } from "../../target-files/create-tools.ts";
 import { resolvePythonRuntime } from "../../../target-environment/python/resolve-python-runtime.ts";
+import { createPromptCapture } from "../../prompt-capture/create-prompt-capture.ts";
 
 export async function initializeRuntime(ctx: RuntimeContext): Promise<void> {
   ctx.sessionOptions = ctx.dependencies.sessionOptions ?? DEFAULT_SESSION_OPTIONS;
@@ -24,6 +25,7 @@ export async function initializeRuntime(ctx: RuntimeContext): Promise<void> {
   ctx.memoryOptions = ctx.dependencies.memoryOptions ?? DEFAULT_MEMORY_OPTIONS;
   ctx.memoryStore = ctx.memoryOptions.enabled ? ctx.dependencies.memoryStore : undefined;
   ctx.memoryReview = undefined;
+  ctx.promptCapture = createPromptCapture();
   ctx.terminalEvents = undefined;
   ctx.cwd = ctx.target.kernel.cwd;
   if (!ctx.dependencies.model) throw new Error("Session requires an explicit model.");

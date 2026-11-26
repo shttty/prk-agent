@@ -14,7 +14,8 @@ import { startWebServer } from "../../../src/http/listener/start-listener.ts";
 import { prepareArtifacts } from "./prepare-artifacts.mjs";
 import { until } from "../until.mjs";
 
-export async function gatewayFixture(t, { answer, remote = false, web = false, rate = 100_000, config = {}, settings = {} } = {}) {
+/** `endpoint` (see startCompletionsEndpoint) replaces the faux model with a real openai-completions provider, so requests go through a provider API. */
+export async function gatewayFixture(t, { answer, remote = false, web = false, rate = 100_000, config = {}, settings = {}, endpoint } = {}) {
   const python = process.env.PI_TEST_PYTHON;
   assert(python && isAbsolute(python), "PI_TEST_PYTHON must be an absolute interpreter path");
   const root = await mkdtemp(join(tmpdir(), "g-"));
@@ -37,7 +38,11 @@ export async function gatewayFixture(t, { answer, remote = false, web = false, r
   ]);
   const modelRuntime = await ModelRuntime.create({ authPath: join(agent, "auth.json"), modelsPath: null, refreshOnCreate: false, allowModelNetwork: false });
   const provider = fauxProvider({ provider: "verification", models: [{ id: "faux", reasoning: true, input: ["text", "image"] }, { id: "faux-alt", reasoning: true }], tokensPerSecond: rate });
-  const model = provider.getModel();
+  if (endpoint) {
+    modelRuntime.registerProvider("relay", { baseUrl: endpoint.baseUrl, api: "openai-completions", apiKey: endpoint.apiKey,
+      models: [{ id: "relay", name: "relay", reasoning: false, input: ["text"], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 128_000, maxTokens: 4096 }] });
+  }
+  const model = endpoint ? modelRuntime.getModel("relay", "relay") : provider.getModel();
   modelRuntime.registerNativeProvider(provider.provider);
   provider.setResponses(Array.from({ length: 300 }, () => (context, options) => {
     const last = context.messages.at(-1);

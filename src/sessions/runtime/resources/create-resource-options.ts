@@ -19,6 +19,7 @@ import { createSessionProviderPolicy } from "../../model-providers/create-sessio
 import { disabledBuiltins } from "../../session-settings/disabled-builtins.ts";
 import { assembleToolTitlePlugin } from "../../../plugins/tool-title/assemble-tool-title-plugin.ts";
 import { toolTitleEnabled } from "../configuration/read-tool-title.ts";
+import { bindPromptCapture } from "../../prompt-capture/bind-prompt-capture.ts";
 
 export function createResourceOptions(ctx: RuntimeContext, conversation: ConversationContext, cwd: string, agentDir: string, sessionManager: SessionManager, neutralCwd: string): RuntimeResourceOptions {
   return {
@@ -49,6 +50,7 @@ export function createResourceOptions(ctx: RuntimeContext, conversation: Convers
               flushInbox: () => conversation.host?.flushPeerInbox(),
             }) },
             ...assembleBusinessPlugins(ctx, sessionManager),
+            { name: "prompt-capture", factory: bindPromptCapture(ctx.promptCapture) },
           ],
         };
 }

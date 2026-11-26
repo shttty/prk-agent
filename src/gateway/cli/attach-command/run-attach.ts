@@ -19,9 +19,9 @@ export async function attach(args: string[]): Promise<void> {
   } });
   if (positionals.length > 1) throw new WireError("CLI_ERROR","Attach accepts at most one action.");
   const action = positionals[0];
-  const allowed = ["workbench", "create", "reload-targets", "state", "messages", "watch", "watch-sessions", "send", "cancel", "reload", "close-session", "shutdown"];
+  const allowed = ["workbench", "create", "reload-targets", "state", "messages", "prompt", "watch", "watch-sessions", "send", "cancel", "reload", "close-session", "shutdown"];
   if (action && !allowed.includes(action)) throw new WireError("CLI_ERROR","Unsupported attach action.");
-  const sessionScoped = ["state", "messages", "watch", "send", "cancel", "reload", "close-session"];
+  const sessionScoped = ["state", "messages", "prompt", "watch", "send", "cancel", "reload", "close-session"];
   const needsSession = action === undefined || sessionScoped.includes(action);
   if (needsSession && !values.session) throw new WireError("CLI_ERROR","This action requires --session ID from attach workbench or attach create.");
   if (action === "create" && !values.target) throw new WireError("CLI_ERROR","create requires --target INSTANCE_ID.");
@@ -56,7 +56,7 @@ export async function attach(args: string[]): Promise<void> {
       await client.closed; return;
     }
     if (action && action !== "watch") {
-      const method = action === "create" ? "createSession" : action === "close-session" ? "closeSession" : action === "reload-targets" ? "reloadTargets" : action as Method;
+      const method = action === "create" ? "createSession" : action === "close-session" ? "closeSession" : action === "reload-targets" ? "reloadTargets" : action === "prompt" ? "sessionPrompt" : action as Method;
       output(await client.request(method, params as Record<string, unknown>)); return;
     }
     client.onEvent((event, source) => output({ sessionId: source, event }));

@@ -58,6 +58,7 @@ export async function createSessionRuntime(target: ExecutionTarget, dependencies
     setCapabilities: setCapabilities.bind(undefined, ctx),
     refreshCapabilities: refreshCapabilities.bind(undefined, ctx),
     refreshToolDeclarations: refreshToolDeclarations.bind(undefined, ctx),
+    promptReport: ctx.promptCapture.report,
     refreshRegistration: refreshRegistration.bind(undefined, ctx),
     get requiresReload(): boolean { return observedCatalog().requiresReload; },
     reload: reload.bind(undefined, ctx),

@@ -32,6 +32,7 @@ import type { ExtensionHandlerScope } from "../extension-invocation/invocation-t
 import type { RuntimeResourceOptions } from "./runtime-types.ts";
 import type { RuntimeConversation } from "./runtime-types.ts";
 import type { PythonRuntime } from "../../target-environment/python/resolve-python-runtime.ts";
+import type { PromptCapture } from "../prompt-capture/create-prompt-capture.ts";
 
 export interface RuntimeContext {
   readonly target: ExecutionTarget;
@@ -41,6 +42,7 @@ export interface RuntimeContext {
   memoryOptions: MemoryOptions;
   memoryStore: MemoryStore | undefined;
   memoryReview: MemoryReview | undefined;
+  promptCapture: PromptCapture;
   modelTerminals: ModelTerminals | undefined;
   terminalEvents: TerminalEventBinding | undefined;
   cwd: string;

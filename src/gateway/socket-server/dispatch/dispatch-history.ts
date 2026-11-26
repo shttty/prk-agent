@@ -24,6 +24,9 @@ export async function dispatchHistory(ctx: PeerContext, respond: Respond, reques
       if (method === "toolContent") {
         respond(id, host.toolContent(params.sessionId as string, params.toolCallId as string)); return;
       }
+      if (method === "sessionPrompt") {
+        respond(id, host.sessionPrompt(params.sessionId as string)); return;
+      }
       if (method === "kernelResult") {
         respond(id, host.kernelResult(params.sessionId as string, params.cellId as string, params.imageIndex as number | undefined)); return;
       }

@@ -28,6 +28,7 @@ Tool / skill / kernel / workspace 方法按 [HTTP topic index](http.md#topical-e
 | `state` | `{sessionId}` | `SessionHostSnapshot` |
 | `messages` | `{sessionId}` | `{sessionId,streamId,sequence,messages}` |
 | `history` | `{sessionId}` | `{session,snapshot,readOnly:true}`；该会话的已保存记录 |
+| `sessionPrompt` | `{sessionId}` | `{sessionId,latest,previousAt,diff}`，见 [prompt](#prompt)；只读，不唤醒 |
 | `send` | `{sessionId,requestId,message,queue?,mode?,attachments?,references?}` | admission / native result |
 | `sendStatus` | `{sessionId,requestId,streamId}` | `{requestId,status:"accepted",operationId}` \| `{requestId,status:"handled"\|"refused"\|"unknown"}`，见 [send status](#send-status) |
 | `cancel` | `{sessionId,operationId,cell?:{kernelId,cellId}}` | `{operationId,status:"requested"\|"already_complete"\|"not_found",returnedMessages}` |
@@ -52,6 +53,36 @@ Gateway 在新项目首次提交归属时保存 `project.json.created`；启动�
 活动会话的 `requiresReload` 也比较启动时与当前的项目 `{id,name}`。项目变更通过集合行更新该标志，不自动重载，也不插入消息。重载后项目与记忆层一起生效。
 普通 send admission：`{accepted:true,requestId,operationId,sessionId}`。
 拒绝：`{accepted:false,requestId,error}`。
+
+### Prompt
+
+`sessionPrompt {sessionId}`（`GET /api/sessions/:sessionId/prompt`，无 query，attach `prompt --session ID`）返回该会话运行时最近一次真实模型请求的投影，与它之前的一次相比的差异。数据来自 Pi 公开事件 `before_provider_request`（只读，不返回替换值），由运行时按内存保留最近两次不同的请求；不落盘、不进会话 JSONL。休眠、关闭或从未发过请求的会话没有运行时记录，读作 `{sessionId,latest:null,previousAt:null,diff:null}`，不会被唤醒；重载保留记录。
+
+```json
+{ "sessionId": "…",
+  "latest": {
+    "at": "ISO time", "provider": "relay", "model": "relay", "api": "openai-completions", "shape": "chat",
+    "payloadKeys": ["model", "messages", "tools", "…"], "payloadChars": 22921,
+    "system": { "text": "…", "chars": 19350,
+      "sections": { "baseChars": 0, "entries": [{ "key": "kernel", "chars": 4074 }, { "key": "gateway_calls", "chars": 637 }] } },
+    "tools": [{ "name": "kernel_code", "descriptionChars": 512, "parametersChars": 624 }],
+    "messages": { "count": 3, "chars": 160 },
+    "repeats": 0 },
+  "previousAt": "ISO time",
+  "diff": {
+    "modelChanged": false,
+    "system": { "changed": false, "chars": { "before": 19350, "after": 19350 } },
+    "sections": { "added": [{ "key": "ask", "chars": 349 }], "removed": [], "changed": [{ "key": "kernel", "before": 4074, "after": 3890 }] },
+    "tools": { "added": [], "removed": [{ "key": "kernel_read", "chars": 505 }], "changed": [], "reordered": false },
+    "messages": { "before": 1, "after": 3, "commonPrefix": 1, "prefixStable": true } } }
+```
+
+- 只含大小、名称与 `system.text`；消息正文、工具描述与参数正文、请求头、API key 与 Authorization 均不返回（投影只读取已知字段，不拷贝 payload）。`payloadKeys` 只有顶层键名。
+- `shape` 为 `chat`（openai-completions、mistral-conversations）、`responses`（openai-responses、azure-openai-responses、openai-codex-responses）、`anthropic`、`google`（google-generative-ai、google-vertex）或 `bedrock`。其他 api（如 `pi-messages`）`shape:null`，`system`、`tools`、`messages` 均为 `null`，只有大小与键名；某字段不在已知位置也读作 `null`，不猜。`messages` 不含开头的 system／developer 条目。
+- `system.sections` 仅当该 payload 的系统文本与同一轮 `context_with_system` 最终结果渲染出的文本逐字相等时给出（`entries` 按 Pi 渲染顺序，`baseChars` 为各节之前的正文）；provider 另加前缀（如 Anthropic OAuth）或改写文本时为 `null`。
+- `diff` 在第二个不同请求出现后才有。`sections`、`tools` 的 `changed` 为 `{key,before,after}`（工具的大小是描述加参数字符数）；`reordered` 表示共有工具的相对顺序变了；`messages.prefixStable` 表示前一次的全部消息按原样仍是这一次的前缀（提示缓存关心的稳定性）。
+- 与前一次完全相同的请求（缓存预热重放、重试）只累加 `latest.repeats`，不顶替也不产生 diff。
+- 事件覆盖：Pi 在 `onPayload` 回调里发出 `before_provider_request`，pi-ai 的 `anthropic-messages`、`azure-openai-responses`、`bedrock-converse-stream`、`google-generative-ai`、`google-vertex`、`mistral-conversations`、`openai-codex-responses`、`openai-completions`、`openai-responses`、`pi-messages` 都调用它；`faux` 测试 provider 与不转发 `options.onPayload` 的自定义 api 不触发。压缩与摘要请求不走该回调，不被记录。
 
 ### Send status
 
@@ -168,7 +199,7 @@ Gateway flags：`--home`、repeatable `--extension`、`--no-skills`。
 Web / attach 也接受 `--home`，共用默认 socket path。
 Web address 的显式覆盖项是 `--host` / `--port`。
 
-`attach` actions：`workbench`、`create --target INSTANCE_ID`、`reload-targets`、`watch-sessions`、`state`、`messages`、`watch`、`send`、`cancel`、`reload`、`close-session`；会话选择参数为 `--session SESSION_ID`。
+`attach` actions：`workbench`、`create --target INSTANCE_ID`、`reload-targets`、`watch-sessions`、`state`、`messages`、`prompt`、`watch`、`send`、`cancel`、`reload`、`close-session`；会话选择参数为 `--session SESSION_ID`。
 `reload-targets` 使用 `{}`，没有会话 selector。
 
 SDK custom records 承载 target、cwd、model、thinking、project、toolMode、derivation 元数据；执行 handle 不持久化。

@@ -61,6 +61,7 @@
 | compaction／生命周期 | compaction 实现相同；SDK summarization 修复 OAuth 参数路径，branch summary 尊重 context edits／thinking。reload 在 streaming／compacting 时拒绝，runtime dispose 先 abort 再清理扩展并等待凭据写入；PRK 沿用公开 API，不复制这些实现。 |
 | theme／严格校验 | 新增 `CodeHighlighter`、语法种类与缓存，既有 Theme 接口保留。隔离 loader 仍接受额外顶层 metadata，根导出仍无 `setThemeJsonValidator`；严格主题校验公开接缝继续 BLOCKED，不新增内部导入或 validator。 |
 | 工具调用标题（2026-11-22） | agent-core `prepareToolCall` 先 `prepareArguments` 再 `validateToolArguments`，之后才调 `beforeToolCall`（`tool_call` 事件），所以 `tool_call` 改 `event.input` 晚于校验，严格 schema（`additionalProperties:false`）会先拒绝多出的字段。公开 `message_end` 替换在 agent-session 中原地写回 agent-core 持有的同一条消息，早于持久化和工具执行，因此注入的 `title` 在此从 `arguments` 移到 toolcall 块的同名字段（自带 `title` 的 `kernel_code` 不剥）。声明注入用 `context_with_system` 改请求内系统消息的 `toolsAdded`（provider 经 `getCurrentTools` 取声明），不改已注册定义或已持久化的系统消息。已核对 anthropic-messages 与 openai-responses 序列化 toolcall 时逐字段取 `id/name/arguments`，块上的 `title` 不进这些请求。 |
+| 提示词调试（2026-11-27，Pi 1.6.0） | 订阅公开 `before_provider_request`（`dist/core/sdk.js` 的 `onPayload` 转发，只读、不返回替换值）与 `context_with_system`（在最后一个扩展里观察最终系统消息，不返回）。pi-ai 各 api 的 `options.onPayload` 调用点：anthropic-messages、azure-openai-responses、bedrock-converse-stream、google-generative-ai、google-vertex、mistral-conversations、openai-codex-responses、openai-completions、openai-responses、pi-messages；`faux` 与忽略该选项的自定义 api 不触发。cacheWarming 重放同样触发（`maxTokens:1`，其余相同），所以以内容相同去重。升级 Pi 后复核各 api 的 payload 形状（`src/sessions/prompt-capture/read-request-fields.ts`）。 |
 
 ### 上游变更与 PRK 影响
 

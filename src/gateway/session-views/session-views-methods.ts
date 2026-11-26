@@ -15,6 +15,7 @@ import type { history } from "./history/read-history.ts";
 import type { historyPage } from "./history/read-history-page.ts";
 import type { toolContent } from "./history/read-tool-content.ts";
 import type { kernelResult } from "./history/read-kernel-result.ts";
+import type { sessionPrompt } from "./prompt/read-session-prompt.ts";
 import type { state } from "./snapshots/read-state.ts";
 
 type WithoutContext<T> = T extends (ctx: never, ...args: infer A) => infer R ? (...args: A) => R : never;
@@ -37,5 +38,6 @@ export interface SessionViewsMethods {
   historyPage: WithoutContext<typeof historyPage>;
   toolContent: WithoutContext<typeof toolContent>;
   kernelResult: WithoutContext<typeof kernelResult>;
+  sessionPrompt: WithoutContext<typeof sessionPrompt>;
   state: WithoutContext<typeof state>;
 }

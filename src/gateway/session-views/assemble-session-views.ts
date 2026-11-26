@@ -15,6 +15,7 @@ import { history } from "./history/read-history.ts";
 import { historyPage } from "./history/read-history-page.ts";
 import { toolContent } from "./history/read-tool-content.ts";
 import { kernelResult } from "./history/read-kernel-result.ts";
+import { sessionPrompt } from "./prompt/read-session-prompt.ts";
 import { state } from "./snapshots/read-state.ts";
 import type { HostContext } from "../host/host-state.ts";
 import type { SessionViewsMethods } from "./session-views-methods.ts";
@@ -39,6 +40,7 @@ export function assembleSessionViews(ctx: HostContext): SessionViewsMethods {
     historyPage: historyPage.bind(undefined, ctx),
     toolContent: toolContent.bind(undefined, ctx),
     kernelResult: kernelResult.bind(undefined, ctx),
+    sessionPrompt: sessionPrompt.bind(undefined, ctx),
     state: state.bind(undefined, ctx),
   };
 }
