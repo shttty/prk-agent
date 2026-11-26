@@ -18,7 +18,8 @@ export function buildCapabilityCatalog(data, kind, library) {
   if (!groups.some((group) => group.id === savedGroup)) groups.push({ id: savedGroup, name: savedLabel, available: false });
   const counts = new Map();
   for (const entry of entries) counts.set(entry.group, (counts.get(entry.group) || 0) + 1);
-  const rank = (group) => CATEGORY_ORDER.indexOf(categoryOf(group.id)) * 100 + (categoryOf(group.id) === "builtin" ? Math.max(0, BUILTIN.indexOf(group.id)) : 50);
+  // The saved group leads its category: first of 内置 on the tools page, first source on the Skills page.
+  const rank = (group) => CATEGORY_ORDER.indexOf(categoryOf(group.id)) * 100 + (group.id === savedGroup ? 0 : categoryOf(group.id) === "builtin" ? Math.max(1, BUILTIN.indexOf(group.id)) : 50);
   const providers = groups.filter((item) => counts.get(item.id) || item.id === savedGroup).map((item, index) => ({ item, index })).sort((a, b) => rank(a.item) - rank(b.item) || (a.item.instance ?? "").localeCompare(b.item.instance ?? "") || a.index - b.index).map(({ item }) => item);
   return { catalog, savedGroup, savedLabel, savedEmpty, entries, names, groups, counts, providers };
 }
