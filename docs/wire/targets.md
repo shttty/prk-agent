@@ -104,6 +104,7 @@ type TargetEnvironmentSnapshot = {
 - 实例变更和 `reloadTargets` 的实例及派生配置必须完整校验并通过活动绑定检查后原子发布。
 - 实例变更不得改变路由 ID；PATCH 的 `target.id` 必须与 URL 中的 `:id` 一致。旧字段 `name` 一律拒绝。
 - 编辑接口返回保存的 sshCommand 原文；workbench 不发布命令。
+- 原生工具宿主 bundle 的 Gateway 缓存键只取实际打进 bundle 的内容：`npm query` 选出的包集合（location@version，按 location 排序）、宿主源文件、Gateway 的 Node 版本与目标平台，不含 `package-lock.json` 全文。lock 里无关依赖变化不改键，不重建。宿主插件包的键取 `npm pack --dry-run` 文件清单的内容、平台、Node 版本，以及插件目录自己的 `package-lock.json`；PRK 自身的 lock 不参与。
 - 旧 url/token/defaultKernelName/kernelName 与 kernels 路由必须拒绝，不保留别名。
 - 实例增删改及实例能力默认必须只保存 `instances.toml`，不得改写全局 `config.toml`。
 - `reloadTargets` 必须加载 `instances.toml`，不得从全局配置读取实例。

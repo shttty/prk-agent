@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { cp, mkdir, mkdtemp, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, relative, resolve } from "node:path";
@@ -13,24 +13,26 @@ import type { RemoteExtensionArtifacts } from "./bundle-types.ts";
 import { excludeNestedDependencies } from "./packages/exclude-nested-dependencies.ts";
 import { npm } from "./packages/run-npm.ts";
 import { hostSourceFiles, sourceDirectory } from "./runtime-source-manifest.ts";
+import { hashNativeHost } from "./hash-native-host.ts";
 import { WireError } from "../../gateway/wire/create-error.ts";
+
+const roots = ["@earendil-works/pi-coding-agent", "jiti", "typebox"];
+const selector = `:is(${roots.map((name) => `[name="${name}"]`).join(",")})`;
 
 /** Distribute the installed, locked SDK dependency closure; never install at session startup. */
 export async function buildNativeToolHost(options: { store: ArtifactStore; platform: ArtifactPlatform; cacheOnly?: boolean }): Promise<RemoteExtensionArtifacts> {
   const root = fileURLToPath(new URL("../../../", import.meta.url));
-  const lockText = await readFile(join(root, "package-lock.json"), "utf8");
+  // npm owns dependency resolution, including hoisted and nested dependencies.
+  const packages = JSON.parse(await npm(["query", "--offline", `${selector}, ${selector} *`], root)) as Array<{ location: string; version: string }>;
   const hostFiles = await Promise.all(hostSourceFiles.map(({ source }) => readFile(join(sourceDirectory, source))));
-  const key = createHash("sha256").update("native-host-v1\0").update(lockText)
-    .update(process.versions.node).update(options.platform);
-  for (const file of hostFiles) key.update(file);
   const cacheDirectory = join(options.store.directory, "native-tool-hosts");
-  const cache = join(cacheDirectory, `${key.digest("hex")}.json`);
+  const cache = join(cacheDirectory, `${hashNativeHost(packages, hostFiles, options.platform)}.json`);
   try {
     const cached = JSON.parse(await readFile(cache, "utf8")) as RemoteExtensionArtifacts;
     const manifest = readManifest(options.store.directory);
     if (available(manifest, options.platform, cached.node, "node") && available(manifest, options.platform, cached.bundle, "bundle")) return cached;
   } catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
-  if (options.cacheOnly) throw new WireError("ENVIRONMENT_REQUIRED", "Deploy the current SDK environment before creating a session.");
+  if (options.cacheOnly) throw new WireError("ENVIRONMENT_REQUIRED", "The current native tool host has not been built; the instance environment deployment builds it.");
   const pending = nativeBuilds.get(cache);
   if (pending) return await pending;
   const build = (async (): Promise<RemoteExtensionArtifacts> => {
@@ -39,11 +41,7 @@ export async function buildNativeToolHost(options: { store: ArtifactStore; platf
     try {
       const bundle = join(work, "bundle");
       await mkdir(bundle);
-      const roots = ["@earendil-works/pi-coding-agent", "jiti", "typebox"];
-      const selector = `:is(${roots.map((name) => `[name="${name}"]`).join(",")})`;
-      // npm owns dependency resolution, including hoisted and nested dependencies.
-      const packages = JSON.parse(await npm(["query", "--offline", `${selector}, ${selector} *`], root)) as Array<{ location: string; version: string }>;
-      const lock = JSON.parse(lockText) as { packages: Record<string, { version: string }> };
+      const lock = JSON.parse(await readFile(join(root, "package-lock.json"), "utf8")) as { packages: Record<string, { version: string }> };
       for (const name of roots) {
         if (!packages.some((entry) => entry.location === `node_modules/${name}`)) throw new Error(`Native tool host dependency ${name} is not installed.`);
       }
