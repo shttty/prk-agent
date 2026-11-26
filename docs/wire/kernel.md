@@ -149,7 +149,7 @@ SDK-native Gateway-host `bash` 是另一工具。
 | callback channel | Payload / reply |
 | --- | --- |
 | `gateway` | `{name,args,result?:"file"}` → `{ok,value?,error?}` |
-| `describe` | `{name?}` → callable declarations |
+| `describe` | `{name?}` → 工具列表 `[{name,description}]`；`{name}` → 存根文本；`{query,limit?}` → `[{name,description,stub}]`（见 [Gateway 工具存根](../kernel-tools.md#gateway-工具存根code-档-tool_cataloggatewaydescribegatewaysearch)） |
 | `binary` | `{name,system,machine,sha256?,offset?,length?}` → `{sha256,size}` 或 base64 `{data}` |
 | `library` | `{name,args}` → `{ok,value?,error?}` |
 | `capability` | `{name}`，每调用校验，限4KiB |

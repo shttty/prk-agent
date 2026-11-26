@@ -21,7 +21,7 @@ export function groupOptions<T extends object>(name: string, value: unknown, def
       }
     } else if (typeof original === "number") {
       const port = key === "port";
-      const zero = key === "port" || field === "http.streamTimeoutMs" || field === "session.askTimeoutMs" || field === "remoteHost.memorySwapMax";
+      const zero = key === "port" || field === "http.streamTimeoutMs" || field === "session.askTimeoutMs" || field === "remoteHost.memorySwapMax" || field === "codemode.inlineBudget";
       const max = port ? 65_535 : field === "workspace.fileChunkBytes" ? FILE_CHUNK_BYTES_MAX : field === "limits.socketPathBytes" ? 100 : field === "monitor.memoryAlertPercent" ? 100 : key.endsWith("Ms") ? 2_147_483_647 : Number.MAX_SAFE_INTEGER;
       const min = field === "namespace.maxChars" ? JSON.stringify({ variables: [], added: [], modified: [], deleted: [], truncated: false }).length
         : name === "limits" ? MIN_GENERATED_ID_CHARS[key as keyof typeof MIN_GENERATED_ID_CHARS] ?? 1 : zero ? 0 : 1;

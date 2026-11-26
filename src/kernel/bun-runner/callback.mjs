@@ -14,6 +14,7 @@ function gatewayFor(owner) {
   return new Proxy(Object.freeze({
     call: (name, args = {}) => request("gateway", { name, args }),
     describe: (name) => request("describe", name === undefined ? {} : { name }),
+    search: (query, limit) => request("describe", limit === undefined ? { query } : { query, limit }),
   }), {
     get(target, name) {
       if (Object.hasOwn(target, name)) return target[name];

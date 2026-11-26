@@ -29,10 +29,10 @@ PRK 不再拼接一个 `<prk_capabilities>` 大节，而是每请求按当前权
 
 不用 `deferred`：它会改变插件原 exposure 与可调用语义。也不用 Pi CLI 内置 `tool_search`：它通过激活工具扩充声明；CLP 模型没有 compat，Claude 同样走 Responses，工具集变化会使整段请求重发并打掉 prompt cache，各厂商支持不一致。固定声明的方案与 provider 无关，不依赖厂商增量工具协议。
 
-隐藏工具的 guidelines 由 PRK 每请求计算的 `<tool_catalog>` 补回；工具清单优先使用 `promptSnippet`，否则取 description 第一句。code 档复用同一摘要格式，继续通过 `gateway.describe` 获取 schema，不加元工具。Pi 原生七工具没有懒加载开关；`model-only` 不能经 `ctx.executeTool` 调用，因此也不可懒加载（用户确认）。常驻默认名单为 `kernel_code`、`todo`、`ask`、`session_spawn`、`session_send`、`session_result`；其余 PRK 工具默认懒加载，插件默认不懒加载。
+隐藏工具的 guidelines 由 PRK 每请求计算的 `<tool_catalog>` 补回；工具清单优先使用 `promptSnippet`，否则取 description 第一句。code 档不用这种一行摘要：目录渲染可调用工具的 Python 存根（预算、挑选与 `gateway.describe`／`gateway.search` 见 [kernel-tools](kernel-tools.md#gateway-工具存根code-档-tool_cataloggatewaydescribegatewaysearch)），不加元工具。Pi 原生七工具没有懒加载开关；`model-only` 不能经 `ctx.executeTool` 调用，因此也不可懒加载（用户确认）。常驻默认名单为 `kernel_code`、`todo`、`ask`、`session_spawn`、`session_send`、`session_result`；其余 PRK 工具默认懒加载，插件默认不懒加载。
 
 Pi 1.4.0 对显式 tools 名单的 registry refresh 会重新激活所有可声明的匹配项；迟注册库工具也会触发。`prepareDeclarations` 因此同时隐藏不在当前投影 declared 集合中的两个元工具，保持 code 档不出现 tool_search/tool_call，direct 档无隐藏项时也不泄漏它们；不修改 SDK、exposure 或另建 loadout 状态。
-扩展的聚合声明钩子（包括 Pi codemode）通过公开 `extensionsOverride` 获得 PRK 自有 definition 投影：只过滤 `prepareLoadout` 的声明输入，不修改上游对象、注册集合或 execute，因此关闭项不会从聚合 description 泄漏。PRK 自定义 system prompt 会绕过 Pi 默认 guidelines 段，故同一投影补回全部启用工具的 guidelines，关闭项不贡献规则。
+扩展的聚合声明钩子（包括 Pi codemode）通过公开 `extensionsOverride` 获得 PRK 自有 definition 投影：只过滤 `prepareLoadout` 的声明输入，不修改上游对象、注册集合或 execute，因此关闭项不会从聚合 description 泄漏。PRK 自定义 system prompt 会绕过 Pi 默认 guidelines 段，故同一投影补回启用工具的 guidelines，关闭项不贡献规则；code 档目录里的存根自带各自的 guidelines，其余经 `gateway.describe(name)` 取得。
 
 
 ### 会话开关：注册、声明、权限

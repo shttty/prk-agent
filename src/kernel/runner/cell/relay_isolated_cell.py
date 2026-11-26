@@ -20,12 +20,15 @@ def _isolated_callback(ctx, transport, frame):
         valid = (payload.keys() == {"name", "args"} and isinstance(payload["name"], str)
                  and isinstance(payload["args"], dict))
     elif channel == "describe":
-        valid = not payload.keys() - {"name"} and (payload.get("name") is None or isinstance(payload["name"], str))
+        valid = (not payload.keys() - {"name", "query", "limit"}
+                 and (payload.get("name") is None or isinstance(payload["name"], str))
+                 and (payload.get("query") is None or isinstance(payload["query"], str))
+                 and (payload.get("limit") is None or type(payload["limit"]) is int))
     else:
         valid = False
     try:
         if not valid:
-            raise ValueError("Isolated cells allow only gateway(name, args) and describe(name) callbacks")
+            raise ValueError("Isolated cells allow only gateway(name, args), describe(name) and search(query, limit) callbacks")
         value = request_callback(ctx, channel, payload)
         reply = json.dumps({"ok": True, "value": value}, ensure_ascii=False, separators=(",", ":")).encode()
         if len(reply) > ctx.limits["maxBytes"] + _ISOLATED_CALLBACK_OVERHEAD:

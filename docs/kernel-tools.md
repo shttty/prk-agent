@@ -80,6 +80,19 @@ factor = 3
 - 冷启动目录是内置工具真实 inspect 报告的快照；改了内置函数的签名、注解或 docstring 后须重新生成：`PRK_UPDATE_COLD_CATALOG=1 node --test test/integration/session/kernel-stubs.test.mjs`。同一测试断言快照与真实 kernel 的报告一致，且两条路径渲染的 `<kernel>` 段逐字节相同。
 - cell 里的 `help()` 输出归属该 cell（标准 `help()` 写到 cell 输出之外）。
 
+## Gateway 工具存根（code 档 `<tool_catalog>`、`gateway.describe`、`gateway.search`）
+
+Gateway 工具与 kernel 函数用同一种呈现：```python 块里 `class … TypedDict` 在前、`def` 在后，各按名字排序，docstring 取 description 首段。规则对标 Pi 1.6.0 自带 codemode（`createCodemodeDescription`／`selectCatalog`），代码在 `src/sessions/tool-declarations/{python-stubs,code-catalog,tool-rank}/`。只读 Pi 标准字段 `name/description/parameters/outputSchema/promptGuidelines/exposure`；不识别任何具体插件或 PRK 自有工具，不替插件补 outputSchema，无 outputSchema 的工具返回 `Any`。
+
+- **目录**：工具「有效 deferred」＝`exposure` 为 `deferred`，或用户 lazy 开关打开（渲染时判断，不改 exposure；code 档 lazy 开关因此生效）。其余可调用工具渲染完整存根（首段＋`promptGuidelines` 作 `- ` 条目跟在 docstring 里），受 `codemode.inlineBudget`（默认 3000 估算 token，字符数/4，与 Pi `codemode.inlineBudget` 同义）约束；超预算与 deferred 的不列，目录末尾一句指向 `gateway.search(query)`／`gateway.describe(name)`。挑选同 Pi `selectCatalog`：按设置页工具分组（`toolSource().group`）轮流，每轮每组放最便宜的一项，放不下的组退出；无分组的先，组按名字（码点序，不用 locale）排序。工具与组按名字排序，所以工具集与开关不变时目录逐字节稳定（prompt 缓存）；启动前与执行 kernel_code 后相同。direct 模式提示、`tool_search`／`tool_call` 语义不变，`tool_search` 的排序改用同一个 BM25。
+- **`gateway.describe(name)`** 返回该工具的存根文本（用到的 TypedDict、完整 description、guidelines）；**`gateway.describe()`** 仍列全部可调用工具含 deferred，每项 description 只给首段；**`gateway.search(query, limit=8)`** 返回 `[{name, description, stub}]`。三者都走 `describe` 回调通道（请求 `{name?, query?, limit?}`，`name` 与 `query` 互斥），不新增 channel。排序是 Pi `tool-search` 扩展的 BM25（`tool-rank/` 的 `tokenize`／`createSearchDocument`／`Bm25Ranker` 抄自 Pi 1.6.0 `dist/extensions/tool-search/tool.js`，包未导出；升级 Pi 时逐文件对照，`test/unit/session/tool-rank.test.mjs` 直接驱动 Pi 的扩展比较排名）。不使用 Pi 的 `tool_search` 扩展：它 `setActiveTools` 激活命中工具，搜得越多声明越多。
+- **类型决定**（JSON Schema → Python，移植自 `@earendil-works/pi-codemode` 的 `schemaToType`，`test/unit/session/schema-parity.test.mjs` 与它逐属性比较必填／可选和约束标签）：
+  1. 内联对象生成命名 TypedDict，名字＝工具名 PascalCase＋`Args`（参数）或`Output`（结果）＋字段路径 PascalCase，数组元素加 `Item`、`anyOf`/`oneOf` 的多个分支加 `Variant<n>`，重名加数字后缀；因此形如 `WebSearchArgs…`／`WebSearchOutput…`。kernel 存根的 TypedDict 不含 `Args`/`Output` 标记，测试对内置工具与 kernel 冷目录断言互不相撞；kernel 模块作者不要定义 `<工具名>Args…`／`<工具名>Output…` 形式的 TypedDict。两个工具生成同名不同定义的类时，名字靠前的保留，后者不列入目录。
+  2. 非必填字段写 `NotRequired[T]`；顶层参数写成 `def name(*, a: T, b: U = ...) -> R`（对应 `gateway.name(**args)`，`= ...` 表示可省略）。顶层是 anyOf/oneOf 对象并集时写成单个 `**args: A | B` 并注释说明；键名不是 Python 标识符时（`max-results`、`from`）TypedDict 用函数式写法、参数写成 `**args: Unpack[Name]`；顶层只有 additionalProperties 时是 `**kwargs: T`，固定字段加额外键时在固定参数后加 `**extra: T`；其他无法逐项展开的顶层类型是 `**args: Any`。
+  3. 纯 additionalProperties → `dict[str, T]`（`true` 为 `dict[str, Any]`）；固定字段加额外键 → `dict[str, Any]` 并在注释里写固定键名与额外键类型。`allOf` 各项都是对象（直接、`$ref` 或嵌套 allOf）则合并字段（同名字段定义不同则该字段为 `Any`），否则整个 `Any`。
+  4. `enum`／`const` 的值都是 str、int、bool、None 才写 `Literal[...]`（同一并集里的字面量合并成一个），含浮点、对象或数组则为 `Any`。其余照 Pi：`string/number/integer/boolean/null` → `str/float/int/bool/None`，数组 `list[T]`，元组 `tuple[...]`，anyOf 并集（`None` 排最后），本地 `$ref` 解析并防递归、最多展开 32 次，属性按名排序，description 与约束标签（`@integer @minimum 1 @default 20` 等，同 Pi 规则与 80 字符上限）写成 `#` 注释；参数类型超过 16000 字符先去掉标签再退成 `**args: Any`。
+- 预算与统计在 Gateway 渲染时算，kernel 不参与；`gateway` 对象自己的方法（`call/describe/search`）在 `<gateway_calls>` 里说明，不进 `<kernel>` 存根（它不是 inspect 报告里的函数，冷目录不变）；其 docstring 供 `help(gateway.search)` 使用。
+
 ## 保留包 `__prk__`
 
 - 所有预装函数的唯一实体是 `sys.modules["__prk__"]` 的属性：前导库的 `bash/ls/glob/phase/tool/library_sync/tool_bin/disk_usage`、`gateway`、已加载的沉淀工具，以及文件等模块工具（loader 把它们绑到同一模块）。用户全局里的同名只是别名；cell 命名空间预绑定 `__prk__`，`from __prk__ import read` 与 `__prk__.read(...)` 在别名被覆盖或 `del` 后仍指向预装函数。

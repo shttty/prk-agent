@@ -18,7 +18,7 @@ tools = ["web_search", "vcc_recall"]
 - Package selectors use an npm package name with optional `npm:` prefix, ignoring the source's npm version suffix; other sources use exact source strings.
 - Tool selectors use exact extension tool names.
 - Worker package/tool filtering does not control Gateway provider ownership; see [provider plugin loading and ownership](#provider-plugin-loading-and-ownership).
-- The worker prompt lists the public SDK's callable tool names with one sentence from each existing description on every model request; `gateway.describe()` provides schemas.
+- The worker prompt lists the public SDK's callable tools as Python stubs (first description paragraph, within `codemode.inlineBudget`) on every model request; `gateway.describe(name)` returns any tool's stub and `gateway.search(query)` finds the unlisted ones.
 - Plugin-owned activation remains visible in that callable set; for example, a plugin with dynamic activation may initially expose only its enable tool.
 
 Configuration changes: [模块约定](../wire/targets.md#约定)、[模块约定](../configuration.md#约定).

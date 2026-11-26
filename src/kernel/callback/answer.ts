@@ -59,13 +59,9 @@ async function call(ctx: KernelContext, process: KernelProcess, cell: KernelCell
         reply = { ok: true };
       } else if (channel === "describe") {
         if (!Value.Check(describeRequest, payload)) throw new Error("Invalid Gateway describe request.");
+        if (!ctx.hooks.describeGatewayTools) throw new Error("Gateway tool descriptions are not configured for this kernel.");
         const tools = sdk.tools.filter((tool) => !isLibraryCallback(tool.name) && ctx.hooks.allowGatewayTool?.(tool.name) !== false);
-        if (payload.name == null) reply = { ok: true, value: tools.map(({ name, description }) => ({ name, description })) };
-        else {
-          const tool = tools.find(({ name }) => name === payload.name);
-          if (!tool) throw new Error(`No callable Gateway tool named ${JSON.stringify(payload.name)}; call gateway.describe() for the list.`);
-          reply = { ok: true, value: { name: tool.name, description: tool.description, parameters: tool.parameters, ...(tool.outputSchema ? { outputSchema: tool.outputSchema } : {}) } };
-        }
+        reply = { ok: true, value: ctx.hooks.describeGatewayTools(tools, payload) };
       } else {
         if (!Value.Check(gatewayRequest, payload)) throw new Error("Invalid Gateway callback request.");
         if (isLibraryCallback(payload.name) !== (channel === "library")) throw new Error("Library callbacks are prelude-only.");

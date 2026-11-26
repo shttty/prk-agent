@@ -1,5 +1,5 @@
 import type { ToolDefinition } from "@earendil-works/pi-coding-agent";
-import type { AgentToolResult } from "@earendil-works/pi-agent-core";
+import type { AgentTool, AgentToolResult } from "@earendil-works/pi-agent-core";
 import type { KernelCodeDetails, KernelMemory, KernelTelemetry, NamespaceSummary } from "../codemode/kernel-protocol/kernel-protocol-types.ts";
 import type { KernelHelper } from "../codemode/module-catalog/catalog-types.ts";
 import type { TerminalOptions } from "../config/terminal/terminal-options.ts";
@@ -174,6 +174,8 @@ export interface PythonToolHooks {
   readonly environment?: Readonly<Record<string, string>>;
   readonly hideToolDeclaration?: (name: string) => boolean;
   readonly allowGatewayTool?: (name: string) => boolean;
+  /** Answers gateway.describe()/describe(name)/search(query) for the callable tools; the Gateway owns how a tool is presented to the model. */
+  readonly describeGatewayTools?: (tools: readonly AgentTool[], request: { readonly name?: string | null; readonly query?: string; readonly limit?: number }) => unknown;
   readonly fileReadNotice?: string;
   readonly kernelCapabilities?: (name: string) => boolean;
   readonly outputOptions?: TerminalOptions;
@@ -198,7 +200,5 @@ export interface KernelConfiguration {
   readonly memorySwapMax: string;
   readonly scoped: boolean;
 }
-export interface CapturedImage { readonly mimeType: string; readonly data: string }
-export type CapturedOutput = { text: string; tail: string; omittedChars: number; truncated: boolean };
 
 export type { KernelFailure } from "./process/kernel-failure.ts";

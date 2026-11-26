@@ -31,6 +31,7 @@ No old cache directories are moved. After the instance environment is deployed i
 | Key | Default | Range / meaning |
 | --- | --- | --- |
 | `binChunkBytes` | 1048576 | **positive**; requested raw transfer chunk size, bounded by the typed callback and process-window budgets. |
+| `inlineBudget` | 3000 | **non-negative**; estimated tokens (characters / 4) the code-mode `<tool_catalog>` may spend on Gateway tool stubs, like Pi's `codemode.inlineBudget`; `0` lists none. Tools over the budget, deferred tools and tools whose lazy switch is on are left out and found with `gateway.search`/`gateway.describe` ([stubs](../kernel-tools.md#gateway-工具存根code-档-tool_cataloggatewaydescribegatewaysearch)). |
 
 Python entry points: `gateway.<tool_name>(**args)` and `gateway.call(tool_name,args)`. After spawning, finish any independent inline work, then end the turn without sleeping or polling child status. A later automatic native result message starts a new turn in code mode too.
 Batch spawn uses `gateway.session_spawn(context="Shared goal and contracts", tasks=[{"task":"Self-contained slice","label":"Slice"}])` and returns `{children:[{index,sessionName,sessionId,taskId}],errors:[{index,error}]}` in task-index order. `errors:[]` means admission, not completion; partial failure retains admitted children and must not cause replay. Results arrive through native messages; the exact operations are in [Gateway transport](../wire/transport.md).

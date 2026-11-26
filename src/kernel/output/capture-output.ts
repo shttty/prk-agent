@@ -1,4 +1,4 @@
-import type { CapturedOutput } from "../kernel-types.ts";
+import type { CapturedOutput } from "./captured-types.ts";
 
 export function addOutput(state: CapturedOutput, value: string, options: { maxOutputChars: number }): void {
   if (!value) return;

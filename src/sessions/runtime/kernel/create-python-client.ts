@@ -8,6 +8,7 @@ import { DEFAULT_KERNEL_OPTIONS } from "../../../config/kernel/kernel-options.ts
 import { capabilityEnabled } from "../capabilities/is-capability-enabled.ts";
 import type { RuntimeContext } from "../runtime-state.ts";
 import { allowGatewayTool } from "./allow-gateway-tool.ts";
+import { describeGatewayTools } from "./describe-gateway-tools.ts";
 import { fileReadNotice } from "./file-read-notice.ts";
 import { kernelCapabilities } from "./kernel-capabilities.ts";
 import { libraryEntries } from "./library-entries.ts";
@@ -23,6 +24,7 @@ export async function createPythonClient(ctx: RuntimeContext): Promise<PythonToo
     outputOptions: ctx.dependencies.terminalOptions,
     executionPolicy: ctx.dependencies.kernelExecutionPolicy,
     allowGatewayTool: allowGatewayTool.bind(undefined, ctx),
+    describeGatewayTools: describeGatewayTools.bind(undefined, ctx),
     get fileReadNotice() { return fileReadNotice(ctx); },
     kernelCapabilities: kernelCapabilities.bind(undefined, ctx),
     libraryEntries: libraryEntries.bind(undefined, ctx),

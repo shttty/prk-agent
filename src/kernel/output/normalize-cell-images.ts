@@ -1,7 +1,7 @@
 import { Buffer } from "node:buffer";
 import type { ImageContent } from "@earendil-works/pi-ai";
 import { convertToPng, formatDimensionNote, resizeImage } from "@earendil-works/pi-coding-agent";
-import type { CapturedImage } from "../kernel-types.ts";
+import type { CapturedImage } from "./captured-types.ts";
 
 interface ImageModelLike {
   readonly input: readonly string[];
