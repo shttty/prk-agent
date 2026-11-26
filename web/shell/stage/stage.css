@@ -10,8 +10,8 @@
   display: flex; /* the grid, then the pinned directory column */
   margin: calc(var(--pi-card-gap) / -2);
   overflow: hidden;
-  /* Room the corner group's tab row leaves for the floating buttons (TopRightReserve), the pinned tree's header too. */
-  --pi-dock-reserve: calc(var(--pi-stage-controls-w) + 2px + var(--pi-strip-w) + 6px);
+  /* --pi-dock-reserve (set by the stage): room the corner group's tab row leaves for the floating buttons
+     (TopRightReserve), the pinned tree's header too. */
   --dv-sash-color: transparent;
   --dv-active-sash-color: var(--pi-accent-soft);
   --dv-active-sash-transition-delay: 0s;
@@ -43,9 +43,10 @@
    the document became 2px scrollable and a focus change scrolled the whole stage up. Their dialogs are fixed and their
    popovers positioned against the page, so the node itself needs no height. */
 body > #root:has(> #app-shell[data-desktop-stage]) ~ [data-portal] { height: 0; overflow: hidden; }
-/* Top-right buttons: the control group and the strip at their usual offsets from the card corner. */
-.pi-desktop-stage > .pi-float-right { top: calc(5px + var(--pi-card-gap) / 2); right: calc(8px + var(--pi-card-gap) / 2); }
-.pi-desktop-stage > .pi-stage-strip { position: absolute; z-index: var(--pi-z-controls); top: calc(4px + var(--pi-card-gap) / 2); right: calc(var(--pi-card-gap) / 2 + var(--pi-stage-controls-w) + 2px); }
+/* The stage's buttons (strip and control group, one row) float at the card corner's usual offsets when the chat does
+   not hold that corner; otherwise they sit in the chat column's control strip (page.css). */
+.pi-stage-corner { display: flex; align-items: center; gap: 2px; }
+.pi-desktop-stage > .pi-stage-corner { position: absolute; z-index: var(--pi-z-controls); top: calc(5px + var(--pi-card-gap) / 2); right: calc(8px + var(--pi-card-gap) / 2); }
 
 /* The directory: a popover under the buttons at the stage's top-right, or a card column pinned at the stage's right
    edge (its header clear of the buttons above it). */

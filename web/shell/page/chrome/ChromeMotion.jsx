@@ -1,7 +1,8 @@
 import PanelMotion from "../../../design-system/motion/PanelMotion.jsx";
 
 const findSidebar = () => document.querySelector(".desktop-sidebar");
-const findMonitor = () => document.querySelector(".pi-monitor-panel:not(.pi-ghost)");
+// Desktop: the popover holding the panel (it is the box placed under the pill); phone: the sheet.
+const findMonitor = () => document.querySelector(".pi-monitor-dropdown:not(.pi-ghost), .pi-monitor-panel[data-mobile]:not(.pi-ghost)");
 const findPane = () => document.getElementById("workspace-pane");
 
 /** Open/close motion of the workbench chrome: the session sidebar slides from the left, the phone workspace overlay from
@@ -11,7 +12,7 @@ export function ChromeMotion({ mobile, sidebar, monitor, pane, workspace }) {
   return <>
     <PanelMotion shown={sidebar} find={findSidebar} edge="left" drop={["desktop-sidebar"]} />
     {/* Do not leave a closing monitor ghost over the newly opened desktop workspace. */}
-    {!(workspace && !mobile) && <PanelMotion shown={monitor} find={findMonitor} edge="up" distance="rise" fade={!mobile} drop={["pi-monitor-panel"]} />}
+    {!(workspace && !mobile) && <PanelMotion shown={monitor} find={findMonitor} edge="up" distance="rise" fade={!mobile} drop={["pi-monitor-dropdown", "pi-monitor-panel"]} />}
     <PanelMotion shown={pane} find={findPane} edge="right" drop={["pi-workspace-pane"]} />
   </>;
 }

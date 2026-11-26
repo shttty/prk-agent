@@ -161,7 +161,7 @@ export default function App({ store }) {
   // Session banners float over the top of the conversation column (the empty view when there is no session).
   const banners = <SessionBanners actions={actions} onBottom={setBannerBottom} />;
   const chatColumn = sessionRow ? <ChatColumn mobile={mobile} actions={actions} sessionRow={sessionRow} selectedSessionId={selectedSessionId} banners={banners} bannerBottom={bannerBottom} expandSessionBar={sessionFloat ? expandSessionBar : null}
-    chatWidth={chatWidth} controlsOver={stageShape?.chatCorner ?? true} monitor={monitorUnfolded ? (monitorNarrow ? "overlay" : "panel") : "chip"} monitorUnfolded={monitorUnfolded} monitorPanel={monitorPanel} onToggleMonitor={toggleMonitor} onViewTerminal={viewTerminal} /> : null;
+    chatWidth={chatWidth} monitor={monitorUnfolded ? (monitorNarrow ? "overlay" : "panel") : "chip"} monitorUnfolded={monitorUnfolded} monitorPanel={monitorPanel} onToggleMonitor={toggleMonitor} onViewTerminal={viewTerminal} /> : null;
   return <div className="workbench" id="app-shell" ref={shell} data-desktop-stage={!mobile && sessionRow ? "" : undefined} style={{ "--pi-card-gap": `${CARD_GAP}px`, ...(fit?.session ? { "--pi-sidebar-width": `${fit.session}px` } : {}) }}>
     <AskAlert onOpen={selectSession} />
     {!mobile && <aside className="desktop-sidebar" hidden={!sessionBarOpen} aria-label="实例与会话列表">{sidebar}</aside>}

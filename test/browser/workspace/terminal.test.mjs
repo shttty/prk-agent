@@ -5,6 +5,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { browserFixture } from "../../fixtures/browser/open-workbench.mjs";
 import { checkProcessPanel } from "./check-process-panel.mjs";
+import { checkMonitorStrip } from "./check-monitor-strip.mjs";
 import { layoutRootsDuringComposition } from "./trace-ime-layout.mjs";
 
 const shell = '.pi-term[data-shell="shell"]';
@@ -107,6 +108,7 @@ test("file tree uploads a multi-megabyte file and downloads its target bytes", a
   await f.page.locator('#toggle-workspace[aria-expanded="false"]').waitFor();
   await f.page.locator("#monitor-card").waitFor();
   await checkProcessPanel(f, id);
+  await checkMonitorStrip(f, id);
 });
 
 const endShell = (page, id, name) => page.evaluate(({ id, name }) => fetch(`/api/sessions/${id}/terminals/close`, {

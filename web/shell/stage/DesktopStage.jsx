@@ -44,8 +44,16 @@ import { applyPreset } from "./presets/apply-preset.js";
 import { presetOf } from "./presets/preset-of.js";
 import { BUILTIN_PRESETS } from "./presets/builtin-presets.js";
 import { useWorkspaceVisibility } from "./use-workspace-visibility.js";
+import { StageCorner } from "./stage-corner.js";
 
 const sameShape = (a, b) => a.groups === b.groups && a.chatWidth === b.chatWidth && a.chatCorner === b.chatCorner;
+
+// Room the corner group's tab row (or the pinned directory's header) leaves for the stage's buttons floating over it.
+const dockReserve = ({ open, workspaceAvailable, recoverButton, terminalEnabled, treePinned, treeOpen }) => {
+  const controls = (open && workspaceAvailable ? CONTROLS_W : CONTROLS_W_CLOSED) + (recoverButton ? CONTROLS_W_RECOVER_EXTRA : 0);
+  const strip = open ? ((terminalEnabled ? 1 : 0) + (treePinned && treeOpen ? 0 : 1)) * 28 : 0;
+  return controls + 2 + strip + 6;
+};
 
 /** Desktop stage: one dockview grid holding the chat (a header-less, locked group) and the session's file, diff and
  * shell tabs docked around it, plus the directory (popover or pinned column) and the top-right buttons. The grid is
@@ -64,6 +72,8 @@ export default function DesktopStage({ api, sessionId, target, cwd, place, refre
   const gridSize = () => ({ width: box.current?.clientWidth ?? 0, height: box.current?.clientHeight ?? 0 });
   const [dock, setDock] = useState(null);
   const [groups, setGroups] = useState(1);
+  const [chatCorner, setChatCorner] = useState(true);
+  const [cornerSlot, setCornerSlot] = useState(null);
   const [activePath, setActivePath] = useState(null);
   const [hasTabs, setHasTabs] = useState(false);
   const engine = dock?.engine ?? null;
@@ -89,10 +99,11 @@ export default function DesktopStage({ api, sessionId, target, cwd, place, refre
     created.onPanelRemoved((path) => { if (path) store.forget(path); });
     let shape = null;
     const measure = () => {
-      const next = measureShape(grid, frame.current);
+      const next = measureShape(grid);
       if (shape && sameShape(shape, next)) return;
       shape = next;
       setGroups(next.groups);
+      setChatCorner(next.chatCorner);
       onShape(next);
     };
     const saving = grid.onDidLayoutChange(() => {
@@ -102,7 +113,8 @@ export default function DesktopStage({ api, sessionId, target, cwd, place, refre
     });
     const observer = new ResizeObserver(measure);
     observer.observe(frame.current);
-    const parts = [saving, refuseTopDrops(grid), holdGroupSizes(grid, liveMain, gridSize, sizing), created, view];
+    const maximized = grid.onDidMaximizedGroupChange(measure);
+    const parts = [saving, maximized, refuseTopDrops(grid), holdGroupSizes(grid, liveMain, gridSize, sizing), created, view];
     teardown.current = () => { observer.disconnect(); for (const part of parts) part.dispose(); };
     measure();
     setDock({ grid, engine: created, liveMain, sizing, extents });
@@ -139,22 +151,25 @@ export default function DesktopStage({ api, sessionId, target, cwd, place, refre
   }, [engine, diffRequest, sessionId, onDiffServed]);
   const newTerminal = useCallback(() => engine?.openTerminal(nextShellName([...engine.terminalNames(), ...Object.keys(work.metadata)]), true), [engine, work.metadata]);
 
-  const controlsWidth = (open && workspaceAvailable ? CONTROLS_W : CONTROLS_W_CLOSED) + (recoverButton ? CONTROLS_W_RECOVER_EXTRA : 0);
-  const stripWidth = open ? ((terminalEnabled ? 1 : 0) + (treePinned && treeOpen ? 0 : 1)) * 28 : 0;
+  // The buttons sit in the chat column's control strip while the chat holds the stage's top-right corner (a pinned, open
+  // directory holds it while the workspace is open); otherwise they float over the corner.
+  const corner = chatCorner && !(open && treePinned && treeOpen) ? cornerSlot : null;
   return <div className="pi-desktop-stage" id="desktop-stage" ref={frame} data-open={open ? "true" : undefined}
-    style={{ "--pi-controls-w": `${controlsWidth + (stripWidth ? stripWidth + 2 : 0)}px`, "--pi-stage-controls-w": `${controlsWidth}px`, "--pi-strip-w": `${stripWidth}px`, "--pi-tree-width": `${treeWidth}px` }}>
+    style={{ "--pi-dock-reserve": `${dockReserve({ open, workspaceAvailable, recoverButton, terminalEnabled, treePinned, treeOpen })}px`, "--pi-tree-width": `${treeWidth}px` }}>
     <div className="pi-stage-grid" ref={box}>
       <StageChat.Provider value={chat}>
-        <EditorContext.Provider value={work.editor}>
-          <TerminalContext.Provider value={work.terminal}>
-            <DockviewReact className="pi-dockview" theme={THEME} components={STAGE_COMPONENTS} tabComponents={STAGE_TABS} rightHeaderActionsComponent={TopRightReserve}
-              watermarkComponent={NoWatermark} disableFloatingGroups hideBorders scrollbars="native" onReady={onReady} />
-          </TerminalContext.Provider>
-        </EditorContext.Provider>
+        <StageCorner.Provider value={setCornerSlot}>
+          <EditorContext.Provider value={work.editor}>
+            <TerminalContext.Provider value={work.terminal}>
+              <DockviewReact className="pi-dockview" theme={THEME} components={STAGE_COMPONENTS} tabComponents={STAGE_TABS} rightHeaderActionsComponent={TopRightReserve}
+                watermarkComponent={NoWatermark} disableFloatingGroups hideBorders scrollbars="native" onReady={onReady} />
+            </TerminalContext.Provider>
+          </EditorContext.Provider>
+        </StageCorner.Provider>
       </StageChat.Provider>
     </div>
     <StageTree api={api} sessionId={sessionId} target={target} cwd={cwd} shown={open} activePath={activePath} engine={engine} store={store} treeOpen={treeOpen} treePinned={treePinned} treeWidth={treeWidth} />
-    <StageControls recoverButton={recoverButton} workspaceAvailable={workspaceAvailable} open={open} terminalEnabled={terminalEnabled} treeOpen={treeOpen} treePinned={treePinned} onNewTerminal={newTerminal}
+    <StageControls slot={corner} recoverButton={recoverButton} workspaceAvailable={workspaceAvailable} open={open} terminalEnabled={terminalEnabled} treeOpen={treeOpen} treePinned={treePinned} onNewTerminal={newTerminal}
       layoutMenu={dock ? <LayoutMenu onApply={arrange} onCapture={() => presetOf(dock.grid.toJSON(), open, dock.liveMain(), dock.sizing.get())} /> : null} />
     <WorkspaceDialogs work={work} engine={engine} />
   </div>;

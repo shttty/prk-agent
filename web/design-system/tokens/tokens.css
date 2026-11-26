@@ -49,7 +49,6 @@
   --pi-z-sheet: 4;            /* local: phone directory sheet / desktop popover tree over the editor, inside the workspace pane */
   --pi-z-chat-overlay: 5;     /* local to the chat column: "/" candidate menu over the composer */
   --pi-z-chat-search: 6;      /* local to the chat column: find-in-page bar over the transcript */
-  --pi-z-monitor-panel: 7;    /* local to the chat column: the floating monitor panel / its button, over the transcript */
   --pi-z-chat-banner: 6;      /* local to the chat column / empty view: session banners (connection, reload, ...) floating over the top of the transcript; below the monitor panel, which is the thing the user opened last */
   --pi-z-chat-toast: 6;       /* local to the chat thread: plugin notify toasts over the top of the transcript; below the monitor panel like the banners */
   --pi-z-dockview: 50;        /* local to the editor area: dockview drop overlays and popovers (--dv-overlay-z-index) */
@@ -58,6 +57,7 @@
   --pi-z-settings-peek: 4;    /* local to the settings window: tool detail card (hover / long press) */
   --pi-z-controls: 8;         /* cross-region: top-right control group and the left expand button, above the chat column's own layers and the workspace */
   --pi-z-leaving: 9;          /* cross-region: a closing panel's leaving copy (motion/ghost/) sliding off over its neighbours */
+  --pi-z-monitor-panel: 10;   /* cross-region: the desktop monitor panel (portaled from its pill) over the chat, the workspace and the stage's buttons */
   --pi-z-pane-overlay: 190;   /* cross-region: the phone workspace as a full-screen overlay */
   --pi-z-notice: 200;         /* cross-region: toast notice at the top right */
   --pi-z-extension-overlay: 300; /* cross-region: plugin overlays (position:fixed, +1 per stacked overlay), the same level as Mantine popovers */

@@ -85,38 +85,39 @@
    global layer, as the column itself does. */
 .pi-chatcol > .pi-chat-fade:not([data-fading]) { isolation: auto; }
 .pi-chatcol { --pi-chat-top: 0px; } /* where the thread starts inside the column (toasts offset against it) */
-/* A control floats over the chat column's top corner: leave a strip for it. */
+/* A control strip runs along the chat column's top: leave room for it. */
 .pi-chatcol.has-float { --pi-chat-top: 36px; padding-top: var(--pi-chat-top); }
-.pi-float-left, .pi-float-right { position: absolute; z-index: var(--pi-z-controls); top: 5px; }
-.pi-float-left { left: 10px; }
-/* The right group lives in the desktop stage, above the chat and every docked group alike, so it never moves. */
-.pi-float-right { right: 8px; }
+.pi-float-left { position: absolute; z-index: var(--pi-z-controls); top: 5px; left: 10px; }
 .pi-controls-slot { width: 26px; height: 26px; }
 .pi-tooltip-anchor { display: inline-flex; }
-/* Session heading (desktop): one quiet line in the control strip, from the left edge (after the expand button when the
-   session bar is folded) up to the monitor pill; never a bar of its own. */
-.pi-session-heading { position: absolute; z-index: var(--pi-z-raised); top: 5px; left: 16px; height: 26px; max-width: calc(100% - var(--pi-monitor-right) - 240px); display: flex; align-items: baseline; gap: 8px; min-width: 0; overflow: hidden; line-height: 26px; white-space: nowrap; pointer-events: none; }
-.pi-chatcol.has-expand > .pi-session-heading { left: 44px; max-width: calc(100% - var(--pi-monitor-right) - 268px); }
+/* Control strip (desktop): one row the browser lays out, nothing in it measured: the expand button (session bar
+   folded), the session heading taking what is left (cut with an ellipsis), the monitor pill, and the stage's buttons
+   (.pi-chat-corner) while the chat holds the stage's top-right corner. Alone, the pill keeps --pi-monitor-inset from the
+   card's edge; beside the buttons, 6px from them. */
+.pi-chat-strip { position: absolute; z-index: var(--pi-z-controls); top: 5px; right: 8px; left: 10px; height: 26px; display: flex; align-items: center; gap: 6px; pointer-events: none; }
+.pi-chat-strip > * { pointer-events: auto; }
+.pi-chat-strip > .pi-float-left { position: static; }
+.pi-session-heading { flex: 1 1 0; min-width: 0; height: 26px; margin-left: 6px; display: flex; align-items: baseline; gap: 8px; overflow: hidden; line-height: 26px; white-space: nowrap; }
+.pi-chat-strip > .pi-session-heading { pointer-events: none; }
+.pi-float-left + .pi-session-heading { margin-left: 2px; }
 .pi-session-heading strong { flex: 0 1 auto; min-width: 0; overflow: hidden; color: var(--pi-ink); font-size: 13.5px; font-weight: 600; text-overflow: ellipsis; }
 .pi-session-fact { flex: 0 1 auto; min-width: 0; overflow: hidden; color: var(--pi-muted); font-size: 12px; text-overflow: ellipsis; }
 .pi-session-fact + .pi-session-fact::before { content: "·"; margin-right: 8px; }
-/* Monitor (desktop): the pill (#toggle-monitor) is the panel's anchor in the chat column's top corner, in the control
-   strip, left of the control group when that group sits over the chat column (chat in the stage's top-right corner). The panel floats under
-   the strip, its right edge on the pill's (--pi-monitor-right is the one inset both use). Phone: a sheet under the top
-   bar. */
-.pi-chatcol { --pi-monitor-right: var(--pi-monitor-inset); }
-.pi-chatcol.has-controls { --pi-monitor-right: calc(var(--pi-controls-w) + 6px); }
-.pi-chatcol > .pi-monitor-pill { position: absolute; z-index: var(--pi-z-monitor-panel); top: 5px; right: var(--pi-monitor-right); }
-.pi-chatcol > .pi-monitor-panel { position: absolute; z-index: var(--pi-z-monitor-panel); top: 38px; right: var(--pi-monitor-right); width: var(--pi-monitor-w); max-height: calc(100% - 50px); }
+.pi-chat-strip > .pi-monitor-pill { flex: none; margin-left: auto; margin-right: calc(var(--pi-monitor-inset) - 8px); }
+.pi-chat-corner:empty { display: none; }
+.pi-chat-corner:not(:empty) { margin-left: calc(8px - var(--pi-monitor-inset)); }
+/* Monitor panel (desktop): a popover from the pill (ChatColumn.jsx places it: under the pill, right edges aligned,
+   within the window's height). Phone: a sheet under the top bar. */
+.pi-monitor-dropdown { position: absolute; display: flex; flex-direction: column; }
 /* Unfolded beside the chat, the panel never covers the reading column. While the column (centered in the chat area W)
    keeps --pi-monitor-gap to the panel's left edge, nothing moves. Otherwise --pi-monitor-room is the room the panel
-   takes from the right of the area (its width, inset and the gap): the scroller keeps the card's full width, so its
+   takes from the right of the area (its width, its inset --pi-monitor-reach, which the panel's placement keeps, and the gap): the scroller keeps the card's full width, so its
    scrollbar stays at the card edge, and pads it inside; the column and the composer center in what is left. The
    condition is the step `(2 × room − (W − column)) × 1000` clamped to 0..room. Percentages resolve where it is used:
    the transcript's and the banner lane's padding, and the composer's box, all against the chat column's width (W, the
    thread's too). The overlay peek (a narrow column) floats over the chat as before. */
 .pi-chatcol[data-monitor="panel"] {
-  --pi-monitor-side: calc(var(--pi-monitor-w) + var(--pi-monitor-right) + var(--pi-monitor-gap));
+  --pi-monitor-side: calc(var(--pi-monitor-w) + var(--pi-monitor-reach, var(--pi-monitor-inset)) + var(--pi-monitor-gap));
   --pi-monitor-room: clamp(0px, (2 * var(--pi-monitor-side) - 100% + min(var(--pi-thread-width), 100%)) * 1000, var(--pi-monitor-side));
 }
 /* Phone sheet: hangs from the top bar's bottom edge (the top of the chat container), opaque, so nothing of the
