@@ -12,6 +12,7 @@ import type { ToolsOptions } from "../tools/tools-options.ts";
 import type { SkillsOptions } from "../skills/skills-options.ts";
 import type { ExtensionFilter } from "../extensions/extensions-options.ts";
 import type { MonitorOptions } from "../monitor/monitor-options.ts";
+import type { MetricsOptions } from "../metrics/metrics-options.ts";
 import type { WorkspaceOptions } from "../workspace/workspace-options.ts";
 import type { LearningOptions } from "../learning/learning-options.ts";
 import type { MemoryOptions } from "../memory/memory-options.ts";
@@ -44,6 +45,7 @@ export interface PrkConfig {
   readonly workspace: WorkspaceOptions;
   readonly terminal: TerminalOptions;
   readonly monitor: MonitorOptions;
+  readonly metrics: MetricsOptions;
   readonly artifacts: ArtifactsOptions;
   readonly remoteHost: RemoteHostOptions;
   readonly processWindow: ProcessWindowLimits;

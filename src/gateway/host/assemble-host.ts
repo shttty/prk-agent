@@ -47,6 +47,7 @@ export function assembleHost(options: GatewayHostOptions, dependencies: GatewayH
     native: { sendRecords: new Map() },
     events: {},
     monitoring: {},
+    metrics: {},
     peerMessages: {},
   } as HostContext;
   ctx.methods = {

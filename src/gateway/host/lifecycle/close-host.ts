@@ -5,6 +5,7 @@ import { appendNativeSessionState } from "../../../sessions/history/append-nativ
 export function close(ctx: HostContext): Promise<void> {
    ctx.lifecycle.extensionLifetime.abort();
    clearInterval(ctx.lifecycle.idleTimer);
+   ctx.metrics.close();
    for (const watch of ctx.monitoring.kernelWatches.values()) watch.unsubscribe();
    ctx.monitoring.kernelWatches.clear();
    const unsubscribeMonitor = ctx.monitoring.unsubscribeMonitor;

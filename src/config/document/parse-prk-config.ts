@@ -13,6 +13,7 @@ import { parseToolsOptions } from "../tools/parse-tools-options.ts";
 import { parseSkillsOptions } from "../skills/parse-skills-options.ts";
 import { parseExtensionFilters } from "../extensions/parse-extension-filters.ts";
 import { DEFAULT_MONITOR_OPTIONS } from "../monitor/monitor-options.ts";
+import { DEFAULT_METRICS_OPTIONS } from "../metrics/metrics-options.ts";
 import { DEFAULT_WORKSPACE_OPTIONS } from "../workspace/workspace-options.ts";
 import { DEFAULT_LEARNING_OPTIONS } from "../learning/learning-options.ts";
 import { DEFAULT_MEMORY_OPTIONS } from "../memory/memory-options.ts";
@@ -32,7 +33,7 @@ import { DEFAULT_TARGET_CACHE_ROOT } from "../target-cache/target-cache-options.
 export function parsePrkConfig(value: unknown, instanceDocument: unknown = { instances: [] }): PrkConfig {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Invalid PRK configuration: root must be an object.");
   const document = value as Record<string, unknown>;
-  const fields = ["derivation", "session", "codemode", "trace", "kernel", "namespace", "gateway", "http", "limits", "tools", "skills", "learning", "memory", "extensions", "workspace", "terminal", "monitor", "artifacts", "remoteHost", "toolContent", "kernelTools", "processWindow", "references", "targetConnection", "pythonIndexUrl", "targetCacheRoot"];
+  const fields = ["derivation", "session", "codemode", "trace", "kernel", "namespace", "gateway", "http", "limits", "tools", "skills", "learning", "memory", "extensions", "workspace", "terminal", "monitor", "metrics", "artifacts", "remoteHost", "toolContent", "kernelTools", "processWindow", "references", "targetConnection", "pythonIndexUrl", "targetCacheRoot"];
   if (Object.keys(document).some((key) => !fields.includes(key))) throw new Error("Invalid PRK configuration: root contains an unsupported field.");
   if (document.pythonIndexUrl !== undefined && !isPythonIndexUrl(document.pythonIndexUrl)) {
     throw new Error("Invalid PRK configuration: pythonIndexUrl must be an HTTP(S) URL without credentials, query or fragment.");
@@ -87,6 +88,7 @@ export function parsePrkConfig(value: unknown, instanceDocument: unknown = { ins
     workspace: groupOptions("workspace", document.workspace, DEFAULT_WORKSPACE_OPTIONS),
     terminal: parseTerminalOptions(document.terminal),
     monitor: groupOptions("monitor", document.monitor, DEFAULT_MONITOR_OPTIONS),
+    metrics: groupOptions("metrics", document.metrics, DEFAULT_METRICS_OPTIONS),
     artifacts: groupOptions("artifacts", document.artifacts, DEFAULT_ARTIFACTS_OPTIONS),
     remoteHost: groupOptions("remoteHost", document.remoteHost, DEFAULT_REMOTE_HOST_OPTIONS),
     processWindow: parseProcessWindowLimits(document.processWindow),
