@@ -11,6 +11,8 @@
 
 .pi-operation-bar button:hover { color: var(--pi-ink); }
 
+.pi-operation-waiting { display: inline-flex; align-items: center; gap: .4rem; color: var(--pi-ink-2); }
+
 /* Todo float: how the tray draws the todo plugin's widget (plugin-renderers.js). It takes its own room in the composer
    column (the transcript above shrinks), so it never covers a message; open, the list grows upward. A glass card like
    everything else in the tray. */

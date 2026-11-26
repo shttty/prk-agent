@@ -131,8 +131,16 @@ test("sidebar shows a background child running, then waiting even under its fold
     assert(new URL(f.page.url()).hash.includes(active));
     await row.locator('[data-action="select-session"]').click();
     const dialog = f.page.locator('[data-prompt-kind="ask"]');
+    // The pending ask, not a spinner, is what the running strip reports; it leads the user to the question.
+    const waiting = f.page.locator('#operation-bar:not([hidden]) #operation-state[data-stage="asking"]');
+    await waiting.waitFor();
+    assert.equal(await f.page.locator('#operation-bar [data-tone="run"]').count(), 0);
+    await f.page.locator('#operation-bar [data-tone="warn"]').waitFor();
+    await waiting.click();
+    assert(await dialog.evaluate((element) => element.contains(document.activeElement)), "the waiting status focuses the ask");
     await dialog.locator('[data-ask-option="0"]').click();
     await dialog.locator('[data-action="ask-submit"]').click();
+    await waiting.waitFor({ state: "detached" });
     await pill("blocked").waitFor({ state: "detached" });
     await dot.waitFor({ state: "detached" });
     await pill("idle").waitFor();
