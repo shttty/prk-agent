@@ -111,7 +111,7 @@
 
 .pi-message-user.pi-message-peer .pi-message-body {
   padding-left: .75rem;
-  border-left: 2px solid var(--pi-line);
+  border-left: 2px solid var(--pi-line-strong);
 }
 
 .pi-message-user.pi-message-peer .pi-markdown {
@@ -122,7 +122,7 @@
   color: var(--pi-ink-2);
 }
 
-.pi-messages { --pi-thread-gap: .95rem; gap: var(--pi-thread-gap); }
+.pi-messages { gap: .95rem; }
 
 .pi-message-system .pi-message-body {
   padding: .6rem .9rem;
@@ -182,7 +182,7 @@
 .pi-message.pi-search-match { outline: 2px solid var(--pi-accent-ring); outline-offset: 4px; border-radius: var(--pi-radius-sm); }
 
 @media (max-width: 700px) {
-  .pi-messages { --pi-thread-gap: 1.1rem; padding-top: 1.2rem; gap: var(--pi-thread-gap); }
+  .pi-messages { padding-top: 1.2rem; gap: 1.1rem; }
   .pi-message-user:not(.pi-message-peer) .pi-message-body { max-width: 88%; }
   .pi-message-actions { opacity: 1; }
 }

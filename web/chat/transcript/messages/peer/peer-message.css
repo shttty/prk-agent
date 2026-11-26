@@ -5,43 +5,6 @@
   color: var(--pi-muted);
 }
 
-/* Peer entries delivered together in one merged turn: one dashed frame around the run of rows.
-   Each row draws its own slice (sides; top on the first, bottom on the last) and the thread gap
-   between members (--pi-thread-gap mirrors .pi-messages' gap) is cancelled so the slices join. */
-
-.pi-message.pi-peer-batch {
-  flex-wrap: wrap;
-  padding: 0 .75rem;
-  border-inline: 1px dashed var(--pi-line-strong);
-}
-
-.pi-message.pi-peer-batch:not(.is-batch-first) {
-  margin-top: calc(-1 * var(--pi-thread-gap));
-  padding-top: var(--pi-thread-gap);
-}
-
-.pi-message.pi-peer-batch.is-batch-first {
-  padding-top: .45rem;
-  border-top: 1px dashed var(--pi-line-strong);
-  border-radius: var(--pi-radius) var(--pi-radius) 0 0;
-}
-
-.pi-message.pi-peer-batch.is-batch-last {
-  padding-bottom: .55rem;
-  border-bottom: 1px dashed var(--pi-line-strong);
-  border-radius: 0 0 var(--pi-radius) var(--pi-radius);
-}
-
-.pi-message.pi-peer-batch.is-batch-first.is-batch-last { border-radius: var(--pi-radius); }
-
-.pi-peer-batch-caption {
-  flex-basis: 100%;
-  margin-bottom: .35rem;
-  font-size: .75rem;
-  line-height: 1.4;
-  color: var(--pi-muted);
-}
-
 .pi-peer-sender {
   min-width: 0;
   overflow: hidden;

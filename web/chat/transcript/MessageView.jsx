@@ -51,10 +51,6 @@ export function MessageView({ message }) {
   const streaming = message?.role === "assistant" && message.status?.type === "running";
   const foldMode = display?.turnFoldMode;
   const groupParts = useCallback((parts) => turnGrouping(parts, !streaming, foldMode, { showThinking, showText }), [streaming, foldMode, showThinking, showText]);
-  const batch = peer?.batch && Number.isSafeInteger(peer.batch.count) && peer.batch.count > 1 ? peer.batch : null;
-  const batchClass = batch
-    ? ` pi-peer-batch${batch.index === 0 ? " is-batch-first" : ""}${batch.index === batch.count - 1 ? " is-batch-last" : ""}`
-    : "";
   // assistant-ui appends an empty running assistant when the last row is not an assistant; a notice
   // rendered after a turn that is still running must not add a second "generating" row.
   const duplicatePlaceholder = useAuiState((value) => Boolean(message?.metadata?.isOptimistic) && value.thread.messages.some((item) => item.role === "assistant" && !item.metadata?.isOptimistic && item.status?.type === "running"));
@@ -86,13 +82,12 @@ export function MessageView({ message }) {
   }
   return (
     <MessagePrimitive.Root
-      className={`message-row pi-message pi-message-${message.role} ${message.role}${peer ? " pi-message-peer" : ""}${batchClass}${custom.nativeFeedback ? " pi-native-interaction-card" : ""}${streaming ? " is-streaming" : ""}${matchClass}`}
+      className={`message-row pi-message pi-message-${message.role} ${message.role}${peer ? " pi-message-peer" : ""}${custom.nativeFeedback ? " pi-native-interaction-card" : ""}${streaming ? " is-streaming" : ""}${matchClass}`}
       data-message-id={message.id}
       data-text-buffered={!showText ? true : undefined}
       data-entry-id={message.role === "user" ? custom.entryId : undefined}
       aria-label={custom.nativeFeedback ? "原生操作结果" : peer ? "同伴消息" : message.role === "user" ? "你" : message.role === "assistant" ? "助手" : "系统记录"}
     >
-      {batch?.index === 0 ? <Text component="div" className="pi-peer-batch-caption" size="xs">{batch.count} 条同伴消息 · 一起送达</Text> : null}
       <Box className="message-body pi-message-body">
         {peer ? <PeerMessageHeader peer={peer} outcome={PEER_OUTCOME[report.kind]} /> : null}
         {report?.kind === "result" ? <PeerResultReport report={report} messageId={message.id} /> : null}
