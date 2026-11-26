@@ -30,7 +30,6 @@ import { useStopTarget } from "../../workbench/subscription/use-stop-target.js";
 import { useElementSize } from "@mantine/hooks";
 import { useMediaQuery } from "@mantine/hooks";
 import { ComposerSettings } from "./meta/ComposerSettings.jsx";
-import { SettingsMenuItems } from "./meta/SettingsMenuItems.jsx";
 /** The composer form; ComposerDock owns its state and passes it as `model`. */
 export function Composer({ actions, model }) {
   const { submitDraft, busy, commandMenuOpen, candidateOptions, candidateIndex, selectCandidate, setCandidateIndex, setHelpCommand, referenceMenuOpen, references, referenceCandidates, referenceIndex, plainSuggested, commandElsewhere, unknownControl, normalizedComposerText, plainMode, setPlainMode, replaceReference, attach, attachments, attachedReferences, catalogAttachments, status, connected, queueMode, composerText, inputChanged, setExtensionCursor, composingRef, setComposition, uploadFiles, resumable, sleeping, selectedSessionId, uiLoading, handleInputKeyDown, setComposerValue, findCurrentPage, setShortcutsOpen, cancelling, hasDraft, submitting, otherQueue, compacting } = model;
@@ -40,7 +39,7 @@ export function Composer({ actions, model }) {
   const footer = useElementSize();
   const phone = useMediaQuery("(max-width: 700px)", false, { getInitialValueInEffect: false });
   // Row width in px (0 before the first measurement) decides how much of the session settings fits beside "+" and send.
-  const tier = phone || (footer.width && footer.width < 500) ? "compact" : footer.width && footer.width < 640 ? "short" : "full";
+  const tier = phone ? "phone" : !footer.width || footer.width >= 640 ? "full" : footer.width >= 480 ? "short" : footer.width >= 380 ? "tight" : "folded";
   const onStop = () => { if (canStop) void actions.cancelOperation(stopTarget); };
   const onKeyDown = (event) => {
     if (event.key !== "Escape") return submitting ? undefined : handleInputKeyDown(event);
@@ -111,7 +110,6 @@ export function Composer({ actions, model }) {
                     <Menu.Item leftSection={<IconSlash size={16} stroke={1.7} />} onClick={() => { setComposerValue("/"); window.setTimeout(() => document.getElementById("composer")?.focus(), 0); }}>命令</Menu.Item>
                     <Menu.Item id="find-current-page" leftSection={<IconSearch size={16} stroke={1.7} />} onClick={findCurrentPage}>查找当前页</Menu.Item>
                     <Menu.Item id="open-shortcuts" leftSection={<IconKeyboard size={16} stroke={1.7} />} onClick={() => setShortcutsOpen(true)}>快捷键</Menu.Item>
-                    {tier === "compact" ? <SettingsMenuItems actions={actions} /> : null}
                   </Menu.Dropdown>
                 </Menu>
                 <ComposerSettings actions={actions} tier={tier} />

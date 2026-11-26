@@ -4,7 +4,6 @@ import { Group } from "@mantine/core";
 import { Text } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import InlineAlert from "../../design-system/inline-alert/InlineAlert.jsx";
-import { THINKING_LABELS } from "../../chat/composer/meta/thinking-labels.js";
 
 export function DerivationRolesSection({ roles, builtinRoles, busy, error, onAdd, onEdit, onDelete }) {
   const entries = Object.entries(roles || {});
@@ -24,8 +23,8 @@ export function DerivationRolesSection({ roles, builtinRoles, busy, error, onAdd
         {entries.map(([name, role]) => {
           const overrideCount = Object.keys(role?.capabilities || {}).length;
           const modelLabel = role?.model
-            ? `${role.model}${role.thinkingLevel ? ` · ${THINKING_LABELS[role.thinkingLevel] || role.thinkingLevel}` : ""}`
-            : role?.thinkingLevel ? `思考 ${THINKING_LABELS[role.thinkingLevel] || role.thinkingLevel}` : "跟随父会话";
+            ? `${role.model}${role.thinkingLevel ? ` · ${role.thinkingLevel}` : ""}`
+            : role?.thinkingLevel ? `思考 ${role.thinkingLevel}` : "跟随父会话";
           const builtin = Object.hasOwn(builtinRoles, name);
           return <article key={name} className="subsession-role-row" data-role-row={name} data-builtin={builtin || undefined}>
             <div className="subsession-role-main">

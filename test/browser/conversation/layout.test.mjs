@@ -4,6 +4,7 @@ import { fauxAssistantMessage, fauxText, fauxThinking, fauxToolCall } from "@ear
 import { browserFixture } from "../../fixtures/browser/open-workbench.mjs";
 import { text } from "../../fixtures/gateway/assemble-gateway.mjs";
 import { installMessageRenderCounter } from "../../fixtures/browser/count-message-renders.mjs";
+import { until } from "../../fixtures/until.mjs";
 
 const idle = "#composer-form:not([data-busy])";
 const stage = (name) => `#operation-state[data-stage="${name}"]`;
@@ -129,6 +130,21 @@ test("composer and viewport stay put through send, wait, thinking, output, tool 
     await f.page.locator("#close-settings").click();
     await before.waitFor();
     await tool.waitFor();
+
+    // Phone: the model pill's menu also holds thinking and tool mode, and each choice reaches the session.
+    await f.page.setViewportSize({ width: 390, height: 844 });
+    const pick = async (entry, option) => {
+      await f.page.locator("#chat-model-select:not(:disabled)").click();
+      if (entry) await f.page.locator(`[data-action="${entry}"]`).click();
+      await f.page.locator(option).click();
+    };
+    await pick(null, '[data-model-option="verification/faux-alt"]');
+    await until(() => f.state(id).model === "verification/faux-alt", "phone model choice");
+    await pick("open-thinking-levels", '[data-thinking-option="high"]');
+    await until(() => f.state(id).thinkingLevel === "high", "phone thinking choice");
+    await pick("open-tool-modes", '[data-tool-mode="code"]');
+    await until(() => f.state(id).toolMode === "code", "phone tool-mode choice");
+    await f.page.locator('#chat-model-select[data-setting-value="verification/faux-alt"]').waitFor();
   } finally { gate.resolve(); release.resolve(); }
 });
 

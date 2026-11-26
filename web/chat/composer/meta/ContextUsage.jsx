@@ -5,8 +5,8 @@ import { UnstyledButton } from "@mantine/core";
 import { Text } from "@mantine/core";
 import { contextText } from "../../session-usage/context-text.js";
 import { UsageFacts } from "../../session-usage/UsageFacts.jsx";
-/** SDK-reported context window usage; unknown stays unknown. */
-export function ContextUsage({ usage, actions, sessionKey }) {
+/** SDK-reported context window usage; unknown stays unknown. `short` drops the word for a narrow row, `ringOnly` also the number. */
+export function ContextUsage({ usage, actions, sessionKey, short, ringOnly }) {
   const [opened, setOpened] = useState(false);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -37,7 +37,7 @@ export function ContextUsage({ usage, actions, sessionKey }) {
             <circle cx="8" cy="8" r={radius} className="pi-context-track" />
             {percent !== null ? <circle cx="8" cy="8" r={radius} className="pi-context-fill" strokeDasharray={`${(percent / 100) * circumference} ${circumference}`} transform="rotate(-90 8 8)" /> : null}
           </svg>
-          <span>{awaitingUsage ? "上下文待更新" : percent === null ? "上下文 —" : `上下文 ${Math.round(percent)}%`}</span>
+          {ringOnly ? null : <span>{awaitingUsage ? (short ? "待更新" : "上下文待更新") : percent === null ? (short ? "—" : "上下文 —") : `${short ? "" : "上下文 "}${Math.round(percent)}%`}</span>}
         </UnstyledButton>
       </Popover.Target>
       <Popover.Dropdown className="pi-usage-popover">

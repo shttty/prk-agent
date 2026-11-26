@@ -7,7 +7,6 @@ import { Textarea } from "@mantine/core";
 import { TextInput } from "@mantine/core";
 import { IconChevronLeft } from "@tabler/icons-react";
 import InlineAlert from "../../design-system/inline-alert/InlineAlert.jsx";
-import { THINKING_LABELS } from "../../chat/composer/meta/thinking-labels.js";
 import { RoleCapabilitiesPanel } from "./RoleCapabilitiesPanel.jsx";
 
 const ALL_THINKING = ["off", "minimal", "low", "medium", "high", "xhigh"];
@@ -37,7 +36,7 @@ export function DerivationRoleEditor({ editor, existingNames, models, catalog, b
   const supportedLevels = draft.model
     ? (selectedModel?.thinkingLevels || (draft.thinkingLevel ? [draft.thinkingLevel] : ALL_THINKING))
     : ALL_THINKING;
-  const thinkingOptions = [{ value: "", label: "跟随父会话" }, ...supportedLevels.map((level) => ({ value: level, label: `${THINKING_LABELS[level] || level} (${level})` }))];
+  const thinkingOptions = [{ value: "", label: "跟随父会话" }, ...supportedLevels.map((level) => ({ value: level, label: level }))];
 
   const handleModelChange = (nextModel) => {
     const nextEntry = models.find((item) => item.value === nextModel);

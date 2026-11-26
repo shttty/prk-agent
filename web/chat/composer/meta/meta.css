@@ -1,7 +1,10 @@
 /* Session settings inside the composer's bottom row: "+", then the setting pills, then the context ring and send. The
-   pills read as quiet secondary controls; the row never wraps, the model pill gives way first (ellipsis), and
-   Composer.jsx moves thinking and tool mode into the "+" menu when the row is too narrow for them. */
+   pills are borderless neutral fills with secondary text; the row never wraps. The model pill gives way first (ellipsis
+   down to 6rem), then Composer.jsx shortens the tool-mode pill and finally moves tool mode into the model menu. */
 .pi-composer-settings {
+  --pi-pill-fill: var(--pi-surface-2);
+  --pi-pill-fill-hover: var(--pi-sidebar-active);
+  --pi-pill-fill-open: var(--pi-sidebar-active);
   min-width: 0;
   display: flex;
   flex: 1 1 auto;
@@ -9,42 +12,87 @@
   gap: 4px;
 }
 
+/* Dark: sidebar-active is no lighter than the composer surface, so hover and open step up to line-strong. */
+[data-mantine-color-scheme="dark"] .pi-composer-settings {
+  --pi-pill-fill: var(--pi-surface-2);
+  --pi-pill-fill-hover: var(--pi-line-strong);
+  --pi-pill-fill-open: var(--pi-line-strong);
+}
+
 .pi-setting-select { flex: 0 0 auto; min-width: 0; }
 
-.pi-setting-select.pi-model-select { flex-shrink: 1; }
+.pi-composer-settings .pi-setting-select input,
+.pi-setting-pill {
+  height: 1.75rem;
+  min-height: 1.75rem;
+  border: 0;
+  border-radius: var(--pi-radius-pill);
+  background: var(--pi-pill-fill);
+  color: var(--pi-muted);
+  font-size: .78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--pi-motion-fast), color var(--pi-motion-fast);
+}
 
 .pi-composer-settings .pi-setting-select input {
   field-sizing: content;
   min-width: 3rem;
   max-width: 100%;
-  height: 1.75rem;
-  min-height: 1.75rem;
-  border: 1px solid var(--pi-line-strong);
-  border-radius: var(--pi-radius-pill);
-  padding: 0 1.45rem 0 .65rem;
-  background: transparent;
-  color: var(--pi-muted);
-  font-size: .78rem;
-  font-weight: 500;
+  padding: 0 1.45rem 0 .7rem;
   text-overflow: ellipsis;
-  cursor: pointer;
-  transition: background var(--pi-motion-fast), color var(--pi-motion-fast), border-color var(--pi-motion-fast);
 }
 
-.pi-composer-settings .pi-model-select input { max-width: min(100%, 15rem); }
+.pi-setting-pill {
+  min-width: 0;
+  max-width: 15rem;
+  display: inline-flex;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: .3rem;
+  padding: 0 .55rem 0 .7rem;
+}
 
-.pi-composer-settings:not([data-tier="full"]) .pi-model-select input { max-width: min(100%, 9rem); }
+
+.pi-composer-settings:is([data-tier="tight"], [data-tier="folded"]) .pi-model-pill { min-width: 6rem; }
+
+.pi-setting-pill svg { flex: 0 0 auto; color: var(--pi-faint); }
+
+.pi-setting-pill-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .pi-composer-settings .pi-setting-select input:hover:not(:disabled),
-.pi-composer-settings .pi-setting-select input:focus { border-color: var(--pi-faint); background: var(--pi-hover); color: var(--pi-ink); }
+.pi-setting-pill:hover:not(:disabled) { background: var(--pi-pill-fill-hover); color: var(--pi-ink); }
 
-.pi-composer-settings .pi-setting-select input:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: 1px; }
+.pi-composer-settings .pi-setting-select input[aria-expanded="true"],
+.pi-composer-settings .pi-setting-select input:focus,
+.pi-setting-pill[aria-expanded="true"] { background: var(--pi-pill-fill-open); color: var(--pi-ink); }
 
-.pi-composer-settings .pi-setting-select input:disabled { opacity: .6; background: transparent; cursor: default; }
+.pi-composer-settings .pi-setting-select input:focus-visible,
+.pi-setting-pill:focus-visible { outline: 2px solid var(--pi-accent-ring); outline-offset: 1px; }
+
+.pi-composer-settings .pi-setting-select input:disabled,
+.pi-setting-pill:disabled { opacity: .6; cursor: default; }
 
 .pi-composer-settings .pi-setting-select input::placeholder { color: var(--pi-faint); }
 
 .pi-composer-settings .pi-setting-select [data-position="right"] { width: 1.35rem; color: var(--pi-faint); pointer-events: none; }
+
+/* Model menu (portalled): provider groups, a scrolling list, then entries for settings without a pill of their own. */
+.pi-model-list { max-height: min(18rem, 45dvh); overflow-y: auto; overscroll-behavior: contain; }
+
+.pi-model-group { padding: .45rem .75rem .2rem; color: var(--pi-faint); font-size: .72rem; font-weight: 500; }
+
+.pi-model-filter { margin-bottom: 4px; }
+
+.pi-model-menu .mantine-Menu-itemLabel { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.pi-setting-check { width: 14px; display: inline-flex; color: var(--pi-ink); }
+
+.pi-setting-entry { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+
+.pi-setting-entry-value { color: var(--pi-faint); font-size: .78rem; }
+
+.pi-setting-back { font-weight: 600; }
 
 .pi-model-error { margin: .3rem .6rem 0; overflow-wrap: anywhere; }
 

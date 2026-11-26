@@ -43,8 +43,9 @@
   transition: border-color var(--pi-motion-fast) ease, box-shadow var(--pi-motion-fast) ease;
 }
 
-/* Paint the outer ring above the feedback ramp; neither overlay needs to move. */
-.pi-composer:focus-within {
+/* Paint the outer ring above the feedback ramp; neither overlay needs to move. Only the text field lights it: the
+   setting pills in the bottom row show their own focus-visible ring. */
+.pi-composer:has(.pi-composer-input textarea:focus) {
   z-index: var(--pi-z-chat-overlay);
   box-shadow: var(--pi-shadow-composer), 0 0 0 2px var(--pi-accent-ring);
 }
