@@ -1,5 +1,6 @@
 import { postJson } from "../requests/post-json.js";
 import { setError } from "../notices/set-error.js";
+import { setBanner } from "../notices/set-banner.js";
 
 export async function wakeSession(ctx) {
   const { selectedSessionId: name, session: { streamId, snapshot } } = ctx.state;
@@ -15,7 +16,10 @@ export async function wakeSession(ctx) {
     // Do not issue a second wake while the first success is waiting for its authoritative snapshot.
     if (stillSleeping()) ctx.wakeRequests.set(name, streamId);
   } catch (error) {
-    if (stillSleeping()) setError(ctx, `无法唤醒会话：${error.message}`);
+    if (!stillSleeping()) return;
+    // A failed environment deployment: one sentence, the reason folded under the banner's details.
+    if (error?.code === "DEPLOYMENT_FAILED") setBanner(ctx, "环境准备失败，会话未唤醒。", "error", { kind: "send-rejected", stage: "wake", code: error.code, detail: error.details?.reason || error.message });
+    else setError(ctx, `无法唤醒会话：${error.message}`);
   } finally {
     if (ctx.wakeRequests.get(name) === null) ctx.wakeRequests.delete(name);
   }

@@ -8,7 +8,7 @@ const call = (f, id, name, args) => f.send(id, `TOOL ${JSON.stringify({ name, ar
 
 test("a child kernel failure notifies the owner once per generation and SIGKILL allows a clean replacement", async (t) => {
   const f = await gatewayFixture(t);
-  await f.deploy();
+  await f.stageArtifacts();
   const owner = await f.create("Owner");
   const label = "Kernel child";
   const spawn = await call(f, owner, "session_spawn", { context: "Verification", tasks: [{ task: "Await the next instruction", label }] });

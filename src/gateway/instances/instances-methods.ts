@@ -9,7 +9,7 @@ import type { inspectTarget } from "./discovery/inspect-instance.ts";
 import type { browseTarget } from "./discovery/browse-instance.ts";
 import type { getTargetEnvironment } from "../instance-environments/get-environment.ts";
 import type { deployTargetEnvironment } from "../instance-environments/deploy-environment.ts";
-import type { requireEnvironment } from "../instance-environments/require-environment.ts";
+import type { ensureEnvironment } from "../instance-environments/ensure-environment.ts";
 
 type WithoutContext<T> = T extends (ctx: never, ...args: infer A) => infer R ? (...args: A) => R : never;
 
@@ -25,5 +25,5 @@ export interface InstancesMethods {
   browseTarget: WithoutContext<typeof browseTarget>;
   getTargetEnvironment: WithoutContext<typeof getTargetEnvironment>;
   deployTargetEnvironment: WithoutContext<typeof deployTargetEnvironment>;
-  requireEnvironment: WithoutContext<typeof requireEnvironment>;
+  ensureEnvironment: WithoutContext<typeof ensureEnvironment>;
 }

@@ -9,9 +9,10 @@ import { IconAlertCircle } from "@tabler/icons-react";
 import { useWorkbench } from "../../../workbench/subscription/use-workbench.js";
 import BannerRow from "./BannerRow.jsx";
 import BannerStack from "./BannerStack.jsx";
+import { formatBytes } from "../../../monitor/readings/format-bytes.js";
 /**
  * Session banners over the top of the conversation column (the empty view when there is no session): connection,
- * error, model fallback, native catalog, failed start and pending reload. They never move the transcript or the composer. The fold
+ * error, model fallback, native catalog, environment preparation, failed start and pending reload. They never move the transcript or the composer. The fold
  * applies to the session it was folded in only (memory only; another session starts unfolded).
  */
 export const SessionBanners = memo(function SessionBanners({ actions, onBottom }) {
@@ -26,6 +27,8 @@ export const SessionBanners = memo(function SessionBanners({ actions, onBottom }
   const nativePending = useWorkbench((state) => state.session.pending.has("nativeActionPending"));
   const snapshotRequiresReload = useWorkbench((state) => state.session.snapshot?.requiresReload);
   const modelFallback = useWorkbench((state) => state.session.snapshot?.modelFallback);
+  // The session's instance is being deployed (a create, wake or reload waits for it): the Gateway's own progress.
+  const environment = useWorkbench((state) => state.targets.find((target) => target.id === state.sessions.get(state.selectedSessionId)?.target)?.environment);
   const scope = useWorkbench((state) => `${state.selectedSessionId ?? ""}:${state.session.snapshot?.sessionId ?? ""}`);
   const [foldedFor, setFoldedFor] = useState(null);
   const closed = sessionRow?.state === "closed";
@@ -43,6 +46,7 @@ export const SessionBanners = memo(function SessionBanners({ actions, onBottom }
     banner ? <Alert key="connection" id="connection-banner" data-kind={notice?.kind} data-stage={notice?.stage} data-code={notice?.code} data-submitted={notice?.submitted === undefined ? undefined : String(notice.submitted)} color={notice?.tone === "error" ? "red" : "gray"} icon={<IconInfoCircle size={18} />} role="status" withCloseButton={Boolean(error)} closeButtonLabel="关闭错误提示" onClose={actions.clearError}>
       <BannerRow actions={retry}>
         {error ? <><Text size="sm" fw={700}>{banner}</Text><div id="chat-error" role="alert"><Text size="sm">{error}</Text></div></> : <Text size="sm">{banner}</Text>}
+        {notice?.detail ? <details className="pi-banner-detail"><summary>详情</summary><pre>{notice.detail}</pre></details> : null}
       </BannerRow>
     </Alert> : error ? <Alert key="error" id={sessionRow ? "chat-error" : "notice"} data-testid={sessionRow ? undefined : "global-error"} color="red" icon={<IconAlertCircle size={18} />} role="alert" withCloseButton closeButtonLabel="关闭错误提示" onClose={actions.clearError}>{error}</Alert> : null,
     sessionRow && modelFallback ? <Alert key="model-fallback" id="model-fallback-banner" className="shell-alert" data-previous-model={modelFallback.previousModel} data-model={modelFallback.model} data-reason={modelFallback.reason} color="gray" icon={<IconInfoCircle size={18} />} role="status">
@@ -51,6 +55,9 @@ export const SessionBanners = memo(function SessionBanners({ actions, onBottom }
         <Button id="select-available-model" size="compact-xs" variant="default" disabled={!connected || nativePending} onClick={() => { const select = document.getElementById("chat-model-select"); select?.focus(); select?.click(); }}>选择模型</Button>
         <Button id="acknowledge-model-fallback" size="compact-xs" variant="subtle" color="gray" disabled={!connected || nativePending} onClick={() => void actions.executeNativeAction("acknowledge-model-fallback", {}, { transcript: false })}>确认</Button>
       </Group>
+    </Alert> : null,
+    sessionRow && ["checking", "transferring"].includes(environment?.status) ? <Alert key="environment" id="environment-banner" data-environment-status={environment.status} data-percent={environment.percent} color="gray" icon={<IconInfoCircle size={18} />} role="status">
+      <Text size="sm">正在准备环境…{environment.status === "transferring" && environment.totalBytes > 0 ? ` ${formatBytes(environment.transferredBytes)} / ${formatBytes(environment.totalBytes)} · ${Math.floor(environment.percent)}%` : ""}</Text>
     </Alert> : null,
     sessionRow && catalogError ? <Alert key="catalog" color="yellow" icon={<IconInfoCircle size={18} />} role="status">原生能力目录不可用：{catalogError}</Alert> : null,
     sessionRow && showUnavailable ? <Alert key="recovery" id="recovery-controls" data-kind="unavailable" color="yellow" icon={<IconInfoCircle size={18} />} role="status">

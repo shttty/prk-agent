@@ -1,6 +1,6 @@
 import { patch } from "../updates/patch.js";
 import { newerEnvironment } from "./newer-environment.js";
-/** Merges one instance's environment snapshot (collection event, POST answer or ENVIRONMENT_REQUIRED details) into
+/** Merges one instance's environment snapshot (collection event, POST answer or DEPLOYMENT_FAILED details) into
  * `state.targets`; unknown instances are ignored. Returns the environment the page now holds. Pure byte progress (the
  * Gateway reports every chunk ACK) is drawn once per animation frame like other high-rate display data; status
  * changes notify at once. */

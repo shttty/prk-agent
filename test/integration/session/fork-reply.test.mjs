@@ -12,7 +12,7 @@ test("fork a saved reply while the source operation and its queue are still acti
     if (prompt === "Active prompt") { entered.resolve(); await release.promise; }
     return fauxAssistantMessage(`Reply to ${prompt}`);
   } });
-  await f.deploy();
+  await f.stageArtifacts();
   const source = await f.create();
   const saved = await f.send(source, "Saved prompt");
   assert.equal((await f.complete(source, saved)).status, "completed");

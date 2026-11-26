@@ -25,9 +25,9 @@ export async function submitSessionCreation(ctx, payload) {
       return sessionRow;
     } catch (error) {
       patch(ctx, { pending: withPending(ctx.state.pending, "creating", false) });
-      // A definite refusal: nothing was created, the instance's environment must be deployed first. The caller (the
-      // create dialog) shows it with its retry; the environment it reports is merged under the stream/revision rule.
-      if (error?.code === "ENVIRONMENT_REQUIRED") {
+      // A definite refusal: the automatic environment deployment failed and nothing was created. The caller (the create
+      // dialog) shows it with its retry; the environment it reports is merged under the stream/revision rule.
+      if (error?.code === "DEPLOYMENT_FAILED") {
         applyTargetEnvironment(ctx, normalizeEnvironment(error.details?.environment));
         return error;
       }

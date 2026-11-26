@@ -13,7 +13,7 @@ export interface PythonRuntime {
 export type PythonEnvironmentPolicy = (target: Pick<ExecutionTarget, "id" | "python" | "pythonIndexUrl">,
   paths?: ManagedPythonPaths) => Record<string, string>;
 
-/** Runtime admission only reads deployment caches; creation belongs to explicit deployment. */
+/** Runtime admission only reads deployment caches; creation belongs to the instance environment deployment. */
 export async function resolvePythonRuntime(environment: TargetEnvironmentLease, target: Pick<ExecutionTarget, "id" | "python" | "pythonIndexUrl">,
   configuredRoot?: string, environmentPolicy?: PythonEnvironmentPolicy): Promise<PythonRuntime> {
   if (target.python) return { python: target.python, basePython: target.python, env: environmentPolicy?.(target) ?? {} };

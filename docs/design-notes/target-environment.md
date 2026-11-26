@@ -15,7 +15,7 @@ PRK 在自己的消息协议内限制在途请求数和未消费字节，满窗�
 
 本机和远程目标的 Pi 原生七工具及 target 插件均运行在独立目标宿主；显式 `location:local` 插件与 provider 仍归 Gateway。目标连接失效时旧 handle、执行和 namespace 退休，未确认结果不重放；观察和监控不后台重连，下一次明确执行才可建立新代次。
 
-旧数据使用 [离线迁移](../configuration.md#operator-migration-manual-not-automatic)：Gateway 停止后运行 `scripts/migrate-pienv.mjs`，从旧本机 spec 读取实际绝对解释器；spec 缺失或权限不可读则不写解释器，后续须显式下发托管环境。不从旧地址推断远程命令。
+旧数据使用 [离线迁移](../configuration.md#operator-migration-manual-not-automatic)：Gateway 停止后运行 `scripts/migrate-pienv.mjs`，从旧本机 spec 读取实际绝对解释器；spec 缺失或权限不可读则不写解释器，改用托管环境，首次会话启动时自动下发。不从旧地址推断远程命令。
 
 [TGT-57](../contract.md) 的 `command` 原文由本机 `/bin/sh -c` 执行；允许环境变量、
 管道、重定向和用户包装程序。PRK 不做 argv 拆词，不增加 SSH 参数，不把 daemon command 拼到用户命令。

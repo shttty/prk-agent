@@ -10,9 +10,9 @@ const STOPPED = {
   stopped: "下发已停止。",
 };
 
-/** A page's wait on one instance's remote environment (docs/wire/targets.md, 实例环境下发). `start(onReady, target?)` is
- * one explicit intent: POST the deploy (starting or joining the instance's one task), then call `onReady` once when that
- * stream reports ready (the create dialog creates there; the instance editor only watches). The intent ends without
+/** The instance editor's wait on one instance's remote environment (docs/wire/targets.md, 实例环境下发). `start(onReady, target?)`
+ * is one manual intent: POST the deploy (starting or joining the instance's one task), then call `onReady` once when that
+ * stream reports ready. The intent ends without
  * `onReady` when the deploy fails, the Gateway stream changes (restart), the page loses its workbench stream, or the page
  * closes; only a new explicit `start` tries again. `target` defaults to `targetName` (the editor names a just-saved one). */
 export function useEnvironmentGate(actions, targetName) {
@@ -66,7 +66,5 @@ export function useEnvironmentGate(actions, targetName) {
     setFailure(null);
     setIntent({ streamId: held.streamId, revision: held.revision, losses, onReady: () => {} });
   };
-  /** A create refused with ENVIRONMENT_REQUIRED: nothing was created; shown with the same explicit retry. */
-  const refuse = (cause) => setFailure({ kind: "required", code: cause.code, message: cause.message, details: cause.details });
-  return { environment, failure, linked, waiting: posting || Boolean(intent), start, watch, refuse };
+  return { environment, failure, linked, waiting: posting || Boolean(intent), start, watch };
 }

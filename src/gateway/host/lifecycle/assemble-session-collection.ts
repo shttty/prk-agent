@@ -31,7 +31,7 @@ export function assembleSessionCollection(ctx: HostContext): void {
         globalCapabilityCatalog: () => ctx.methods.capabilitiesList().catalog,
         onCapabilityCatalog: ctx.methods.mergeCapabilityCatalog,
         targetChannels: ctx.host.channels,
-        requireEnvironment: ctx.methods.requireEnvironment,
+        ensureEnvironment: ctx.methods.ensureEnvironment,
         targetEnvironments: ctx.host.environments,
         targetCacheRoot: ctx.host.config.targetCacheRoot,
         pythonEnvironment: (target, paths) => pythonIndexEnvironment(target.pythonIndexUrl ?? ctx.host.config.pythonIndexUrl, paths),

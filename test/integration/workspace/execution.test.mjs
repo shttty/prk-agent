@@ -9,7 +9,7 @@ const call = (f, id, name, args) => f.send(id, `TOOL ${JSON.stringify({ name, ar
 
 test("awake /reload preserves the Python namespace and cells still interrupt by identity", async (t) => {
   const f = await gatewayFixture(t);
-  await f.deploy();
+  await f.stageArtifacts();
   const id = await f.create();
   const seed = await call(f, id, "kernel_code", { code: "seed = 41\nprint(seed)" });
   assert.equal((await f.complete(id, seed)).status, "completed");
@@ -47,7 +47,7 @@ test("awake /reload preserves the Python namespace and cells still interrupt by 
 
 test("model terminal foreground command settles with exit status, output and managed process attention", async (t) => {
   const f = await gatewayFixture(t, { config: { monitor: { enabled: true, fastIntervalMs: 500, slowIntervalMs: 500 }, session: { workerTools: "direct", capabilities: { "lazy:group:tools:package:<inline:terminals>": false } } } });
-  await f.deploy();
+  await f.stageArtifacts();
   const id = await f.create();
   assert.equal((await f.complete(id, await call(f, id, "terminal_textsend", { text: "" }))).status, "completed");
   const setting = await call(f, id, "terminal_set", { quiet_notify: false, output_brake: false });
@@ -79,7 +79,7 @@ test("model terminal foreground command settles with exit status, output and man
 
 test("a subprocess that outlives its kernel cell appears as detached and clears the sidebar attention when it exits", async (t) => {
   const f = await gatewayFixture(t, { remote: true, config: { monitor: { enabled: true, fastIntervalMs: 500, slowIntervalMs: 500 } } });
-  await f.deploy();
+  await f.stageArtifacts();
   const id = await f.create();
   const attention = [];
   const unsubscribe = f.client.onCollectionEvent((event) => {

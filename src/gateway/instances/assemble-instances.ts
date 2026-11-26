@@ -11,7 +11,7 @@ import type { HostContext } from "../host/host-state.ts";
 import type { InstancesMethods } from "./instances-methods.ts";
 import { getTargetEnvironment } from "../instance-environments/get-environment.ts";
 import { deployTargetEnvironment } from "../instance-environments/deploy-environment.ts";
-import { requireEnvironment } from "../instance-environments/require-environment.ts";
+import { ensureEnvironment } from "../instance-environments/ensure-environment.ts";
 
 export function assembleInstances(ctx: HostContext): InstancesMethods {
   ctx.instances.environments = new Map();
@@ -27,6 +27,6 @@ export function assembleInstances(ctx: HostContext): InstancesMethods {
     browseTarget: browseTarget.bind(undefined, ctx),
     getTargetEnvironment: getTargetEnvironment.bind(undefined, ctx),
     deployTargetEnvironment: deployTargetEnvironment.bind(undefined, ctx),
-    requireEnvironment: requireEnvironment.bind(undefined, ctx),
+    ensureEnvironment: ensureEnvironment.bind(undefined, ctx),
   };
 }

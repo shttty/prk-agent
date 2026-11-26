@@ -29,7 +29,7 @@ export async function initializeRuntime(ctx: RuntimeContext): Promise<void> {
   if (!ctx.dependencies.model) throw new Error("Session requires an explicit model.");
   ctx.sessionManager = ctx.dependencies.sessionManager ?? SessionManager.inMemory(ctx.cwd);
   requireConfigured(ctx.target);
-  await ctx.dependencies.requireEnvironment?.(ctx.target.id);
+  await ctx.dependencies.ensureEnvironment?.(ctx.target.id);
   ctx.environments = ctx.dependencies.targetEnvironments ?? createTargetEnvironments({
     targetCacheRoot: ctx.dependencies.targetCacheRoot,
     resolve: () => ctx.target.local ? { local: true } : { local: false, command: ctx.target.sshCommand! },

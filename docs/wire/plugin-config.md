@@ -76,8 +76,8 @@ commands 与 providerIds 从真实 SDK/宿主注册与 noprov 所有权取得，
 宿主遇同步 `tool.prepareArguments` 时，仅拒绝该包并保留 `UNSUPPORTED` 与 `details.member="tool.prepareArguments"`；预检经现有错误信封原样返回，列表保留error/errorCode/errorDetails。UI使用已有错误组件提示该能力不能跨进程，不能跳过schema或在Gateway双载；VCC按P5保留Gateway，host矩阵不适用。
 Gateway discovery 启动通知按包源发布 `warnings`；已归属的启动错误用 `errorCode:"PLUGIN_STARTUP_FAILED"` 和 `error`，该插件至 Gateway 重启前不进入目录或新会话，不更改安装清单和已注册的共享 provider 所有权。
 
-普通插件保存用于新建、唤醒或显式重载，不热替换正在执行的插件。已识别provider包的安装/启停/卸载保存成功后，`restartRequired:true` 明确提示“需重启Gateway生效”，就近复用通用设置的重启按钮/API；卸载后仍保留该顶层提示。该值仅从真实bootstrap所有权、注册诊断和配置差异推导，不建第二provider权威。重启前模型选择器与已有会话保持实际bootstrap，非provider CRUD不修改共享ModelRuntime。Gateway与本机host直接加载原目录；远程host当前内容hash制品由显式实例环境步骤下发，启动/换代只校验并复用缓存，缺失明确要求下发，不退回旧包。
-P6环境规划不改变按包失败隔离：解析/打包失败写现有`remoteCatalogStatuses`，会话加载沿既有状态投影该错误，健康包继续。`PLUGIN_BUILD_FAILED`的`errorDetails.packageHash`只标识已尝试的当前内容；新hash缺缓存仍要求显式下发，不靠旧错误跳过检查，也不持久化第二份失败清单。
+普通插件保存用于新建、唤醒或显式重载，不热替换正在执行的插件。已识别provider包的安装/启停/卸载保存成功后，`restartRequired:true` 明确提示“需重启Gateway生效”，就近复用通用设置的重启按钮/API；卸载后仍保留该顶层提示。该值仅从真实bootstrap所有权、注册诊断和配置差异推导，不建第二provider权威。重启前模型选择器与已有会话保持实际bootstrap，非provider CRUD不修改共享ModelRuntime。Gateway与本机host直接加载原目录；远程host当前内容hash制品由实例环境下发构建并传输：新建/唤醒/重载发现缺失时自动下发并等待，换代只校验并复用缓存，不退回旧包。
+P6环境规划不改变按包失败隔离：解析/打包失败写现有`remoteCatalogStatuses`，会话加载沿既有状态投影该错误，健康包继续。`PLUGIN_BUILD_FAILED`的`errorDetails.packageHash`只标识已尝试的当前内容；新hash缺缓存由下一次会话启动或手动下发重新构建，不靠旧错误跳过检查，也不持久化第二份失败清单。
 
 旧 `remoteExtensionsList/Change/Install` 和 `/api/remote-extensions` 整块移除，无兼容读写。插件配置文件编辑仍使用上方独立 `pluginConfig*` API。
 

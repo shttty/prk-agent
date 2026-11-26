@@ -17,7 +17,7 @@ test("the model request directs a hidden skill reader through the declared meta 
   const skill = join(f.root, "agent", "skills", "replay");
   await mkdir(skill, { recursive: true });
   await writeFile(join(skill, "SKILL.md"), "---\nname: replay\ndescription: Replay a prompt.\n---\n\n# Replay\n");
-  await f.deploy();
+  await f.stageArtifacts();
   const id = await f.create();
   const receipt = await f.send(id, "Evaluate this prompt.");
   assert.equal((await f.complete(id, receipt)).status, "completed");

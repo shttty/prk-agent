@@ -85,7 +85,7 @@ python = []
 - 声明二进制的 import 前解析和按需 `host.tool_bin`：[TGT-1](contract.md)、[模块约定](kernel-tools.md#约定)。
 - Gateway manifest 为 `<PRK home>/assets/manifest.json`，blob 为 `assets/store/<sha256>`。
 - 平台报告字段为 `platform.system()` / `platform.machine()`；支持 Linux x86_64／aarch64。
-- 二进制在显式实例环境下发时按固定 SHA256 分块传输并校验；typed `binary` callback 只读制品元数据，kernel 不隐式部署。目标缓存为 `<targetCacheRoot>/bin/<sha256>/<name>`，默认 `~/.cache/prk/bin/<sha256>/<name>`；根目录配置见[执行配置](configuration/execution.md#targetcacheroot-top-level)。
+- 二进制在实例环境下发（会话启动发现缺失时自动，或手动下发）时按固定 SHA256 分块传输并校验；typed `binary` callback 只读制品元数据，kernel 不隐式部署。目标缓存为 `<targetCacheRoot>/bin/<sha256>/<name>`，默认 `~/.cache/prk/bin/<sha256>/<name>`；根目录配置见[执行配置](configuration/execution.md#targetcacheroot-top-level)。
 - 初始化时的业务回调边界：[KER-3](contract.md)、[模块约定](kernel-tools.md#约定)。
 
 ### 本阶段明确未实现：Python wheel 分发

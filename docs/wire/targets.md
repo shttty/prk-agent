@@ -74,7 +74,7 @@ Name fragment 以 `.` 开头时返回 matching dot entries；仅目录名含点�
 ## 实例环境下发（P6）
 
 `GET /api/targets/:target/environment` → wire `getTargetEnvironment {target}`；只读返回以下快照。
-`POST /api/targets/:target/environment`，body `{}` → wire `deployTargetEnvironment {target}`，HTTP 202立即返回快照，启动或共享该实例在途检查/下发；失败后此同一显式操作为重试，不续传半文件。
+`POST /api/targets/:target/environment`，body `{}` → wire `deployTargetEnvironment {target}`，HTTP 202立即返回快照，启动或共享该实例在途检查/下发；这是手动入口（实例设置的「下发」/「重试」），失败后重发即重试，不续传半文件。会话启动走同一任务，见下文。
 
 显式 Bun 包维护使用同一 POST 的 `{bunPackages:{"<npm name>":"<exact version>"}}`，wire 为 `deployTargetEnvironment {target,bunPackages}`。包集为完整替换清单，限 64 项；需要实例已配置 registry，维护中再次请求报 `BUSY`，不排队。`ready` 意味着目标已完成冻结安装与真实导入，并原子发布，失败保留上一已发布包集。启动中的 Bun 代只在 ready 前读一次当前发布指针，固定到该版本目录。
 
@@ -90,21 +90,23 @@ type TargetEnvironmentSnapshot = {
 工作台targets行与getTarget返回`environment:TargetEnvironmentSnapshot`。既有集合事件增加`{type:"target_environment_changed",target,timestamp,details:{environment}}`，无sessionId；同连接仍先快照后增量，不开新通道。streamId仅标识该Gateway实例环境状态寿命，revision单调递增；同流旧快照不得覆盖新事件，换流丢弃旧进度，无独立会话或下发持久ID。
 
 - 草稿连接测试/选解释器仍用inspectTarget。保存有效连接的实例立即启动下发；补全/更改连接或解释器同样重新检查下发。仅改cwd/label不触发；pending实例仅建历史、不启动运行时。
-- 新建先POST environment并订阅同一任务，ready后调用原createSession；多个新建意图只共享环境下发，不在Gateway排会话队列。create/wake/reload若发现当前hash或缓存缺失，须返回`ENVIRONMENT_REQUIRED`及`details:{target,environment}`完整快照，不隐式传输，不先创建新会话；显式下发成功后再调用。
+- create/wake/reload 先只读缓存检查当前版本：托管 Python、各制品当前 hash 已在 Gateway 制品库且目标已有。全部命中直接继续（快照非 ready 时发布 ready，不经 checking）。任一缺失（含 Gateway 升级后宿主缓存键变化）则调用与 POST 相同的 `deployTargetEnvironment`：没有在途任务就启动，有就加入（`record.pending`），请求在 Gateway 内等待任务结束后再启动运行时。同一实例并发的多个新建/唤醒只触发一次下发，也不在 Gateway 排会话队列。
+- 进度只经 `target_environment_changed` 快照发布，没有会话级环境状态；网页新建对话框与会话横幅（「正在准备环境…」）都读所属实例的这份快照。
+- 下发结束为 `failed` 时，create/wake/reload 报 `DEPLOYMENT_FAILED`，消息为一句 `Instance environment deployment failed: <原因>`，不带堆栈。create 的 `details:{target,environment}` 带完整快照（原始 `error.code` 如 `TARGET_UNREACHABLE` 及 `details.reason` 保留在 `environment.error`），不创建会话。wake 以 `DEPLOYMENT_FAILED` 和 `details:{submitted:false,stage:"wake",reason}` 拒绝本次输入，会话保持休眠，下次输入再试。目标连接本身在检查阶段就失败时，照旧报连接错误，不进入下发。
 - checking时0/0、percent=0；未压缩制品固定gzip -6并按原内容hash缓存，已有tar.gz/tar.xz不重复压缩。totalBytes为本次实际需传的压缩字节；每块pi-env文件写入ACK后累加transferredBytes并按相邻确认采样速率。目标使用shell/gzip解压、校验原SHA-256并发布，ready时percent=100、速率0。失败保留实传量及原因，不回退旧制品。
 - 托管目标先在同一下发任务传输 SHA 固定的 uv 与 Python 归档，再由 uv 在 `UV_OFFLINE=1` 下从 `file://` 镜像安装 Python。后续宿主制品扫描沿用同一进度，分母在实际需传的宿主字节确定后更新；`ready` 才达 100%。
-- 浏览器/Gateway连接丢失沿既有断线UI将观察中的下发标失败待重连；活Gateway任务不因观察者断开而取消。目标通道失效使任务失败；Gateway重启后的新stream/idle不恢复旧任务，需显式POST重试。完整已校验制品可命中已有hash缓存，不恢复半文件偏移。
+- 浏览器/Gateway连接丢失沿既有断线UI将观察中的下发标失败待重连；活Gateway任务不因观察者断开而取消。目标通道失效使任务失败；Gateway重启后的新stream/idle不恢复旧任务；下一次会话启动或手动POST会重新检查并下发。完整已校验制品可命中已有hash缓存，不恢复半文件偏移。
 - SDK/插件归档及固定hash的Node可执行文件位于 `targetCacheRoot/remote-extensions`；Bun、rg、fd 和 uv 位于同一根下的 `bin/<sha256>/`。Python 基础环境、镜像、uv 缓存及实例 venv 都在该根下。
-- 单包解析/打包失败沿既有插件catalog/runtime状态报告`PLUGIN_BUILD_FAILED`，不加入本次可下发闭包，健康包仍可正常加载；已有打包错误只对同一当前内容hash有效，内容变化须重新显式检查。环境ready不伪称坏包可用；实际传输/解压/校验失败仍为环境failed且不创建会话。
+- 单包解析/打包失败沿既有插件catalog/runtime状态报告`PLUGIN_BUILD_FAILED`，不加入本次可下发闭包，健康包仍可正常加载；已有打包错误只对同一当前内容hash有效，内容变化后下一次会话启动或手动下发重新构建。环境ready不伪称坏包可用；实际传输/解压/校验失败仍为环境failed且不创建会话。
 - assetBegin预创建并登记上传文件及其派生解压暂存名；解压只打开已登记文件，不重新创建。assetAbort/目标关闭同时清理二者，取消后迟启动的exec不能重建暂存；校验成功才原子发布。
 
 
 ## 约定
 
 - 实例变更和 `reloadTargets` 的实例及派生配置必须完整校验并通过活动绑定检查后原子发布。
+- 原生工具宿主 bundle 的 Gateway 缓存键只取实际打进 bundle 的内容：`npm query` 选出的包集合（location@version，按 location 排序）、宿主源文件、Gateway 的 Node 版本与目标平台，不含 `package-lock.json` 全文。lock 里无关依赖变化不改键，不重建。宿主插件包的键取 `npm pack --dry-run` 文件清单的内容、平台、Node 版本，以及插件目录自己的 `package-lock.json`；PRK 自身的 lock 不参与。
 - 实例变更不得改变路由 ID；PATCH 的 `target.id` 必须与 URL 中的 `:id` 一致。旧字段 `name` 一律拒绝。
 - 编辑接口返回保存的 sshCommand 原文；workbench 不发布命令。
-- 原生工具宿主 bundle 的 Gateway 缓存键只取实际打进 bundle 的内容：`npm query` 选出的包集合（location@version，按 location 排序）、宿主源文件、Gateway 的 Node 版本与目标平台，不含 `package-lock.json` 全文。lock 里无关依赖变化不改键，不重建。宿主插件包的键取 `npm pack --dry-run` 文件清单的内容、平台、Node 版本，以及插件目录自己的 `package-lock.json`；PRK 自身的 lock 不参与。
 - 旧 url/token/defaultKernelName/kernelName 与 kernels 路由必须拒绝，不保留别名。
 - 实例增删改及实例能力默认必须只保存 `instances.toml`，不得改写全局 `config.toml`。
 - `reloadTargets` 必须加载 `instances.toml`，不得从全局配置读取实例。

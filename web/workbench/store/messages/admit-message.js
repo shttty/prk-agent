@@ -107,10 +107,13 @@ export async function admitMessage(ctx, message, queueOrOptions, options, matche
         const issue = isRecord(error.details.configurationIssue) ? error.details.configurationIssue : null;
         const reason = issue ? `${issueLabel(issue)}：补全实例设置后再发送。` : safeText(error.details.reason);
         const stage = ["wake", "runtime"].includes(error.details.stage) ? error.details.stage : "kernel";
-        const headline = issue ? "消息未发送。" : { wake: "会话唤醒失败，消息未发送。", runtime: "无法启动会话，消息未发送。", kernel: "无法恢复执行环境，消息未发送。" }[stage];
+        // A failed environment deployment gets one sentence; its reason folds under the banner's details.
+        const deployment = error.code === "DEPLOYMENT_FAILED";
+        const headline = issue ? "消息未发送。" : deployment ? "环境准备失败，消息未发送。" : { wake: "会话唤醒失败，消息未发送。", runtime: "无法启动会话，消息未发送。", kernel: "无法恢复执行环境，消息未发送。" }[stage];
         patchSession(ctx, {
                   localMessages: mergeEntry(ctx, ctx.state.session.localMessages, id, { status: "rejected" }),
-                  banner: { text: reason ? `${headline} ${reason}` : headline, tone: "error", kind: "send-rejected", stage, submitted: false, ...(issue ? { code: issue.code } : {}) },
+                  banner: { text: reason && !deployment ? `${headline} ${reason}` : headline, tone: "error", kind: "send-rejected", stage, submitted: false,
+                    ...(issue ? { code: issue.code } : deployment ? { code: error.code, detail: reason } : {}) },
                   transcriptRevision: ctx.state.session.transcriptRevision + 1,
                 });
         // A failed start leaves the session unavailable; show that state instead of the stale one.

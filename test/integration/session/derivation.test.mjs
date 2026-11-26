@@ -26,7 +26,7 @@ test("real child tools deliver a result and notify the owner of an unsuccessful 
     if (body.includes("# Your assignment\nRESULT_CHILD")) return tool("session_result", { summary: "Delivered verification result" });
     if (body.includes("# Your assignment\nFAIL_CHILD")) return fauxAssistantMessage([], { stopReason: "error", errorMessage: "Verification child failed" });
   } });
-  await f.deploy();
+  await f.stageArtifacts();
   const owner = await f.create("Owner");
   const spawn = (task) => f.send(owner, `TOOL ${JSON.stringify({ name: "session_spawn", args: { context: "Verification", tasks: [{ task, label: task }] } })}`);
   const findReceipt = (pattern, name) => until(() => f.state(owner).messages.find((message) => pattern.test(text(message)) && message.role !== "toolResult"), name);

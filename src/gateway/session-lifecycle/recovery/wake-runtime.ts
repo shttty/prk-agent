@@ -32,8 +32,10 @@ export async function wake(ctx: HostContext, sessionId: string): Promise<void> {
      console.error(`[${new Date().toISOString()}] Session ${sessionId} wake cleanup failed. ${boundedError(describeError(cleanupError, ctx.host.config.session), ctx.host.config.session.errorDetailChars)}`);
     }
     console.error(`[${new Date().toISOString()}] Session ${sessionId} wake failed; sleeping identity retained. ${boundedError(describeError(error, ctx.host.config.session), ctx.host.config.session.errorDetailChars)}`);
-    const reason = describeError(error, ctx.host.config.session);
-    throw new WireError("UNAVAILABLE", `Session could not wake; this input was not submitted. ${reason}`, { submitted: false, stage: "wake", reason });
+    // A failed environment deployment is reported by its own code and one-line reason; the log above keeps the stack.
+    const deployment = error instanceof WireError && error.code === "DEPLOYMENT_FAILED";
+    const reason = deployment ? error.message : describeError(error, ctx.host.config.session);
+    throw new WireError(deployment ? "DEPLOYMENT_FAILED" : "UNAVAILABLE", `Session could not wake; this input was not submitted. ${reason}`, { submitted: false, stage: "wake", reason });
    }
   })();
   ctx.lifecycle.transitions.set(sessionId, task);

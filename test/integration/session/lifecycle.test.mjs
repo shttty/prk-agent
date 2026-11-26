@@ -35,7 +35,7 @@ test("create → stream → stop → sleep → explicitly wake the same SDK sess
     async execute() { return { content: [{ type: "text", text: "ok" }] }; },
   });`);
   await f.request("capabilitiesRefresh", {});
-  await f.deploy();
+  await f.stageArtifacts();
   const collection = [];
   f.client.onCollectionEvent((event) => collection.push(event));
   await f.request("subscribeSessions", {});

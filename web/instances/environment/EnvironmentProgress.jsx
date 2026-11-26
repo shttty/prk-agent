@@ -10,7 +10,7 @@ const TITLES = { idle: "远端环境尚未下发", checking: "正在检查远端
 
 /** One instance's remote environment as the Gateway reports it (`TargetEnvironmentSnapshot`): checking shows no bar (its
  * 0/0 is not progress); transferring shows the Gateway's real transferred/total bytes, percent and ACK rate. `failure`
- * is this page's own reason to stop waiting (link lost, Gateway restarted, create refused); it wins over the snapshot.
+ * is this page's own reason to stop waiting (link lost, Gateway restarted, a create whose deployment failed); it wins over the snapshot.
  * `onDeploy` starts or retries the deploy (the one explicit operation); it waits for `linked` (the Gateway event stream
  * is open), since progress could not be observed otherwise. */
 export function EnvironmentProgress({ environment, failure, onDeploy, deploying, linked }) {

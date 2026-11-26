@@ -24,7 +24,7 @@ node scripts/migrate-config-toml.mjs --home /absolute/prk-home
 
 The script also handles an existing `config.toml`: an old cache path ending in `/bin` becomes its parent `targetCacheRoot` (`"/owned/cache/bin"` → `"/owned/cache"`, `"~/.cache/prk/bin"` → `"~/.cache/prk"`). It preserves the original as `config.toml.before-target-cache-root`. A different suffix, a relative path, or both old and new keys cause an explicit no-write refusal: choose `targetCacheRoot` yourself and remove `codemode.binCacheDir` manually. Existing JSON-to-TOML migration retains its `*.json.before-toml` backups.
 
-No old cache directories are moved. After explicit environment deployment into the new root, old `~/.cache/prk-remote-extensions`, old binary-cache directories and obsolete hashes can be deleted when no session or Gateway still uses them. Do not delete the new root: its per-instance venvs retain installed packages. Changing the root requires another explicit deployment.
+No old cache directories are moved. After the instance environment is deployed into the new root (the next session start does it), old `~/.cache/prk-remote-extensions`, old binary-cache directories and obsolete hashes can be deleted when no session or Gateway still uses them. Do not delete the new root: its per-instance venvs retain installed packages. Changing the root redeploys on the next session start.
 
 ## `codemode`
 
@@ -48,7 +48,7 @@ Timestamps are ISO strings; sizes and `binChunkBytes` are bytes.
 `tool_bin(name)` resolves the selected tool for Linux `x86_64`/`amd64` or `aarch64`/`arm64`; its target cache path is `<targetCacheRoot>/bin/<sha256>/<name>`.
 Target transfer and cache validation: [TGT-2](../contract.md)、[TGT-1](../contract.md)、[TGT-3](../contract.md)、[模块约定](../wire/artifacts.md#约定); implementation and deletion-during-transfer limitations: [design notes](../design-notes.md).
 
-Remote Pi native mode requires current `rg` and `fd` executables for the target platform. Upload either through the same generic artifact UI/API; `fd` is not a new artifact kind. Explicit instance deployment installs them in `<targetCacheRoot>/bin/<sha256>/<name>`, shared with Python `tool_bin()`. Native startup prepends those directories to the target PATH and sets `PI_OFFLINE=1`. Missing artifacts refuse native startup rather than downloading or executing a Gateway binary.
+Remote Pi native mode requires current `rg` and `fd` executables for the target platform. Upload either through the same generic artifact UI/API; `fd` is not a new artifact kind. Instance environment deployment installs them in `<targetCacheRoot>/bin/<sha256>/<name>`, shared with Python `tool_bin()`. Native startup prepends those directories to the target PATH and sets `PI_OFFLINE=1`. Missing artifacts refuse native startup rather than downloading or executing a Gateway binary.
 
 The old `assets/bin/<name>/linux-<arch>/<name>` layout and `codemode.binDir` configuration are no longer read. For a one-time import, stop the artifact-writing Gateway, remove any obsolete `codemode.binDir` key from `config.toml`, then run from the checkout:
 
@@ -128,7 +128,7 @@ Per-instance kernel inheritance and saved overrides: [模块约定](../configura
 
 ### Target setup
 
-An instance without an explicit `python` uses its persistent managed Python 3.12 venv after explicit environment deployment; the Python REPL and model terminal share its Python and PATH. Set an absolute Python 3.9+ executable in the instance editor to keep an existing interpreter instead; PRK does not create or overwrite a managed environment for that instance. No kernel service is required. The Gateway starts the owned REPL through the instance's shared pi-env connection.
+An instance without an explicit `python` uses its persistent managed Python 3.12 venv, which the instance environment deployment creates (on save, on the first session start that finds it missing, or from the manual deploy action); the Python REPL and model terminal share its Python and PATH. Set an absolute Python 3.9+ executable in the instance editor to keep an existing interpreter instead; PRK does not create or overwrite a managed environment for that instance. No kernel service is required. The Gateway starts the owned REPL through the instance's shared pi-env connection.
 
 Kernel language is [a session setting](../wire/native.md#kernel-language), not an instance override. Bun requires the target's deployed Bun artifact and still uses the configured Python for its short-lived launcher and process cleanup. `bunPackages` controls explicit package preparation; it is not required to run Bun cells.
 

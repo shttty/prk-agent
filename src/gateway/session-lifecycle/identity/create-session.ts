@@ -21,7 +21,7 @@ export async function createManagedSession(ctx: HostContext, request: { target: 
       }
       let cwd = request.cwd ?? target.kernel.cwd;
       if (!validSessionCwd(cwd, ctx.host.config.limits) || !isAbsoluteCwd(cwd)) throw new WireError("INVALID_REQUEST", ABSOLUTE_CWD_MESSAGE);
-      if (!configurationIssue(target)) await ctx.methods.requireEnvironment(request.target);
+      if (!configurationIssue(target)) await ctx.methods.ensureEnvironment(request.target);
       const label = request.label?.trim() || `新会话 ${ctx.host.history.list().length + 1}`;
       const checkedProject = project === undefined ? undefined : resolveProject(ctx, project);
       let manager = cloneSource === undefined

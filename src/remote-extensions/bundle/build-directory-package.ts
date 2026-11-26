@@ -27,7 +27,7 @@ export async function buildDirectoryPackage(store: ArtifactStore, directory: str
     const manifest = readManifest(store.directory);
     if (available(manifest, platform, cached.node, "node") && available(manifest, platform, cached.bundle, "bundle")) return cached;
   } catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
-  if (cacheOnly) throw new WireError("ENVIRONMENT_REQUIRED", "Deploy the changed host plugin environment before creating a session.", { packageHash });
+  if (cacheOnly) throw new WireError("ENVIRONMENT_REQUIRED", "The changed host plugin has not been built; the instance environment deployment builds it.", { packageHash });
   const pending = packageBuilds.get(cache);
   if (pending) return pending;
   const build = (async () => {

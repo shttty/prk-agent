@@ -151,7 +151,7 @@ curl -fsS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8787/
 curl -fsS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8787/api/workbench
 ```
 
-首次用 `attach` 前先显式准备 `default` 实例环境。下面使用默认 API 端口 `8788`；如果改过 `PRK_API_PORT`，同步调整两处 URL 和 `Origin`：
+新建、唤醒或重载会话时，Gateway 发现实例环境不是当前版本会自动下发并等它完成，首次可能要多等一会儿。也可以先手动准备 `default` 实例环境，提前看到结果。下面使用默认 API 端口 `8788`；如果改过 `PRK_API_PORT`，同步调整两处 URL 和 `Origin`：
 
 ```sh
 curl -fsS -H 'Origin: http://127.0.0.1:8788' -H 'Content-Type: application/json' \
@@ -159,7 +159,7 @@ curl -fsS -H 'Origin: http://127.0.0.1:8788' -H 'Content-Type: application/json'
 curl -fsS http://127.0.0.1:8788/api/targets/default/environment
 ```
 
-隔几秒重新执行 GET，等 `status` 为 `ready`；如为 `failed`，先按返回的错误排查，不要继续创建会话。也可在网页新建会话，它会先下发环境。
+隔几秒重新执行 GET，等 `status` 为 `ready`；如为 `failed`，按返回的错误排查。这时创建会话同样会报 `DEPLOYMENT_FAILED`。
 
 创建测试会话：
 

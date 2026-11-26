@@ -52,7 +52,7 @@ Gateway 在新项目首次提交归属时保存 `project.json.created`；启动�
 `cancel` 只接受仍为当前的 `operationId`；省略 `cell` 则只取消该轮，不代选后台 cell。指定 `cell` 时，仅在代次和 ID 均匹配的情况下定向停止该项。后台 cell 的 ask 不随 SDK 整轮取消一起关闭。
 `kernelInterrupt` 要求显式的代次与 cell ID，不匹配返回 `not_found`。`cellOnly:true` 不动 SDK 轮次或输入队列。省略或设为 `false` 时，可停止受理时同一宿主操作；无宿主操作时也可按所选 cell 停止原生 SDK 轮，并通过 `returnedMessages` 返回清出的用户排队文本，不生成操作 ID 或操作事件。已结算的 cell 若还有其他活项，只标记该 cell 的停止，不附带停原生轮；重入后的替代操作或 cell 不继承旧停止。两种停止入口都不唤醒休眠会话，`requested` 不代表退出已确认。
 `mode:"auto"` 经 native slash dispatch；`mode:"plain"` 作为普通文本。
-运行时启动拒绝包含 `UNAVAILABLE` 与 `details:{submitted:false,stage:"runtime"|"kernel"|"wake",reason}`。
+运行时启动拒绝包含 `UNAVAILABLE` 与 `details:{submitted:false,stage:"runtime"|"kernel"|"wake",reason}`。唤醒时实例环境自动下发失败改用 `DEPLOYMENT_FAILED`，`reason` 只是一句不带堆栈的原因（见 [实例环境下发](targets.md#实例环境下发p6)）。
 
 Attachments：`{name,type,size,data,source}`。
 References：`{type,source,target,sessionId,path,...}`。

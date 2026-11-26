@@ -8,7 +8,7 @@ export async function reload(ctx: RuntimeContext): Promise<void> {
           || ctx.python.hasInFlightCell()) throw new Error("Session must be idle to reload.");
       };
       requireIdle();
-      await ctx.dependencies.requireEnvironment?.(ctx.target.id);
+      await ctx.dependencies.ensureEnvironment?.(ctx.target.id);
       requireIdle();
       await ctx.python.prepareHandoff();
       await ctx.active.host.close();

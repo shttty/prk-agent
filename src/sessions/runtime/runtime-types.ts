@@ -84,7 +84,8 @@ export interface SessionRuntimeDependencies {
   readonly onKernelFailure?: PythonToolHooks["onFailure"];
   readonly onCapabilityCatalog?: (catalog: CapabilityCatalog) => void;
   readonly targetChannels?: TargetChannels;
-  readonly requireEnvironment?: (target: string) => Promise<void>;
+  /** Deploys the instance environment when it is not current and waits for it (create, wake and reload). */
+  readonly ensureEnvironment?: (target: string) => Promise<void>;
   readonly remoteExtensions?: (instance: string) => RemotePackageConfiguration;
   readonly remoteExtensionOptions?: Omit<RemoteExtensionLoadInput, "target" | "sessionId" | "packages" | "projectTrusted" | "nativeTools">;
   readonly projectId?: () => string | undefined;

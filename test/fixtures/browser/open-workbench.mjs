@@ -9,7 +9,7 @@ const require = createRequire(new URL("package.json", web));
 
 export async function browserFixture(t, { viewport = { width: 1440, height: 1000 }, init, ...options } = {}) {
   const f = await gatewayFixture(t, { ...options, web: true });
-  await f.deploy();
+  await f.stageArtifacts();
   const { createServer } = await import(pathToFileURL(require.resolve("vite")));
   // Load the shipped proxy configuration: browser requests still cross Vite, Web and the Gateway socket.
   const old = process.env.PRK_API;

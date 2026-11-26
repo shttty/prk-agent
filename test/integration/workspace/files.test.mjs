@@ -19,7 +19,7 @@ for (const remote of [false, true]) {
   test(`${remote ? "loopback remote" : "local"} file preview and streamed upload/download preserve bytes`, { concurrency: true }, async (t) => {
     const config = remote ? {} : { http: { requestTimeoutMs, uploadIdleTimeoutMs } };
     const f = await gatewayFixture(t, { remote, web: true, config });
-    await f.deploy();
+    await f.stageArtifacts();
     const sessionId = await f.create();
     const base = `${f.url}/api/sessions/${sessionId}/files`;
     const headers = { Origin: f.url };

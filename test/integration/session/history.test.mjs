@@ -6,7 +6,7 @@ import { until } from "../../fixtures/until.mjs";
 
 test("Gateway pushes an anchored light observation and serves the prior page without overlap", async (t) => {
   const f = await gatewayFixture(t);
-  await f.deploy();
+  await f.stageArtifacts();
   const id = await f.create();
   for (let i = 0; i < 51; i++) {
     assert.equal((await f.complete(id, await f.send(id, `Question ${i}`))).status, "completed");
@@ -31,7 +31,7 @@ test("Gateway pushes an anchored light observation and serves the prior page wit
 
 test("sleeping /compact wakes, acknowledges before the model, and persists a compaction marker", async (t) => {
   const f = await gatewayFixture(t, { config: { session: { workerTools: "direct", idleTimeoutMs: 1_000 } } });
-  await f.deploy();
+  await f.stageArtifacts();
   const id = await f.create();
   for (let i = 0; i < 3; i++) {
     const receipt = await f.send(id, `Part ${i}: ${"historic context segment ".repeat(200)}`);

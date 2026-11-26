@@ -12,3 +12,6 @@
 .pi-banner-row { display: flex; align-items: center; gap: 12px; }
 .pi-banner-text { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
 .pi-banner-actions { flex: none; display: flex; align-items: center; gap: 8px; }
+/* A failure's full reason stays folded under its one-line banner. */
+.pi-banner-detail { margin-top: 4px; font-size: var(--mantine-font-size-xs); color: var(--pi-muted); }
+.pi-banner-detail pre { margin: 4px 0 0; max-height: 12em; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }

@@ -74,17 +74,9 @@ export async function gatewayFixture(t, { answer, remote = false, web = false, r
     assert.equal(receipt.accepted, true, JSON.stringify(receipt));
     return until(() => state(sessionId).recentOperations.find((item) => item.operationId === receipt.operationId), `terminal operation ${receipt.operationId}`);
   };
-  const deploy = async () => {
-    await prepareArtifacts(root);
-    await request("deployTargetEnvironment", { target });
-    const result = await until(async () => {
-      const value = await request("getTargetEnvironment", { target });
-      return ["ready", "failed"].includes(value.status) && value;
-    }, "instance environment deployment", 60_000);
-    assert.equal(result.status, "ready", JSON.stringify(result));
-    return result;
-  };
-  return { root, cwd, target, host, client, provider, url, create, send, state, complete, deploy, request, onCleanup: (fn) => cleanup.push(fn) };
+  // The Gateway store's real rg/fd/bun; the first session start deploys the instance environment from it.
+  const stageArtifacts = () => prepareArtifacts(root);
+  return { root, cwd, target, host, client, provider, url, create, send, state, complete, stageArtifacts, request, onCleanup: (fn) => cleanup.push(fn) };
 }
 
 export function text(message) {
