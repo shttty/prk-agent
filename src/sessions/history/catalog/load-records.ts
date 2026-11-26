@@ -6,6 +6,7 @@ import { invalid } from "../reject-invalid-history.ts";
 import { describeSession } from "../diagnostics/describe-session.ts";
 import { recordReadIssue } from "../diagnostics/record-read-issue.ts";
 import { loadRecord } from "./load-record.ts";
+import { openHistoryFile } from "./open-history-file.ts";
 import { indexRecords } from "./index-records.ts";
 
 export async function loadRecords(directory: string, limits: LimitsOptions) {
@@ -17,7 +18,7 @@ export async function loadRecords(directory: string, limits: LimitsOptions) {
     let manager: SessionManager | undefined;
     try {
       if (typeof sessionInfo.id !== "string" || sessionInfo.id.trim().length === 0) invalid("binding session id at /id");
-      manager = SessionManager.open(file, directory);
+      manager = openHistoryFile(file, directory);
       const candidate = loadRecord(manager, file, sessionInfo.id, directory, limits);
       if (candidate) loaded.push(candidate);
     } catch (cause) {

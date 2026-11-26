@@ -1,5 +1,5 @@
 import type { HistoryContext, SessionRetarget } from "../history-types.ts";
-import { SessionManager } from "@earendil-works/pi-coding-agent";
+import { openHistoryFile } from "../catalog/open-history-file.ts";
 import { invalid } from "../reject-invalid-history.ts";
 import { validateTarget } from "./validate-target.ts";
 import { validateKernelCwd } from "./validate-kernel-cwd.ts";
@@ -17,5 +17,5 @@ export function retarget(ctx: HistoryContext, sessionId: string, selection: Sess
   });
   record.target = selection.target;
   record.cwd = selection.cwd;
-  record.manager = SessionManager.open(record.sessionFile, directory, selection.cwd);
+  record.manager = openHistoryFile(record.sessionFile, directory, selection.cwd);
 }

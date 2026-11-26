@@ -1,11 +1,16 @@
 import type { Socket } from "node:net";
 import { object } from "../wire/is-record.ts";
 import { DEFAULT_LIMITS_OPTIONS } from "../../config/limits/limits-options.ts";
+import { recordSerialization } from "../../metrics/timing/record-serialization.ts";
+import { describeFrame } from "./describe-frame.ts";
 
 export function writeFrame(socket: Socket, value: unknown, maxBytes = DEFAULT_LIMITS_OPTIONS.outputBytes, maxBufferedBytes = DEFAULT_LIMITS_OPTIONS.outputBytes): boolean {
   if (socket.destroyed || socket.writableEnded) return false;
+  const started = performance.now();
   const frame = JSON.stringify(value) + "\n";
   const size = Buffer.byteLength(frame);
+  const { kind, sessionId: frameSession } = describeFrame(value);
+  recordSerialization(kind, started, size, () => frameSession);
   const buffered = socket.writableLength;
   if (size > maxBytes || buffered + size > maxBufferedBytes) {
     const envelope = object(value) ? value : {};

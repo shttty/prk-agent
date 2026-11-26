@@ -10,6 +10,7 @@ import { latestRetarget } from "../binding/read-target-selection.ts";
 import { latestArchivedState } from "../archive/read-archive-state.ts";
 import { latestSleeping } from "../metadata/read-sleep-state.ts";
 import { readNativeSessionState } from "../read-native-session-state.ts";
+import { openHistoryFile } from "./open-history-file.ts";
 
 /** Nothing enters the catalog until the complete file has passed validation. */
 export function loadRecord(
@@ -37,7 +38,7 @@ export function loadRecord(
   const record: HistoryRecord = {
     target: retarget?.target ?? binding.target,
     cwd, sessionId: id, sessionFile: actualFile,
-    manager: manager.getCwd() === cwd ? manager : SessionManager.open(file, directory, cwd), limits,
+    manager: manager.getCwd() === cwd ? manager : openHistoryFile(file, directory, cwd), limits,
   };
   return record;
 }

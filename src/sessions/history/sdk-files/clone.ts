@@ -8,6 +8,7 @@ import { resolve } from "node:path";
 import { unlinkSync } from "node:fs";
 import { BINDING_TYPE, BINDING_VERSION } from "../history-protocol.ts";
 import { sessionFile } from "../identity/validate-sdk-file.ts";
+import { openHistoryFile } from "../catalog/open-history-file.ts";
 
 export function cloneSession(ctx: HistoryContext, sourceSessionId: string, label: string, entryId?: string): SessionManager {
   const { limits, directory, records } = ctx;
@@ -27,7 +28,7 @@ export function cloneSession(ctx: HistoryContext, sourceSessionId: string, label
       invalid("fork point must be a persisted assistant reply without pending tool calls");
     }
   }
-  const detached = SessionManager.open(sourceFile, directory, source.cwd);
+  const detached = openHistoryFile(sourceFile, directory, source.cwd);
   const detachedFile = detached.getSessionFile();
   if (detached === source.manager || detached.getSessionId() !== sourceId
     || detachedFile === undefined || resolve(detachedFile) !== sourceFile
@@ -39,7 +40,7 @@ export function cloneSession(ctx: HistoryContext, sourceSessionId: string, label
     cloneFile = detached.createBranchedSession(sourceLeaf);
     if (typeof cloneFile !== "string" || resolve(cloneFile) === sourceFile) invalid("clone session file");
     cloneFile = resolve(cloneFile);
-    const manager = SessionManager.open(cloneFile, directory, source.cwd);
+    const manager = openHistoryFile(cloneFile, directory, source.cwd);
     const sessionId = manager.getSessionId();
     validateMetadataSessionId(sessionId, "clone session id", limits);
     const header = manager.getHeader();
