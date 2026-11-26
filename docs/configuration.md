@@ -174,7 +174,7 @@ See [`remoteHost` configuration](configuration/extensions.md#remotehost).
 
 `session.delegation` defaults to `"eager"`; accepted levels are `"gated"`, `"restrained"`, and `"eager"`. See [`session` configuration](configuration/session.md#session) for policy and session-local actions.
 `session.defaultDerivedLifecycle` defaults to `"temporary"` and accepts only `"temporary"` or `"persistent"`; [lifecycle semantics](wire/sessions.md#session-tools-and-inbox-delivery) also apply to saved derivation metadata. `"user"` is reserved for an explicit user upgrade, not a spawn or configuration default.
-启用开关采用注册／声明／权限三层：所有工具与技能候选在会话创建时保留注册，关闭项在下一请求隐藏声明并立即拒绝调用。`tool:*`、`kernel:*`、`skill:*` 与分组沿用原三层存储；会话优先实例、实例优先全局，同层单项优先分组。`kernel_code` 在 code 档仍锁定。开关和 lazy 都不置 `requiresReload`；该字段仅报告插件／技能资源注册变化。切原生工具不重载 SDK 或 kernel，变量保留；远程无插件宿主按首次原生调用启动。
+启用开关采用注册／声明／权限三层：所有工具与技能候选在会话创建时保留注册，关闭项在下一请求隐藏声明并立即拒绝调用。`tool:*`、`kernel:*`、`skill:*` 与分组沿用原三层存储；会话优先实例、实例优先全局，同层单项优先分组。`kernel_code` 在 code 档仍锁定。开关和 lazy 都不置 `requiresReload`（插件[加载开关](#plugin-load-switches)除外）；该字段仅报告插件／技能资源注册变化。切原生工具不重载 SDK 或 kernel，变量保留；远程无插件宿主按首次原生调用启动。
 
 
 ### Tool declaration lazy loading
@@ -234,6 +234,23 @@ These are ordinary global lazy switches, not code defaults: an instance/session 
 
 The retired `group:tools:prk` / `lazy:group:tools:prk` keys are rejected by current configuration validation. The offline migration expands their values independently in each global, instance and session map, then removes both retired keys. Enable policy maps to `sessions`, `ask`, `skill-tools`, `memory`, `plugin-config`, `terminals`, and `kernel`; lazy policy maps to the same six business groups without model-only `kernel`. Each destination is `group:tools:package:<inline:NAME>` (with `lazy:` for lazy policy), and an explicit destination key in that same layer wins. Individual tool keys and the saved `group:tools:library` group remain independent. No policy is invented for meta-only `tool-search` or internal library callbacks. Session maps remain deltas in `gateway-native-session-state` custom entries inside `<PRK home>/<session.historyDir>/**/*.jsonl` (`session.historyDir` defaults to `sessions`); all historical entries are migrated. The earlier sessions-only `migrate-switches.mjs` is superseded by this complete offline mapping.
 
+
+### Plugin load switches
+
+`load:package:<source>` decides whether a session loads a plugin package at all. `<source>` is the exact `source` of the entry in `agent/settings.json` `packages` (an npm spec or an absolute directory). It lives in the same three capability maps as the tool switches (global `session.capabilities`, instance `instances[].capabilities`, session `gateway-native-session-state`) and resolves session before instance before global; absent means loaded, so only `false` needs writing.
+
+```toml
+[session.capabilities]
+"load:package:/opt/plugins/memory" = false   # new sessions skip it unless a layer below says true
+```
+
+A role's `capabilities` map takes the same key. A derived session starts with the role's map as its own layer (`spawn-derived-session`), so the role sits between the instance and later edits of that session; resetting a key in the session (`null`) falls back to the instance and global values, not to the role.
+
+- This is separate from the tool switches. A tool switch (`group:tools:package:*`, `tool:*`) leaves the package loaded: its hooks (`pi.on`), commands and skills still run and only its tools are hidden and refused. A load switch set to `false` removes the package from the settings the session's Pi resource loader resolves (the same package filter `createSessionSettings` applies to `enabled`), so none of its extension modules are imported for that session and no tool, hook, command, skill, prompt or theme of it is registered. Packages placed on the session host (`location:"host"`) are left out of that session's host `packages` list, so the host never loads them either.
+- The switch applies when the session loads its extensions: on creation, wake and reload. Changing it reports `requiresReload` with `loadSwitches:{loaded,current}` in the reload diagnostics, unlike the tool and lazy switches.
+- The global capability catalog (`capabilitiesList`, `capabilitiesRefresh`, instance discovery) still loads every enabled package so the settings pages list all tools; its `groups[].package` names the package of each group and `catalog.packages[]` carries `{source,name,location,providerIds,load:{id,enabled,defaultEnabled,overridden}}` at the layer asked for (see the [catalog](wire/native.md#capability-catalog)).
+- A package that owns a Gateway provider cannot be unloaded by any load switch (global, instance, role or session): providers are registered once for the whole Gateway at bootstrap, so the write is refused with `PROVIDER_POLICY` naming the provider ids, and a session whose stored layers already hold such a value fails to load with the same error instead of ignoring it. Stop such a package with its `enabled` switch in plugin settings (applies after a Gateway restart). A package that is not installed, or is disabled there, is refused with `NOT_FOUND`; `null` always resets.
+- Isolation, remote host and module-state findings are in the [design notes](design-notes/extensions.md#插件按会话加载的隔离边界).
 
 ## `codemode`
 

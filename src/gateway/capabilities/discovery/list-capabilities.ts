@@ -4,6 +4,8 @@ import { loadGatewayCapabilityCatalog } from "../../../sessions/global-catalog/l
 import { discoverKernelToolCatalog } from "../../../codemode/module-catalog/discover-kernel-tool-catalog.ts";
 import { projectCapabilities } from "../../../sessions/resource-catalog/format-capabilities.ts";
 import { createSessionsPluginGateway } from "../../derivation/create-sessions-plugin-gateway.ts";
+import { attachPackageLoad } from "../../../plugins/package-load/attach-package-load.ts";
+import { gatewayLoadablePackages } from "../../remote-packages/list-loadable-packages.ts";
 
 export async function instanceCapabilitiesList(ctx: HostContext, instance?: string, refresh = false): Promise<CapabilitySettings> {
     const settings = ctx.methods.capabilitiesList();
@@ -48,7 +50,7 @@ export async function instanceCapabilitiesList(ctx: HostContext, instance?: stri
     ];
     return {
       ...settings,
-      catalog: { ...projectCapabilities(entries, ctx.capabilities.capabilityDefaults, target.capabilities ?? {}, undefined, target.local),
+      catalog: { ...attachPackageLoad(projectCapabilities(entries, ctx.capabilities.capabilityDefaults, target.capabilities ?? {}, undefined, target.local), gatewayLoadablePackages(ctx), [target.capabilities ?? {}, ctx.capabilities.capabilityDefaults.capabilities]),
         providerErrors: ctx.methods.capabilitiesList().catalog.providerErrors },
     };
   }

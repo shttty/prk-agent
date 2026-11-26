@@ -64,6 +64,7 @@ export interface RuntimeContext {
   sharedPaths: Set<string>;
   remoteLoad: RemoteExtensionLoad | undefined;
   loadedRemote: string;
+  loadedUnloaded: string;
   loadedRemoteRegistration: string;
   currentRemoteRegistration: string;
   channels: TargetChannels;

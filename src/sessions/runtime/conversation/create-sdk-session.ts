@@ -3,6 +3,9 @@ import type { CreateAgentSessionRuntimeFactory } from "@earendil-works/pi-coding
 import { createAgentSessionFromServices } from "@earendil-works/pi-coding-agent";
 import { createAgentSessionServices } from "@earendil-works/pi-coding-agent";
 import { createSessionSettings } from "../../session-settings/create-settings.ts";
+import { denyExtensionPackages } from "../../../config/extensions/deny-extension-packages.ts";
+import { packageUnloadedGroup } from "../capabilities/is-package-unloaded.ts";
+import { unloadedPackages } from "../capabilities/read-unloaded-packages.ts";
 import { selectExtensionToolNames } from "../../../config/extensions/select-extension-tool-names.ts";
 import { LIBRARY_TOOL_PATTERN } from "../../../codemode/tool-library/library-tool-names.ts";
 import { filteredSkillLoader } from "../../resource-catalog/assemble-skill-loader.ts";
@@ -21,7 +24,12 @@ import { KERNEL_CELL_TOOLS } from "../../../plugins/kernel/register-cell-tools.t
 
 export async function createSDKSession(ctx: RuntimeContext, conversation: ConversationContext, { cwd, agentDir, sessionManager, sessionStartEvent }: Parameters<CreateAgentSessionRuntimeFactory>[0]): ReturnType<CreateAgentSessionRuntimeFactory> {
       const neutralCwd = dirname(agentDir);
-      const { extensionFilter, pluginFailures } = ctx.dependencies;
+      const { pluginFailures } = ctx.dependencies;
+      // A package a switch layer keeps out is dropped from Pi's settings, so no path, factory or hook of it is loaded.
+      const unloaded = unloadedPackages(ctx);
+      ctx.loadedUnloaded = JSON.stringify(unloaded);
+      const packageGroupUnloaded = packageUnloadedGroup(ctx);
+      const extensionFilter = denyExtensionPackages(ctx.dependencies.extensionFilter, unloaded);
       const settingsManager = createSessionSettings(cwd, agentDir, extensionFilter, ctx.targetResources ? targetSessionSettings(agentDir, ctx.targetResources.settings) : undefined, pluginFailures);
       const loaderSettings = ctx.targetResources ? createSessionSettings(neutralCwd, agentDir, extensionFilter, targetSessionSettings(agentDir, undefined, false), pluginFailures) : settingsManager;
       const remoteOptions = ctx.dependencies.remoteExtensionOptions ?? {
@@ -29,6 +37,7 @@ export async function createSDKSession(ctx: RuntimeContext, conversation: Conver
       };
       ctx.remoteLoad = await prepareRemoteExtensions({
         ...remoteOptions, target: ctx.target, sessionId: ctx.sessionManager.getSessionId(), ...conversation.remote,
+        packages: conversation.remote.packages.filter((pkg) => !unloaded.includes(pkg.source)),
         binChunkBytes: ctx.codemodeOptions.binChunkBytes,
         providerOwnerIds: [...(ctx.dependencies.modelProviders?.owners.keys() ?? [])],
         nativeTools: true, projectTrusted: projectTrusted.bind(undefined, settingsManager),
@@ -50,7 +59,7 @@ export async function createSDKSession(ctx: RuntimeContext, conversation: Conver
         ...services.resourceLoader.getExtensions().extensions.flatMap((extension) => [...extension.tools.values()].map(({ definition, sourceInfo }) => ({ ...definition, exposure: definition.exposure ?? "direct", sourceInfo }))),
       ];
       const discoveredExtensions = ctx.dependencies.globalCapabilityCatalog?.().entries.filter((entry) => entry.kind === "tool"
-        && (!entry.instance || (entry.instance === ctx.target.id && conversation.remote.packages.some((pkg) => pkg.name === entry.source))) && (entry.group.startsWith("group:tools:package:") || entry.group.startsWith("group:tools:mcp:") || entry.group.startsWith("group:tools:remote:"))) ?? [];
+        && (!entry.instance || (entry.instance === ctx.target.id && conversation.remote.packages.some((pkg) => pkg.name === entry.source))) && (entry.group.startsWith("group:tools:package:") || entry.group.startsWith("group:tools:mcp:") || entry.group.startsWith("group:tools:remote:")) && !packageGroupUnloaded(entry.group)) ?? [];
       const filteredServices = { ...services, cwd, settingsManager, resourceLoader: filteredSkillLoader(services.resourceLoader, allSkills.bind(undefined, ctx), skillEnabled.bind(undefined, ctx)) };
       const toolNames = [
         ctx.python.tool.name,

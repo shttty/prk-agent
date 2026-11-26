@@ -1,6 +1,7 @@
 import type { ToolExposure } from "@earendil-works/pi-coding-agent";
 import type { TerminalOptions } from "../terminal/terminal-options.ts";
 import type { ProviderPolicyError } from "../../sessions/model-providers/provider-types.ts";
+import type { LoadablePackage } from "../../plugins/package-load/package-load-types.ts";
 export type CapabilitySwitches = Record<string, boolean>;
 export type CapabilityChanges = Record<string, boolean | null>;
 
@@ -47,9 +48,15 @@ export interface CapabilityEntry {
   pending?: boolean;
 }
 
+export interface CapabilityPackage extends LoadablePackage {
+  /** Load switch at this layer: `overridden` is true only when this layer itself holds the key. */
+  load: ToolLazy;
+}
+
 export interface CapabilityCatalog {
   entries: CapabilityEntry[];
   providerErrors?: ProviderPolicyError[];
+  packages?: CapabilityPackage[];
   groups: Array<{
     id: string;
     name: string;
@@ -61,6 +68,8 @@ export interface CapabilityCatalog {
     lazy?: ToolLazy;
     path?: string;
     machine?: string;
+    /** Source of the settings package this group's tools or skills come from, when it is one. */
+    package?: string;
     instance?: string;
     location?: "local" | "target";
   }>;

@@ -60,6 +60,7 @@ export async function initializeRuntime(ctx: RuntimeContext): Promise<void> {
   ctx.sharedPaths = new Set<string>();
   ctx.remoteLoad = undefined;
   ctx.loadedRemote = "";
+  ctx.loadedUnloaded = "";
   ctx.loadedRemoteRegistration = "";
   ctx.currentRemoteRegistration = "";
   ctx.channels = ctx.dependencies.targetChannels ?? createRuntimeChannels(ctx);

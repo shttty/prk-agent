@@ -10,6 +10,7 @@ import { DEFAULT_SESSION_OPTIONS } from "../../../config/session/session-options
 import { projectCapabilities } from "../../../sessions/resource-catalog/format-capabilities.ts";
 import { validateCapabilityChanges } from "../../../sessions/resource-catalog/validate-capability-changes.ts";
 import { LOCAL_TOOLS_CAPABILITY } from "../../../config/capabilities/capability-constants.ts";
+import { gatewayLoadablePackages } from "../../remote-packages/list-loadable-packages.ts";
 import { stageConfig } from "../../instances/stage-config.ts";
 import { publishConfig } from "../../instances/publish-config.ts";
 import { unlink } from "node:fs/promises";
@@ -46,7 +47,7 @@ export async function capabilitiesChange(ctx: HostContext, request: CapabilitySe
           if (enabled === null) delete capabilities[id]; else capabilities[id] = enabled;
         }
         const { catalog } = await ctx.methods.instanceCapabilitiesList(request.instance);
-        validateCapabilityChanges(projectCapabilities(catalog.entries, nextDefaults, capabilities, undefined, nextConfig.instances[index]!.local === true), request.changes);
+        validateCapabilityChanges(projectCapabilities(catalog.entries, nextDefaults, capabilities, undefined, nextConfig.instances[index]!.local === true), request.changes, false, gatewayLoadablePackages(ctx));
         instanceDocument.instances = (instanceDocument.instances as Record<string, unknown>[]).map((target, position) => position === index ? { ...target, capabilities } : target);
       } else {
         if (Object.keys(request).some((key) => key !== "changes") || !isCapabilityBatch(request)) throw new WireError("INVALID_REQUEST", "Capabilities require exactly {changes: [{id, enabled: boolean | null}, ...]} with distinct IDs.");
@@ -61,7 +62,7 @@ export async function capabilitiesChange(ctx: HostContext, request: CapabilitySe
           }
         }
         const catalog = ctx.methods.capabilitiesList().catalog;
-        validateCapabilityChanges(projectCapabilities(catalog.entries, nextDefaults, {}, undefined, true, [], [nextDefaults.capabilities]), request.changes);
+        validateCapabilityChanges(projectCapabilities(catalog.entries, nextDefaults, {}, undefined, true, [], [nextDefaults.capabilities]), request.changes, false, gatewayLoadablePackages(ctx));
         document.session = session;
       }
       try { nextConfig = parsePrkConfig(document, instanceDocument); }

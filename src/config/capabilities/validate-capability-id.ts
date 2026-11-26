@@ -7,6 +7,7 @@ export function capabilityId(value: unknown): value is string {
     || /^lazy:group:tools:(?:package|mcp):\S.*$/u.test(value);
   if (value.startsWith("skill:")) return isAbsolute(value.slice("skill:".length));
   return /^(?:tool|kernel):\S.*$/u.test(value)
+    || /^load:package:\S.*$/u.test(value)
     || /^group:tools:(?:kernel|library|local)$/u.test(value)
     || /^group:skills:(?:shared|home|global)$/u.test(value)
     || /^group:skills:dir:[^:\s]+:\/.*$/u.test(value)

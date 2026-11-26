@@ -6,6 +6,7 @@ import { WireError } from "../../../gateway/wire/create-error.ts";
 import { capabilityCatalog } from "./get-catalog.ts";
 import type { RuntimeContext } from "../runtime-state.ts";
 import { refreshCapabilities } from "./refresh-capabilities.ts";
+import { sessionPackages } from "./list-session-packages.ts";
 
 export function setCapabilities(ctx: RuntimeContext, changes: readonly CapabilityChange[]): void {
   if (!isCapabilityBatch({ changes })) throw new WireError("INVALID_REQUEST", "Capability batches require nonempty changes with distinct IDs.");
@@ -21,7 +22,7 @@ export function setCapabilities(ctx: RuntimeContext, changes: readonly Capabilit
       capabilities[id] = enabled;
     }
   }
-  validateCapabilityChanges(capabilityCatalog(proposed), changes, true);
+  validateCapabilityChanges(capabilityCatalog(proposed), changes, true, sessionPackages(ctx));
   ctx.sessionManager.appendCustomEntry("gateway-native-session-state", state);
   ctx.capabilityOverrides = proposed.capabilityOverrides;
   ctx.localOverride = proposed.localOverride;

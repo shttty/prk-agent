@@ -15,6 +15,10 @@ import { fileVersionsChanged } from "../resources/registration/have-file-version
 import type { CapabilityMetadata } from "../runtime-types.ts";
 import type { RuntimeContext } from "../runtime-state.ts";
 import { lazyLayers } from "./read-lazy-layers.ts";
+import { packageUnloadedGroup } from "./is-package-unloaded.ts";
+import { sessionPackages } from "./list-session-packages.ts";
+import { attachPackageLoad } from "../../../plugins/package-load/attach-package-load.ts";
+import { unloadedPackageSources } from "../../../plugins/package-load/unloaded-package-sources.ts";
 import { capabilityEnabled } from "./is-capability-enabled.ts";
 import { readProviderErrors } from "../../model-providers/read-provider-errors.ts";
 
@@ -23,7 +27,7 @@ export function projectCatalog(
   entries: CapabilityMetadata[],
   observeReload?: (pending: boolean, describe: () => Record<string, unknown>) => void,
 ): CapabilityCatalog {
-    const catalog = projectCapabilities(entries.map((entry) => ({ ...entry, ...(entry.group === LOCAL_TOOLS_GROUP ? { ...(!ctx.target.local ? { groupLabel: "原生工具" } : {}), location: "target" as const } : {}), locked: entry.id === "tool:kernel_code" && ctx.toolMode === "code" })), defaults(ctx), ctx.capabilityOverrides, ctx.localOverride, ctx.target.local === true, targetDirectories(ctx), lazyLayers(ctx));
+    const catalog = attachPackageLoad(projectCapabilities(entries.map((entry) => ({ ...entry, ...(entry.group === LOCAL_TOOLS_GROUP ? { ...(!ctx.target.local ? { groupLabel: "原生工具" } : {}), location: "target" as const } : {}), locked: entry.id === "tool:kernel_code" && ctx.toolMode === "code" })), defaults(ctx), ctx.capabilityOverrides, ctx.localOverride, ctx.target.local === true, targetDirectories(ctx), lazyLayers(ctx)), sessionPackages(ctx), lazyLayers(ctx));
     catalog.providerErrors = readProviderErrors(ctx.unfilteredLoader?.getExtensions().errors ?? [],
       [...(ctx.dependencies.modelProviders?.errors ?? []), ...(ctx.remoteLoad?.providerErrors ?? [])]);
     const registered = new Set(ctx.callbackSession?.getAllTools().map((tool) => tool.name) ?? []);
@@ -40,14 +44,17 @@ export function projectCatalog(
     const currentRemote = remoteExtensionFingerprint(remoteConfiguration(ctx).packages);
     const currentProject = { id: ctx.dependencies.projectId?.(), name: ctx.dependencies.projectName?.() };
     const loadedProject = ctx.active?.loadedProject;
-    const unloaded = (entry: CapabilityEntry) => entry.available !== false && !entry.loaded && canLoadResource(ctx, entry);
+    const packageUnloaded = packageUnloadedGroup(ctx);
+    const unloaded = (entry: CapabilityEntry) => entry.available !== false && !entry.loaded && !packageUnloaded(entry.group) && canLoadResource(ctx, entry);
     const missingEntries = catalog.entries.some(unloaded);
     const sharedPaths = currentShared.size !== ctx.sharedPaths.size || [...currentShared].some((path) => !ctx.sharedPaths.has(path));
     const registrationFiles = fileVersionsChanged(ctx.registrationFiles, currentFiles);
     const remoteRegistration = ctx.loadedRemoteRegistration !== ctx.currentRemoteRegistration;
     const remotePackages = ctx.loadedRemote !== currentRemote;
+    const currentUnloaded = unloadedPackageSources(sessionPackages(ctx), lazyLayers(ctx));
+    const loadSwitches = ctx.loadedUnloaded !== JSON.stringify(currentUnloaded);
     const project = ctx.active !== undefined && (loadedProject?.id !== currentProject.id || loadedProject?.name !== currentProject.name);
-    catalog.requiresReload = missingEntries || sharedPaths || registrationFiles || remoteRegistration || remotePackages || project;
+    catalog.requiresReload = missingEntries || sharedPaths || registrationFiles || remoteRegistration || remotePackages || loadSwitches || project;
     observeReload?.(catalog.requiresReload, () => ({
       ...(missingEntries ? { missingEntries: catalog.entries.filter(unloaded).slice(0, 5).map((entry) => entry.id) } : {}),
       ...(sharedPaths ? { sharedPaths: [...new Set([...ctx.sharedPaths, ...currentShared])]
@@ -57,6 +64,7 @@ export function projectCatalog(
         new Map(JSON.parse(ctx.loadedRemoteRegistration || "[]")), new Map(JSON.parse(ctx.currentRemoteRegistration || "[]")),
       ) } : {}),
       ...(remotePackages ? { remotePackages: { previous: packageSources(ctx.loadedRemote), current: packageSources(currentRemote) } } : {}),
+      ...(loadSwitches ? { loadSwitches: { loaded: JSON.parse(ctx.loadedUnloaded || "[]"), current: currentUnloaded } } : {}),
       ...(project ? { project: { previous: loadedProject ?? null, current: currentProject } } : {}),
     }));
     return catalog;

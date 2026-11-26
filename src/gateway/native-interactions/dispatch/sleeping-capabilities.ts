@@ -5,6 +5,8 @@ import { readNativeSessionState } from "../../../sessions/history/read-native-se
 import { projectCapabilities } from "../../../sessions/resource-catalog/format-capabilities.ts";
 import { validateCapabilityChanges } from "../../../sessions/resource-catalog/validate-capability-changes.ts";
 import { LOCAL_TOOLS_GROUP } from "../../../sessions/resource-catalog/catalog-constants.ts";
+import { attachPackageLoad } from "../../../plugins/package-load/attach-package-load.ts";
+import { gatewayLoadablePackages } from "../../remote-packages/list-loadable-packages.ts";
 
 export function sleepingCapabilities(ctx: HostContext, entry: StoredSession, changes: readonly CapabilityChange[] = []) {
   const native = readNativeSessionState(entry.manager, ctx.host.config.limits);
@@ -26,9 +28,11 @@ export function sleepingCapabilities(ctx: HostContext, entry: StoredSession, cha
     .filter((item) => !item.instance || item.instance === entry.target)
     .map((item) => ({ ...item, locked: item.id === "tool:kernel_code" && (native.toolMode ?? ctx.host.config.session.workerTools) === "code" }));
   const defaults = { ...ctx.capabilities.capabilityDefaults, capabilities: { ...ctx.capabilities.capabilityDefaults.capabilities, ...target?.capabilities } };
-  const catalog = projectCapabilities(entries, defaults, overrides, localTools, target?.local === true, [], [overrides, target?.capabilities ?? {}, ctx.capabilities.capabilityDefaults.capabilities]);
+  const layers = [overrides, target?.capabilities ?? {}, ctx.capabilities.capabilityDefaults.capabilities];
+  const packages = gatewayLoadablePackages(ctx);
+  const catalog = attachPackageLoad(projectCapabilities(entries, defaults, overrides, localTools, target?.local === true, [], layers), packages, layers);
   if (changes.length) {
-    validateCapabilityChanges(catalog, changes, true);
+    validateCapabilityChanges(catalog, changes, true, packages);
     entry.manager.appendCustomEntry("gateway-native-session-state", state);
     ctx.methods.publishCapabilities(entry.sessionId);
   }

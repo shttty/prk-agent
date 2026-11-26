@@ -93,11 +93,12 @@ Remote native names：同样七个工具，在目标宿主执行；使用同一 
 
 `changes` 必须非空且 ID 不重复；旧单值写入形状一律拒绝。先校验整批结构、目录归属、锁定状态及最终有效状态，再一次性保存：全局一个 config.toml 写入，实例一个 instances.toml 写入，会话一个 gateway-native-session-state custom entry。任意条目无效时整批拒绝，文件、会话覆盖与生效状态均不变；成功只刷新一次 loadout 并返回一次原有 settings/catalog。`null` 删除该层显式键（全局也可重置为默认），不会写入 TOML；实例不支持本机工具总开关。终端配置仍单独使用 `{terminal}`，不得混入批量能力写入。
 Entries：`configured,enabled,loaded,overridden,defaultEnabled,groupEnabled,locked?,available?`。`loaded` 表示已注册／已发现，关闭项仍可为 true，不等同于可声明或可执行。
-Catalog / native current / live snapshot：`requiresReload`，字段形状不变；只反映资源注册变化（装卸插件、插件／skill 文件及远程包变化），启用、分组、原生和懒加载开关均不置 true。
+Catalog / native current / live snapshot：`requiresReload`，字段形状不变；反映资源注册变化（装卸插件、插件／skill 文件及远程包变化）和插件加载开关（`load:package:*`）与已加载状态的差异；启用、分组、原生和懒加载开关均不置 true。
 目录中被 `noSkills`、`noExtensions` 或扩展工具准入策略排除的条目仍可显示 `loaded:false`；仅有这处差异不构成待重载资源。新建、普通唤醒和模型回退均遵守此规则。
 Instance discovery failure 可附 `instanceError:string`；defaults 始终是 global-default table。
 注册文件版本来自公开 SDK 入口／skill 路径与注册 settings 字段。Gateway 文件用 mtime/size 比较；远程在创建基线及显式 `action:"capabilities",args:{}` 时经已有 `skills.registration {paths,settings}` 查询，最多 4096 项、请求／结果各 256 KiB，返回 `versions:[[path,version],...]`。目标只返回 stat 版本与 settings 的 packages/extensions/skills 投影，不传正文。同步快照报告最近观测值；写开关不等待远程查询，不因目标暂不可达阻止关闭权限。
 
+`catalog.packages?:[{source,name,location,providerIds,load:{id:"load:package:<source>",enabled,defaultEnabled,overridden,available}}]` 给出所请求层（全局、实例、会话）每个已启用包的加载开关；`providerIds` 非空的包不可被任何层关闭，写入以 `PROVIDER_POLICY` 拒绝。工具／技能分组带 `package:<source>` 指向其所属设置包。写入沿用 `capabilitiesChange`／`nativeAction capabilities`／`derivationSet`，见 [加载开关](../configuration.md#plugin-load-switches)。
 Tool entries 可附 `exposure`（SDK `ToolExposure`）与 `lazy:{id,enabled,defaultEnabled,overridden,available}`；支持懒加载的 tool groups 可附同形 `lazy`。`lazy.id` 是 `lazy:tool:<name>`、`lazy:group:tools:library` 或插件组 `lazy:group:tools:<package|mcp|remote>:...`，提交时使用这个 ID，而不是原启用 ID。`enabled` 保留有效懒加载设置，即使 `available:false`；`defaultEnabled` 是移除当前层后的继承值（全局层为组默认），`overridden` 只表示当前层自身 `lazy.id` 有值。分组设置仍影响成员的有效值，但只把分组标为覆盖，不把成员标为覆盖；启用开关的条目与分组也采用自身键语义。
 懒加载按 session > instance > global，层内工具值优先于组值；global/instance settings 与 merged live session catalog 都返回该状态。只有沉淀工具组默认 lazy=true，所有插件组默认 false，不按单个工具名特判。内置组只剩 `group:tools:local`、`group:tools:kernel`、`group:tools:library`。model-only 工具的 `lazy.available` 为 false；组内至少有一个有效启用、可调用成员时组懒加载可改。kernel 函数、skills、Pi 原生七工具无 `lazy`；`tool_search` / `tool_call` 不进入目录。批量写入以整批最终启用状态校验 lazy 可用性，因此同时启用工具并设置 lazy 不受旧关闭状态影响。
 保存沿用上述接口与三个已有 capabilities map；各层的 `null` 删除该层 override。懒加载变更刷新原会话 loadout，下一次请求前生效，不改变原工具的权限、active 状态或 `requiresReload`，不经 `excludeTools`。两个元工具仅在 direct 档存在隐藏项时激活并声明。

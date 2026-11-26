@@ -98,3 +98,13 @@
 
 - `location:"local"` 插件、provider及renderer仍在Gateway进程；本机target插件已独立宿主化，不把前者机械迁到目标进程。
 - 大图片、大 diff 端到端尺寸上限另议。
+
+## 插件按会话加载的隔离边界
+
+状态：plugin-load-switch。开关语义与 capability id 见 [配置：加载开关](../configuration.md#plugin-load-switches)。关心的问题是：多个会话在同一个 Gateway Node 进程里，跳过一个会话的包会不会影响别的会话。结论由 `test/integration/session/package-load.test.mjs` 的真实 Gateway 用例核对（本机 Gateway 包、本机会话宿主包、远程会话宿主包各一条）。
+
+- **每会话独立的加载对象。** 每次 `createSDKSession`（新建、唤醒、重载）调用一次 `createAgentSessionServices`（`create-sdk-session.ts` 48 行），得到自己的 `DefaultResourceLoader`（SDK `agent-session-services.js` 63 行）。loader 自带 `eventBus`（`resource-loader.js` 262 行）和 `createExtensionRuntime()`（533、555 行），每个扩展在 `extensions/loader.js` 的 `initializeExtension`（564–577 行）里得到自己的 `Extension` 对象；会话的 `ExtensionRunner` 由 `agent-session.js` 3089 行按该结果新建。钩子、工具、命令只存在于这些每会话对象里，所以某会话把包从自己的 settings 去掉后（`create-settings.ts` 24 行的 `filterPackageEntries`），别的会话的 loader、runner 与事件总线不受影响。
+- **模块级状态进程内共享，但进不了跳过的会话。** Pi 的扩展入口缓存只缓存默认导出的 factory 函数（`extensions/loader.js` 91–105、516–541 行，`reload` 时清空）。实测把同一个包依次交给全局目录、会话 A、会话 B 加载（`.js` 与 `.ts` 入口各试一次）：模块顶层在整个进程里只求值 1 次，factory 每次加载调用 1 次；B 关闭加载并重载后 factory 调用次数不变。所以加载它的会话共享该包的模块级变量（这是插件作者本来要面对的），而不加载的会话从不调用 factory，没有 `pi.on`、工具或命令注册，模块里的状态无法通过任何入口作用到它；别的会话已导入过模块，也不改变这一点。
+- **provider 是进程级共享状态，带 provider 的包不能按层关。** 会话内的 `registerProvider` 被 `providerPolicy` 拒绝或忽略（`create-session-provider-policy.ts` 4–13 行，`assert-provider-policy.ts` 13–28 行的启动探针验证这一点）；注册只发生在 Gateway 启动的 provider-only 加载（`load-model-runtime.ts` 25–39 行，`create-provider-bootstrap.ts` 8–24 行），写入所有会话共用的 `ModelRuntime`（`create-sdk-session.ts` 的 `modelRuntime` 依赖）。技术上让某会话不加载这类包并不会改 provider，但“关闭”会让人以为 provider 也关了，所以所有层都拒绝：写入时 `PROVIDER_POLICY`（`validate-package-load-change.ts`，角色保存在 `reject-provider-role-unload.ts`），存量配置里已有这样的值时会话创建同样失败（`read-unloaded-packages.ts`），都不静默忽略。要停用这类包只能用插件设置的 `enabled`，重启 Gateway 后生效。
+- **远程宿主每会话一个，按会话跳过即不加载其入口。** 每次 `createSDKSession` 为该会话调用一次 `prepareRemoteExtensions`（`create-sdk-session.ts` 38–47 行），产生一个宿主 factory（`prepare.ts` 67–85 行）；`assembleGeneration` 给它新的 `generation: randomUUID()`（`assemble-generation.ts` 10 行），`start` 在目标机起一个独立宿主进程，并把本会话的 `packages` 发给它（`generation/lifecycle/start.ts` 19–25、46–50 行）。连接由实例内所有会话共用（TGT-17），宿主进程不共用（TGT-27）。跳过因此只需把该包从传给 `prepareRemoteExtensions` 的 `packages` 去掉（`create-sdk-session.ts` 40 行）：宿主 `load` 请求里没有它，不加载入口、不注册钩子，也没有可转发的事件。Pi 原生七工具的宿主不受影响，包全部被跳过时照常启动。
+- **全局目录不受影响。** `create-discovery-runtime.ts` 18 行用不带会话层的 `createSessionSettings` 加载全部已启用包，设置页的工具和插件列表照旧；会话目录对被跳过包的条目只显示 `loaded:false`，且不会因此置 `requiresReload`（`format-catalog.ts` 47–48 行）。

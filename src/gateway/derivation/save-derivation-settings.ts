@@ -6,6 +6,8 @@ import { parseDerivationConfig } from "../../config/derivation/parse-config.ts";
 import { readPrkConfigSnapshot } from "../../config/document/read-prk-config-snapshot.ts";
 import { parsePrkConfig } from "../../config/document/parse-prk-config.ts";
 import { stageConfig } from "../instances/stage-config.ts";
+import { rejectProviderRoleUnload } from "./reject-provider-role-unload.ts";
+import { gatewayLoadablePackages } from "../remote-packages/list-loadable-packages.ts";
 import { object } from "../wire/is-record.ts";
 import { keys } from "../wire/fields/has-only-fields.ts";
 import { WireError } from "../wire/create-error.ts";
@@ -17,6 +19,7 @@ export async function derivationSet(ctx: HostContext, request: { readonly deriva
   let derivation: DerivationConfig;
   try { derivation = parseDerivationConfig(request); }
   catch (error) { throw new WireError("INVALID_REQUEST", error instanceof Error ? error.message : "Invalid derivation configuration."); }
+  rejectProviderRoleUnload(derivation, gatewayLoadablePackages(ctx));
   return ctx.methods.exclusive(async () => {
     const snapshot = await readPrkConfigSnapshot(ctx.host.paths.configPath);
     const document = snapshot.document ?? {};
