@@ -4,6 +4,7 @@ import { normalizePresentation } from "./sanitizing/normalize-presentation.js";
 import { sanitizeAttachments } from "./sanitizing/sanitize-attachments.js";
 import { sanitizeReferences } from "./sanitizing/sanitize-references.js";
 import { normalizeRestoredQueueCounts } from "./sanitizing/normalize-restored-queue-counts.js";
+import { normalizeUnknownSends } from "./sanitizing/normalize-unknown-sends.js";
 export function sessionState(ctx, sessionId) {
     if (!sessionId) return null;
     const key = sessionStorageKey(ctx, sessionId);
@@ -16,6 +17,7 @@ export function sessionState(ctx, sessionId) {
       attachments: sanitizeAttachments(ctx, stored?.attachments),
       references: sanitizeReferences(ctx, stored?.references),
       restoredQueueCounts: normalizeRestoredQueueCounts(stored?.restoredQueueCounts),
+      unknownSends: normalizeUnknownSends(stored?.unknownSends),
     };
   }
 

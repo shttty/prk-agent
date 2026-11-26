@@ -29,6 +29,7 @@ Tool / skill / kernel / workspace 方法按 [HTTP topic index](http.md#topical-e
 | `messages` | `{sessionId}` | `{sessionId,streamId,sequence,messages}` |
 | `history` | `{sessionId}` | `{session,snapshot,readOnly:true}`；该会话的已保存记录 |
 | `send` | `{sessionId,requestId,message,queue?,mode?,attachments?,references?}` | admission / native result |
+| `sendStatus` | `{sessionId,requestId,streamId}` | `{requestId,status:"accepted",operationId}` \| `{requestId,status:"handled"\|"refused"\|"unknown"}`，见 [send status](#send-status) |
 | `cancel` | `{sessionId,operationId,cell?:{kernelId,cellId}}` | `{operationId,status:"requested"\|"already_complete"\|"not_found",returnedMessages}` |
 | `kernelInterrupt` | `{sessionId,kernelId,cellId,cellOnly?}` | `{kernelId,cellId,status:"requested"\|"not_found",returnedMessages}`；`cellOnly:true` 不停止模型轮次或清除输入队列 |
 | `kernelResult` | `{sessionId,cellId,imageIndex?}` | `{sessionId,...cellDelivery,result?}`，[字段与对账](kernel.md#execution-and-callbacks) |
@@ -51,6 +52,14 @@ Gateway 在新项目首次提交归属时保存 `project.json.created`；启动�
 活动会话的 `requiresReload` 也比较启动时与当前的项目 `{id,name}`。项目变更通过集合行更新该标志，不自动重载，也不插入消息。重载后项目与记忆层一起生效。
 普通 send admission：`{accepted:true,requestId,operationId,sessionId}`。
 拒绝：`{accepted:false,requestId,error}`。
+
+### Send status
+
+规则：[REQ-6](../contract.md)、[REQ-7](../contract.md)、[REQ-8](../contract.md)。
+Gateway 进程在内存里按会话记下每个 send `requestId` 的去向：在途、`accepted`（输入被接纳，带 `operationId`）、`handled`（斜线命令已作答，未作为输入接纳）、`refused`（拒绝或抛错；send 只在接纳前抛错）。记录跨休眠、唤醒和宿主换代保留，随 Gateway 进程结束；每会话最多 1024 条，超出丢最早的一条。
+同一 `requestId` 已在途、已接纳或已作答时，再次 `send` 不执行，返回 `{accepted:false,requestId,error}`；只有 `refused` 的可以重试。
+`sendStatus` 回答发送端未收到回执的 send：在途的等它结算后再答。本进程没见过的 `requestId` 先记为撤销再答 `refused`，此后该 `requestId` 的 `send` 一律拒绝，所以 `refused` 不会再变；`streamId` 是发送时所看的会话流，不属于本进程（Gateway 重启过，旧进程可能已接纳）或该会话丢过记录时答 `unknown`，不撤销。查询不唤醒会话。
+Web 在发送回执丢失时只在输入框状态行提示一次，并把 `{requestId,text,streamId}` 存进本会话的浏览器存储；每次拿到会话快照时，快照的 `operation.requestIds` 或 `recentOperations[].requestIds` 含该 `requestId` 即按已送达结算，否则调用 `sendStatus`。`accepted`/`handled` 清掉未改动的输入框副本；`refused` 把文本留在（或放回）输入框；`unknown` 保留状态行，只提供「放回草稿」。「重新发送」先查 `sendStatus`，只有 `refused` 才用新 `requestId` 发送同一文本。
 `cancel` 只接受仍为当前的 `operationId`；省略 `cell` 则只取消该轮，不代选后台 cell。指定 `cell` 时，仅在代次和 ID 均匹配的情况下定向停止该项。后台 cell 的 ask 不随 SDK 整轮取消一起关闭。
 `kernelInterrupt` 要求显式的代次与 cell ID，不匹配返回 `not_found`。`cellOnly:true` 不动 SDK 轮次或输入队列。省略或设为 `false` 时，可停止受理时同一宿主操作；无宿主操作时也可按所选 cell 停止原生 SDK 轮，并通过 `returnedMessages` 返回清出的用户排队文本，不生成操作 ID 或操作事件。已结算的 cell 若还有其他活项，只标记该 cell 的停止，不附带停原生轮；重入后的替代操作或 cell 不继承旧停止。两种停止入口都不唤醒休眠会话，`requested` 不代表退出已确认。
 `mode:"auto"` 经 native slash dispatch；`mode:"plain"` 作为普通文本。

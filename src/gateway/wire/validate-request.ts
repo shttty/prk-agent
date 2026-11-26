@@ -48,6 +48,9 @@ export function validateRequest(value: unknown, limits: LimitsOptions = DEFAULT_
       if (!isToolTitleSettings(p)) return invalid();
     } else if (value.method === "send") {
       validateMessageParams(p, limits);
+    } else if (value.method === "sendStatus") {
+      if (!keys(p, ["sessionId", "requestId", "streamId"]) || !routingIdentifier(p.sessionId, limits)
+        || !text(p.requestId, limits.requestIdChars) || !text(p.streamId, limits.identityChars)) return invalid();
     } else if (value.method === "toolContent") {
       if (!keys(p, ["sessionId", "toolCallId"]) || !routingIdentifier(p.sessionId, limits)
         || !fieldText(p.toolCallId, limits.inputBytes)) return invalid();

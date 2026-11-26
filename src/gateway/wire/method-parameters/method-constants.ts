@@ -20,7 +20,7 @@ export const methods = [
   ...workspaceMethods,
   "getTargetEnvironment", "deployTargetEnvironment",
   "workbench", "createSession", "reloadTargets", "getTarget", "addTarget", "editTarget", "deleteTarget", "inspectTarget", "browseTarget", "assignProject", "history", "historyPage", "toolContent", "renameSession", "archiveSession", "archivePreview", "unarchive", "purgeArchive", "recoverSession", "manageSession", "nativeCapabilities", "nativeAction", "state", "messages", "subscribe", "unsubscribe",
-  "subscribeSessions", "unsubscribeSessions", "send", "cancel", "reload", "closeSession", "shutdown", "wakeSession",
+  "subscribeSessions", "unsubscribeSessions", "send", "sendStatus", "cancel", "reload", "closeSession", "shutdown", "wakeSession",
   "kernelClear", "kernelRestart", "monitorFocus", "monitorHistory", "monitorDiff",
 ] as const;
 export const sessionScoped: readonly string[] = ["state", "messages", "subscribe", "reload", "closeSession", "wakeSession", "archivePreview", "kernelClear", "kernelRestart", "kernelVariables", "monitorHistory"];

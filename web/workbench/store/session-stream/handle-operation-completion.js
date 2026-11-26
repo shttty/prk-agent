@@ -7,6 +7,7 @@ import { restoreReturnedMessages } from "../drafts/restore-returned-messages.js"
 import { addActivity } from "../notices/add-activity.js";
 import { completionLabel } from "../../payloads/completion-label.js";
 import { persistCurrentSession } from "../drafts/persist-current-session.js";
+import { settleUnknownSend } from "../messages/settle-unknown-send.js";
 export function handleOperationCompletion(ctx, details, event) {
     const completion = isRecord(details) ? details : {};
     const operationId = safeText(completion.operationId) || safeText(event?.operationId);
@@ -29,6 +30,7 @@ export function handleOperationCompletion(ctx, details, event) {
     const banner = ctx.state.session.banner?.operationId === operationId ? null : ctx.state.session.banner;
     patch(ctx, { sessions, session: { ...ctx.state.session, operations, localMessages, snapshot, banner, transcriptRevision: ctx.state.session.transcriptRevision + 1 } });
     restoreReturnedMessages(ctx, operationId, completion.returnedMessages, event?.sessionId || snapshot?.sessionId);
+    for (const requestIdValue of Array.isArray(completion.requestIds) ? completion.requestIds : []) settleUnknownSend(ctx, requestIdValue, { status: "accepted" });
     addActivity(ctx, {
       title: `操作终态 · ${completionLabel(status)}`,
       time: event?.timestamp,

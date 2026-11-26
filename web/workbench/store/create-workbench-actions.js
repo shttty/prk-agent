@@ -1,6 +1,8 @@
 import { setShowImages } from "./set-show-images.js";
 import { getJson } from "./requests/get-json.js";
 import { requestJson } from "./requests/request-json.js";
+import { resendUnknownSends } from "./messages/resend-unknown-sends.js";
+import { returnUnknownSends } from "./messages/return-unknown-sends.js";
 
 export function createWorkbenchActions(ctx) {
   return {
@@ -32,6 +34,8 @@ export function createWorkbenchActions(ctx) {
     clearError: ctx.bound.clearError,
     clearNotice: ctx.bound.clearNotice,
     sendMessage: ctx.bound.sendMessage,
+    resendUnknownSends: () => resendUnknownSends(ctx),
+    returnUnknownSends: () => returnUnknownSends(ctx),
     cancelOperation: ctx.bound.cancelOperation,
     reconnect: ctx.bound.reconnect,
     createSession: ctx.bound.createSession,

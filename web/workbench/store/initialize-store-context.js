@@ -19,6 +19,8 @@ ctx.state = initialState();
   ctx.displayNotifyCancel = null;
   ctx.toolContentRequests = new Map();
   ctx.wakeRequests = new Map();
+  // requestIds of unknown sends whose status query is in flight.
+  ctx.sendChecks = new Set();
   ctx.noticeTimer = undefined;
   ctx.scrollSample = null;
   ctx.scrollTimer = undefined;

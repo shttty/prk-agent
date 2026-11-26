@@ -40,6 +40,7 @@ UI 属于独立 `web/` npm package；同源 Vite proxy 的运行方式见 [desig
 | `POST /api/archive/:group/purge` | `{confirm:true}` | `purgeArchive` |
 | `GET /api/sessions/:sessionId/events` | none | `subscribe`；SSE `snapshot` / `host` |
 | `POST /api/sessions/:sessionId/send` | `{requestId,message,queue?,mode?,attachments?,references?}` | `send` |
+| `POST /api/sessions/:sessionId/send-status` | `{requestId,streamId}` | [`sendStatus`](sessions.md#send-status)；对未见过的 `requestId` 有撤销副作用，所以用 POST；Web→Gateway 用 `http.requestTimeoutMs` 等待在途 send |
 | `PATCH /api/sessions/:sessionId/project` | `{project:{id,name}|null}` | `assignProject` |
 | `POST /api/sessions/:sessionId/cancel` | `{operationId,cell?:{kernelId,cellId}}` | `cancel`；省略 `cell` 只停当前匹配轮次，不代选后台项 |
 | `POST /api/sessions/:sessionId/kernel/interrupt` | `{kernelId,cellId,cellOnly?}` | [`kernelInterrupt`](sessions.md#methods)；浮条与 ask 用 `cellOnly:true`，省略可附带停止原生轮并返回排队输入；不唤醒休眠会话 |

@@ -38,6 +38,7 @@ import type { NativeCatalog } from "../../sessions/native-interaction/native-typ
 import type { NativeActionRequest } from "../wire/wire-types.ts";
 import type { NativeActionResult } from "../wire/wire-types.ts";
 import type { ExtendedSendRequest } from "../wire/wire-types.ts";
+import type { SendStatus } from "../native-interactions/send-records/send-record-types.ts";
 import type { WorkspaceMethod } from "../../workspace/requests/requests-types.ts";
 import type { TerminalEvent } from "../../workspace/terminals/terminals-types.ts";
 import type { TerminalSnapshot } from "../../workspace/terminals/terminals-types.ts";
@@ -141,6 +142,8 @@ export interface GatewaySessionHost {
   nativeCapabilities(sessionId: string): NativeCatalog;
   nativeAction(sessionId: string, request: NativeActionRequest): Promise<NativeActionResult>;
   nativeSend(sessionId: string, request: ExtendedSendRequest): Promise<unknown>;
+  /** What became of a send requestId; an unseen one is withdrawn (docs/wire/sessions.md#send-status). */
+  sendStatus(sessionId: string, request: { readonly requestId: string; readonly streamId: string }): Promise<SendStatus>;
   workspace(method: WorkspaceMethod, sessionId: string, params: Record<string, unknown>): Promise<unknown>;
   subscribeTerminal(sessionId: string, terminal: string, listener: (event: TerminalEvent) => void): { snapshot: TerminalSnapshot; unsubscribe(): void };
   closeSession(sessionId: string): Promise<void>;

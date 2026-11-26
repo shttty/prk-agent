@@ -16,6 +16,7 @@ import { addActivity } from "../notices/add-activity.js";
 import { getJson } from "../requests/get-json.js";
 import { ingestSnapshot } from "../session-stream/ingest-snapshot.js";
 import { issueLabel } from "../../../instances/configuration-issue/issue-label.js";
+import { confirmUnknownSends } from "./confirm-unknown-sends.js";
 export async function admitMessage(ctx, message, queueOrOptions, options, matches, capturedDraft) {
     const sendOptions = isRecord(queueOrOptions) ? queueOrOptions : options;
     const queue = typeof queueOrOptions === "string" ? queueOrOptions : sendOptions.queue || ctx.state.queue;
@@ -47,13 +48,20 @@ export async function admitMessage(ctx, message, queueOrOptions, options, matche
       setNotice(ctx, "消息加附件超过传输上限。", "error");
       return false;
     }
-    const local = { status: "sending", text: message };
+    // The stream this send went out on tells the Gateway whether its record can settle an unknown result.
+    const local = { status: "sending", text: message, streamId: ctx.state.session.streamId };
     patchSession(ctx, {
           localMessages: new Map(ctx.state.session.localMessages).set(id, local),
           transcriptRevision: ctx.state.session.transcriptRevision + 1,
         });
     persistCurrentSession(ctx);
     const isCurrent = sessionRequestCurrent(ctx);
+    // What a delivered send clears: the composer copy, if the user has not changed it since.
+    const clearedDraft = () => ({
+      ...(ctx.draftRevision === capturedDraft && ctx.state.draft === message ? { draft: "" } : {}),
+      ...(ctx.state.attachments === attachments ? { attachments: [] } : {}),
+      ...(ctx.state.references === references ? { references: [] } : {}),
+    });
     try {
       const result = await postJson(ctx, `${ctx.apiRoot}/sessions/${encodeURIComponent(name)}/send`, payload);
       if (nativeActionResult(ctx, result)) {
@@ -69,20 +77,15 @@ export async function admitMessage(ctx, message, queueOrOptions, options, matche
       const accepted = result?.accepted === true && typeof result.operationId === "string";
       if (!matches()) return accepted;
       if (accepted) {
-        const clearedDraft = {
-          ...(ctx.draftRevision === capturedDraft && ctx.state.draft === message ? { draft: "" } : {}),
-          ...(ctx.state.attachments === attachments ? { attachments: [] } : {}),
-          ...(ctx.state.references === references ? { references: [] } : {}),
-        };
         // A wake can rotate the stream before the HTTP admission arrives. That reply still settles
         // this draft in the same selection, but only the current stream's events own operation state.
         if (!isCurrent()) {
-          patch(ctx, clearedDraft);
+          patch(ctx, clearedDraft());
           persistCurrentSession(ctx);
           return true;
         }
         const operations = mergeEntry(ctx, ctx.state.session.operations, result.operationId, { accepted: true });
-        patch(ctx, { ...clearedDraft, session: { ...ctx.state.session, localMessages: mergeEntry(ctx, ctx.state.session.localMessages, id, { status: "accepted", operationId: result.operationId }), operations, ...(ctx.state.session.banner?.kind === "send-rejected" ? { banner: null } : {}), transcriptRevision: ctx.state.session.transcriptRevision + 1 } });
+        patch(ctx, { ...clearedDraft(), session: { ...ctx.state.session, localMessages: mergeEntry(ctx, ctx.state.session.localMessages, id, { status: "accepted", operationId: result.operationId }), operations, ...(ctx.state.session.banner?.kind === "send-rejected" ? { banner: null } : {}), transcriptRevision: ctx.state.session.transcriptRevision + 1 } });
         addActivity(ctx, { title: "请求已接受 · 等待终态", time: new Date().toISOString(), meta: `${result.operationId} · ${id}`, tone: "notice" });
         persistCurrentSession(ctx);
         return true;
@@ -99,7 +102,12 @@ export async function admitMessage(ctx, message, queueOrOptions, options, matche
       return false;
     } catch (error) {
       if (!matches()) return false;
-      if (isCurrent() && ctx.state.session.localMessages.get(id)?.operationId) return true;
+      // request_accepted already reported this requestId on the current stream: only the reply was lost.
+      if (isCurrent() && ctx.state.session.localMessages.get(id)?.operationId) {
+        patch(ctx, clearedDraft());
+        persistCurrentSession(ctx);
+        return true;
+      }
       // The Gateway refused before admitting the message (no runtime could be started, or the session could not
       // wake): it was definitely not sent. Say why; keep the draft.
       if (error?.details?.submitted === false) {
@@ -122,13 +130,14 @@ export async function admitMessage(ctx, message, queueOrOptions, options, matche
         persistCurrentSession(ctx);
         return false;
       }
+      // Reported once, by the composer status line (SendStatus); the Gateway's record of this requestId settles it.
       patchSession(ctx, {
-              localMessages: mergeEntry(ctx, ctx.state.session.localMessages, id, { status: "unknown" }),
-              banner: { text: "发送结果未知，确认后再决定是否重发。", tone: "error" },
+              localMessages: new Map(ctx.state.session.localMessages).set(id, { ...local, status: "unknown" }),
               transcriptRevision: ctx.state.session.transcriptRevision + 1,
             });
       addActivity(ctx, { title: "发送结果未知 · 未自动重发", time: new Date().toISOString(), meta: error instanceof Error ? error.message : "连接失败", tone: "error" });
       persistCurrentSession(ctx);
+      confirmUnknownSends(ctx);
       return false;
     }
   }

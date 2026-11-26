@@ -12,6 +12,9 @@ import { extensionUiRevision } from "../extension-ui/extension-ui-revision.js";
 import { restoreReturnedMessages } from "../drafts/restore-returned-messages.js";
 import { loadNativeCatalog } from "../native-actions/load-native-catalog.js";
 import { flushScroll } from "../drafts/flush-scroll.js";
+import { savedUnknownSends } from "../messages/saved-unknown-sends.js";
+import { settleUnknownSend } from "../messages/settle-unknown-send.js";
+import { confirmUnknownSends } from "../messages/confirm-unknown-sends.js";
 export function ingestSnapshot(ctx, value, observation = false) {
     let snapshot = normalizeSnapshot(value);
     if (!snapshot) throw new Error("服务返回的会话快照格式无效。");
@@ -31,9 +34,11 @@ export function ingestSnapshot(ctx, value, observation = false) {
       const connection = ctx.source ? "connected" : ctx.state.session.connection;
       // The selected draft's HTTP send can outlive the sleeping stream it started on.
       const sending = ctx.state.session.pending.has("sending");
+      const undelivered = ctx.state.session.restoredDraft?.reason === "undelivered" ? ctx.state.session.restoredDraft : null;
       replaceSession(ctx, snapshot.streamId, sending ? { pending: new Set(["sending"]) } : null);
       const saved = ctx.storage.sessionState(ctx.state.selectedSessionId);
-      patchSession(ctx, { connection, operations: new Map((saved?.restoredQueueCounts || []).map(([operationId, restoredQueueCount]) => [operationId, { restoredQueueCount }])) });
+      // Unknown sends outlive the stream they went out on (sleep, wake, Gateway restart).
+      patchSession(ctx, { connection, localMessages: savedUnknownSends(saved), restoredDraft: undelivered, operations: new Map((saved?.restoredQueueCounts || []).map(([operationId, restoredQueueCount]) => [operationId, { restoredQueueCount }])) });
     }
     let operations = ctx.state.session.operations;
     const toolRuns = reconcileHistoryToolRuns(snapshot, ctx.state.session.toolRuns, ctx.state.selectedSessionId);
@@ -42,8 +47,11 @@ export function ingestSnapshot(ctx, value, observation = false) {
     const transcriptRevision = ctx.state.session.transcriptRevision + (changedStream || snapshot.sequence > previous?.sequence ? 1 : 0);
     const streams = observation && !changedStream && snapshot.operation ? ctx.state.session.streams : new Map();
     const completedOperationIds = new Set();
+    // An unknown send this snapshot lists was taken by the Gateway; settle it after the snapshot lands.
+    const delivered = [];
     for (const completion of snapshot.recentOperations || []) {
       if (!completion.operationId) continue;
+      delivered.push(...(completion.requestIds || []));
       operations = mergeEntry(ctx, operations, completion.operationId, { accepted: true, completion });
       if (completion.status === "completed") completedOperationIds.add(completion.operationId);
     }
@@ -51,7 +59,8 @@ export function ingestSnapshot(ctx, value, observation = false) {
       const id = snapshot.operation.operationId;
       operations = mergeEntry(ctx, operations, id, { accepted: true });
       for (const requestIdValue of snapshot.operation.requestIds || []) {
-        if (localMessages.has(requestIdValue)) localMessages = mergeEntry(ctx, localMessages, requestIdValue, { status: "accepted", operationId: id });
+        if (localMessages.get(requestIdValue)?.status === "unknown") delivered.push(requestIdValue);
+        else if (localMessages.has(requestIdValue)) localMessages = mergeEntry(ctx, localMessages, requestIdValue, { status: "accepted", operationId: id });
       }
     }
     if (completedOperationIds.size) {
@@ -79,6 +88,8 @@ export function ingestSnapshot(ctx, value, observation = false) {
     for (const completion of snapshot.recentOperations) {
       restoreReturnedMessages(ctx, completion.operationId, completion.returnedMessages, ctx.state.selectedSessionId);
     }
+    for (const requestIdValue of delivered) settleUnknownSend(ctx, requestIdValue, { status: "accepted" });
+    confirmUnknownSends(ctx);
     if (changedStream && ctx.source) void loadNativeCatalog(ctx);
     return true;
   }

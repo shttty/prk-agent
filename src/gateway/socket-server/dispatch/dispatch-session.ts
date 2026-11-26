@@ -31,6 +31,8 @@ export async function dispatchSession(ctx: PeerContext, respond: Respond, reques
           const { completion: _, ...accepted } = result;
           respond(id, accepted);
         } else respond(id, result);
+      } else if (method === "sendStatus") {
+        respond(id, await host.sendStatus(params.sessionId as string, { requestId: params.requestId as string, streamId: params.streamId as string }));
       } else if (method === "cancel") {
         const { completion: _, ...result } = await host.session(params.sessionId as string).cancel({ operationId: params.operationId as string, ...(params.cell === undefined ? {} : { cell: params.cell as CancelRequest["cell"] }) }); respond(id, result);
       } else if (method === "reload") { await host.session(params.sessionId as string).reload(); respond(id, { reloaded: true }); }

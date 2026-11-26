@@ -60,7 +60,7 @@ export function dispatchRequest(ctx: PeerContext, respond: Respond, request: Req
     }
     if (method === "nativeCapabilities" || method === "nativeAction" || method === "kernelVariables"
       || method === "kernelDeleteVariable" || method === "kernelInterrupt" || method === "state" || method === "messages"
-      || method === "send" || method === "cancel" || method === "reload" || method === "closeSession") {
+      || method === "send" || method === "sendStatus" || method === "cancel" || method === "reload" || method === "closeSession") {
       return dispatchSession(ctx, respond, request);
     }
     if (method === "shutdown") return dispatchShutdown(ctx, respond, request);

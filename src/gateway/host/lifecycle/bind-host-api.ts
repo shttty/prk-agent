@@ -84,6 +84,7 @@ export function bindHostApi(ctx: HostContext): GatewaySessionHost {
     nativeCapabilities: ctx.methods.nativeCapabilities,
     nativeAction: ctx.methods.nativeAction,
     nativeSend: ctx.methods.nativeSend,
+    sendStatus: ctx.methods.sendStatus,
     closeSession: ctx.methods.endSession,
     subscribeSessions: ctx.methods.subscribeSessions,
     close: ctx.methods.close,

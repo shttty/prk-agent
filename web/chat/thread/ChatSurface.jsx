@@ -172,7 +172,7 @@ export function ChatSurface({ actions, messageCount, onViewTerminal }) {
               <PendingQueue actions={actions} />
               <ExtensionUI actions={actions} />
               <ComposerDock actions={actions} onFindInPage={findCurrentPage} onSend={followLatest} />
-              <SendStatus />
+              <SendStatus actions={actions} />
               <ModelCatalogAlert />
             </>}
           </Box>

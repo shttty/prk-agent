@@ -21,6 +21,10 @@
 
 .pi-send-status.is-restored { color: var(--pi-ink-2); }
 
+.pi-send-status button { color: var(--pi-muted); font-weight: 500; }
+
+.pi-send-status button:hover { color: var(--pi-ink); }
+
 /* SDK-owned queued input, with one way to take it all back. */
 
 .pi-pending-queue {

@@ -18,6 +18,7 @@ import { renameSession } from "./rename-session.ts";
 import { previewArchive } from "../archive-routes/preview-archive.ts";
 import { archiveSession } from "../archive-routes/archive-session.ts";
 import { sendInput } from "./send-input.ts";
+import { readSendStatus } from "./read-send-status.ts";
 import { cancelOperation } from "./cancel-operation.ts";
 import { interruptKernel } from "./interrupt-kernel.ts";
 
@@ -56,6 +57,8 @@ export async function handleSessionRequest(ctx: RequestContext, request: Incomin
     await archiveSession(ctx, request, response, sessionId);
   } else if (action === "send") {
     await sendInput(ctx, request, response, sessionId);
+  } else if (action === "send-status") {
+    await readSendStatus(ctx, request, response, sessionId);
   } else if (action === "kernel/interrupt") {
     await interruptKernel(ctx, request, response, sessionId);
   } else {

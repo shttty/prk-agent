@@ -44,7 +44,7 @@ export function assembleHost(options: GatewayHostOptions, dependencies: GatewayH
     models: {},
     sessionHosts: {},
     views: {},
-    native: {},
+    native: { sendRecords: new Map() },
     events: {},
     monitoring: {},
     peerMessages: {},

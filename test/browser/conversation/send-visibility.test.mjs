@@ -8,11 +8,16 @@ import { until } from "../../fixtures/until.mjs";
 const input = "#composer";
 const send = "#send-message";
 const transcript = "#messages .pi-message-user";
+const lostReply = "Admitted, reply lost";
+const resent = "Resent once";
 
 test("a sent message stays visible in the locked draft, the SDK queue or the conversation", async (t) => {
   const release = Promise.withResolvers();
+  // Turns that stay running until the unknown-send checks release them.
+  const holds = new Map([lostReply].map((message) => [message, Promise.withResolvers()]));
   const f = await browserFixture(t, { config: { session: { workerTools: "direct", idleTimeoutMs: 1_500 } }, async answer(context) {
     if (text(context.messages.at(-1)) === "Hold this turn") await release.promise;
+    await holds.get(text(context.messages.at(-1)))?.promise;
     return fauxAssistantMessage("Controlled response");
   } });
   const idle = await f.create("Idle send");
@@ -24,6 +29,7 @@ test("a sent message stays visible in the locked draft, the SDK queue or the con
     const first = await submit(f, idle, "idle");
     await assertHandoff(f, first);
     await f.complete(idle, first.receipt);
+    await assertUnknownSends(f, idle, holds);
     const running = await f.create("Running send");
     const started = await f.send(running, "Hold this turn");
     await f.open(running);
@@ -55,7 +61,10 @@ test("a sent message stays visible in the locked draft, the SDK queue or the con
       await assertHandoff(f, last);
       await f.complete(sleeping, last.receipt);
     } finally { wake.resolve(); }
-  } finally { release.resolve(); }
+  } finally {
+    release.resolve();
+    for (const hold of holds.values()) hold.resolve();
+  }
 });
 
 async function submit(f, id, label, mode) {
@@ -120,4 +129,63 @@ async function assertHandoff(f, { message, responseAt }) {
     assert(cleared && cleared.ms - overlap[0].ms <= 100, `receipt overlap exceeded 100 ms: ${JSON.stringify(overlap)}`);
   }
   assert.equal(await f.page.locator(transcript).filter({ hasText: message }).count(), 1);
+}
+
+// A send whose HTTP reply never arrives: one notice by the composer, kept across a reload, then settled from the
+// Gateway's record of that requestId — never sent twice.
+async function assertUnknownSends(f, id, holds) {
+  const unknown = f.page.locator(".pi-send-status[data-state=unknown]");
+  const reload = async () => { await f.page.reload(); await f.page.locator("#chat-model-select:not(:disabled)").waitFor(); };
+  // Status queries wait until released, as while the connection is still down; sleep snapshots cannot settle early.
+  const holdStatus = async () => {
+    const gate = Promise.withResolvers();
+    await f.page.route(`**/api/sessions/${id}/send-status`, async (route) => { await gate.promise; await route.continue().catch(() => {}); });
+    return () => gate.resolve();
+  };
+  let release = await holdStatus();
+  await f.page.route(`**/api/sessions/${id}/send`, (route) => route.abort("connectionreset"), { times: 1 });
+  await f.page.locator(input).fill("Lost before arrival");
+  await f.page.locator(send).click();
+  await unknown.waitFor();
+  await f.page.locator("[data-action=resend-unknown]").waitFor();
+  await f.page.locator("[data-action=restore-unknown]").waitFor();
+  assert.equal(await f.page.locator("#session-banners > *").count(), 0, "the unknown send is reported once, by the composer");
+  await reload();
+  release();
+  await f.page.locator("#restored-draft-status[data-reason=undelivered]").waitFor();
+  assert.equal(await f.page.locator(input).inputValue(), "Lost before arrival");
+  assert.equal(await unknown.count(), 0);
+  await f.page.unroute(`**/api/sessions/${id}/send-status`);
+
+  // Admitted, but the reply is lost: whichever settles it (request_accepted, a snapshot after the reload, or the
+  // status query), the composer copy goes and the message is there once.
+  const replied = Promise.withResolvers();
+  await f.page.route(`**/api/sessions/${id}/send`, async (route) => { await route.fetch(); await route.abort("connectionreset"); replied.resolve(); }, { times: 1 });
+  await f.page.locator(input).fill(lostReply);
+  await f.page.locator(send).click();
+  await replied.promise;
+  await f.page.locator(`${input}:not([data-sending])`).waitFor();
+  await reload();
+  await f.page.waitForFunction((input) => document.querySelector(input)?.value === "", input);
+  assert.equal(await unknown.count(), 0);
+  holds.get(lostReply).resolve();
+  await f.page.locator(transcript).filter({ hasText: lostReply }).waitFor();
+
+  // Resend while the original is still on its way: the status query withdraws it, so its late arrival is refused.
+  release = await holdStatus();
+  const original = Promise.withResolvers();
+  await f.page.route(`**/api/sessions/${id}/send`, (route) => { original.resolve(route.request().postDataJSON()); return route.abort("connectionreset"); }, { times: 1 });
+  await f.page.locator(input).fill(resent);
+  await f.page.locator(send).click();
+  await f.page.locator("[data-action=resend-unknown]").click();
+  release();
+  await f.page.locator(transcript).filter({ hasText: resent }).waitFor();
+  await f.page.waitForFunction((input) => document.querySelector(input)?.value === "", input);
+  const late = await f.request("send", { ...(await original.promise), sessionId: id });
+  assert.equal(late.accepted, false, JSON.stringify(late));
+  await f.page.unroute(`**/api/sessions/${id}/send-status`);
+  await reload();
+  await f.page.locator(transcript).filter({ hasText: resent }).waitFor();
+  for (const message of [lostReply, resent]) assert.equal(await f.page.locator(transcript).filter({ hasText: message }).count(), 1, message);
+  assert.equal(await unknown.count(), 0);
 }

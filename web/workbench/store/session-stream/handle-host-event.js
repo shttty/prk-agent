@@ -16,6 +16,7 @@ import { handleOperationCompletion } from "./handle-operation-completion.js";
 import { setBanner } from "../notices/set-banner.js";
 import { applyKernelTelemetry } from "./apply-kernel-telemetry.js";
 import { advanceRunStage } from "./advance-run-stage.js";
+import { settleUnknownSend } from "../messages/settle-unknown-send.js";
 export function handleHostEvent(ctx, event) {
     if (!isRecord(event) || typeof event.type !== "string" || typeof event.streamId !== "string" || !event.streamId
       || !Number.isSafeInteger(event.sequence)) return;
@@ -103,7 +104,8 @@ export function handleHostEvent(ctx, event) {
       }
     } else if (event.type === "request_rejected") {
       const requestIdValue = safeText(event.requestId);
-      if (requestIdValue && ctx.state.session.localMessages.has(requestIdValue)) {
+      if (ctx.state.session.localMessages.get(requestIdValue)?.status === "unknown") settleUnknownSend(ctx, requestIdValue, { status: "refused" });
+      else if (requestIdValue && ctx.state.session.localMessages.has(requestIdValue)) {
         patchSession(ctx, { localMessages: mergeEntry(ctx, ctx.state.session.localMessages, requestIdValue, { status: "rejected" }) });
       }
       addActivity(ctx, { title: "请求被拒绝", time: event.timestamp, meta: printable(event.details), tone: "error" });
