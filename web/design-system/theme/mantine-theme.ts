@@ -1,14 +1,6 @@
-import { createTheme } from "@mantine/core";
-import { palette } from "../../../shared/palette.js";
-import { hues } from "../../../shared/palette.js";
-import { virtualColor } from "@mantine/core";
-import { Alert } from "@mantine/core";
-import { parseThemeColor } from "@mantine/core";
-import { Switch } from "@mantine/core";
+import { Alert, Switch, createTheme, parseThemeColor, virtualColor } from "@mantine/core";
+import { hues, palette } from "../../../shared/palette.ts";
 import "../switch/pill-switch.css";
-export const fontUi = "var(--pi-font-ui)";
-
-export const fontMono = "var(--pi-font-mono)";
 
 export const theme = createTheme({
   colors: {
@@ -24,9 +16,9 @@ export const theme = createTheme({
   primaryColor: "accent",
   primaryShade: { light: 6, dark: 4 },
   autoContrast: true,
-  fontFamily: fontUi,
-  fontFamilyMonospace: fontMono,
-  headings: { fontFamily: fontUi, fontWeight: "600" },
+  fontFamily: "var(--pi-font-ui)",
+  fontFamilyMonospace: "var(--pi-font-mono)",
+  headings: { fontFamily: "var(--pi-font-ui)", fontWeight: "600" },
   defaultRadius: "md",
   radius: { xs: "4px", sm: "8px", md: "10px", lg: "14px", xl: "999px" },
   cursorType: "pointer",
@@ -54,4 +46,3 @@ export const theme = createTheme({
     }),
   },
 });
-

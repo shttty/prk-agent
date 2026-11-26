@@ -3,6 +3,6 @@
 const IDENTITY = ["id", "data-session-id", "data-action", "data-toast-id", "data-child", "data-message-id", "data-tool-key", "for", "name"];
 
 /** Remove the identifying attributes from `root` and everything inside it. */
-export function stripIdentity(root) {
+export function stripIdentity(root: Element): void {
   for (const node of [root, ...root.querySelectorAll("*")]) for (const name of IDENTITY) node.removeAttribute(name);
 }

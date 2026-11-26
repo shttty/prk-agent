@@ -35,6 +35,7 @@ export default tseslint.config(
       "@typescript-eslint/await-thenable": "error",
       "@typescript-eslint/no-unnecessary-type-assertion": "error",
       "@typescript-eslint/no-non-null-assertion": "error",
+      "@typescript-eslint/no-unused-vars": ["error", { ignoreRestSiblings: true, argsIgnorePattern: "^_" }],
       // src/ is a backend: web may only `import type` from its public type layer, never pull runtime in.
       "@typescript-eslint/no-restricted-imports": ["error", {
         patterns: [
