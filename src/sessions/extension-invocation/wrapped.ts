@@ -1,5 +1,7 @@
 import type { Extension, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import type { InvocationContext, Handler } from "./invocation-types.ts";
+import { recordHookSection } from "../../metrics/timing/record-hook-section.ts";
+import { readPluginLabel } from "./read-plugin-label.ts";
 
 export function wrapped(ctx: InvocationContext, extension: Extension, handler: Handler, args: unknown[]): Promise<unknown> {
   const context = args[1] as ExtensionContext | undefined;
@@ -24,8 +26,11 @@ export function wrapped(ctx: InvocationContext, extension: Extension, handler: H
   }
   if (shutdown) ctx.shutdownControllers.add(shutdown);
   let result: Promise<unknown>;
+  const started = performance.now();
   try { result = handler(...args); }
   catch (error) { if (shutdown) ctx.shutdownControllers.delete(shutdown); throw error; }
+  // The synchronous section is what freezes the shared event loop; awaited work after it does not.
+  finally { recordHookSection(readPluginLabel(extension), event?.type ?? "unknown", () => context?.sessionManager?.getSessionId(), started); }
   // Keep synchronous SDK admission/cleanup synchronous; only pending work needs a race.
   if (!result || typeof result.then !== "function") {
     if (shutdown) ctx.shutdownControllers.delete(shutdown);
