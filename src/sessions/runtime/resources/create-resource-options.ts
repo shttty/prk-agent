@@ -20,6 +20,7 @@ import { disabledBuiltins } from "../../session-settings/disabled-builtins.ts";
 import { assembleToolTitlePlugin } from "../../../plugins/tool-title/assemble-tool-title-plugin.ts";
 import { toolTitleEnabled } from "../configuration/read-tool-title.ts";
 import { bindPromptCapture } from "../../prompt-capture/bind-prompt-capture.ts";
+import { bindModelRequestMetrics } from "../../model-metrics/bind-model-request-metrics.ts";
 
 export function createResourceOptions(ctx: RuntimeContext, conversation: ConversationContext, cwd: string, agentDir: string, sessionManager: SessionManager, neutralCwd: string): RuntimeResourceOptions {
   return {
@@ -51,6 +52,7 @@ export function createResourceOptions(ctx: RuntimeContext, conversation: Convers
             }) },
             ...assembleBusinessPlugins(ctx, sessionManager),
             { name: "prompt-capture", factory: bindPromptCapture(ctx.promptCapture) },
+            { name: "model-metrics", factory: bindModelRequestMetrics() },
           ],
         };
 }
