@@ -109,9 +109,14 @@ test("file tree uploads a multi-megabyte file and downloads its target bytes", a
   await checkProcessPanel(f, id);
 });
 
-test("cursor blink preference survives disabling and restoring animations", async (t) => {
+const endShell = (page, id, name) => page.evaluate(({ id, name }) => fetch(`/api/sessions/${id}/terminals/close`, {
+  method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name }),
+}).then((reply) => reply.status), { id, name });
+
+test("cursor blink survives animation toggles; a gone restored shell and the new-terminal button each bring a live shell", async (t) => {
   const f = await browserFixture(t);
-  await f.open(await f.create());
+  const id = await f.create();
+  await f.open(id);
   const terminal = await openTerminal(f.page);
   const input = terminal.locator("textarea.xterm-helper-textarea");
   const blinking = terminal.locator(".xterm-cursor.xterm-cursor-blink");
@@ -144,4 +149,17 @@ test("cursor blink preference survives disabling and restoring animations", asyn
   await close();
   await input.focus();
   await blinking.waitFor();
+  // The saved layout restores a shell tab the server no longer has (as after a Gateway restart): a new shell replaces it.
+  await f.page.goto("about:blank");
+  await f.request("terminalClose", { sessionId: id, name: "shell" });
+  await f.open(id);
+  await openTerminal(f.page);
+  // An empty workspace with the directory popover open: the new-terminal button opens a shell, the workspace stays open.
+  await f.page.locator("#toggle-tree").click();
+  await f.page.locator("#file-tree:not([hidden])").waitFor();
+  assert.equal(await endShell(f.page, id, "shell"), 200);
+  await f.page.locator(".pi-term").waitFor({ state: "detached" });
+  await f.page.locator("#new-terminal").click();
+  await f.page.locator('.pi-term .pi-term-view[data-status="connected"]').waitFor();
+  assert.equal(await f.page.locator("#toggle-workspace").getAttribute("aria-expanded"), "true");
 });

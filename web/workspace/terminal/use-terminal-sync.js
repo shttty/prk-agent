@@ -7,8 +7,8 @@ import { nextShellName } from "./next-shell-name.js";
 
 /** Keep the dock's shell tabs in line with the server's terminal list while the workspace is shown: every shell the
  * server has gets a tab (background tabs; the first one into an empty dock is shown), a tab restored from the saved layout
- * whose shell is gone is closed once (before anything attaches to it), and an empty dock opens a first shell, except when
- * that closing is what emptied it (a shell that is gone is never replaced behind the user's back). It reads the
+ * whose shell is gone is closed once (before anything attaches to it), and a dock left empty opens a first shell (after a
+ * Gateway restart every restored tab is gone, and the workspace must not come up without one). It reads the
  * list when the workspace opens and whenever `refreshKey` moves (a model tool made or touched a terminal), and retries
  * while the API is unreachable. `onShown` runs when a tab it opened became the shown one.
  * `metadata[name].generation` is the list entry's generation, which that tab subscribes with; a tab keeps the generation
@@ -19,7 +19,6 @@ export function useTerminalSync({ engine, api, sessionId, enabled, hidden, refre
   const [listed, setListed] = useState(false);
   const [metadata, setMetadata] = useState({});
   const reconciliation = useRef(null);
-  const replacementBlocked = useRef(false);
   const shown = useEffectEvent(() => onShown?.());
   const base = `/sessions/${encodeURIComponent(sessionId)}/terminals`;
   useEffect(() => {
@@ -35,7 +34,7 @@ export function useTerminalSync({ engine, api, sessionId, enabled, hidden, refre
       const names = terminals.map((item) => item.name);
       const restored = reconciliation.current.restored;
       reconciliation.current.restored = null;
-      for (const name of restored ?? []) if (!names.includes(name)) { engine.closeTerminal(name); replacementBlocked.current = true; }
+      for (const name of restored ?? []) if (!names.includes(name)) engine.closeTerminal(name);
       const tabs = engine.terminalNames();
       setMetadata((previous) => {
         const next = Object.fromEntries(terminals.map((item) => [item.name, item]));
@@ -45,8 +44,7 @@ export function useTerminalSync({ engine, api, sessionId, enabled, hidden, refre
       setListed(true);
       let activated = false;
       for (const name of names) activated = engine.openTerminal(name, false) || activated;
-      if (engine.count() > 0) replacementBlocked.current = false;
-      else if (!replacementBlocked.current) activated = engine.openTerminal(nextShellName(names), true) || activated;
+      if (engine.count() === 0) activated = engine.openTerminal(nextShellName(names), true) || activated;
       if (activated) shown();
     }, () => { if (live) timer = window.setTimeout(load, 1500); });
     void load();
