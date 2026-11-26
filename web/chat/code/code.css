@@ -72,6 +72,7 @@
 
 .pi-cl-numbers .pi-cl { counter-increment: pi-ln; }
 
+/* Line-number gutter glyphs: a pseudo-element hung in the left padding, like a badge. */
 .pi-cl-numbers .pi-cl::before,
 .pi-cl-diff .pi-cl::before {
   position: absolute;

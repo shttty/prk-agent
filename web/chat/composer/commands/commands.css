@@ -42,6 +42,7 @@
   -webkit-line-clamp: 2;
 }
 
+/* Corner button of a command row (badge-like, over the row's own box). */
 .pi-command-more {
   position: absolute;
   right: .35rem;

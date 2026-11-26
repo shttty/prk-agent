@@ -1,44 +1,34 @@
-/* The ask card (AskDialog.jsx): a tray dialog (extension-ui.css gives it the glass card, accent ring and phone sheet) with
-   tabs on top, one scrolling panel, and a footer. Colours read --pi-* only. */
-.pi-ask { gap: 10px; max-height: min(36rem, 72dvh); }
-.pi-ask-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; }
-.pi-ask-head [data-expires-at] { flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+/* The ask card (AskDialog.tsx): a tray dialog (extension-ui.css gives it the glass card, accent ring and phone sheet);
+   layout comes from Mantine's Stack, Group and SimpleGrid, so only scrolling, colour and shape stay here. */
+.pi-ask { max-height: min(36rem, 72dvh); }
+.pi-ask [data-expires-at] { font-variant-numeric: tabular-nums; }
 
-.pi-ask-head > .mantine-Tabs-root { min-width: 0; }
 .pi-ask-tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
 .pi-ask-tab { flex: 0 0 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.pi-ask-panel { display: flex; flex-direction: column; gap: 8px; min-height: 0; margin-inline: -6px; padding-inline: 6px; overflow: hidden auto; overscroll-behavior: contain; }
+.pi-ask-panel { min-height: 0; margin-inline: -6px; padding-inline: 6px; overflow: hidden auto; overscroll-behavior: contain; }
 .pi-ask-question { white-space: pre-wrap; overflow-wrap: anywhere; }
-.pi-ask-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-height: 0; }
-.pi-ask-body:has(> .pi-ask-preview) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-.pi-ask-options { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 
-.pi-ask-list { display: flex; flex-direction: column; gap: 2px; outline: none; }
-.pi-ask-row { display: flex; align-items: stretch; gap: 2px; border-radius: var(--pi-radius-sm); }
+.pi-ask-list { outline: none; }
+.pi-ask-row { border-radius: var(--pi-radius-sm); }
 .pi-ask-row[data-active="true"] { background: var(--pi-hover); }
 .pi-ask-list:focus-visible .pi-ask-row[data-active="true"] { box-shadow: 0 0 0 1.5px var(--pi-accent-ring); }
-.pi-ask-option { flex: 1 1 auto; display: flex; align-items: flex-start; gap: 10px; min-width: 0; padding: 7px 10px; border-radius: inherit; cursor: pointer; }
+.pi-ask-option { border-radius: inherit; cursor: pointer; }
 .pi-ask-row[data-selected="true"] { background: var(--pi-accent-soft); color: var(--pi-accent-strong); }
 .pi-ask-mark { flex: 0 0 16px; display: grid; place-items: center; width: 16px; height: 16px; margin-top: 2px; border: 1.5px solid var(--pi-line-strong); border-radius: 50%; color: var(--pi-bg); }
 .pi-ask-mark[data-multi="true"] { border-radius: 4px; }
 .pi-ask-mark[data-on="true"] { border-color: var(--pi-accent); background: var(--pi-accent); }
-.pi-ask-option-body { display: flex; flex-direction: column; gap: 1px; min-width: 0; font-size: 13.5px; line-height: 1.45; }
 .pi-ask-option-label { overflow-wrap: anywhere; }
 .pi-ask-recommended { margin-left: 6px; color: var(--pi-muted); font-size: 12px; }
 .pi-ask-row[data-selected="true"] .pi-ask-recommended { color: inherit; }
 .pi-ask-option-description { color: var(--pi-muted); font-size: 12.5px; overflow-wrap: anywhere; }
 .pi-ask-custom-text { display: block; margin-top: 1px; color: var(--pi-ink-2); font-size: 12.5px; overflow-wrap: anywhere; }
-.pi-ask-note-button { align-self: center; flex: 0 0 auto; }
 .pi-ask-note-button[data-has-note="true"] { color: var(--pi-accent-strong); }
-
-.pi-ask-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 
 .pi-ask-preview { min-width: 0; max-height: 18rem; overflow: auto; padding: 8px 12px; border: 1px solid var(--pi-line); border-radius: var(--pi-radius-sm); background: var(--pi-surface-2); font-size: 13px; }
 .pi-ask-preview .pi-markdown { font-size: 13px; line-height: 1.6; }
 
-.pi-ask-review { gap: 4px; }
-.pi-ask-review-row { display: flex; flex-direction: column; gap: 1px; width: 100%; padding: 7px 10px; border: 0; border-radius: var(--pi-radius-sm); background: transparent; color: var(--pi-ink); font: inherit; text-align: left; cursor: pointer; }
+.pi-ask-review-row { border: 0; border-radius: var(--pi-radius-sm); background: transparent; color: var(--pi-ink); font: inherit; text-align: left; cursor: pointer; }
 .pi-ask-review-row:hover { background: var(--pi-hover); }
 .pi-ask-review-question { color: var(--pi-muted); font-size: 12px; }
 .pi-ask-review-answer { font-size: 13.5px; overflow-wrap: anywhere; }
@@ -46,19 +36,13 @@
 .pi-ask-review-note { color: var(--pi-muted); font-size: 12.5px; overflow-wrap: anywhere; }
 .pi-ask-review-warning { padding: 0 10px; }
 
-.pi-ask-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.pi-ask-footer-side { display: flex; align-items: center; gap: 6px; }
-
 @media (max-width: 48em) {
   .pi-ask { max-height: 66dvh; }
-  .pi-ask-body:has(> .pi-ask-preview) { grid-template-columns: minmax(0, 1fr); }
-  .pi-ask-option { padding-block: 9px; }
   .pi-ask-preview { max-height: 12rem; }
 }
 
-/* History: an ask call's questions and answers inside its tool row (tool-body.jsx AskRecord). */
-.pi-ask-record { display: flex; flex-direction: column; gap: 8px; padding: .55rem .8rem; color: var(--pi-code-ink); font-size: 13px; line-height: 1.5; }
-.pi-ask-record-row { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+/* History: an ask call's questions and answers inside its tool row (AskRecord.tsx). */
+.pi-ask-record { padding: .55rem .8rem; color: var(--pi-code-ink); font-size: 13px; line-height: 1.5; }
 .pi-ask-record-question { color: var(--pi-muted); white-space: pre-wrap; overflow-wrap: anywhere; }
 .pi-ask-record-question strong { margin-right: 6px; color: var(--pi-code-ink); font-weight: 600; }
 .pi-ask-record-answer { overflow-wrap: anywhere; }
@@ -66,4 +50,3 @@
 .pi-ask-record-meta { margin-left: 8px; color: var(--pi-muted); font-size: 12px; }
 .pi-ask-record-note { color: var(--pi-muted); font-size: 12.5px; }
 .pi-ask-record .pi-io-note { padding: 0; }
-

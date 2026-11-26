@@ -57,7 +57,7 @@ export async function verifyFoldedKernelImages(f, id) {
   await page.keyboard.press("ArrowLeft");
   await viewer.locator('[data-image-source="tool"]').waitFor();
   await viewer.locator('[data-image-index="5"]').waitFor();
-  await viewer.locator('[data-action="next-image"]').click();
+  await viewer.getByRole("button", { name: "下一张" }).click();
   await viewer.locator('[data-image-index="6"]').waitFor();
   await viewer.locator('img[alt="执行图片 1"]').waitFor();
   assert.equal(requests.length, 2, "opening the original reuses the loaded image");
@@ -99,7 +99,7 @@ export async function verifyFoldedKernelImages(f, id) {
   assert(mobile.x >= 0 && mobile.x + mobile.width <= 390);
   const cdp = await page.context().newCDPSession(page);
   await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 2 });
-  const stage = viewer.locator('[data-zoom="1"]');
+  const stage = viewer.locator(".yarl__slide_current");
   const frame = await stage.boundingBox();
   const x = frame.x + frame.width / 2, y = frame.y + frame.height / 2;
   const points = (spread) => [{ id: 0, x: x - spread, y }, { id: 1, x: x + spread, y }];
@@ -108,7 +108,6 @@ export async function verifyFoldedKernelImages(f, id) {
   await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
   await viewer.locator('[data-zoom]:not([data-zoom="1"])').waitFor();
   if (process.env.PI_TEST_WEB_EVIDENCE) await page.screenshot({ path: `${process.env.PI_TEST_WEB_EVIDENCE}/lightbox-mobile-dark.png`, animations: "disabled" });
-  const overlay = page.locator('.mantine-Modal-overlay');
-  await overlay.click({ position: { x: 3, y: 3 } });
+  await viewer.getByRole("button", { name: "关闭图片预览" }).click();
   await viewer.waitFor({ state: "detached" });
 }

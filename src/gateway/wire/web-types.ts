@@ -47,3 +47,10 @@ export type { ArchiveGroup, ArchivedSession, ArchivePreview, ArchivePreviewSessi
 
 
 // web/chat
+export type { MemoryChange } from "../../sessions/memory/memory-types.ts";
+export type { SessionHostSnapshot } from "../../sessions/host/host-types.ts";
+export type { HostedExtensionUiSnapshot, HostedNode } from "../../sessions/extension-ui/ui-types.ts";
+export type { KernelCellDelivery } from "../../sessions/history/kernel-cells/delivery-types.ts";
+export type { ToolContentPreview } from "../tool-content/content-types.ts";
+export type { HostOperationSnapshot, OperationCompletion } from "../../sessions/host/operations/operation-types.ts";
+export type { AskQuestion } from "../../plugins/ask/tools/ask-types.ts";

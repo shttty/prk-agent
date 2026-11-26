@@ -9,7 +9,9 @@
   padding: 0 var(--pi-composer-inset) max(1rem, env(safe-area-inset-bottom));
 }
 
-/* Status appears above the composer without resizing the scrollport. Candidate menus still open over it. */
+/* Status appears above the composer without resizing the scrollport. Candidate menus still open over it.
+   Positioned absolutely on purpose: the strip floats over the transcript tail (follow-transcript.ts reads its height into
+   --pi-composer-overlay-height as the transcript's bottom padding), so showing or hiding status never moves the composer. */
 .pi-composer-overlays {
   position: absolute;
   inset: auto var(--pi-composer-inset) 100%;
@@ -50,7 +52,8 @@
   box-shadow: var(--pi-shadow-composer), 0 0 0 2px var(--pi-accent-ring);
 }
 
-/* Candidate menus ("/", "@", plugin completions) float above the composer instead of pushing it: glass, like the menus. */
+/* Candidate menus ("/", "@", plugin completions) float above the composer instead of pushing it: glass, like the menus.
+   Absolute because they overlay the composer's own box and must never change its height (the layout test pins this). */
 
 .pi-candidates {
   position: absolute;
