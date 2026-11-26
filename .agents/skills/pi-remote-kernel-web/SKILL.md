@@ -21,7 +21,7 @@ description: Use when changing or verifying the PRK Web workbench.
 
 ## TypeScript, types and layout
 
-Checks: `npm test` runs `tsc -p web/tsconfig.json` (`strict`, `noUncheckedIndexedAccess`, `allowJs`, `checkJs: false`, `erasableSyntaxOnly`, `verbatimModuleSyntax`) and `eslint` with typescript-eslint, so migrated and unmigrated files share one program. `web/` keeps its own `typescript` 6.0.x only because typescript-eslint cannot load TypeScript 7 (peer `<6.1`); delete that devDependency once typescript-eslint supports 7. Type-aware lint rules read the same `web/tsconfig.json` as `tsc`.
+Checks: `npm test` runs `tsc -p web/tsconfig.json` (`strict`, `noUncheckedIndexedAccess`, `allowJs`, `checkJs: false`, `erasableSyntaxOnly`, `verbatimModuleSyntax`) and `eslint` with typescript-eslint, so migrated and unmigrated files share one program. `web/` keeps its own `typescript` 6.0.x only for typescript-eslint's default backend (peer `<6.1`). Its TypeScript 7 support is the experimental `tsgo` backend, which needs a TypeScript 7.1 prerelease installed as `@typescript/native`; do not enable it. Once the tsgo backend is stable and TypeScript 7.1 is released, switch to `@typescript/native` and delete the `typescript` 6 devDependency. Type-aware lint rules read the same `web/tsconfig.json` as `tsc`.
 
 ### Renaming and imports
 
