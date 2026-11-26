@@ -4,13 +4,15 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { fauxAssistantMessage, getCurrentSystemMessage } from "@earendil-works/pi-ai";
 import { gatewayFixture } from "../../fixtures/gateway/assemble-gateway.mjs";
+import { verifyPromptReferences } from "../../fixtures/prompt/verify-prompt-references.mjs";
 
 test("the model request directs a hidden skill reader through the declared meta tools", async (t) => {
-  let system;
+  let system, messages;
   const f = await gatewayFixture(t, {
     config: { session: { workerTools: "direct", capabilities: { "lazy:tool:skill_read": true } } },
     answer(context) {
       system = getCurrentSystemMessage(context.messages);
+      messages = context.messages;
       return fauxAssistantMessage("Observed the request.");
     },
   });
@@ -27,4 +29,5 @@ test("the model request directs a hidden skill reader through the declared meta 
   assert(declared?.includes("tool_search"));
   assert(declared.includes("tool_call"));
   assert(!declared.includes("skill_read"));
+  await verifyPromptReferences(f, id, messages);
 });

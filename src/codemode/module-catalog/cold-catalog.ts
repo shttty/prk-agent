@@ -3,7 +3,7 @@ import type { KernelHelper } from "./catalog-types.ts";
 // Cold-start metadata only. The kernel's inspect report replaces this entire list.
 // Legacy helpers remain here until each is migrated to an independent module.
 export const STATIC_KERNEL_HELPERS: readonly KernelHelper[] = [
-  { name: "bash", signature: "(command, timeout=None)", description: "Run bash; return exit_code, raw stdout/stderr, duration_ms, timed_out and truncated=False. Use either bash() or model terminals (terminal_textsend), not both." },
+  { name: "bash", signature: "(command, timeout=None)", description: "Run bash; return exit_code, raw stdout/stderr, duration_ms, timed_out and truncated=False." },
   { name: "ls", signature: "(path='.', offset=1, limit=500)", description: "List direct children, including hidden names and directory / suffixes; mapping entries/total/truncated/next_offset, max 2000 / 50KB; print to view." },
   { name: "phase", signature: "(title)", description: "Label the current cell's next phase; does not execute a Gateway operation." },
   { name: "glob", signature: "(pattern, path='.', hidden=False, gitignore=True, limit=100)", description: "List files via tool_bin('rg'): sorted relative paths, max 1000 files / 50KB; print the mapping result." },

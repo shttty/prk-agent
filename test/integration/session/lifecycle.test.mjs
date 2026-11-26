@@ -6,9 +6,10 @@ import { fauxAssistantMessage, getCurrentSystemMessage } from "@earendil-works/p
 import { gatewayFixture } from "../../fixtures/gateway/assemble-gateway.mjs";
 import { until } from "../../fixtures/until.mjs";
 import { verifyFileHelpers } from "../../fixtures/kernel/verify-file-helpers.mjs";
+import { verifyPromptReferences } from "../../fixtures/prompt/verify-prompt-references.mjs";
 
 test("create → stream → stop → sleep → explicitly wake the same SDK session", async (t) => {
-  const systems = [];
+  const systems = [], contexts = [];
   const f = await gatewayFixture(t, {
     web: true,
     config: {
@@ -24,6 +25,7 @@ test("create → stream → stop → sleep → explicitly wake the same SDK sess
     rate: 30,
     answer(context) {
       systems.push(getCurrentSystemMessage(context.messages));
+      contexts.push(context.messages);
       return fauxAssistantMessage(context.messages.at(-1).role === "toolResult" ? "Awake." : "streamed words ".repeat(200));
     },
   });
@@ -84,6 +86,7 @@ test("create → stream → stop → sleep → explicitly wake the same SDK sess
     assert.doesNotMatch(system.sections.tool_catalog, /Use read to examine files/);
   }
   assert.match(systems[1].sections.kernel, /^read\(/m);
+  await verifyPromptReferences(f, id, contexts[1]);
 
   const switched = await f.request("nativeAction", {
     sessionId: id, requestId: crypto.randomUUID(), action: "capabilities",
