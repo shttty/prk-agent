@@ -44,7 +44,7 @@ export function ModelMenu({ actions, tier, folded }) {
           <Menu.Divider />
           <SettingChoices kind={panel} actions={actions} />
         </> : <>
-          <ModelList actions={actions} filter={!phone} />
+          <ModelList actions={actions} />
           {folded.length ? <Menu.Divider /> : null}
           {folded.map(entry)}
         </>}

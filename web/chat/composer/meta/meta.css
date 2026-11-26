@@ -12,11 +12,11 @@
   gap: 4px;
 }
 
-/* Dark: sidebar-active is no lighter than the composer surface, so hover and open step up to line-strong. */
+/* Dark: sidebar-active is darker than the composer surface, so the fills step up from the dark line greys instead. */
 [data-mantine-color-scheme="dark"] .pi-composer-settings {
-  --pi-pill-fill: var(--pi-surface-2);
-  --pi-pill-fill-hover: var(--pi-line-strong);
-  --pi-pill-fill-open: var(--pi-line-strong);
+  --pi-pill-fill: var(--pi-line-strong);
+  --pi-pill-fill-hover: color-mix(in srgb, var(--pi-line-strong) 78%, var(--pi-muted));
+  --pi-pill-fill-open: color-mix(in srgb, var(--pi-line-strong) 78%, var(--pi-muted));
 }
 
 .pi-setting-select { flex: 0 0 auto; min-width: 0; }
@@ -81,8 +81,6 @@
 .pi-model-list { max-height: min(18rem, 45dvh); overflow-y: auto; overscroll-behavior: contain; }
 
 .pi-model-group { padding: .45rem .75rem .2rem; color: var(--pi-faint); font-size: .72rem; font-weight: 500; }
-
-.pi-model-filter { margin-bottom: 4px; }
 
 .pi-model-menu .mantine-Menu-itemLabel { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
