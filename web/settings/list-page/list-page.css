@@ -24,9 +24,6 @@
 .settings-detail-title h3 { margin: 0; overflow: hidden; color: var(--pi-ink); font-size: 16px; font-weight: 600; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
 .settings-detail-meta { margin-top: 1px; overflow: hidden; color: var(--pi-muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .settings-detail-actions { flex: none; display: flex; align-items: center; gap: 6px; }
-.settings-danger { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--pi-line); }
-.settings-danger-copy { min-width: 0; display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
-.settings-danger-copy span { color: var(--pi-muted); font-size: 12px; }
 /* Phone detail sheet over the list. */
 .settings-sheet-layer { display: contents; }
 .settings-sheet-scrim { position: absolute; inset: 0; z-index: var(--pi-z-settings-sheet); opacity: 0; pointer-events: none; cursor: pointer; background: var(--pi-scrim); transition: opacity var(--pi-motion-base) var(--pi-motion-ease-out); }
@@ -40,7 +37,9 @@
 .settings-sheet .settings-detail-head { padding-inline: 8px 14px; }
 .settings-sheet .settings-detail-body { padding: 10px 14px 24px; }
 /* Small switches on these pages: accent when on, neutral grey when off, no knob glyphs. */
-:is(.settings-list-page, .settings-sheet) { --pill-w: 34px; --pill-h: 18px; --pill-knob: 14px; --prk-state-on: var(--pi-accent); --prk-state-lazy: color-mix(in srgb, var(--pi-accent) 45%, var(--prk-state-off)); }
+:is(.settings-list-page, .settings-sheet) { --pill-w: 34px; --pill-h: 18px; --pill-knob: 14px; --prk-state-on: var(--pi-accent); --prk-state-lazy: color-mix(in srgb, var(--pi-accent) 55%, var(--prk-state-off)); }
+/* Dark: the off grey is light, so 懒加载 mixes toward the surface instead to stay apart from both ends. */
+[data-mantine-color-scheme="dark"] :is(.settings-list-page, .settings-sheet) { --prk-state-lazy: color-mix(in srgb, var(--pi-accent) 65%, var(--pi-surface)); }
 @media (pointer: coarse) { :is(.settings-list-page, .settings-sheet) { --pill-w: 42px; --pill-h: 24px; --pill-knob: 20px; } }
 :is(.settings-list-page, .settings-sheet) :is(.prk-pill-knob svg, .prk-pill-track > .mantine-Switch-thumb.prk-pill-knob::after) { display: none; }
 :is(.settings-list-page, .settings-sheet) .tri-status { display: none; }

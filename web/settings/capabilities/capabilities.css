@@ -9,14 +9,12 @@
 .capability-provider-name [data-part="head"] { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .capability-provider-name [data-part="tail"] { flex: none; }
 .capability-provider-name [data-part="machine"] { flex: none; white-space: pre; color: var(--pi-faint); }
-/* One flat list, capped in width so the mode selector stays next to the names it belongs to (no 800px gap on wide
-   screens); the selector column is the same for the group line and every member line. */
-.capability-detail { --capability-gutter: 24px; min-width: 0; overflow-y: auto; scroll-padding-top: 72px; display: flex; flex-direction: column; }
+/* Member lines, capped in width so each switch stays next to the name it belongs to (no 800px gap on wide screens). */
+.capability-detail { --capability-gutter: 24px; }
 .capability-list { width: 100%; max-width: 680px; padding: 4px var(--capability-gutter) 40px; }
 .capability-count { font-variant-numeric: tabular-nums; }
-.capability-config-open { position: relative; }
+.capability-config-open { position: relative; flex: none; }
 .capability-config-open .capability-dirty { position: absolute; top: 4px; right: 4px; }
-.capability-section + .capability-section { margin-top: 18px; }
 .capability-line { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .capability-group { position: sticky; top: 0; z-index: var(--pi-z-raised); padding: 14px 0 10px; background: var(--pi-surface); border-bottom: 1px solid var(--pi-line-strong); }
 .capability-copy { flex: 1; min-width: 0; }
@@ -25,8 +23,6 @@
 .capability-summary { margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--pi-faint); font-size: 12px; line-height: 1.45; }
 .capability-group-name { margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 16px; font-weight: 600; line-height: 1.3; color: var(--pi-ink); }
 .capability-group[data-state="off"] .capability-group-name { color: var(--pi-muted); }
-.capability-note { color: var(--pi-faint); font-size: 12px; }
-.capability-config-open { flex: none; }
 .capability-dirty { width: 6px; height: 6px; border-radius: 50%; background: var(--pi-accent); }
 /* Fixed slot left of each control: empty keeps its width (control columns align); overridden holds the ↺ reset. */
 .capability-override { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; }
@@ -49,7 +45,6 @@
 .settings-sheet .capability-detail { --capability-gutter: 14px; }
 .settings-sheet .capability-line { gap: 8px; }
 .settings-sheet .capability-row > .capability-copy { max-width: calc(100% - 152px); }
-.settings-sheet .capability-group { padding: 10px 0; }
 .capability-peek { position: absolute; z-index: var(--pi-z-settings-peek); width: min(380px, calc(100% - 16px)); max-height: min(60vh, 440px); overflow: auto; padding: 13px 16px 14px;
   background: var(--pi-overlay); backdrop-filter: var(--pi-glass); border: 1px solid var(--pi-line); border-radius: var(--pi-radius); box-shadow: var(--pi-shadow-overlay);
   opacity: 0; transform: translateY(calc(var(--pi-motion-rise) / 2)); visibility: hidden; pointer-events: none; overflow-wrap: anywhere;

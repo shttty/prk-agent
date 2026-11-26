@@ -6,7 +6,7 @@ import { PrkSwitch } from "../../design-system/switch/PrkSwitch.jsx";
 import InlineAlert from "../../design-system/inline-alert/InlineAlert.jsx";
 import { ProviderPolicyAlert } from "../provider-policy/ProviderPolicyAlert.jsx";
 import { DetailHeader } from "../list-page/DetailHeader.jsx";
-import { DangerZone } from "../list-page/DangerZone.jsx";
+import { Button } from "@mantine/core";
 import { PLUGIN_LOCATIONS } from "./plugin-locations.js";
 import { PluginFailure } from "./PluginFailure.jsx";
 
@@ -27,11 +27,11 @@ export function PluginDetail({ pkg, busy, failure, tools, onBack, onChange, onUn
         <span className="plugin-field-label">位置</span>
         <NativeSelect data-action="plugin-location" size="xs" w={160} aria-label={`${pkg.name} 位置`} data={PLUGIN_LOCATIONS} value={pkg.location} disabled={busy} onChange={(event) => onChange({ location: event.currentTarget.value })} />
       </Group>
-      <Group gap="sm" className="plugin-field" data-tool-count={tools.count}>
+      {tools.count ? <Group gap="sm" className="plugin-field" data-tool-count={tools.count}>
         <span className="plugin-field-label">工具</span>
         <span>{tools.count} 个</span>
-        {tools.groupId && onOpenTools ? <Anchor component="button" type="button" size="sm" data-action="plugin-open-tools" onClick={() => onOpenTools(tools.groupId)}>在工具页查看</Anchor> : null}
-      </Group>
+        {onOpenTools ? <Anchor component="button" type="button" size="sm" data-action="plugin-open-tools" onClick={() => onOpenTools(tools.groupId)}>在工具页查看</Anchor> : null}
+      </Group> : null}
       {pkg.providerIds.length ? <Group gap={6} className="plugin-field">
         <span className="plugin-field-label">Provider</span>
         {pkg.providerIds.map((id) => <Badge key={id} data-provider-id={id} size="sm" variant="light" color="gray" tt="none">{id}</Badge>)}
@@ -44,7 +44,10 @@ export function PluginDetail({ pkg, busy, failure, tools, onBack, onChange, onUn
       {pkg.providerErrors.map((item, index) => <ProviderPolicyAlert key={`${item.providerId}-${item.operation}-${index}`} item={item} />)}
       {pkg.warnings?.map((message) => <InlineAlert key={message} color="yellow" size="sm" title="启动警告" data-kind="plugin-warning">{message}</InlineAlert>)}
       {failure ? <PluginFailure data-kind="plugin-change-error" failure={failure} /> : null}
-      <DangerZone label="卸载插件" description="从 Gateway 删除这个插件包。" action="plugin-uninstall" disabled={busy} onAction={onUninstall} />
+      <section className="plugin-danger">
+        <div><strong>卸载插件</strong><span>从 Gateway 删除这个插件包。</span></div>
+        <Button variant="outline" color="red" size="xs" data-action="plugin-uninstall" disabled={busy} onClick={onUninstall}>卸载插件</Button>
+      </section>
     </div>
   </div>;
 }

@@ -11,10 +11,17 @@ import { PluginList } from "./PluginList.jsx";
 import { PluginDetail } from "./PluginDetail.jsx";
 import { PluginFailure } from "./PluginFailure.jsx";
 import { GatewayRestartNotice } from "./GatewayRestartNotice.jsx";
-import { pluginToolGroups } from "./plugin-tool-groups.js";
 import { isConnectionFailure } from "../../workbench/store/requests/is-connection-failure.js";
 import { useRelink } from "../list-page/use-relink.js";
 import "./plugins.css";
+
+/** Tool groups a plugin package provides in the capability catalog: `group:tools:package:<name>` and its remote twins. */
+function pluginToolGroups(catalog, name) {
+  const groups = (catalog?.groups ?? []).filter((group) => group.kind === "tool" && group.id.endsWith(`:${name}`) && (group.id.includes(":package:") || group.id.includes(":remote:")));
+  const ids = new Set(groups.map((group) => group.id));
+  return { groupId: groups[0]?.id, count: (catalog?.entries ?? []).filter((entry) => entry.kind === "tool" && ids.has(entry.group)).length };
+}
+
 /** The one plugin list (`/api/plugins`, docs/wire/plugin-config.md#pi-packages): Pi packages from npm or a Gateway
  * directory, each enabled or not and placed on the session host or the Gateway. Saved changes apply to new, woken or
  * reloaded sessions; provider-owner changes apply after a Gateway restart (`restartRequired`, shown even with an empty

@@ -5,7 +5,7 @@ import { useWorkbench } from "../../workbench/subscription/use-workbench.js";
 import { SplitPage } from "../list-page/SplitPage.jsx";
 import { DetailHeader } from "../list-page/DetailHeader.jsx";
 import { LinkWait } from "../list-page/LinkWait.jsx";
-import MemoryLayerList from "./MemoryLayerList.jsx";
+import { ListRow } from "../list-page/ListRow.jsx";
 import MemoryDocuments from "./MemoryDocuments.jsx";
 import MemoryDeleteDialog from "./MemoryDeleteDialog.jsx";
 import LayerConfig from "./LayerConfig.jsx";
@@ -46,7 +46,13 @@ export default function MemoryDialog({ actions, mobile }) {
   return <>
     <SplitPage id="memory-manager" mobile={mobile} sheetOpen={sheetOpen} onCloseSheet={() => setSheetOpen(false)} sheetId="memory-sheet" backAction="close-memory-layer"
       aria-busy={busy} data-enabled={String(listing.enabled)} detail={detail}
-      list={<MemoryLayerList items={items} active={active} mobile={mobile} onChoose={choose} hint={layers.length < listing.layers.length ? "项目记忆在侧栏项目菜单里。" : ""} />} />
+      list={<section className="settings-list memory-layers">
+        <div className="settings-list-scroll" id="memory-layers" role="listbox" aria-label="记忆层">
+          {items.map((item) => <ListRow key={item.id} id={`memory-layer-${item.id}`} data-memory-layer={item.id} name={item.label} count={item.count}
+            selected={!mobile && active === item.id} onChoose={() => choose(item.id)} />)}
+        </div>
+        {layers.length < listing.layers.length ? <div className="settings-list-foot" id="memory-project-hint">项目记忆在侧栏项目菜单里。</div> : null}
+      </section>} />
     <MemoryDeleteDialog memory={memory} />
   </>;
 }

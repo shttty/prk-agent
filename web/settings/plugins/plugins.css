@@ -14,3 +14,6 @@
 .plugin-commands li span { min-width: 0; overflow-wrap: anywhere; }
 @media (max-width: 600px) { .plugin-commands li { flex-direction: column; gap: 0; } }
 .plugin-list .settings-list-top > .mantine-Button-root { flex: none; }
+.plugin-danger { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--pi-line); }
+.plugin-danger > div { min-width: 0; display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.plugin-danger span { color: var(--pi-muted); font-size: 12px; }
