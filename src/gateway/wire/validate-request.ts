@@ -37,10 +37,13 @@ export function validateRequest(value: unknown, limits: LimitsOptions = DEFAULT_
     && !validateLibraryParams(request, p, limits)) {
     if ((workspaceMethods as readonly string[]).includes(value.method)) {
       if (!validateWorkspaceRequest(value.method, p, limits)) return invalid();
-    } else if (value.method === "kernelExecutionGet" || value.method === "toolTitleGet") {
+    } else if (value.method === "kernelExecutionGet" || value.method === "toolTitleGet" || value.method === "soulGet") {
       if (!keys(p, [])) return invalid();
     } else if (value.method === "kernelExecutionSet") {
       if (!isKernelExecutionSettings(p)) return invalid();
+    } else if (value.method === "soulSave") {
+      // Size is the soul file's own limit, checked once where it is written.
+      if (!keys(p, ["content", "revision"]) || typeof p.content !== "string" || typeof p.revision !== "string") return invalid();
     } else if (value.method === "toolTitleSet") {
       if (!isToolTitleSettings(p)) return invalid();
     } else if (value.method === "send") {

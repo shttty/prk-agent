@@ -18,6 +18,8 @@ UI 属于独立 `web/` npm package；同源 Vite proxy 的运行方式见 [desig
 | `POST /api/settings/kernel-execution` | exactly `{asyncExecution:boolean}`; no query | `kernelExecutionSet` → `{asyncExecution:boolean}` |
 | `GET /api/settings/tool-title` | none | `toolTitleGet` → `{enabled:boolean}` |
 | `POST /api/settings/tool-title` | exactly `{enabled:boolean}`; no query | `toolTitleSet` → `{enabled:boolean}` |
+| `GET /api/settings/soul` | none | `soulGet` → `SoulView` |
+| `POST /api/settings/soul` | exactly `{content:string,revision:string}`; no query | `soulSave` → `SoulView`; `CONFLICT` (409) when the file changed since `revision`, `INVALID_REQUEST` when unconfigured or over `limits.contextFileBytes` |
 | `POST /api/gateway/restart` | `{}` | 不转发 Gateway；Web 进程执行 `systemctl --user restart -- <gateway.systemdUnit>`，见下 |
 | `GET /api/sessions/events` | none | `subscribeSessions`；SSE 工作台集合事件 |
 | `POST /api/sessions` | `{target,cwd?,label?,project?:{id,name}|{name}}`；未归类省略 project | `createSession` |

@@ -16,6 +16,8 @@ export async function dispatchCatalogs(ctx: PeerContext, respond: Respond, reque
       if (method === "kernelExecutionGet") { respond(id, host.kernelExecutionGet()); return; }
       if (method === "kernelExecutionSet") { respond(id, await host.kernelExecutionSet(params as unknown as KernelExecutionSettings)); return; }
       if (method === "toolTitleGet") { respond(id, host.toolTitleGet()); return; }
+      if (method === "soulGet") { respond(id, host.soulGet()); return; }
+      if (method === "soulSave") { respond(id, host.soulSave(params as { content: string; revision: string })); return; }
       if (method === "toolTitleSet") { respond(id, await host.toolTitleSet(params as unknown as ToolTitleSettings)); return; }
       if (method === "capabilitiesList") { respond(id, await host.capabilitiesList(params.instance as string | undefined)); return; }
       if (method === "capabilitiesRefresh") { respond(id, await host.capabilitiesRefresh(params.instance as string | undefined)); return; }

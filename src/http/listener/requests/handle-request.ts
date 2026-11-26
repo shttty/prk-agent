@@ -33,6 +33,7 @@ import { handleSessionControlRequest } from "../../session-control-routes/handle
 import { handleDerivationRequest } from "../../derivation-routes/handle-derivation-request.ts";
 import { handleKernelExecutionRequest } from "../../kernel-execution-routes/handle-kernel-execution-request.ts";
 import { handleToolTitleRequest } from "../../tool-title-routes/handle-tool-title-request.ts";
+import { handleSoulRequest } from "../../soul-routes/handle-soul-request.ts";
 
 export async function handleRequest(ctx: ListenerContext, request: IncomingMessage, response: ServerResponse): Promise<void> {
   const { limits } = ctx;
@@ -92,6 +93,10 @@ export async function handleRequest(ctx: ListenerContext, request: IncomingMessa
     }
     if (path === "/api/settings/tool-title") {
       await handleToolTitleRequest(ctx, request, response);
+      return;
+    }
+    if (path === "/api/settings/soul") {
+      await handleSoulRequest(ctx, request, response);
       return;
     }
     if (path === "/api/capabilities/refresh") {

@@ -22,6 +22,8 @@ Tool / skill / kernel / workspace 方法按 [HTTP topic index](http.md#topical-e
 | `kernelExecutionSet` | exactly `{asyncExecution:boolean}` | `{asyncExecution:boolean}` |
 | `toolTitleGet` | `{}` | `{enabled:boolean}` |
 | `toolTitleSet` | exactly `{enabled:boolean}` | `{enabled:boolean}` |
+| `soulGet` | `{}` | `SoulView = {configured:boolean,path:string,content:string,revision:string,maxBytes:number}`; `path` is the configured path resolved against the PRK home, `revision` the SHA-256 of the text (`""` when the file is missing, which reads as empty) |
+| `soulSave` | exactly `{content:string,revision:string}` | `SoulView` after an atomic replace; a symbolic link at `path` is kept and the file it points to is replaced |
 | `createSession` | `{target,cwd?,label?,project?:{id,name}|{name}}` | `CreatedSession` |
 | `state` | `{sessionId}` | `SessionHostSnapshot` |
 | `messages` | `{sessionId}` | `{sessionId,streamId,sequence,messages}` |

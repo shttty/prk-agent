@@ -197,7 +197,7 @@
 - `REQ-41` 定向 session_list 必须读取最新权威消息与执行中输出，并限制最近条数与单条文本长度。
 - `REQ-42` 派生配置与目录必须保留可覆盖的 task/small 内置角色；session_spawn 省略 role 时必须选 task。
 - `REQ-43` 模型终端输入工具必须只发布 `terminal_textsend` 与 `terminal_keysend`，不得保留旧工具别名；开关必须用 `terminal_set`。
-- `REQ-44` `memory` 与 `memoryChange` 必须接收非空 `operations`；按 action 整批校验字段，任一项非法不得写入。
+- `REQ-44` `memory`/`memoryChange` 必须收非空 `operations` 并整批校验，任一项非法不得写入；`soulSave` 修订不符不得写入。
 - `ORD-1` 必须仅在计数器不会重来的同一身份内比较序号与修订号。
 - `ORD-2` 必须在计数器可能重新开始时同时改变其所属身份。
 - `ORD-3` 必须在客户端遇到身份变化时整体丢弃旧身份状态，并以新身份快照为底重新接收增量。

@@ -55,6 +55,7 @@ import type { ProjectAssignment, ProjectSelection } from "../projects/project-ty
 import type { KernelExecutionSettings } from "../../config/kernel/kernel-options.ts";
 import type { BunPackagePins } from "../../config/execution-target/validation/bun-package-options.ts";
 import type { ToolTitleSettings } from "../../config/session/session-options.ts";
+import type { SoulView } from "../soul/read-soul-settings.ts";
 
 export interface GatewaySessionHost {
   workbench(): WorkbenchSnapshot;
@@ -71,6 +72,8 @@ export interface GatewaySessionHost {
   kernelExecutionSet(request: KernelExecutionSettings): Promise<KernelExecutionSettings>;
   toolTitleGet(): ToolTitleSettings;
   toolTitleSet(request: ToolTitleSettings): Promise<ToolTitleSettings>;
+  soulGet(): SoulView;
+  soulSave(request: { content: string; revision: string }): SoulView;
   capabilitiesList(instance?: string): Promise<CapabilitySettings>;
   capabilitiesRefresh(instance?: string): Promise<CapabilitySettings>;
   capabilitiesChange(request: CapabilitySettingsChange): Promise<CapabilitySettings>;

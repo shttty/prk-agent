@@ -29,7 +29,7 @@ export function dispatchRequest(ctx: PeerContext, respond: Respond, request: Req
     if (method === "workbench" || method === "modelCatalog" || method === "reloadTargets"
       || method === "derivationGet" || method === "derivationSet"
       || method === "kernelExecutionGet" || method === "kernelExecutionSet"
-      || method === "toolTitleGet" || method === "toolTitleSet"
+      || method === "toolTitleGet" || method === "toolTitleSet" || method === "soulGet" || method === "soulSave"
       || method === "capabilitiesList" || method === "capabilitiesRefresh" || method === "capabilitiesChange") {
       return dispatchCatalogs(ctx, respond, request);
     }

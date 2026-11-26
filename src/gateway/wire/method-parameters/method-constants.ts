@@ -6,6 +6,7 @@ export const methods = [
   "derivationGet", "derivationSet",
   "kernelExecutionGet", "kernelExecutionSet",
   "toolTitleGet", "toolTitleSet",
+  "soulGet", "soulSave",
   "sessionControl", "setSessionRoot", "setProjectSupervisor",
   "pluginsList", "pluginsChange", "pluginsInstall", "pluginsUninstall",
   "artifactsList", "artifactsUpload", "artifactsCurrent", "artifactsDelete",

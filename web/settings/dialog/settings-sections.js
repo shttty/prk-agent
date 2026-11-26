@@ -8,6 +8,7 @@ import { IconPuzzle } from "@tabler/icons-react";
 import { IconBook2 } from "@tabler/icons-react";
 import { IconNotes } from "@tabler/icons-react";
 import { IconArchive } from "@tabler/icons-react";
+import { IconUserHeart } from "@tabler/icons-react";
 export const sections = [
   ["general", "通用", IconSettings, "open-general"],
   ["visual-effects", "视觉效果", IconSparkles, "open-visual-effects"],
@@ -18,5 +19,6 @@ export const sections = [
   ["plugins", "插件", IconPuzzle, "open-plugins"],
   ["skills", "Skills", IconBook2, "open-skill-library"],
   ["memory", "记忆", IconNotes, "open-memory"],
+  ["soul", "人格", IconUserHeart, "open-soul"],
   ["archive", "归档", IconArchive, "open-archive"],
 ];

@@ -27,6 +27,8 @@ import { kernelExecutionGet } from "../kernel-execution/read-settings.ts";
 import { kernelExecutionSet } from "../kernel-execution/save-settings.ts";
 import { toolTitleGet } from "../tool-title/read-settings.ts";
 import { toolTitleSet } from "../tool-title/save-settings.ts";
+import { soulGet } from "../soul/read-soul-settings.ts";
+import { soulSave } from "../soul/save-soul.ts";
 
 import { assembleSessionControl } from "../session-control/assemble-session-control.ts";
 export function assembleHost(options: GatewayHostOptions, dependencies: GatewayHostDependencies, paths: HostState["paths"], config: PrkConfig): HostContext {
@@ -73,6 +75,8 @@ export function assembleHost(options: GatewayHostOptions, dependencies: GatewayH
     kernelExecutionSet: kernelExecutionSet.bind(undefined, ctx),
     toolTitleGet: toolTitleGet.bind(undefined, ctx),
     toolTitleSet: toolTitleSet.bind(undefined, ctx),
+    soulGet: soulGet.bind(undefined, ctx),
+    soulSave: soulSave.bind(undefined, ctx),
   };
   return ctx;
 }

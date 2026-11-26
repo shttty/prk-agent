@@ -1,0 +1,10 @@
+.soul-settings { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.soul-note, .soul-count { color: var(--pi-muted); font-size: 12px; }
+.soul-count { font-variant-numeric: tabular-nums; }
+.soul-count[data-over-limit="true"] { color: var(--pi-warn); }
+.soul-path { overflow: hidden; color: var(--pi-muted); font-family: var(--pi-font-mono); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+/* The workspace editor's colours, but sized by its text up to a cap, then scrolling. */
+.soul-editor { flex: none; margin-top: 4px; border: 1px solid var(--pi-line); border-radius: var(--pi-radius-sm); }
+.soul-editor .cm-editor, .soul-editor .cm-gutters { height: auto; border-radius: inherit; background: var(--pi-surface); }
+.soul-editor .cm-content { padding: 10px 4px; }
+.soul-actions { margin-top: 4px; }

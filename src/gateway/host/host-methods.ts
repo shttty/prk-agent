@@ -23,6 +23,8 @@ import type { kernelExecutionGet } from "../kernel-execution/read-settings.ts";
 import type { kernelExecutionSet } from "../kernel-execution/save-settings.ts";
 import type { toolTitleGet } from "../tool-title/read-settings.ts";
 import type { toolTitleSet } from "../tool-title/save-settings.ts";
+import type { soulGet } from "../soul/read-soul-settings.ts";
+import type { soulSave } from "../soul/save-soul.ts";
 
 type WithoutContext<T> = T extends (ctx: never, ...args: infer A) => infer R ? (...args: A) => R : never;
 
@@ -32,6 +34,8 @@ export interface HostMethods {
   kernelExecutionSet: WithoutContext<typeof kernelExecutionSet>;
   toolTitleGet: WithoutContext<typeof toolTitleGet>;
   toolTitleSet: WithoutContext<typeof toolTitleSet>;
+  soulGet: WithoutContext<typeof soulGet>;
+  soulSave: WithoutContext<typeof soulSave>;
 }
 
 export interface GatewayMethods extends RemotePackagesMethods, ModelsMethods, WorkspaceMethods, MonitoringMethods, SessionViewsMethods, ArchivesMethods, CapabilitiesMethods, SessionLifecycleMethods, InstancesMethods, DerivationMethods, NativeInteractionsMethods, ProjectsMethods, ArtifactsMethods, ToolLibraryMethods, SkillLibraryMethods, ThemesMethods, MemoriesMethods, PluginConfigurationMethods, CollectionEventsMethods, ControlMethods, HostMethods {}

@@ -14,6 +14,7 @@ import { VisualEffectsSettings } from "./VisualEffectsSettings.jsx";
 import { TargetManagement } from "../../instances/list/TargetManagement.jsx";
 import SubsessionSettings from "../subsessions/SubsessionSettings.jsx";
 import MemoryDialog from "../memory/MemoryDialog.jsx";
+import SoulSettings from "../soul/SoulSettings.jsx";
 import ArtifactsPanel from "../artifacts/ArtifactsPanel.jsx";
 import PluginsPanel from "../plugins/PluginsPanel.jsx";
 import { ArchiveDialog } from "../../sessions/archive/ArchiveDialog.jsx";
@@ -55,6 +56,7 @@ function SettingsDialog({ opened, onClose, fullScreen, initialSection, actions, 
         {page === "visual-effects" ? <div className="pi-settings-page"><VisualEffectsSettings setShowImages={actions.setShowImages} /></div> : null}
         {page === "targets" ? <div className="pi-settings-page" id="settings-targets"><TargetManagement actions={actions} mobile={fullScreen} /></div> : null}
         {page === "subsessions" ? <div className="pi-settings-page" id="settings-subsessions"><SubsessionSettings actions={actions} mobile={fullScreen} /></div> : null}
+        {page === "soul" ? <div className="pi-settings-page" id="settings-soul"><SoulSettings api={actions.api} /></div> : null}
         {page === "memory" ? <MemoryDialog actions={actions} mobile={fullScreen} /> : null}
         {page === "artifacts" ? <div className="pi-settings-page"><ArtifactsPanel actions={actions} /></div> : null}
         {page === "plugins" ? <div className="pi-settings-page" id="settings-plugins"><PluginsPanel actions={actions} gatewayRestartUnit={gatewayRestartUnit} /></div> : null}

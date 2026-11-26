@@ -4,6 +4,8 @@ import { fauxAssistantMessage, fauxText, fauxThinking, fauxToolCall } from "@ear
 import { browserFixture } from "../../fixtures/browser/open-workbench.mjs";
 import { text } from "../../fixtures/gateway/assemble-gateway.mjs";
 import { installMessageRenderCounter } from "../../fixtures/browser/count-message-renders.mjs";
+import { mkdir, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 import { until } from "../../fixtures/until.mjs";
 
 const idle = "#composer-form:not([data-busy])";
@@ -11,7 +13,7 @@ const stage = (name) => `#operation-state[data-stage="${name}"]`;
 
 test("composer and viewport stay put through send, wait, thinking, output, tool and settlement", async (t) => {
   const release = Promise.withResolvers();
-  const f = await browserFixture(t, { rate: 36, answer: async (context) => {
+  const f = await browserFixture(t, { rate: 36, config: { session: { workerTools: "direct", soulFile: "prompts/soul.md" } }, answer: async (context) => {
     if (context.messages.at(-1).role === "toolResult") {
       const lastUser = context.messages.findLast((message) => message.role === "user");
       return fauxAssistantMessage(text(lastUser) === "Check folds" ? "Fold final." : "Settled.");
@@ -26,6 +28,8 @@ test("composer and viewport stay put through send, wait, thinking, output, tool 
       fauxText("Same assistant message after the call."),
     ], { stopReason: "toolUse" });
   } });
+  await mkdir(join(f.root, "prompts"));
+  await writeFile(join(f.root, "prompts", "soul.md"), "Fixture persona.");
   const id = await f.create();
   const gate = Promise.withResolvers();
   try {
@@ -36,6 +40,14 @@ test("composer and viewport stay put through send, wait, thinking, output, tool 
     assert.equal(await f.page.locator("#setting-stream-output").isChecked(), false);
     await f.page.locator("#setting-show-thinking").press("Space");
     assert.equal(await f.page.locator("#setting-show-thinking").isChecked(), false);
+    await f.page.locator("#open-soul").click();
+    await f.page.locator('#soul-settings[data-configured="true"]').waitFor();
+    await f.page.locator("#soul-editor .cm-content").click();
+    await f.page.keyboard.press("Control+End");
+    await f.page.keyboard.type(" Edited.");
+    await f.page.locator("#soul-save").click();
+    await f.page.locator('#soul-settings[data-dirty="false"]').waitFor();
+    assert.equal((await f.request("soulGet", {})).content, "Fixture persona. Edited.");
     await f.page.locator("#close-settings").click();
     await f.page.evaluate(() => document.fonts.ready);
     await f.page.locator("#composer").fill("Check layout");
