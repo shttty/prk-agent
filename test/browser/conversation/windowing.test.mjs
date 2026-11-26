@@ -37,6 +37,22 @@ async function prependLastPage(page) {
   });
 }
 
+// Mounted rows sit one list gap apart, in index order; a row placed from a stale size overlaps or detaches.
+function misplacedRows(page) {
+  return page.evaluate(async () => {
+    // Let <details> height transitions finish: mid-transition boxes run ahead of the last ResizeObserver pass.
+    await Promise.all(document.getAnimations().filter((animation) => animation instanceof CSSTransition).map((animation) => animation.finished));
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const list = document.querySelector("#transcript .pi-transcript-list");
+    const gap = parseFloat(getComputedStyle(list.parentElement).rowGap) || 0;
+    const rows = [...list.children].map((node) => ({ index: Number(node.dataset.index), box: node.getBoundingClientRect() })).sort((a, b) => a.index - b.index);
+    return rows.slice(1).flatMap((row, k) => {
+      const drift = Math.round(row.box.top - rows[k].box.bottom - gap);
+      return row.index === rows[k].index + 1 && Math.abs(drift) > 1 ? [{ index: row.index, drift }] : [];
+    });
+  });
+}
+
 test("long transcript preserves prepend and restore anchors, reveals off-window rows, and follows streaming output", async (t) => {
   const f = await browserFixture(t, { rate: 40, answer: ({ messages }) => fauxAssistantMessage(
     text(messages.at(-1)) === "Observe pinned streaming" ? "Pinned frame evidence. **Visible** text across several lines.\n\n".repeat(18) : "Fixture reply.",
@@ -97,8 +113,14 @@ test("long transcript preserves prepend and restore anchors, reveals off-window 
   await task.locator('[data-action="view"]').click();
   await cell.locator(":scope > summary").waitFor();
   assert.equal(await cell.getAttribute("open"), "");
+  // DevTools docked at the bottom resizes the window with the open cell mounted; then the interrupt replaces the
+  // snapshot's kernel cells and appends the cell's event row.
+  await page.setViewportSize({ width: 1200, height: 640 });
+  assert.deepEqual(await misplacedRows(page), [], "rows restack after the window resize");
   await task.locator('[data-action="interrupt"]').click();
   await task.waitFor({ state: "detached" });
+  assert.deepEqual(await misplacedRows(page), [], "the interrupt keeps mounted rows stacked");
+  await page.setViewportSize({ width: 1440, height: 1000 });
 
   await page.locator("#composer").fill("Observe pinned streaming");
   await page.evaluate(() => {

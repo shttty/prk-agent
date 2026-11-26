@@ -44,14 +44,16 @@ export function TranscriptList({ ref, viewportRef, history, following, mayFollow
     estimateSize: (index) => {
       if (pageRows && index === 0) return 22;
       const measured = heights.current.get(getItemKey(index));
-      if (measured?.width === geometry.width && measured.display === display && measured.imageCounts === imageCounts) return measured.height;
+      if (measured?.width === geometry.width && measured.display === display) return measured.height;
       return estimateMessageHeight(aui.thread().getState().messages[index - pageRows], geometry.width, display, imageCounts);
     },
+    // TanStack records no size for a row measured at its estimate: that row's size is estimateSize's answer on every
+    // rebuild, so a cached height must hold as long as the row's box does. Key it only by what reflows the row.
     measureElement: (node, entry, instance) => {
       const rect = entry?.borderBoxSize?.[0];
       const height = rect?.blockSize ?? node.getBoundingClientRect().height;
       const width = Math.round(rect?.inlineSize ?? node.getBoundingClientRect().width);
-      heights.current.set(getItemKey(instance.indexFromElement(node)), { width, height, display, imageCounts });
+      heights.current.set(getItemKey(instance.indexFromElement(node)), { width, height, display });
       return height;
     },
     scrollMargin: geometry.margin, gap: geometry.gap, overscan: 4,
@@ -95,7 +97,11 @@ export function TranscriptList({ ref, viewportRef, history, following, mayFollow
   }, []);
   useLayoutEffect(() => {
     virtualizer.measure();
-    for (const row of container.current.children) virtualizer.measureElement(row);
+    // virtualizer.measureElement skips rows while the list scrolls, and a row whose box kept its size reports no
+    // resize afterwards: measure the mounted rows here unconditionally.
+    for (const row of container.current.children) {
+      virtualizer.resizeItem(virtualizer.indexFromElement(row), virtualizer.options.measureElement(row, undefined, virtualizer));
+    }
   }, [geometry.width, display, virtualizer]);
 
   const revealMounted = useCallback((id, options) => {
