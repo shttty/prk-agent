@@ -73,7 +73,7 @@ def run_kernel(configuration):
             ctx.eof = True  # Fence the compiler handoff before stopping the loop.
         ctx.loop.call_soon_threadsafe(ctx.loop_stop.set)
         loop_thread.join()
-        prelude = sys.modules.get("_prk_codemode")
+        prelude = sys.modules.get("__prk__")
         if prelude and not ctx.cells:
             for shutdown in prelude._shutdown:
                 shutdown()

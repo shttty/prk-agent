@@ -25,7 +25,7 @@ def execution_scope(ctx, cell, mode):
             for peer in ctx.executing:
                 cell.overlapped = peer.overlapped = True
             ctx.executing.add(cell)
-        prelude = sys.modules.get("_prk_codemode")
+        prelude = sys.modules.get("__prk__")
         tracing = sampling = succeeded = False
         try:
             if prelude:
@@ -41,6 +41,7 @@ def execution_scope(ctx, cell, mode):
             def publish():
                 if prelude:
                     try:
+                        prelude._report_shadowed_aliases()
                         if tracing:
                             prelude._trace.stop()
                     finally:

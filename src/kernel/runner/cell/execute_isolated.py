@@ -9,7 +9,7 @@ def _isolated_input_values(ctx, message):
     output = message.get("outputs")
     if not isinstance(names, list) or ("outputs" in message and not isinstance(output, str)):
         raise ValueError("inputs must be a list of names; outputs must be a name")
-    prelude = sys.modules.get("_prk_codemode")
+    prelude = sys.modules.get("__prk__")
     for name in chain(names, () if output is None else (output,)):
         if not isinstance(name, str):
             raise ValueError("Isolated variable names must be strings")

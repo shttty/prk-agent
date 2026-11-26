@@ -10,7 +10,7 @@ def _execute_maintenance(ctx, cell):
         check_cancelled(ctx, cell)
         message = cell.message
         kind = message["kind"]
-        prelude = sys.modules.get("_prk_codemode")
+        prelude = sys.modules.get("__prk__")
         try:
             if prelude:
                 prelude.begin_cell(message.get("title", kind))
@@ -25,7 +25,7 @@ def _execute_maintenance(ctx, cell):
             elif kind == "library":
                 prelude._library_apply(message["entries"])
         finally:
-            prelude = sys.modules.get("_prk_codemode")
+            prelude = sys.modules.get("__prk__")
             if prelude:
                 prelude._namespace_publish()
 

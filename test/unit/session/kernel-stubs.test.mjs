@@ -28,6 +28,12 @@ test("a switched-off function takes its stub, and the types only it used, out of
   assert.doesNotMatch(renderKernel(input({ kernelCapabilities: () => false })), /```python|Helpers run on/);
 });
 
+test("the global constraints sit before the stubs and name the reserved package", () => {
+  const section = renderKernel(input());
+  assert.match(section, /^Helpers run on the target cwd, never on the Gateway\..*`__prk__\.<name>` always reaches the preinstalled function\.$/m);
+  assert(section.indexOf("Helpers run on") < section.indexOf("```python"));
+});
+
 test("the tool-library hint and the CLI line follow the functions they are about", () => {
   assert.match(renderKernel(input()), /@tool\(persist=True/);
   assert.doesNotMatch(renderKernel(input({ autoTools: false })), /Save a function with/);

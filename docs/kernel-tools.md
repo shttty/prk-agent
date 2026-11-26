@@ -80,6 +80,12 @@ factor = 3
 - 冷启动目录是内置工具真实 inspect 报告的快照；改了内置函数的签名、注解或 docstring 后须重新生成：`PRK_UPDATE_COLD_CATALOG=1 node --test test/integration/session/kernel-stubs.test.mjs`。同一测试断言快照与真实 kernel 的报告一致，且两条路径渲染的 `<kernel>` 段逐字节相同。
 - cell 里的 `help()` 输出归属该 cell（标准 `help()` 写到 cell 输出之外）。
 
+## 保留包 `__prk__`
+
+- 所有预装函数的唯一实体是 `sys.modules["__prk__"]` 的属性：前导库的 `bash/ls/glob/phase/tool/library_sync/tool_bin/disk_usage`、`gateway`、已加载的沉淀工具，以及文件等模块工具（loader 把它们绑到同一模块）。用户全局里的同名只是别名；cell 命名空间预绑定 `__prk__`，`from __prk__ import read` 与 `__prk__.read(...)` 在别名被覆盖或 `del` 后仍指向预装函数。
+- 不自动恢复被覆盖的别名。cell 结束时若某个别名不再是预装对象，输出末尾追加一行 `[PRK] ...`，列出名字并给出 `__prk__.<name>(...)`；每个名字每次覆盖只提示一次，别名重新指回预装函数后再覆盖会再提示；未覆盖时没有提示；isolated cell 不检查。
+- kernel 重启（reset）重建模块与别名；同进程 `/reload` 保留命名空间，也不替用户恢复被覆盖的别名，不重复提示。
+
 ## 依赖声明与制品分发
 
 包用 `name/prk-tool.toml`，单文件模块用旁边的 `name.prk-tool.toml`，可省略无依赖声明。扫描到旧 `prk-tool.json` / `<name>.prk-tool.json` 时，该模块经既有 `module.error` 路径报告转换及改名要求；即使新清单存在也不读取旧 JSON，不影响其他模块。
@@ -170,7 +176,7 @@ print(batch)
 
 - 所有 `gateway.*` 调用、内核模块工具及其 `host.call(name, **args)` 结果均为原生 Python `dict`／`list`／`str`／`int`／`float`／`bool`／`None`，不得把 PRK 自有结构化结果编码成 JSON 字符串或要求调用方 `json.loads`。PRK 结构化工具必须声明 `outputSchema` 并返回 `structuredContent`；插件有 `structuredContent` 时优先使用，否则逐字返回文本 `str`，不猜测或解析看似 JSON 的文本。调用失败必须抛出 Python 异常。此规则只改变代码回调值，不改模型直接调用的 `content`；传输信封、结果通知 JSON 行与注入参数字符串仍按各自协议解码。
 - `files/__init__.py` 先发布 `DEFAULT_CONFIG`，再由 `assemble_files` 初始化唯一 `Session`，最后显式导出原 `@tool` 函数；`file_state.py` 持唯一文件工具 ctx。`hashline/assemble_session.py` 只绑定公开 Session 方法，内部动作直接传 ctx，不经 `_call/_context/_edit/_diff` 实例转发；编辑和 diff 状态由各自装配创建，不保留空类型基类。`__init__.py` 只公开导入，复用既有递归收集与 `sys.modules` 生命周期。
-- prelude、loader 与 SDK 共用 `target-channel/deployment-source/read-python-source.ts` 递归发现与排序，根层 `assemble-*` 最后加载并声明实际初始化顺序，不维护逐文件清单或二次读取转发层；保留 `_prk_codemode`／`_prk_tool_loader`／`prk_tool` namespace 与虚拟文件名、linecache 和同进程状态。SDK host 视图只绑定原 SDK 模块 ctx，不复制 `_host` 或配置状态。
+- prelude、loader 与 SDK 共用 `target-channel/deployment-source/read-python-source.ts` 递归发现与排序，根层 `assemble-*` 最后加载并声明实际初始化顺序，不维护逐文件清单或二次读取转发层；保留 `__prk__`／`_prk_tool_loader`／`prk_tool` namespace 与虚拟文件名、linecache 和同进程状态。SDK host 视图只绑定原 SDK 模块 ctx，不复制 `_host` 或配置状态。
 - stdlib REPL 的最低 Python 为 3.9：prelude/SDK 使用 `ast.unparse` 与字符串 prefix/suffix API。runner 无 IPython 依赖，业务工具可使用目标已有包。
 - 同名用户内核工具必须整模块覆盖内置工具，不得混用两者包文件。
 - 网关只能只读扫描内核工具源码及 `TOML` 声明，不得在网关导入或执行模块。

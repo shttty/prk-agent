@@ -17,7 +17,7 @@ export function renderKernel(input: KernelPromptInput): string {
     input.asyncExecution
       ? `kernel_code may return running after yield_s (default: configured foreground wait; 0: immediately). End the turn and wait for completion or running reminders; do not poll.${input.cellTools ? " kernel_read and kernel_interrupt are model-only tools outside this busy kernel, not gateway callbacks." : ""}`
       : "kernel_code waits for completion; yield_s is ignored. Previously yielded cells keep their completion notifications; only that active cell may still be read or interrupted with its cell_id.",
-    ...(helpers.length ? ["Helpers run on the target cwd, never on the Gateway. View, search and edit files with them, not open()/cat/sed; help(name) shows each one's full details."] : []),
+    ...(helpers.length ? ["Helpers run on the target cwd, never on the Gateway. View, search and edit files with them, not open()/cat/sed; help(name) shows each one's full details. A global name can be shadowed by your own import; `__prk__.<name>` always reaches the preinstalled function."] : []),
     ...(binLine && offered("tool_bin") ? [binLine] : []),
     ...(input.toolLibrary && input.autoTools && offered("tool") ? ["Save a function with @tool(persist=True, reason=...) only when it is reusable, deterministic and synchronous, not a one-off script; reuse a similar name for a new version."] : []),
     ...(helpers.length ? [renderStubs(helpers)] : []),
