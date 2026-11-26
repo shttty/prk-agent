@@ -4,6 +4,14 @@
 export interface RequestModel { readonly provider: string; readonly id: string; readonly api: string }
 export type RequestShape = "chat" | "responses" | "anthropic" | "google" | "bedrock";
 
+/** What the projection reads out of one provider payload; `null` marks a field the payload does not hold in a known place. */
+export interface RequestFields {
+  readonly system: string | null;
+  readonly tools: readonly { name: string; description: string; parameters: unknown }[] | null;
+  /** Conversation entries without the leading system or developer entry. */
+  readonly messages: readonly unknown[] | null;
+}
+
 export interface SizedTool { readonly name: string; readonly descriptionChars: number; readonly parametersChars: number }
 export interface SizedSection { readonly key: string; readonly chars: number }
 

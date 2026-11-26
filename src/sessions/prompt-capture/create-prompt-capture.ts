@@ -1,7 +1,8 @@
 import { contentText, getCurrentSystemMessage, getSystemMessageText } from "@earendil-works/pi-ai";
 import type { PromptReport, RecordedRequest, RenderedSystem, RequestModel } from "./capture-types.ts";
 import { diffRequests } from "./diff-requests.ts";
-import { recordRequest, sameRequest } from "./record-request.ts";
+import { recordRequest } from "./record-request.ts";
+import { sameRequest } from "./same-request.ts";
 
 export interface PromptCapture {
   /** The final `context_with_system` result of the turn about to be sent. */

@@ -1,19 +1,4 @@
-import type { RequestShape } from "./capture-types.ts";
-
-export interface RequestFields {
-  readonly system: string | null;
-  readonly tools: readonly { name: string; description: string; parameters: unknown }[] | null;
-  /** Conversation entries without the leading system or developer entry. */
-  readonly messages: readonly unknown[] | null;
-}
-
-const SHAPES: Readonly<Record<string, RequestShape>> = {
-  "openai-completions": "chat", "mistral-conversations": "chat",
-  "openai-responses": "responses", "azure-openai-responses": "responses", "openai-codex-responses": "responses",
-  "anthropic-messages": "anthropic", "google-generative-ai": "google", "google-vertex": "google", "bedrock-converse-stream": "bedrock",
-};
-
-export function requestShape(api: string): RequestShape | null { return SHAPES[api] ?? null; }
+import type { RequestFields, RequestShape } from "./capture-types.ts";
 
 /** Reads the known payload locations of one API family; a missing or differently shaped field is `null`, never guessed. */
 export function readRequestFields(shape: RequestShape, payload: Record<string, unknown>): RequestFields {

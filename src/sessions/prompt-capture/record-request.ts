@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import type { CapturedRequest, RecordedRequest, RenderedSystem, RequestDigest, RequestModel } from "./capture-types.ts";
-import { readRequestFields, requestShape } from "./read-request-fields.ts";
+import { readRequestFields } from "./read-request-fields.ts";
+import { requestShape } from "./request-shape.ts";
 
 /** Projects one provider payload into sizes and hashes; the payload itself, headers and message text are never kept. */
 export function recordRequest(payload: unknown, model: RequestModel | undefined, rendered: RenderedSystem | undefined, at: Date): RecordedRequest {
@@ -26,11 +27,6 @@ export function recordRequest(payload: unknown, model: RequestModel | undefined,
     messages: fields.messages && fields.messages.map((message) => hash(json(message))),
   };
   return { request, digest };
-}
-
-/** The same system, tools and messages: a replay of the previous request, not a new one. */
-export function sameRequest(a: RequestDigest, b: RequestDigest): boolean {
-  return a.system === b.system && JSON.stringify(a.tools) === JSON.stringify(b.tools) && JSON.stringify(a.messages) === JSON.stringify(b.messages);
 }
 
 function json(value: unknown): string { return JSON.stringify(value) ?? ""; }
