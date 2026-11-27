@@ -44,8 +44,9 @@ export function useSessionWorkspace({ api, sessionId, target, engine, place, ter
   }, [store]);
   const loadDiff = useCallback((path: string): Promise<DiffReply> => api.post(`/sessions/${encodeURIComponent(sessionId)}/monitor/diff`, { path }), [api, sessionId]);
   const loadPrompt = useCallback(() => api.get<PromptReport>(`/sessions/${encodeURIComponent(sessionId)}/prompt`), [api, sessionId]);
+  const loadPromptPart = useCallback(<Part>(part: string): Promise<Part> => api.get<Part>(`/sessions/${encodeURIComponent(sessionId)}/prompt/${part}`), [api, sessionId]);
   const closeTab = useCallback((id: string) => engineRef.current?.close(id), []);
-  const editor = useMemo(() => ({ store, requestClose, loadDiff, loadPrompt, closeTab }), [store, requestClose, loadDiff, loadPrompt, closeTab]);
+  const editor = useMemo(() => ({ store, requestClose, loadDiff, loadPrompt, loadPromptPart, closeTab }), [store, requestClose, loadDiff, loadPrompt, loadPromptPart, closeTab]);
   const end = useEndTerminal({ api, sessionId, engine });
   const { listed, metadata, noteGeneration } = useTerminalSync({ engine, api, sessionId, enabled: terminalEnabled, hidden, refreshKey, onShown });
   const shown = useEffectEvent(() => onShown?.());

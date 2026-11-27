@@ -10,5 +10,7 @@ export type EditorContextValue = {
   requestClose: (id: string, path: string) => void;
   loadDiff: (path: string) => Promise<DiffReply>;
   loadPrompt: () => Promise<PromptReport>;
+  /** One whole part of the latest request: `tools`, `raw`, or `messages?offset=N&limit=N`. */
+  loadPromptPart: <Part>(part: string) => Promise<Part>;
   closeTab: (id: string) => void;
 };
