@@ -6,6 +6,7 @@ import { readManifest } from "../../artifacts/store/read-artifact-manifest.ts";
 import { nativePlatform } from "./artifacts/detect-artifact-platform.ts";
 import { available } from "./artifacts/check-cached-artifact.ts";
 import { npm } from "./packages/run-npm.ts";
+import { readPackedFiles } from "./packages/read-packed-files.ts";
 import { buildRemoteExtensionPackage } from "./build-extension-package.ts";
 import type { RemoteExtensionPackage } from "../packages/package-types.ts";
 import { packageBuilds } from "./bundle-state.ts";
@@ -13,10 +14,12 @@ import { WireError } from "../../gateway/wire/create-error.ts";
 
 export async function buildDirectoryPackage(store: ArtifactStore, directory: string, cacheOnly = false): Promise<RemoteExtensionPackage> {
   const platform = nativePlatform();
-  const packed = JSON.parse(await npm(["pack", "--dry-run", "--json", "--ignore-scripts", "--", directory], directory)) as Array<{ files: Array<{ path: string }> }>;
-  if (packed.length !== 1 || !packed[0]?.files.length) throw new Error(`Plugin directory cannot be packed: ${directory}`);
+  const output = await npm(["pack", "--dry-run", "--json", "--ignore-scripts", "--", directory], directory);
+  const files = readPackedFiles(output);
+  if (!files) throw new Error(`Unrecognized npm pack output (npm ${(await npm(["--version"], directory)).trim()}) for ${directory}: ${output.slice(0, 200)}`);
+  if (!files.length) throw new Error(`Plugin directory cannot be packed: ${directory}`);
   const hash = createHash("sha256").update("live-plugin-v2\0").update(platform).update(process.versions.node);
-  for (const { path } of packed[0].files.sort((a, b) => a.path.localeCompare(b.path))) hash.update(path).update("\0").update(await readFile(join(directory, path))).update("\0");
+  for (const path of files.sort((a, b) => a.localeCompare(b))) hash.update(path).update("\0").update(await readFile(join(directory, path))).update("\0");
   try { hash.update(await readFile(join(directory, "package-lock.json"))); }
   catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
   const cacheDirectory = join(store.directory, "plugin-builds");
