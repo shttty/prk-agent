@@ -29,11 +29,11 @@ try {
   ]);
   const fastInBudget = summarize("npm test", 60);
   const fastPassed = fast.every(Boolean) && fastInBudget;
-  const full = mode === "check" && fastPassed ? await Promise.all([
-    cases("integration", 180, 4),
-    cases("browser", 300, 3),
-    run("web build", node, [npm, "--prefix", "web", "run", "build"], 300),
-  ]) : [];
+  // Browser and integration both boot Gateways and kernels; run side by side they starve each other's timing assertions, so browser waits.
+  const full = mode === "check" && fastPassed ? [
+    ...await Promise.all([cases("integration", 180, 4), run("web build", node, [npm, "--prefix", "web", "run", "build"], 300)]),
+    await cases("browser", 300, 3),
+  ] : [];
   const fullInBudget = mode !== "check" || summarize("npm run check", 600);
   if (!fastPassed || !full.every(Boolean) || !fullInBudget) process.exitCode = 1;
 } finally {
