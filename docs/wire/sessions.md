@@ -31,6 +31,7 @@ Tool / skill / kernel / workspace 方法按 [HTTP topic index](http.md#topical-e
 | `messages` | `{sessionId}` | `{sessionId,streamId,sequence,messages}` |
 | `history` | `{sessionId}` | `{session,snapshot,readOnly:true}`；该会话的已保存记录 |
 | `sessionPrompt` | `{sessionId}` | `{sessionId,latest,previousAt,diff}`，见 [prompt](#prompt)；只读，不唤醒 |
+| `sessionPromptPart` | `{sessionId,part:"tools"\|"messages"\|"raw",offset?,limit?}` | 最近一次请求的完整一部分，见 [prompt](#prompt)；只读，不唤醒，没有记录时 `NOT_FOUND` |
 | `send` | `{sessionId,requestId,message,queue?,mode?,attachments?,references?}` | admission / native result |
 | `sendStatus` | `{sessionId,requestId,streamId}` | `{requestId,status:"accepted",operationId}` \| `{requestId,status:"handled"\|"refused"\|"unknown"}`，见 [send status](#send-status) |
 | `cancel` | `{sessionId,operationId,cell?:{kernelId,cellId}}` | `{operationId,status:"requested"\|"already_complete"\|"not_found",returnedMessages}` |
@@ -58,13 +59,13 @@ Gateway 在新项目首次提交归属时保存 `project.json.created`；启动�
 
 ### Prompt
 
-`sessionPrompt {sessionId}`（`GET /api/sessions/:sessionId/prompt`，无 query，attach `prompt --session ID`）返回该会话运行时最近一次真实模型请求的投影，与它之前的一次相比的差异。数据来自 Pi 公开事件 `before_provider_request`（只读，不返回替换值），由运行时按内存保留最近两次不同的请求；不落盘、不进会话 JSONL。休眠、关闭或从未发过请求的会话没有运行时记录，读作 `{sessionId,latest:null,previousAt:null,diff:null}`，不会被唤醒；重载保留记录。
+`sessionPrompt {sessionId}`（`GET /api/sessions/:sessionId/prompt`，无 query，attach `prompt --session ID`）返回该会话运行时最近一次真实模型请求的投影，与它之前的一次相比的差异。数据来自 Pi 公开事件 `before_provider_request`（只读，不返回替换值）。运行时在内存里只留**最新一次**不同请求的完整请求体（图片等 base64 换成占位，见下）；上一次在新请求到来、比较完成时即丢弃，只剩比较结果里的文本窗口。不落盘、不进会话 JSONL。休眠、关闭或从未发过请求的会话没有运行时记录，读作 `{sessionId,latest:null,previousAt:null,diff:null}`，不会被唤醒；重载保留记录。
 
 ```json
 { "sessionId": "…",
   "latest": {
     "at": "ISO time", "provider": "relay", "model": "relay", "api": "openai-completions", "shape": "chat",
-    "payloadKeys": ["model", "messages", "tools", "…"], "payloadChars": 22921,
+    "seq": 4, "payloadKeys": ["model", "messages", "tools", "…"], "payloadChars": 22921,
     "system": { "text": "…", "chars": 19350,
       "sections": { "baseChars": 0, "entries": [{ "key": "kernel", "chars": 4074, "start": 0 }, { "key": "gateway_calls", "chars": 637, "start": 4076 }] } },
     "tools": [{ "name": "kernel_code", "descriptionChars": 512, "parametersChars": 624 }],
@@ -79,11 +80,17 @@ Gateway 在新项目首次提交归属时保存 `project.json.created`；启动�
     "messages": { "before": 1, "after": 3, "commonPrefix": 1, "prefixStable": true, "firstChange": null } } }
 ```
 
-- 只含大小、名称与 `system.text`；工具描述与参数正文、请求头、API key 与 Authorization 均不返回（投影只读取已知字段，不拷贝 payload）。消息正文只在 `messages.firstChange` 里出现（见下）。`payloadKeys` 只有顶层键名。
+- 投影只含大小、名称与 `system.text`；工具与消息正文走下面的分段读取。`seq` 是该请求在本运行时发出的全部请求（含相同重放）中的序号，从 1 起；`at` 是抓取时间。`payloadKeys` 只有顶层键名。请求头、API key、URL 与 query 不在 `before_provider_request` 载荷里，因此从不进入记录。
+- 完整请求体是 provider 载荷的深拷贝，按各 api 的 JSON 形状原样保留（system、工具声明的 description 与 input schema、各 content block、`cache_control`）。base64 媒体不留原文：`data:` URL 字符串、`{media_type|mimeType,data}` 的 `data`、Bedrock 的 `bytes` 都换成 `{mime,bytes,sha256}`（`bytes` 为解码后字节数，`sha256` 为十六进制前 12 位）。休眠、关闭即随运行时清空；重载保留。内存约等于一份请求体的对象树：字符串与会话历史共用引用，样例见 [design notes](../design-notes.md)。
 - `shape` 为 `chat`（openai-completions、mistral-conversations）、`responses`（openai-responses、azure-openai-responses、openai-codex-responses）、`anthropic`、`google`（google-generative-ai、google-vertex）或 `bedrock`。其他 api（如 `pi-messages`）`shape:null`，`system`、`tools`、`messages` 均为 `null`，只有大小与键名；某字段不在已知位置也读作 `null`，不猜。`messages` 不含开头的 system／developer 条目。
 - `system.sections` 仅当该 payload 的系统文本与同一轮 `context_with_system` 最终结果渲染出的文本逐字相等时给出（`entries` 按 Pi 渲染顺序，`baseChars` 为各节之前的正文，`start` 为该节在 `system.text` 里的起点，全文是 `text.slice(start, start + chars)`）；provider 另加前缀（如 Anthropic OAuth）或改写文本时为 `null`。
-- `diff` 在第二个不同请求出现后才有。`sections`、`tools` 的 `changed` 为 `{key,before,after}`（工具的大小是描述加参数字符数）；`reordered` 表示共有工具的相对顺序变了；`messages.prefixStable` 表示前一次的全部消息按原样仍是这一次的前缀（提示缓存关心的稳定性）；比较前去掉各条消息里的 `cache_control` 标记（provider 把它挪到新的最后一条，不算消息变了）。`prefixStable:false` 时 `messages.firstChange` 是第一条不同的消息 `{index,offset,before,after}`：`index` 从 0 起（等于 `commonPrefix`），`before`/`after` 为 `{chars,text}`，该侧没有这一条（这次更短）时为 `null`。`text` 是该条消息的缩进 JSON，两侧都从同一个 `offset`（第一个不同字符前约 200 字符）起各取至多 2000 字符；`chars` 是整条的长度。运行时只为最新一次请求保留消息对象的引用，下一次请求到来时立即比较，之后只留这一条的截取文本。
-- 与前一次完全相同的请求（缓存预热重放、重试）只累加 `latest.repeats`，不顶替也不产生 diff。
+- `diff` 在第二个不同请求出现后才有。`sections`、`tools` 的 `changed` 为 `{key,before,after}`（工具的大小是描述加参数字符数）；`reordered` 表示共有工具的相对顺序变了；`messages.prefixStable` 表示前一次的全部消息按原样仍是这一次的前缀（提示缓存关心的稳定性）；比较前去掉各条消息里的 `cache_control` 标记（provider 把它挪到新的最后一条，不算消息变了）。`prefixStable:false` 时 `messages.firstChange` 是第一条不同的消息 `{index,offset,before,after}`：`index` 从 0 起（等于 `commonPrefix`），`before`/`after` 为 `{chars,text}`，该侧没有这一条（这次更短）时为 `null`。`text` 是该条消息的缩进 JSON，两侧都从同一个 `offset`（第一个不同字符前约 200 字符）起各取至多 2000 字符；`chars` 是整条的长度。下一次请求到来时立即比较，之后只留这一条的截取文本。
+- 与前一次完全相同的请求（缓存预热重放、重试）只累加 `latest.repeats`，不顶替也不产生 diff；它仍计入 `seq`，并照常通知。
+- `sessionPromptPart`（HTTP `GET …/prompt/tools`、`…/prompt/messages?offset=&limit=`、`…/prompt/raw`）读最新请求的完整一部分，同样只读、不唤醒；没有运行时或还没发过请求时 `NOT_FOUND`。结果都带 `{sessionId,seq,at,shape}`，`seq` 与 `/prompt` 的 `latest.seq` 对不上说明中间又发了新请求，应重取。
+  - `tools`：`{tools:[{name,exposure,declaration}]}`，`declaration` 是载荷里该工具的原样条目（chat 的 `{type:"function",function}`、Anthropic 的 `{name,description,input_schema,…}` 等；Google 为 `functionDeclarations` 的元素）。`exposure` 是会话注册的 Pi `ToolExposure`（如 `kernel_code` 为 `model-only`，缺省按 SDK 为 `direct`），载荷里有而会话不认识的工具为 `null`。形状未知时为空数组。
+  - `messages`：`{total,offset,turnStart,messages,outline}`。`messages` 是载荷里不含开头 system/developer 条目的会话条目原样切片，`offset` 从 0 起；超过末尾得空页。`limit` 默认 50、至多 200，`offset`、`limit` 只对 `messages` 有效，其余值为 `INVALID_REQUEST`。`outline` 与 `messages` 逐项对齐：`{role,kinds,chars,cache,turn}`（`kinds` 为各 block 的类型；`cache` 为带 `cache_control`/`cachePoint` 标记；`turn` 为用户输入而非工具结果）。`turnStart` 是末尾那一连串 `turn` 消息（用户提示及插件注入的隐藏消息）的第一条下标，没有时为 `null`。
+  - `raw`：`{payload}`，整个请求体。Web 的「下载原始请求」保存该 `payload`。整体结果受 `limits.outputBytes`（默认 8 MiB）限制，超出得 `TOO_LARGE`。
+- 每记录一次请求，运行时的宿主流发一个 `state_changed`，`details:{prompt:{requests}}`（该运行时请求总数）；快照的 `prompt` 字段同值。通知只带计数，客户端据此重取，不轮询；没有新请求就没有该通知。
 - 事件覆盖：Pi 在 `onPayload` 回调里发出 `before_provider_request`，pi-ai 的 `anthropic-messages`、`azure-openai-responses`、`bedrock-converse-stream`、`google-generative-ai`、`google-vertex`、`mistral-conversations`、`openai-codex-responses`、`openai-completions`、`openai-responses`、`pi-messages` 都调用它；`faux` 测试 provider 与不转发 `options.onPayload` 的自定义 api 不触发。压缩与摘要请求不走该回调，不被记录。
 
 ### Send status

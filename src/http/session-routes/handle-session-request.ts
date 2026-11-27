@@ -10,6 +10,7 @@ import { readHistory } from "./read-history.ts";
 import { readHistoryPage } from "./read-history-page.ts";
 import { readToolContent } from "./read-tool-content.ts";
 import { readPrompt } from "./read-prompt.ts";
+import { readPromptPart } from "./read-prompt-part.ts";
 import { readKernelResult } from "./read-kernel-result.ts";
 import { wakeSession } from "./wake-session.ts";
 import { recoverSession } from "./recover-session.ts";
@@ -42,6 +43,8 @@ export async function handleSessionRequest(ctx: RequestContext, request: Incomin
     await readToolContent(ctx, request, response, sessionId, url);
   } else if (action === "prompt") {
     await readPrompt(ctx, response, sessionId);
+  } else if (action.startsWith("prompt/")) {
+    await readPromptPart(ctx, response, sessionId, action.slice("prompt/".length), url);
   } else if (action === "kernel/result") {
     await readKernelResult(ctx, response, sessionId, url);
   } else if (action === "wake") {

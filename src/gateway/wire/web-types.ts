@@ -29,5 +29,5 @@ export type { HostState, SessionHostEvent, SessionHostSnapshot } from "../../ses
 export type { HostOperationSnapshot, OperationCompletion } from "../../sessions/host/operations/operation-types.ts";
 export type { MemoryChange } from "../../sessions/memory/memory-types.ts";
 export type { NativeCatalog, NativeReferenceCandidate } from "../../sessions/native-interaction/native-types.ts";
-export type { CapturedRequest, Delta, MessageChange, PromptDiff, PromptReport } from "../../sessions/prompt-capture/capture-types.ts";
+export type { CapturedRequest, Delta, MessageChange, MessageOutline, PromptDiff, PromptMessagesPart, PromptReport, PromptToolsPart } from "../../sessions/prompt-capture/capture-types.ts";
 export type { SessionControl } from "../../sessions/session-control/control-types.ts";

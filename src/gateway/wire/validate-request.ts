@@ -25,6 +25,7 @@ import { isKernelExecutionSettings } from "../../config/kernel/is-kernel-executi
 import { isBunPackagePins } from "../../config/execution-target/validation/bun-package-options.ts";
 import { isToolTitleSettings } from "../../config/session/is-tool-title-settings.ts";
 import { isMetricsSettings } from "../../config/metrics/is-metrics-settings.ts";
+import { PROMPT_PAGE_MAX } from "../../sessions/prompt-capture/prompt-part-constants.ts";
 
 export function validateRequest(value: unknown, limits: LimitsOptions = DEFAULT_LIMITS_OPTIONS): Request {
   if (!object(value) || !keys(value, ["v", "id", "method", "params"]) || value.v !== 1
@@ -57,6 +58,11 @@ export function validateRequest(value: unknown, limits: LimitsOptions = DEFAULT_
     } else if (value.method === "toolContent") {
       if (!keys(p, ["sessionId", "toolCallId"]) || !routingIdentifier(p.sessionId, limits)
         || !fieldText(p.toolCallId, limits.inputBytes)) return invalid();
+    } else if (value.method === "sessionPromptPart") {
+      const page = p.part === "messages";
+      if (!keys(p, ["sessionId", "part", "offset", "limit"]) || !routingIdentifier(p.sessionId, limits) || !(["tools", "messages", "raw"] as unknown[]).includes(p.part)
+        || (p.offset !== undefined && (!page || !Number.isSafeInteger(p.offset) || (p.offset as number) < 0))
+        || (p.limit !== undefined && (!page || !Number.isSafeInteger(p.limit) || (p.limit as number) < 1 || (p.limit as number) > PROMPT_PAGE_MAX))) return invalid();
     } else if (value.method === "historyPage") {
       if (!keys(p, ["sessionId", "before", "through"]) || !routingIdentifier(p.sessionId, limits)
         || !(p.before !== undefined && p.through === undefined && routingIdentifier(p.before, limits)

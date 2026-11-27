@@ -67,6 +67,7 @@ export function bindHostApi(ctx: HostContext): GatewaySessionHost {
     historyPage: ctx.methods.historyPage,
     toolContent: ctx.methods.toolContent,
     sessionPrompt: ctx.methods.sessionPrompt,
+    sessionPromptPart: ctx.methods.sessionPromptPart,
     kernelResult: ctx.methods.kernelResult,
     state: ctx.methods.state,
     renameSession: ctx.methods.renameSession,

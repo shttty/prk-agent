@@ -23,7 +23,7 @@ import type { InspectTargetResult, AbsoluteListing } from "../instances/instance
 import type { CreatedSession } from "../session-views/session-view-types.ts";
 import type { BranchHistoryPage, HistoryPageCursor } from "../../sessions/history/history-types.ts";
 import type { ToolContent } from "../tool-content/content-types.ts";
-import type { PromptReport } from "../../sessions/prompt-capture/capture-types.ts";
+import type { CapturedBody, PromptMessagesPart, PromptPartRequest, PromptReport, PromptToolsPart } from "../../sessions/prompt-capture/capture-types.ts";
 import type { KernelResultView } from "../session-views/history/kernel-result-types.ts";
 import type { SessionManagementRequest } from "../../sessions/derivation/derivation-types.ts";
 import type { SessionSnapshot } from "../session-views/session-view-types.ts";
@@ -122,6 +122,8 @@ export interface GatewaySessionHost {
   toolContent(sessionId: string, toolCallId: string): ToolContent;
   /** The session runtime's last provider request (docs/wire/sessions.md#prompt). */
   sessionPrompt(sessionId: string): { readonly sessionId: string } & PromptReport;
+  /** One whole part of that request (docs/wire/sessions.md#prompt); `NOT_FOUND` when the runtime has none. */
+  sessionPromptPart(sessionId: string, request: PromptPartRequest): { readonly sessionId: string } & (PromptToolsPart | PromptMessagesPart | CapturedBody);
   kernelResult(sessionId: string, cellId: string, imageIndex?: number): KernelResultView;
   manageSession(sessionId: string, request: SessionManagementRequest): Promise<{ readonly ok: true }>;
   renameSession(sessionId: string, label: string): Promise<SessionSnapshot>;

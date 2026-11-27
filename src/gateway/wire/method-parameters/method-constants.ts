@@ -20,7 +20,7 @@ export const methods = [
   "archiveProjectPreview", "archiveProject", "renameProject",
   ...workspaceMethods,
   "getTargetEnvironment", "deployTargetEnvironment",
-  "workbench", "createSession", "reloadTargets", "getTarget", "addTarget", "editTarget", "deleteTarget", "inspectTarget", "browseTarget", "assignProject", "history", "historyPage", "toolContent", "sessionPrompt", "renameSession", "archiveSession", "archivePreview", "unarchive", "purgeArchive", "recoverSession", "manageSession", "nativeCapabilities", "nativeAction", "state", "messages", "subscribe", "unsubscribe",
+  "workbench", "createSession", "reloadTargets", "getTarget", "addTarget", "editTarget", "deleteTarget", "inspectTarget", "browseTarget", "assignProject", "history", "historyPage", "toolContent", "sessionPrompt", "sessionPromptPart", "renameSession", "archiveSession", "archivePreview", "unarchive", "purgeArchive", "recoverSession", "manageSession", "nativeCapabilities", "nativeAction", "state", "messages", "subscribe", "unsubscribe",
   "subscribeSessions", "unsubscribeSessions", "send", "sendStatus", "cancel", "reload", "closeSession", "shutdown", "wakeSession",
   "kernelClear", "kernelRestart", "monitorFocus", "monitorHistory", "monitorDiff",
 ] as const;

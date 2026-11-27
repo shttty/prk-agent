@@ -36,7 +36,7 @@ export function routePath(limits: LimitsOptions, request: IncomingMessage, origi
     }
     if (request.method === "GET" && workspaceHttpRoute(parsed.pathname)?.method === "filesImage") return parsed;
     const route = routeSessionPath(limits, parsed.pathname);
-    if (request.method === "GET" && route?.action === "history-page") return parsed;
+    if (request.method === "GET" && (route?.action === "history-page" || route?.action === "prompt/messages")) return parsed;
     if (request.method === "GET" && route?.action === "tool-content") {
       if ([...parsed.searchParams.keys()].length !== 1 || parsed.searchParams.getAll("toolCallId").length !== 1) {
         throw new HttpError(400, "Tool content requires exactly one toolCallId query parameter.");

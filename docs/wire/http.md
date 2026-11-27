@@ -32,6 +32,8 @@ UI 属于独立 `web/` npm package；同源 Vite proxy 的运行方式见 [desig
 | `POST /api/sessions/:sessionId/native` | `{requestId,action,args?}` | `nativeAction` |
 | `GET /api/sessions/:sessionId/tool-content` | `?toolCallId=ID` | `toolContent` |
 | `GET /api/sessions/:sessionId/prompt` | none; no query | [`sessionPrompt`](sessions.md#prompt)；运行时内存里最近一次模型请求及与前一次的差异，只读、不唤醒 |
+| `GET /api/sessions/:sessionId/prompt/tools` · `/prompt/raw` | none; no query | [`sessionPromptPart`](sessions.md#prompt) `part:"tools"` / `"raw"`；最近一次请求的完整工具声明／完整请求体，只读、不唤醒 |
+| `GET /api/sessions/:sessionId/prompt/messages` | optional `?offset=N&limit=N` | `sessionPromptPart` `part:"messages"`；最近一次请求的一页完整消息 |
 | `POST /api/sessions/:sessionId/recover` | `{mode:"auto"}` / `{mode:"new",target,cwd?}` | `recoverSession` |
 | `POST /api/sessions/:sessionId/rename` | `{label}` | `renameSession` |
 | `POST /api/sessions/:sessionId/archive` | `{confirm:true}` | `archiveSession` |

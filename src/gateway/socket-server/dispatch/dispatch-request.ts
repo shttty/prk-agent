@@ -54,7 +54,7 @@ export function dispatchRequest(ctx: PeerContext, respond: Respond, request: Req
       || method === "monitorFocus" || method === "monitorHistory" || method === "monitorDiff") {
       return dispatchRuntime(ctx, respond, request);
     }
-    if (method === "history" || method === "historyPage" || method === "toolContent" || method === "sessionPrompt" || method === "kernelResult" || method === "renameSession"
+    if (method === "history" || method === "historyPage" || method === "toolContent" || method === "sessionPrompt" || method === "sessionPromptPart" || method === "kernelResult" || method === "renameSession"
       || method === "archiveSession" || method === "archivePreview" || method === "archiveProject" || method === "archiveProjectPreview" || method === "renameProject" || method === "unarchive"
       || method === "purgeArchive" || method === "manageSession") {
       return dispatchHistory(ctx, respond, request);

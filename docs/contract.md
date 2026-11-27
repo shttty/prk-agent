@@ -13,7 +13,7 @@
 - `WEB-2` 请求 id 只用于关联应答，不得兼作会话、操作、任务或结果的身份。
 - `WEB-4` HTTP/WS 转发前必须校验 Host、Origin、Fetch-Metadata、结构与请求体上限；普通请求体限总时长，上传限等字节时长，停滞报 408 并关闭。
 - `WEB-5` 每个受管路由必须使用其唯一原生 `sessionId`，不得在原路由替换会话身份。
-- `WEB-6` history、historyPage、native、toolContent、sessionPrompt 必须仅按路径原生 `sessionId` 定位会话，不得接收额外视图参数。
+- `WEB-6` history、historyPage、native、toolContent、sessionPrompt* 必须仅按路径原生 `sessionId` 定位会话，不得带额外视图参数。
 - `WEB-7` 只读不得改运行时、推进 leaf 或接管未受管文件；对话页必须取原生分支而非 SDK 内存，最多 50 用户轮且整轮遵守字节预算。
 - `WEB-8` 文件必须校验目标/会话/绝对路径。同源 POST 不限总量/总时长，原字节上传、定长附件下载、流失败中止。同源 GET 只流式返回有界且扩展匹配签名的光栅图；外链不得自动加载。
 - `WEB-9` 附件的媒体类型与大小上限必须在校验和解码两处保持一致。普通发送可在携带附件时提交空白正文；无正文且无附件必须拒绝。

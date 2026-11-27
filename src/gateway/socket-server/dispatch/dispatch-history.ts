@@ -1,6 +1,7 @@
 import type { PeerContext, Respond } from "../connection/peer-state.ts";
 import type { Request } from "../../wire/wire-types.ts";
 import type { SessionManagementRequest } from "../../wire/wire-types.ts";
+import type { PromptPartRequest } from "../../../sessions/prompt-capture/capture-types.ts";
 
 export async function dispatchHistory(ctx: PeerContext, respond: Respond, request: Request): Promise<void> {
   const { id, method, params } = request;
@@ -26,6 +27,9 @@ export async function dispatchHistory(ctx: PeerContext, respond: Respond, reques
       }
       if (method === "sessionPrompt") {
         respond(id, host.sessionPrompt(params.sessionId as string)); return;
+      }
+      if (method === "sessionPromptPart") {
+        respond(id, host.sessionPromptPart(params.sessionId as string, { part: params.part as PromptPartRequest["part"], offset: params.offset as number | undefined, limit: params.limit as number | undefined })); return;
       }
       if (method === "kernelResult") {
         respond(id, host.kernelResult(params.sessionId as string, params.cellId as string, params.imageIndex as number | undefined)); return;
