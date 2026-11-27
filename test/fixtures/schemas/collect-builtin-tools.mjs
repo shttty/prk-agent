@@ -5,6 +5,7 @@ import { createMessagingTools } from "../../../src/plugins/sessions/tools/create
 import { createManageTool } from "../../../src/plugins/sessions/tools/manage-session.ts";
 import { createSpawnTool } from "../../../src/plugins/sessions/tools/spawn.ts";
 import { createResultTool } from "../../../src/plugins/sessions/tools/submit-result.ts";
+import { createSkillTools } from "../../../src/sessions/skill-library/create-tools.ts";
 
 // Tool definitions are built, not executed, so a gateway that answers every property with another stub is enough.
 const gateway = () => new Proxy(function () {}, { get: (_target, key) => (key === Symbol.toPrimitive ? () => "stub" : gateway()), apply: () => gateway() });
@@ -13,6 +14,6 @@ const gateway = () => new Proxy(function () {}, { get: (_target, key) => (key ==
 export function collectBuiltinTools() {
   return [
     createAskTool({}), ...createTerminalTools(() => ({})), ...createDiscoveryTools(undefined),
-    ...createMessagingTools(gateway()), createManageTool(gateway()), createSpawnTool(gateway()), createResultTool(gateway()),
+    ...createMessagingTools(gateway()), createManageTool(gateway()), createSpawnTool(gateway()), createResultTool(gateway()), ...createSkillTools(gateway(), () => []),
   ].map(({ name, description, parameters, outputSchema }) => JSON.parse(JSON.stringify({ name, description, parameters, outputSchema })));
 }

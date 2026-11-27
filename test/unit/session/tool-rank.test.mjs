@@ -5,7 +5,7 @@ import { rankTools } from "../../../src/sessions/tool-declarations/tool-rank/ran
 import { collectBuiltinTools } from "../../fixtures/schemas/collect-builtin-tools.mjs";
 
 const QUERIES = ["send a message to a running session", "spawn child sessions for independent tasks", "terminal", "read output of a terminal", "ask the user", "search the web",
-  "tools hidden", "session results inbox", "manage session transfer", "list sessions", "keys shortcut", "queued messages followUp", "会话 笔记", "nothing matches this zzz"];
+  "tools hidden", "session results inbox", "manage session transfer", "list sessions", "keys shortcut", "queued messages followUp", "会话 笔记", "zzqxv qqzzk"];
 
 /** The tools Pi's tool_search ranks and loads, driven through its real extension; its answer lists the matches best first. */
 async function piRanking(tools, query, limit) {
@@ -29,7 +29,8 @@ test("the ported ranker returns the tools Pi's tool_search ranks, in the same or
     }
   }
   assert(matched > 20, `the queries must match tools, saw ${matched}`);
-  assert.deepEqual(rankTools(corpus, "nothing matches this zzz", 8), []);
+  // Nonsense tokens: ordinary words such as "this" or "matches" occur in real tool descriptions (skill_manage).
+  assert.deepEqual(rankTools(corpus, "zzqxv qqzzk", 8), []);
   assert.deepEqual(rankTools(corpus, "   ", 8), []);
 });
 
