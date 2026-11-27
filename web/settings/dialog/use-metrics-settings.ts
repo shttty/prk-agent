@@ -2,7 +2,7 @@ import type { PageApi } from "../../shell/page/page-types.ts";
 import { useEffect, useState } from "react";
 import { pageErrorMessage } from "../../workbench/store/requests/page-error-message.ts";
 
-export type MetricsSettings = { enabled: boolean; port: number };
+export type MetricsSettings = { enabled: boolean; host: string; port: number };
 /** `url` is where the Gateway answers now (null: not listening); `error` is why enabled metrics are not served. */
 export type MetricsView = MetricsSettings & { url: string | null; error: string | null };
 

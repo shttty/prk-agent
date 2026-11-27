@@ -5,7 +5,7 @@ import { browserFixture } from "../../fixtures/browser/open-workbench.mjs";
 import { freePort } from "../../fixtures/free-port.mjs";
 import { until } from "../../fixtures/until.mjs";
 
-const scrapes = async (port) => (await fetch(`http://127.0.0.1:${port}/metrics`).catch(() => undefined))?.status === 200;
+const scrapes = async (port, host = "127.0.0.1") => (await fetch(`http://${host}:${port}/metrics`).catch(() => undefined))?.status === 200;
 
 test("the debug section switches the Gateway metrics endpoint and changes its port without a restart", async (t) => {
   const [first, second] = [await freePort(), await freePort()];
@@ -54,6 +54,17 @@ test("the debug section switches the Gateway metrics endpoint and changes its po
   await port.press("Enter");
   await until(async () => await port.inputValue() === String(second), "an invalid port is not sent");
   assert.equal(saves.length, requests);
+  await error.waitFor();
+
+  const host = f.page.locator("#setting-metrics-host");
+  await host.fill("127.0.0.2");
+  await host.press("Enter");
+  await f.page.locator("#metrics-url", { hasText: "127.0.0.2" }).waitFor();
+  assert.equal(await scrapes(second, "127.0.0.2"), true);
+  assert.equal(await scrapes(second), false, "the old address no longer answers");
+  await host.fill("localhost");
+  await host.press("Enter");
+  await until(async () => await host.inputValue() === "127.0.0.2", "a host name is refused and the field returns to the running address");
   await error.waitFor();
 
   await f.page.locator("#close-settings").click();

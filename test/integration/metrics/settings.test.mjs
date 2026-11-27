@@ -20,8 +20,8 @@ async function occupy(t) {
   return port;
 }
 
-async function webFixture(t, port) {
-  const f = await gatewayFixture(t, { web: true, serveMetrics: true, config: { metrics: { port } } });
+async function webFixture(t, port, host = "127.0.0.1") {
+  const f = await gatewayFixture(t, { web: true, serveMetrics: true, config: { metrics: { port, host } } });
   const configPath = join(f.root, "config.toml");
   const call = (method, body) => fetch(`${f.url}/api/settings/metrics`, {
     method, headers: { Origin: f.url, "Content-Type": "application/json" }, ...(body === undefined ? {} : { body: JSON.stringify(body) }),
@@ -37,11 +37,11 @@ test("metrics settings apply to the running listener without a restart", async (
   const lines = [];
   t.mock.method(console, "error", (...parts) => { lines.push(parts.join(" ")); });
 
-  assert.deepEqual(await (await f.call("GET")).json(), { enabled: true, port: first, url: `http://127.0.0.1:${first}/metrics`, error: null });
+  assert.deepEqual(await (await f.call("GET")).json(), { enabled: true, host: "127.0.0.1", port: first, url: `http://127.0.0.1:${first}/metrics`, error: null });
   assert.equal((await scrape(first)).status, 200);
 
   for (const bad of [{ enabled: true, port: 80 }, { enabled: true, port: 1023 }, { enabled: true, port: 65_536 }, { enabled: true, port: 9500.5 },
-    { enabled: true, port: "9500" }, { enabled: true }, { port: 9500 }, { enabled: true, port: 9500, host: "0.0.0.0" }]) {
+    { enabled: true, port: "9500" }, { enabled: true }, { port: 9500 }, { enabled: true, port: 9500, extra: 1 }]) {
     const response = await f.call("POST", bad);
     assert.equal(response.status, 400, JSON.stringify(bad));
   }
@@ -49,9 +49,9 @@ test("metrics settings apply to the running listener without a restart", async (
   assert.equal((await scrape(first)).status, 200);
 
   const off = await f.call("POST", { enabled: false, port: first });
-  assert.deepEqual(await off.json(), { enabled: false, port: first, url: null, error: null });
+  assert.deepEqual(await off.json(), { enabled: false, host: "127.0.0.1", port: first, url: null, error: null });
   await refused(first);
-  assert.deepEqual(await f.saved(), { enabled: false, port: first });
+  assert.deepEqual(await f.saved(), { enabled: false, host: "127.0.0.1", port: first });
   assert(lines.some((line) => /^\[\d{4}-\d\d-\d\dT[\d:.]+Z\] Gateway metrics off$/.test(line)), "the change is logged");
 
   const on = await f.call("POST", { enabled: true, port: first });
@@ -62,7 +62,7 @@ test("metrics settings apply to the running listener without a restart", async (
   assert.equal((await moved.json()).url, `http://127.0.0.1:${second}/metrics`);
   await refused(first);
   assert.equal((await scrape(second)).status, 200);
-  assert.deepEqual(await f.saved(), { enabled: true, port: second });
+  assert.deepEqual(await f.saved(), { enabled: true, host: "127.0.0.1", port: second });
 });
 
 test("a port that cannot be bound fails the change and leaves listener, answer and file as they were", async (t) => {
@@ -85,7 +85,7 @@ test("a port that cannot be bound fails the change and leaves listener, answer a
   const closed = await readFile(f.configPath, "utf8");
   assert.equal((await f.call("POST", { enabled: true, port: busy })).status, 409);
   assert.equal(await readFile(f.configPath, "utf8"), closed);
-  assert.deepEqual(await (await f.call("GET")).json(), { enabled: false, port, url: null, error: null });
+  assert.deepEqual(await (await f.call("GET")).json(), { enabled: false, host: "127.0.0.1", port, url: null, error: null });
   await refused(port);
 });
 
@@ -103,6 +103,42 @@ test("a busy port at startup turns metrics off, logs it, reports it and can be c
   await until(() => lines.find((line) => line.includes("ERROR Gateway metrics are off") && line.includes(String(busy))), "the startup failure is logged");
 
   const recovered = await (await f.call("POST", { enabled: true, port: free })).json();
-  assert.deepEqual(recovered, { enabled: true, port: free, url: `http://127.0.0.1:${free}/metrics`, error: null });
+  assert.deepEqual(recovered, { enabled: true, host: "127.0.0.1", port: free, url: `http://127.0.0.1:${free}/metrics`, error: null });
   assert.equal((await scrape(free)).status, 200);
+});
+
+test("changing the host moves the listener, an address that is not on this machine is a 409, a non-IP host is a 400", async (t) => {
+  const port = await freePort();
+  const f = await webFixture(t, port);
+  const scrapeAt = (host) => fetch(`http://${host}:${port}/metrics`);
+
+  const moved = await (await f.call("POST", { enabled: true, host: "127.0.0.2", port })).json();
+  assert.deepEqual(moved, { enabled: true, host: "127.0.0.2", port, url: `http://127.0.0.2:${port}/metrics`, error: null });
+  await refused(port);
+  assert.equal((await scrapeAt("127.0.0.2")).status, 200);
+  assert.deepEqual(await f.saved(), { enabled: true, host: "127.0.0.2", port });
+  const before = await readFile(f.configPath, "utf8");
+
+  const absent = await f.call("POST", { enabled: true, host: "192.0.2.1", port });
+  assert.equal(absent.status, 409);
+  assert.equal(await readFile(f.configPath, "utf8"), before);
+  assert.equal((await (await f.call("GET")).json()).host, "127.0.0.2");
+  assert.equal((await scrapeAt("127.0.0.2")).status, 200, "the old address is bound again");
+
+  for (const host of ["localhost", "", "256.1.1.1", "127.0.0.1:9464", "[::1]", 1]) {
+    assert.equal((await f.call("POST", { enabled: true, host, port })).status, 400, JSON.stringify(host));
+  }
+  assert.equal(await readFile(f.configPath, "utf8"), before);
+
+  const v6 = await (await f.call("POST", { enabled: true, host: "::1", port })).json();
+  assert.equal(v6.url, `http://[::1]:${port}/metrics`);
+  assert.equal((await scrapeAt("[::1]")).status, 200);
+});
+
+test("a host that cannot be bound at startup leaves the Gateway running with metrics off", async (t) => {
+  const f = await webFixture(t, await freePort(), "192.0.2.1");
+  const view = await (await f.call("GET")).json();
+  assert.equal(view.url, null);
+  assert.match(view.error, /192\.0\.2\.1:\d+ \(EADDRNOTAVAIL\)/);
+  assert.equal((await f.call("POST", { enabled: true, host: "127.0.0.1", port: view.port })).status, 200, "saving binds an address that exists");
 });

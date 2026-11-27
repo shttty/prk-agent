@@ -44,7 +44,7 @@
 - `WEB-36` tool_call 第一层透传目标必须可由原持久参数与结果重建渲染，键沿用 nestedCalls 的自身 id；不得扩展持久格式或猜测其他嵌套结果。
 - `WEB-37` 能力写入必须只接受非空且 ID 唯一的 changes 批次；整批校验后一次保存、一次刷新，任一条目无效时不得写入或部分生效。
 - `WEB-38` 批量 lazy 可用性必须按整批最终启用状态校验；插件与沉淀工具组必须共享组默认及层级解析，不得按成员名特判。
-- `WEB-39` `/api/derivation`、`/api/settings/metrics` 必须由 Gateway 读写，POST 必须同源；非法值 400，端口被占 409，状态不变。
+- `WEB-39` `/api/derivation`、`/api/settings/metrics` 必须由 Gateway 读写，POST 必须同源；非法值 400，绑定失败 409，状态不变。
 - `WEB-40` 派生配置必须拒绝未知字段及非法 role、模型、思考级别、工具模式、布尔值和能力键值，maxDepth 必须为 1..10 整数。
 - `WEB-41` 派生设置必须整份替换，保留 config.toml 其余字段并立即更新运行配置。
 - `WEB-42` 派生 GET 必须分开返回配置与内置 defaults；space_status 必须同步公开角色描述、工具模式、隔离及深度默认。

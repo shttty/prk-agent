@@ -238,14 +238,14 @@ systemctl --user start prk.target
 
 ### 查看 Gateway 指标
 
-Gateway 在 `127.0.0.1:9464`（`config.toml` 的 `[metrics]`，默认开启）提供 Prometheus 文本指标，只听 loopback。开关和端口也可在设置 → 通用 → 调试里改，立即生效、不用重启 Gateway；启动时端口被占不会让 Gateway 起不来，只是这一轮不提供指标，日志里有 `Gateway metrics are off`，设置页同样显示原因。它描述的是 Gateway 进程本身：事件循环延迟、每个插件钩子的同步耗时、大帧序列化和历史加载的耗时与字节数、各状态会话数、模型请求时长。指标清单和含义见 [docs/metrics.md](docs/metrics.md)。
+Gateway 在 `127.0.0.1:9464`（`config.toml` 的 `[metrics]`，默认开启）提供 Prometheus 文本指标，默认只听 loopback，`host` 可改成别的 IP 字面量（如本机的 Tailscale 地址，让别的机器抓取；端点没有鉴权，同网络能访问的人都能读到指标）。开关、地址和端口也可在设置 → 通用 → 调试里改，立即生效、不用重启 Gateway；启动时地址或端口无法监听（开机时 Tailscale 地址可能还没就绪）不会让 Gateway 起不来，只是这一轮不提供指标，日志里有 `Gateway metrics are off`，设置页同样显示原因，地址就绪后在设置页保存一次即可恢复，不会自动重试。它描述的是 Gateway 进程本身：事件循环延迟、每个插件钩子的同步耗时、大帧序列化和历史加载的耗时与字节数、各状态会话数、模型请求时长。指标清单和含义见 [docs/metrics.md](docs/metrics.md)。
 
 ```sh
 curl -s http://127.0.0.1:9464/metrics | grep -E '^prk_(eventloop|stalls|plugin_hook_sync_seconds_(count|sum))'
 journalctl --user -u prk-gateway | grep 'Gateway stall'   # 超过阈值（默认 200 ms）的卡顿日志
 ```
 
-Prometheus 抓取：Prometheus 和 Gateway 在同一台机器上时，加一个 job 即可；不在同一台时用 SSH 隧道把端口转过去，不要把监听地址改成非 loopback（该地址没有配置项）。
+Prometheus 抓取：Prometheus 和 Gateway 在同一台机器上时，加一个 job 即可；不在同一台时用 SSH 隧道把端口转过去，或把 `metrics.host` 设成 Tailscale 地址、`targets` 写 `<该地址>:9464`。
 
 ```yaml
 scrape_configs:

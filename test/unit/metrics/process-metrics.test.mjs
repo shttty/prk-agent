@@ -26,8 +26,8 @@ test("plugin labels are package names, inline names or file names, never paths",
 
 test("metrics options reject unknown keys and out-of-range values, defaults keep 200 ms", () => {
   const parsed = parsePrkConfig({}, { instances: [] });
-  assert.deepEqual(parsed.metrics, { enabled: true, port: 9464, stallThresholdMs: 200, eventLoopWindowMs: 1000 });
-  assert.throws(() => parsePrkConfig({ metrics: { host: "0.0.0.0" } }, { instances: [] }), /unsupported metrics\.host/);
+  assert.deepEqual(parsed.metrics, { enabled: true, host: "127.0.0.1", port: 9464, stallThresholdMs: 200, eventLoopWindowMs: 1000 });
+  assert.throws(() => parsePrkConfig({ metrics: { bind: "0.0.0.0" } }, { instances: [] }), /unsupported metrics\.bind/);
   assert.throws(() => parsePrkConfig({ metrics: { stallThresholdMs: 0 } }, { instances: [] }), /metrics\.stallThresholdMs/);
   assert.throws(() => parsePrkConfig({ metrics: { port: 70000 } }, { instances: [] }), /metrics\.port/);
 });

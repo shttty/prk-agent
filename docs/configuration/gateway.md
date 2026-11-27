@@ -36,12 +36,13 @@ CLI listener/socket overrides: [模块约定](../configuration.md#约定).
 
 ## `metrics`
 
-Prometheus metrics and stall logging in the Gateway process; series, semantics and log format are in [Gateway metrics](../metrics.md). The endpoint host is fixed to `127.0.0.1`. `enabled` and `port` are also edited in Settings → 通用 → 调试 and apply without a restart ([Switch and port](../metrics.md#switch-and-port)); the page rewrites `config.toml` and drops its comments.
+Prometheus metrics and stall logging in the Gateway process; series, semantics and log format are in [Gateway metrics](../metrics.md). `enabled`, `host` and `port` are also edited in Settings → 通用 → 调试 and apply without a restart ([Switch and port](../metrics.md#switch-and-port)); the page rewrites `config.toml` and drops its comments.
 
 | Key | Default | Range / meaning |
 | --- | --- | --- |
-| `enabled` | true | Serve `GET /metrics` on `127.0.0.1:<port>`. Off: no listener; hook and event-loop timing and the stall log still run. A busy port at start does not stop the Gateway: metrics stay off for that run, the failure is logged and shown in Settings. |
-| `port` | 9464 | **port**; TCP port of the loopback listener. The settings page and `metricsSet` accept only 1024..65535; `config.toml` also takes 0..1023 (0 picks a free port). |
+| `enabled` | true | Serve `GET /metrics` on `<host>:<port>`. Off: no listener; hook and event-loop timing and the stall log still run. A busy port or an unbindable address at start does not stop the Gateway: metrics stay off for that run, the failure is logged and shown in Settings, and there is no retry (a Tailscale address may not exist yet at boot; once it does, save the settings page once to bind it). |
+| `host` | `"127.0.0.1"` | IP literal to listen on (IPv4 or IPv6, `0.0.0.0` and `::` included), never a host name; `metricsSet` rejects anything else with 400. The endpoint has no authentication: with a non-loopback address, such as a Tailscale one, everyone who can reach it reads session counts, plugin and provider names (no message content, no keys). |
+| `port` | 9464 | **port**; TCP port of the listener. The settings page and `metricsSet` accept only 1024..65535; `config.toml` also takes 0..1023 (0 picks a free port). |
 | `stallThresholdMs` | 200 | **timer**; a synchronous section (plugin handler call, frame serialization, history load) or an event-loop window with delay at or above this writes a `Gateway stall` log line and counts in `prk_stalls_total`. |
 | `eventLoopWindowMs` | 1000 | **timer**; the event-loop delay histogram is read and reset at this period; `prk_eventloop_delay_seconds` and `prk_eventloop_utilization_ratio` describe the last finished window. Shorter windows log a stall sooner. |
 

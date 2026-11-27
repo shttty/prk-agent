@@ -1,6 +1,8 @@
 export interface MetricsOptions {
-  /** Serve `GET /metrics` on 127.0.0.1:port from the Gateway process. Off: no listener; hook and event-loop timing still run. */
+  /** Serve `GET /metrics` on host:port from the Gateway process. Off: no listener; hook and event-loop timing still run. */
   readonly enabled: boolean;
+  /** IP literal the endpoint listens on. It has no authentication: anyone who can reach the address reads it. */
+  readonly host: string;
   readonly port: number;
   /** One synchronous section (plugin hook, serialization, history load) or one event-loop window at or above this logs a stall line. */
   readonly stallThresholdMs: number;
@@ -10,13 +12,14 @@ export interface MetricsOptions {
 
 export const DEFAULT_METRICS_OPTIONS: MetricsOptions = Object.freeze({
   enabled: true,
+  host: "127.0.0.1",
   port: 9464,
   stallThresholdMs: 200,
   eventLoopWindowMs: 1000,
 });
 
-/** The two keys the settings page changes at run time. */
-export type MetricsSettings = { enabled: boolean; port: number };
+/** The keys the settings page changes at run time; a request without `host` keeps the current one. */
+export type MetricsSettings = { enabled: boolean; port: number; host?: string };
 
 /** The settings page accepts unprivileged ports only; `config.toml` itself also accepts 0..1023 (0 picks a free port). */
 export const METRICS_SETTINGS_PORTS = Object.freeze({ min: 1024, max: 65_535 });
