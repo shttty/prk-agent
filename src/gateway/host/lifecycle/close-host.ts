@@ -43,6 +43,7 @@ export function close(ctx: HostContext): Promise<void> {
         const unsubscribeCollection = ctx.events.unsubscribeCollection;
         unsubscribeCollection();
         try { await ctx.monitoring.monitor.close(); } catch (error) { failures.push(error); }
+        try { await ctx.metrics.listener?.close(); } catch (error) { failures.push(error); }
         ctx.events.listeners.clear();
         ctx.packages.remoteStatuses.clear();
         ctx.packages.remoteCatalogStatuses.clear();

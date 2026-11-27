@@ -29,6 +29,8 @@ import { toolTitleGet } from "../tool-title/read-settings.ts";
 import { toolTitleSet } from "../tool-title/save-settings.ts";
 import { soulGet } from "../soul/read-soul-settings.ts";
 import { soulSave } from "../soul/save-soul.ts";
+import { metricsGet } from "../metrics/read-settings.ts";
+import { metricsSet } from "../metrics/save-settings.ts";
 
 import { assembleSessionControl } from "../session-control/assemble-session-control.ts";
 export function assembleHost(options: GatewayHostOptions, dependencies: GatewayHostDependencies, paths: HostState["paths"], config: PrkConfig): HostContext {
@@ -78,6 +80,8 @@ export function assembleHost(options: GatewayHostOptions, dependencies: GatewayH
     toolTitleSet: toolTitleSet.bind(undefined, ctx),
     soulGet: soulGet.bind(undefined, ctx),
     soulSave: soulSave.bind(undefined, ctx),
+    metricsGet: metricsGet.bind(undefined, ctx),
+    metricsSet: metricsSet.bind(undefined, ctx),
   };
   return ctx;
 }

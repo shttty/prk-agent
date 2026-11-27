@@ -58,6 +58,8 @@ import type { KernelExecutionSettings } from "../../config/kernel/kernel-options
 import type { BunPackagePins } from "../../config/execution-target/validation/bun-package-options.ts";
 import type { ToolTitleSettings } from "../../config/session/session-options.ts";
 import type { SoulView } from "../soul/read-soul-settings.ts";
+import type { MetricsSettings } from "../../config/metrics/metrics-options.ts";
+import type { MetricsView } from "../metrics/read-settings.ts";
 
 export interface GatewaySessionHost {
   workbench(): WorkbenchSnapshot;
@@ -76,6 +78,8 @@ export interface GatewaySessionHost {
   toolTitleSet(request: ToolTitleSettings): Promise<ToolTitleSettings>;
   soulGet(): SoulView;
   soulSave(request: { content: string; revision: string }): SoulView;
+  metricsGet(): MetricsView;
+  metricsSet(request: MetricsSettings): Promise<MetricsView>;
   capabilitiesList(instance?: string): Promise<CapabilitySettings>;
   capabilitiesRefresh(instance?: string): Promise<CapabilitySettings>;
   capabilitiesChange(request: CapabilitySettingsChange): Promise<CapabilitySettings>;
@@ -167,6 +171,8 @@ export interface GatewayHostOptions {
   readonly thinkingLevel?: AgentSession["thinkingLevel"];
   /** Explicit targets take precedence over instances.toml for controlled callers. */
   readonly targets?: readonly ExecutionTarget[];
+  /** Bind the metrics listener at start (the Gateway process does; in-process hosts leave the port alone). `metricsSet` always applies. */
+  readonly serveMetrics?: boolean;
   readonly derivation?: DerivationConfig;
 }
 

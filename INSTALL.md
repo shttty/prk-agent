@@ -238,7 +238,7 @@ systemctl --user start prk.target
 
 ### 查看 Gateway 指标
 
-Gateway 在 `127.0.0.1:9464`（`config.toml` 的 `[metrics]`，默认开启）提供 Prometheus 文本指标，只听 loopback。它描述的是 Gateway 进程本身：事件循环延迟、每个插件钩子的同步耗时、大帧序列化和历史加载的耗时与字节数、各状态会话数、模型请求时长。指标清单和含义见 [docs/metrics.md](docs/metrics.md)。
+Gateway 在 `127.0.0.1:9464`（`config.toml` 的 `[metrics]`，默认开启）提供 Prometheus 文本指标，只听 loopback。开关和端口也可在设置 → 通用 → 调试里改，立即生效、不用重启 Gateway；启动时端口被占不会让 Gateway 起不来，只是这一轮不提供指标，日志里有 `Gateway metrics are off`，设置页同样显示原因。它描述的是 Gateway 进程本身：事件循环延迟、每个插件钩子的同步耗时、大帧序列化和历史加载的耗时与字节数、各状态会话数、模型请求时长。指标清单和含义见 [docs/metrics.md](docs/metrics.md)。
 
 ```sh
 curl -s http://127.0.0.1:9464/metrics | grep -E '^prk_(eventloop|stalls|plugin_hook_sync_seconds_(count|sum))'

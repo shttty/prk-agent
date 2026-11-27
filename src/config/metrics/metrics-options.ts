@@ -14,3 +14,9 @@ export const DEFAULT_METRICS_OPTIONS: MetricsOptions = Object.freeze({
   stallThresholdMs: 200,
   eventLoopWindowMs: 1000,
 });
+
+/** The two keys the settings page changes at run time. */
+export type MetricsSettings = { enabled: boolean; port: number };
+
+/** The settings page accepts unprivileged ports only; `config.toml` itself also accepts 0..1023 (0 picks a free port). */
+export const METRICS_SETTINGS_PORTS = Object.freeze({ min: 1024, max: 65_535 });

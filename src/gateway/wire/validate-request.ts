@@ -24,6 +24,7 @@ import { validProjectSelection } from "./validate-project-selection.ts";
 import { isKernelExecutionSettings } from "../../config/kernel/is-kernel-execution-settings.ts";
 import { isBunPackagePins } from "../../config/execution-target/validation/bun-package-options.ts";
 import { isToolTitleSettings } from "../../config/session/is-tool-title-settings.ts";
+import { isMetricsSettings } from "../../config/metrics/is-metrics-settings.ts";
 
 export function validateRequest(value: unknown, limits: LimitsOptions = DEFAULT_LIMITS_OPTIONS): Request {
   if (!object(value) || !keys(value, ["v", "id", "method", "params"]) || value.v !== 1
@@ -37,10 +38,12 @@ export function validateRequest(value: unknown, limits: LimitsOptions = DEFAULT_
     && !validateLibraryParams(request, p, limits)) {
     if ((workspaceMethods as readonly string[]).includes(value.method)) {
       if (!validateWorkspaceRequest(value.method, p, limits)) return invalid();
-    } else if (value.method === "kernelExecutionGet" || value.method === "toolTitleGet" || value.method === "soulGet") {
+    } else if (value.method === "kernelExecutionGet" || value.method === "toolTitleGet" || value.method === "soulGet" || value.method === "metricsGet") {
       if (!keys(p, [])) return invalid();
     } else if (value.method === "kernelExecutionSet") {
       if (!isKernelExecutionSettings(p)) return invalid();
+    } else if (value.method === "metricsSet") {
+      if (!isMetricsSettings(p)) return invalid();
     } else if (value.method === "soulSave") {
       // Size is the soul file's own limit, checked once where it is written.
       if (!keys(p, ["content", "revision"]) || typeof p.content !== "string" || typeof p.revision !== "string") return invalid();

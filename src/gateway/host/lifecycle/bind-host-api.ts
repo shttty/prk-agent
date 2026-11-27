@@ -14,6 +14,8 @@ export function bindHostApi(ctx: HostContext): GatewaySessionHost {
     toolTitleSet: ctx.methods.toolTitleSet,
     soulGet: ctx.methods.soulGet,
     soulSave: ctx.methods.soulSave,
+    metricsGet: ctx.methods.metricsGet,
+    metricsSet: ctx.methods.metricsSet,
     capabilitiesList: ctx.methods.instanceCapabilitiesList,
     capabilitiesRefresh: ctx.methods.capabilitiesRefresh,
     capabilitiesChange: ctx.methods.capabilitiesChange,

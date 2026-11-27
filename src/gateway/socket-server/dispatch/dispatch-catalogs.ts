@@ -4,6 +4,7 @@ import type { CapabilitySettingsChange } from "../../../config/capabilities/capa
 import type { DerivationConfig } from "../../../config/derivation/derivation-types.ts";
 import type { KernelExecutionSettings } from "../../../config/kernel/kernel-options.ts";
 import type { ToolTitleSettings } from "../../../config/session/session-options.ts";
+import type { MetricsSettings } from "../../../config/metrics/metrics-options.ts";
 
 export async function dispatchCatalogs(ctx: PeerContext, respond: Respond, request: Request): Promise<void> {
   const { id, method, params } = request;
@@ -18,6 +19,8 @@ export async function dispatchCatalogs(ctx: PeerContext, respond: Respond, reque
       if (method === "toolTitleGet") { respond(id, host.toolTitleGet()); return; }
       if (method === "soulGet") { respond(id, host.soulGet()); return; }
       if (method === "soulSave") { respond(id, host.soulSave(params as { content: string; revision: string })); return; }
+      if (method === "metricsGet") { respond(id, host.metricsGet()); return; }
+      if (method === "metricsSet") { respond(id, await host.metricsSet(params as unknown as MetricsSettings)); return; }
       if (method === "toolTitleSet") { respond(id, await host.toolTitleSet(params as unknown as ToolTitleSettings)); return; }
       if (method === "capabilitiesList") { respond(id, await host.capabilitiesList(params.instance as string | undefined)); return; }
       if (method === "capabilitiesRefresh") { respond(id, await host.capabilitiesRefresh(params.instance as string | undefined)); return; }

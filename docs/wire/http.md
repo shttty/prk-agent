@@ -20,6 +20,8 @@ UI 属于独立 `web/` npm package；同源 Vite proxy 的运行方式见 [desig
 | `POST /api/settings/tool-title` | exactly `{enabled:boolean}`; no query | `toolTitleSet` → `{enabled:boolean}` |
 | `GET /api/settings/soul` | none | `soulGet` → `SoulView` |
 | `POST /api/settings/soul` | exactly `{content:string,revision:string}`; no query | `soulSave` → `SoulView`; `CONFLICT` (409) when the file changed since `revision`, `INVALID_REQUEST` when unconfigured or over `limits.contextFileBytes` |
+| `GET /api/settings/metrics` | none | `metricsGet` → `MetricsView` |
+| `POST /api/settings/metrics` | exactly `{enabled:boolean,port:integer 1024..65535}`; no query | `metricsSet` → `MetricsView`; `CONFLICT` (409) when the port cannot be bound |
 | `POST /api/gateway/restart` | `{}` | 不转发 Gateway；Web 进程执行 `systemctl --user restart -- <gateway.systemdUnit>`，见下 |
 | `GET /api/sessions/events` | none | `subscribeSessions`；SSE 工作台集合事件 |
 | `POST /api/sessions` | `{target,cwd?,label?,project?:{id,name}|{name}}`；未归类省略 project | `createSession` |
@@ -55,6 +57,8 @@ Browser selection fragment：`/#sessionId=SESSION_ID`。
 `kernel-execution` 由 Gateway 读写；POST 使用同源校验，只有 `kernel.asyncExecution` 的配置值可变。原子保存后下次 cell 准入和模型请求生效；不重载或唤醒会话。
 
 `tool-title` 由 Gateway 读写；POST 使用同源校验并原子保存 `session.toolTitle`，下次模型请求生效，不重载或唤醒会话。
+
+`metrics` 由 Gateway 读写；POST 使用同源校验，先绑定新端口，再原子保存 `metrics.enabled`/`metrics.port`，最后关闭旧监听，立即生效，不需重启 Gateway。端口无法监听时返回 409 `CONFLICT`，旧监听、配置文件和 `metricsGet` 的回答都保持原状；非法请求 400 且不写盘。见 [Gateway metrics](../metrics.md#switch-and-port)。
 
 两个 SSE（`/api/sessions/events`、`/api/sessions/:sessionId/events`）的首帧是 `snapshot`，客户端以它为唯一底稿，不先 GET `workbench` 或会话快照。单会话首帧是主动 `subscribe` 响应的转发；后续的轻量 `snapshot` 作为普通 SSE `host` 事件转发，历史由浏览器按锚点主动读取（[WEB-49](../contract.md)）。Gateway 在首帧前拒绝订阅时，响应仍为 200 `text/event-stream`，只发一个 `event: error`，data 为 JSON 错误形状 `{error,code?,details?}`（与 JSON 路由相同，`code` 如 `NOT_FOUND`、`BUSY`），随即结束流（[WEB-50](../contract.md)）；客户端收到后关闭 EventSource，不自动重连。
 

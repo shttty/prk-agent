@@ -30,6 +30,7 @@ export function dispatchRequest(ctx: PeerContext, respond: Respond, request: Req
       || method === "derivationGet" || method === "derivationSet"
       || method === "kernelExecutionGet" || method === "kernelExecutionSet"
       || method === "toolTitleGet" || method === "toolTitleSet" || method === "soulGet" || method === "soulSave"
+      || method === "metricsGet" || method === "metricsSet"
       || method === "capabilitiesList" || method === "capabilitiesRefresh" || method === "capabilitiesChange") {
       return dispatchCatalogs(ctx, respond, request);
     }

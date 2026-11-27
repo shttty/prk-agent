@@ -34,6 +34,7 @@ import { handleDerivationRequest } from "../../derivation-routes/handle-derivati
 import { handleKernelExecutionRequest } from "../../kernel-execution-routes/handle-kernel-execution-request.ts";
 import { handleToolTitleRequest } from "../../tool-title-routes/handle-tool-title-request.ts";
 import { handleSoulRequest } from "../../soul-routes/handle-soul-request.ts";
+import { handleMetricsRequest } from "../../metrics-routes/handle-metrics-request.ts";
 
 export async function handleRequest(ctx: ListenerContext, request: IncomingMessage, response: ServerResponse): Promise<void> {
   const { limits } = ctx;
@@ -97,6 +98,10 @@ export async function handleRequest(ctx: ListenerContext, request: IncomingMessa
     }
     if (path === "/api/settings/soul") {
       await handleSoulRequest(ctx, request, response);
+      return;
+    }
+    if (path === "/api/settings/metrics") {
+      await handleMetricsRequest(ctx, request, response);
       return;
     }
     if (path === "/api/capabilities/refresh") {

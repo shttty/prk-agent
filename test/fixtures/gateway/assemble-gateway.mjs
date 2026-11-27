@@ -14,8 +14,8 @@ import { startWebServer } from "../../../src/http/listener/start-listener.ts";
 import { prepareArtifacts } from "./prepare-artifacts.mjs";
 import { until } from "../until.mjs";
 
-/** `endpoint` (see startCompletionsEndpoint) replaces the faux model with a real openai-completions provider, so requests go through a provider API. `modelProviders` is the ownership map Gateway bootstrap would have produced. */
-export async function gatewayFixture(t, { answer, remote = false, web = false, rate = 100_000, config = {}, settings = {}, endpoint, modelProviders } = {}) {
+/** `serveMetrics` binds the metrics listener at start like the Gateway process does (set `config.metrics.port` to a free port). `endpoint` (see startCompletionsEndpoint) replaces the faux model with a real openai-completions provider, so requests go through a provider API. `modelProviders` is the ownership map Gateway bootstrap would have produced. */
+export async function gatewayFixture(t, { answer, remote = false, web = false, rate = 100_000, config = {}, settings = {}, endpoint, modelProviders, serveMetrics = false } = {}) {
   const python = process.env.PI_TEST_PYTHON;
   assert(python && isAbsolute(python), "PI_TEST_PYTHON must be an absolute interpreter path");
   const root = await mkdtemp(join(tmpdir(), "g-"));
@@ -54,7 +54,7 @@ export async function gatewayFixture(t, { answer, remote = false, web = false, r
     return answer?.(context, options) ?? fauxAssistantMessage("Controlled reply.");
   }));
   const parsed = parsePrkConfig({ monitor: { enabled: false }, memory: { review: false }, targetCacheRoot: join(root, "target"), session: { workerTools: "direct" }, ...config }, { instances });
-  const host = await createGatewayHost({ cwd, home: root, model: `${model.provider}/${model.id}`, thinkingLevel: "off",
+  const host = await createGatewayHost({ cwd, home: root, model: `${model.provider}/${model.id}`, thinkingLevel: "off", serveMetrics,
     config: parsed,
   }, { runtimeDependencies: { cwd, agentDir: agent, model, modelRuntime, thinkingLevel: "off", modelProviders } });
   let listener;

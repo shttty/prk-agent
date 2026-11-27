@@ -4,8 +4,14 @@ import { gatewayRegistry } from "../registry/gateway-registry.ts";
 
 export const METRICS_HOST = "127.0.0.1";
 
+export interface MetricsListener {
+  readonly address: string;
+  readonly port: number;
+  close(): Promise<void>;
+}
+
 /** Read-only text endpoint for Prometheus. The host is fixed to loopback and has no setting. */
-export async function startMetricsListener(port: number): Promise<{ readonly address: string; readonly port: number; close(): Promise<void> }> {
+export async function startMetricsListener(port: number): Promise<MetricsListener> {
   const server = createServer((request, response) => {
     if (request.url?.split("?")[0] !== "/metrics") { response.writeHead(404).end(); return; }
     if (request.method !== "GET") { response.writeHead(405, { Allow: "GET" }).end(); return; }

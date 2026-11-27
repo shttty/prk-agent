@@ -22,6 +22,7 @@ import { openWorkspace } from "../workspace/open-workspace.ts";
 import { openTargetChannels } from "./resources/open-target-channels.ts";
 import { openMonitor } from "../monitoring/open-monitor.ts";
 import { openMetrics } from "../metrics/open-metrics.ts";
+import { startEndpoint } from "../metrics/start-endpoint.ts";
 import { observeCollection } from "../collection-events/observe-collection.ts";
 import { openDerivation } from "../derivation/open-derivation.ts";
 import { openPeerMessages } from "../peer-messages/open-peer-messages.ts";
@@ -71,6 +72,7 @@ export async function createGatewayHost(options: GatewayHostOptions, dependencie
   openWorkspace(ctx);
   openMonitor(ctx);
   openMetrics(ctx);
+  if (options.serveMetrics) await startEndpoint(ctx);
   ctx.monitoring.kernelWatches = new Map<string, { readonly kernel: object; unsubscribe(): void }>();
   ctx.monitoring.monitorQueued = false;
   observeCollection(ctx);
