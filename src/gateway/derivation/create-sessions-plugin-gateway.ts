@@ -3,6 +3,7 @@ import type { HostContext } from "../host/host-state.ts";
 import { readSessionIdentity } from "./read-session-identity.ts";
 import { readSpaceStatus } from "./read-space-status.ts";
 import { listSessions } from "./list-sessions.ts";
+import { readSpawnableRoles } from "./read-spawnable-roles.ts";
 
 export function createSessionsPluginGateway(ctx: HostContext, sessionId?: string): SessionsGateway {
   const derivation = ctx.derivation.derivation;
@@ -24,5 +25,6 @@ export function createSessionsPluginGateway(ctx: HostContext, sessionId?: string
     list: (request) => listSessions(ctx, requireSession(), request),
     send: (request) => ctx.peerMessages.messaging.send(requireSession(), request),
     identity: () => sessionId === undefined ? undefined : readSessionIdentity(ctx, sessionId),
+    spawnableRoles: () => sessionId === undefined ? [] : readSpawnableRoles(ctx, sessionId),
   };
 }

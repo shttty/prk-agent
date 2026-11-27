@@ -24,6 +24,11 @@ export interface SessionIdentity {
   readonly repoRoot?: string;
 }
 
+export interface SpawnableRole {
+  readonly name: string;
+  readonly description?: string;
+}
+
 export interface AgentPeer {
   readonly sessionId: string;
   readonly label: string;

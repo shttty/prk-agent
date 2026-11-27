@@ -9,7 +9,7 @@ import type { CapabilitySwitches } from "../../capabilities/capability-types.ts"
 
 export function parseRole(value: unknown, role: string): DerivationRole {
   if (!object(value)) invalid(`role ${JSON.stringify(role)} must be an object`);
-  const allowed: Record<string, true> = { description: true, model: true, thinkingLevel: true, toolMode: true, isolated: true, instructions: true, capabilities: true };
+  const allowed: Record<string, true> = { description: true, model: true, thinkingLevel: true, toolMode: true, isolated: true, instructions: true, capabilities: true, spawns: true };
   if (Object.keys(value).some((key) => allowed[key] !== true)) {
     invalid(`role ${JSON.stringify(role)} contains an unsupported field`);
   }
@@ -19,6 +19,7 @@ export function parseRole(value: unknown, role: string): DerivationRole {
   if (value.isolated !== undefined && typeof value.isolated !== "boolean") invalid(`${field} isolated must be a boolean`);
   if (value.instructions !== undefined && typeof value.instructions !== "string") invalid(`${field} instructions must be a string`);
   if (value.capabilities !== undefined && !isCapabilitySwitches(value.capabilities)) invalid(`${field} capabilities must map capability IDs to booleans; local tools use session.localTools`);
+  if (value.spawns !== undefined && !(Array.isArray(value.spawns) && value.spawns.every((name) => typeof name === "string"))) invalid(`${field} spawns must be a list of role names`);
   return {
     ...(value.description === undefined ? {} : { description: value.description as string }),
     ...(value.model === undefined ? {} : { model: parseModel(value.model, `role ${JSON.stringify(role)} model`) }),
@@ -27,5 +28,6 @@ export function parseRole(value: unknown, role: string): DerivationRole {
     ...(value.isolated === undefined ? {} : { isolated: value.isolated as boolean }),
     ...(value.instructions === undefined ? {} : { instructions: value.instructions as string }),
     ...(value.capabilities === undefined ? {} : { capabilities: { ...value.capabilities as CapabilitySwitches } }),
+    ...(value.spawns === undefined ? {} : { spawns: [...value.spawns as string[]] }),
   };
 }

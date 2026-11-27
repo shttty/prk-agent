@@ -16,6 +16,7 @@ These defaults apply to every newly derived lifecycle. Model and thinking select
 | `roles.<name>.isolated` | omitted (global default) | Boolean; an explicit spawn `isolated` value wins. |
 | `roles.<name>.instructions` | omitted (global/built-in default) | String; explicit `""` suppresses instruction injection rather than inheriting. |
 | `roles.<name>.capabilities` | omitted | Capability-ID-to-boolean map, validated by the same rules as existing switches. Saved with tool mode in the child's initial `gateway-native-session-state` to override instance/global defaults; no separate capability layer. |
+| `roles.<name>.spawns` | omitted (may spawn any role) | List of configured role names this role's sessions may spawn; `[]` means none. Unknown names are rejected. `session_spawn` fails for a requested role (default `task`) outside the list, and the `<sessions>` prompt lists only the allowed roles. Top-level sessions are never limited. The Web editor offers it as 「可派生的 Role」. |
 
 The native-tools master remains `session.localTools`; roles can override individual native tool IDs, but cannot store `group:tools:local`. The role editor therefore omits that group's master control while keeping its individual tool switches.
 
@@ -72,7 +73,7 @@ Per-session `gateway-native-session-state` and sparse defaults/overrides: [模�
 `nativeCapabilities.target.current.toolMode`, `nativeCapabilities.target.current.delegation` and boolean `nativeCapabilities.target.current.localTools` report saved selections; `nativeCapabilities.target.local` is the explicit instance-locality marker ([模块约定](../configuration.md#约定)).
 The session-local native action `delegation` accepts exactly `{level:"gated"|"restrained"|"eager"}`. It changes only the selected active session, including during model work, and persists in its `gateway-native-session-state` history. For an ownerless top-level session with callable `session_spawn`, the supported per-request `context_with_system` hook applies the current policy on the next model request, even within the same run; no reload is needed. Dormant session catalogs report the saved policy without waking the session. New sessions save their initial default so later global changes do not replace it.
 
-The derived-session identity prompt contains mechanism facts and no inherited delegation policy. A separate `Role instructions:` line uses the role/global/built-in instructions selection [above](#derivation), and is omitted for an explicit empty string. Roles or skills can supply their own multi-level delegation policy.
+The derived-session identity prompt contains mechanism facts and no inherited delegation policy. A separate `Role instructions:` line uses the role/global/built-in instructions selection [above](#derivation), and is omitted for an explicit empty string. Roles or skills can supply their own multi-level delegation policy. Any session with callable `session_spawn` also gets a `Roles for session_spawn:` list of `name: description` lines, sorted by name and limited by its own role's `spawns` (an empty `spawns` renders a single line saying the role cannot spawn); it changes only when the configured role set does.
 
 The same Web switch appears on both: 「本机工具」 on local instances, 「原生工具」 on remote instances; no second setting is stored.
 

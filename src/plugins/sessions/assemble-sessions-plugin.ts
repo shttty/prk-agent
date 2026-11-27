@@ -20,7 +20,7 @@ export function assembleSessionsPlugin(gateway: SessionsGateway | undefined, run
     }
     pi.on("turn_end", () => runtime.flushInbox());
     pi.on("context_with_system", (event) => {
-      const content = runtime.enabled() ? renderSessions(gateway?.identity(), runtime.delegation(), runtime.callableTools()) : "";
+      const content = runtime.enabled() ? renderSessions(gateway?.identity(), runtime.delegation(), runtime.callableTools(), gateway?.spawnableRoles()) : "";
       return { messages: event.messages.map((message) => message.role !== "system" ? message : {
         ...message, sections: { ...message.sections, sessions: content ? `<sessions>\n${content}\n</sessions>` : null },
       }) };

@@ -13,7 +13,7 @@ import { RoleCapabilitiesPanel } from "./RoleCapabilitiesPanel.tsx";
 
 const ALL_THINKING = ["off", "minimal", "low", "medium", "high", "xhigh"];
 
-type RoleDraft = { name: string; description: string; model: string; thinkingLevel: string; toolMode: string; isolated: string; instructions: string; capabilities: Record<string, boolean> };
+type RoleDraft = { name: string; description: string; model: string; thinkingLevel: string; toolMode: string; isolated: string; spawnsLimited: string; spawns: string; instructions: string; capabilities: Record<string, boolean> };
 
 type DerivationRoleEditorProps = {
   editor: RoleEditorState; existingNames: string[]; models: readonly ModelOption[]; catalog: CapabilityCatalog | null; busy: boolean; saving: boolean; error: string;
@@ -28,6 +28,8 @@ export function DerivationRoleEditor({ editor, existingNames, models, catalog, b
     thinkingLevel: editor.role?.thinkingLevel || "",
     toolMode: editor.role?.toolMode || "",
     isolated: editor.role?.isolated === true ? "true" : editor.role?.isolated === false ? "false" : "",
+    spawnsLimited: editor.role?.spawns ? "limited" : "",
+    spawns: (editor.role?.spawns || []).join(", "),
     instructions: editor.role?.instructions || "",
     capabilities: { ...(editor.role?.capabilities || {}) },
   }));
@@ -64,6 +66,7 @@ export function DerivationRoleEditor({ editor, existingNames, models, catalog, b
       ...(draft.thinkingLevel ? { thinkingLevel: draft.thinkingLevel } : {}),
       ...(draft.toolMode === "code" || draft.toolMode === "direct" ? { toolMode: draft.toolMode } : {}),
       ...(draft.isolated === "true" ? { isolated: true } : draft.isolated === "false" ? { isolated: false } : {}),
+      ...(draft.spawnsLimited === "limited" ? { spawns: draft.spawns.split(/[\s,，]+/).filter(Boolean) } : {}),
       ...(draft.instructions.trim() ? { instructions: draft.instructions } : {}),
       ...(Object.keys(draft.capabilities).length ? { capabilities: draft.capabilities } : {}),
     };
@@ -96,6 +99,11 @@ export function DerivationRoleEditor({ editor, existingNames, models, catalog, b
           <NativeSelect id="role-isolated" label="Worktree 隔离" value={draft.isolated} disabled={busy}
             data={[{ value: "", label: "跟随默认" }, { value: "true", label: "开启" }, { value: "false", label: "关闭" }]}
             onChange={(event) => update({ isolated: event.currentTarget.value })} />
+          <NativeSelect id="role-spawns-limited" label="可派生的 Role" value={draft.spawnsLimited} disabled={busy}
+            data={[{ value: "", label: "不限制" }, { value: "limited", label: "仅限指定" }]}
+            onChange={(event) => update({ spawnsLimited: event.currentTarget.value })} />
+          {draft.spawnsLimited === "limited" ? <TextInput id="role-spawns" label="允许的 Role 名" placeholder="逗号分隔；留空表示不能派生" value={draft.spawns} disabled={busy}
+            onChange={(event) => update({ spawns: event.currentTarget.value })} /> : null}
           <NativeSelect id="role-model" label="模型" value={draft.model} disabled={busy}
             data={modelOptions} onChange={(event) => handleModelChange(event.currentTarget.value)} />
           <NativeSelect id="role-thinking" label="思考档" value={draft.thinkingLevel}

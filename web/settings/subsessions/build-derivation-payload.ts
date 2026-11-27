@@ -17,6 +17,7 @@ export function buildDerivationPayload(draft: DerivationDraft, roles: Record<str
     if (role.toolMode === "code" || role.toolMode === "direct") entry.toolMode = role.toolMode;
     if (typeof role.isolated === "boolean") entry.isolated = role.isolated;
     if (typeof role.instructions === "string" && role.instructions.trim()) entry.instructions = role.instructions;
+    if (Array.isArray(role.spawns)) entry.spawns = role.spawns.filter((name) => typeof name === "string" && name.trim()).map((name) => name.trim());
     if (role.capabilities && typeof role.capabilities === "object") {
       const caps: Record<string, boolean> = {};
       for (const [id, enabled] of Object.entries(role.capabilities)) {

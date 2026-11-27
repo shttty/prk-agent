@@ -30,6 +30,10 @@ export function parseDerivationConfig(document: unknown): DerivationConfig {
       roles[role] = Object.freeze({ ...roles[role], ...parseRole(value, role) });
     }
   }
+  for (const [role, { spawns }] of Object.entries(roles)) {
+    const unknown = spawns?.find((name) => !Object.hasOwn(roles, name));
+    if (unknown !== undefined) invalid(`role ${JSON.stringify(role)} spawns unknown role ${JSON.stringify(unknown)}`);
+  }
 
   return Object.freeze({
     ...(derivation.defaultToolMode === undefined ? {} : { defaultToolMode: derivation.defaultToolMode as ToolMode }),

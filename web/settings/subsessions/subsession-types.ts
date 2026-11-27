@@ -1,5 +1,5 @@
 /** One sub-session role as configured: every field is optional and falls back to the parent session or the defaults. */
-export type RoleConfig = { description?: string; model?: string; thinkingLevel?: string; toolMode?: "code" | "direct"; isolated?: boolean; instructions?: string; capabilities?: Record<string, boolean> };
+export type RoleConfig = { description?: string; model?: string; thinkingLevel?: string; toolMode?: "code" | "direct"; isolated?: boolean; instructions?: string; capabilities?: Record<string, boolean>; spawns?: string[] };
 
 export type ToolModeChoice = "" | "code" | "direct";
 

@@ -2,7 +2,7 @@ import type { JsonValue } from "@earendil-works/pi-ai";
 import type { Static } from "typebox";
 import type { SessionOptions } from "../../config/session/session-options.ts";
 import type { PeerReceipt } from "../../sessions/host/host-types.ts";
-import type { DerivedSessionInfo, DerivedSessionSchemas, SessionIdentity, SessionListRequest, SessionListRow, SessionObservation, SessionSendRequest, SpawnSessionRequest } from "./session-types.ts";
+import type { DerivedSessionInfo, DerivedSessionSchemas, SessionIdentity, SessionListRequest, SessionListRow, SessionObservation, SessionSendRequest, SpawnableRole, SpawnSessionRequest } from "./session-types.ts";
 
 /** Bound to one Gateway session; the plugin never owns history, control or delivery state. */
 export interface SessionsGateway {
@@ -19,4 +19,5 @@ export interface SessionsGateway {
   list(request?: SessionListRequest): Promise<readonly SessionListRow[] | SessionObservation>;
   send(request: SessionSendRequest): Promise<PeerReceipt & { id: string; to: string; expectReply: boolean }>;
   identity(): SessionIdentity | undefined;
+  spawnableRoles(): readonly SpawnableRole[];
 }

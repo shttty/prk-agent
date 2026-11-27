@@ -16,6 +16,8 @@ export type DerivationRole = {
   readonly isolated?: boolean;
   readonly instructions?: string;
   readonly capabilities?: CapabilitySwitches;
+  /** Role names this role's sessions may spawn; omitted means any, empty means none. */
+  readonly spawns?: readonly string[];
 };
 
 export const DEFAULT_DERIVATION_ROLES: Readonly<Record<string, DerivationRole>> = Object.freeze({

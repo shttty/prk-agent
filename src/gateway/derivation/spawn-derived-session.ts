@@ -6,6 +6,7 @@ import { randomUUID } from "node:crypto";
 import { DERIVED_SESSION_TYPE } from "../../plugins/sessions/derivation-protocol.ts";
 import { readSessionIdentity } from "./read-session-identity.ts";
 import { createWorktree } from "./worktrees/create-worktree.ts";
+import { readSpawnableRoles } from "./read-spawnable-roles.ts";
 
 export async function spawnDerived(ctx: HostContext, parentSessionId: string, request: SpawnTaskRequest, context: string): Promise<{ sessionId: string; sessionName: string; taskId: string }> {
   const parent = ctx.host.collection.get(parentSessionId);
@@ -20,6 +21,10 @@ export async function spawnDerived(ctx: HostContext, parentSessionId: string, re
   const roleName = request.role ?? DEFAULT_DERIVATION_ROLE;
   if (!config.roles || !Object.hasOwn(config.roles, roleName)) {
     throw new Error(`Unknown configured role ${JSON.stringify(roleName)}. Role is not a task label; call space_status() for configured role names or omit role to use ${DEFAULT_DERIVATION_ROLE}.`);
+  }
+  const spawnable = readSpawnableRoles(ctx, parentSessionId).map(({ name }) => name);
+  if (!spawnable.includes(roleName)) {
+    throw new Error(spawnable.length === 0 ? "This role cannot spawn child sessions." : `This role may only spawn roles: ${spawnable.join(", ")}; requested ${JSON.stringify(roleName)}.`);
   }
   const role = config.roles[roleName];
   const chosen = selectDerivationModel(config, { ...request, lifecycle }, {
