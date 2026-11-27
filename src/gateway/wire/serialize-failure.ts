@@ -5,6 +5,9 @@ import { SessionReadError } from "../../sessions/history/read-error.ts";
 import { TargetUnreachableError } from "../../target-channel/connection-error/create-target-unreachable-error.ts";
 
 export function failure(id: number | null, error: unknown): Response {
+ const known = error instanceof WireError || error instanceof TargetUnreachableError || error instanceof ArtifactError || error instanceof SessionReadError;
+ // The client only sees a generic HOST_ERROR, so the cause must reach the log.
+ if (!known) console.error(`[${new Date().toISOString()}] Gateway request ${id ?? "-"} failed with an unexpected error:`, error);
  return {
   v: 1, id, ok: false, error: error instanceof WireError || error instanceof TargetUnreachableError
     ? { code: error.code, message: error.message, ...(error.details ? { details: error.details } : {}) }
