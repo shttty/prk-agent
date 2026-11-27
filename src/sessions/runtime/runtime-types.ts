@@ -36,7 +36,7 @@ import type { SessionsGateway } from "../../plugins/sessions/gateway-types.ts";
 import type { ModelProviderOwnership } from "../model-providers/provider-types.ts";
 import type { PythonToolClient, PythonToolHooks } from "../../kernel/kernel-types.ts";
 import type { PythonEnvironmentPolicy } from "../../target-environment/python/resolve-python-runtime.ts";
-import type { PromptReport } from "../prompt-capture/capture-types.ts";
+import type { CapturedBody, PromptReport } from "../prompt-capture/capture-types.ts";
 
 
 export interface SessionRuntimeDependencies {
@@ -113,6 +113,8 @@ export interface SessionRuntime {
   refreshToolDeclarations(): void;
   /** Last provider request of this runtime and its difference from the one before; empty until the first request. */
   promptReport(): PromptReport;
+  /** The latest provider request whole, for the prompt read endpoints; `null` until the first request. */
+  promptBody(): CapturedBody | null;
   refreshRegistration(): Promise<void>;
   readonly requiresReload: boolean;
   reload(): Promise<void>;

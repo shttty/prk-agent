@@ -14,6 +14,7 @@ export type { HostOperationSnapshot, Operation, OperationCompletion, OperationCo
 import type { KernelCellDelivery } from "../history/kernel-cells/delivery-types.ts";
 import type { ModelTerminals } from "../../workspace/model-terminals/model-terminals-types.ts";
 import type { TerminalSummary } from "../../workspace/terminals/terminals-types.ts";
+import type { PromptCapture } from "../prompt-capture/create-prompt-capture.ts";
 
 // "sleeping" and "unavailable" are Gateway projections for a session without a runtime; a live host never enters them.
 export type HostState = "idle" | "running" | "cancel_requested" | "sleeping" | "unavailable" | "closing" | "closed";
@@ -37,6 +38,8 @@ export interface SessionHostSnapshot extends SessionAttention {
   readonly kernel?: KernelSnapshot;
   readonly kernelCells?: readonly KernelCellDelivery[];
   readonly terminals?: readonly TerminalSummary[];
+  /** How many provider requests the session has sent; absent before the first. A change tells the prompt panel to read the new request. */
+  readonly prompt?: { readonly requests: number };
   readonly messages: AgentSession["messages"];
   readonly historyThrough?: string | null;
   readonly receivingUserText?: string | null;
@@ -152,6 +155,7 @@ export interface SessionHostOptions {
   readonly sessionOptions?: SessionOptions;
   readonly kernel?: KernelObservationSource & Partial<Pick<PythonToolClient, "interruptCell">>;
   readonly terminals?: Pick<ModelTerminals, "getSnapshot" | "subscribeState">;
+  readonly promptCapture?: Pick<PromptCapture, "requests" | "subscribe">;
   readonly extensionUi?: HostedExtensionUI;
   readonly extensionHandlers?: ExtensionHandlerScope;
   readonly dispose?: () => Promise<void>;
@@ -193,4 +197,5 @@ export interface HostContext {
   unsubscribeSession?: () => void;
   unsubscribeKernel?: () => void;
   unsubscribeTerminals?: () => void;
+  unsubscribePrompt?: () => void;
 }

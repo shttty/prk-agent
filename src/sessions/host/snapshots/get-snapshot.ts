@@ -16,6 +16,7 @@ export function snapshot(ctx: HostContext, includeMessages = true): SessionHostS
     queuedMessages: { steering: ctx.session.getSteeringMessages(), followUp: ctx.session.getFollowUpMessages() },
     ...(ctx.kernel ? { kernel: ctx.kernel.getSnapshot() } : {}),
     ...(ctx.options.terminals ? { terminals: ctx.options.terminals.getSnapshot() } : {}),
+    ...(ctx.options.promptCapture?.requests() ? { prompt: { requests: ctx.options.promptCapture.requests() } } : {}),
     recentOperations: ctx.recent,
     ...(ctx.options.extensionUi ? { extensionUi: ctx.options.extensionUi.snapshot() } : {}),
   });

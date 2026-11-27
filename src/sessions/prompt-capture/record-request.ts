@@ -3,16 +3,18 @@ import type { CapturedRequest, PlacedSection, RecordedRequest, RenderedSystem, R
 import { withoutCacheMarker } from "./without-cache-marker.ts";
 import { readRequestFields } from "./read-request-fields.ts";
 import { requestShape } from "./request-shape.ts";
+import { redactImages } from "./redact-images.ts";
 
-/** Projects one provider payload into sizes and hashes; the payload itself and its headers are never kept, only a reference to its conversation entries. */
-export function recordRequest(payload: unknown, model: RequestModel | undefined, rendered: RenderedSystem | undefined, at: Date): RecordedRequest {
-  const body = typeof payload === "object" && payload !== null && !Array.isArray(payload) ? payload as Record<string, unknown> : {};
+/** Projects one provider payload into sizes and hashes and keeps a copy of it without base64 media; its headers are never kept (the hook does not carry them). */
+export function recordRequest(payload: unknown, model: RequestModel | undefined, rendered: RenderedSystem | undefined, at: Date, seq: number): RecordedRequest {
+  const stored = redactImages(payload);
+  const body = typeof stored === "object" && stored !== null && !Array.isArray(stored) ? stored as Record<string, unknown> : {};
   const shape = requestShape(model?.api ?? "");
   const fields = shape ? readRequestFields(shape, body) : { system: null, tools: null, messages: null };
   const matched = fields.system !== null && rendered?.text === fields.system ? rendered : undefined;
   const sections = matched ? Object.entries(matched.sections) : null;
   const request: CapturedRequest = {
-    at: at.toISOString(), provider: model?.provider ?? "unknown", model: model?.id ?? "unknown", api: model?.api ?? "unknown", shape,
+    seq, at: at.toISOString(), provider: model?.provider ?? "unknown", model: model?.id ?? "unknown", api: model?.api ?? "unknown", shape,
     payloadKeys: Object.keys(body), payloadChars: JSON.stringify(payload)?.length ?? 0,
     system: fields.system === null ? null : { text: fields.system, chars: fields.system.length,
       sections: matched && sections ? { baseChars: matched.base.length, entries: placeSections(matched) } : null },
@@ -23,11 +25,11 @@ export function recordRequest(payload: unknown, model: RequestModel | undefined,
   const digest: RequestDigest = {
     system: fields.system === null ? null : hash(fields.system),
     sections: sections && Object.fromEntries(sections.map(([key, text]) => [key, hash(text)])),
-    tools: fields.tools && Object.fromEntries(fields.tools.map((tool) => [tool.name, hash(json(tool))])),
+    tools: fields.tools && Object.fromEntries(fields.tools.map((tool) => [tool.name, hash(json({ name: tool.name, description: tool.description, parameters: tool.parameters }))])),
     toolOrder: fields.tools?.map((tool) => tool.name) ?? [],
     messages: fields.messages && fields.messages.map((message) => hash(JSON.stringify(message, withoutCacheMarker) ?? "")),
   };
-  return { request, digest, bodies: fields.messages };
+  return { request, digest, bodies: fields.messages, payload: stored };
 }
 
 /** Each section's offset in the payload's system text: they follow the base in order, joined by separators this code does not assume. */

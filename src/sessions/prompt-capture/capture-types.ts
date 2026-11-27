@@ -7,7 +7,7 @@ export type RequestShape = "chat" | "responses" | "anthropic" | "google" | "bedr
 /** What the projection reads out of one provider payload; `null` marks a field the payload does not hold in a known place. */
 export interface RequestFields {
   readonly system: string | null;
-  readonly tools: readonly { name: string; description: string; parameters: unknown }[] | null;
+  readonly tools: readonly { name: string; description: string; parameters: unknown; declaration: unknown }[] | null;
   /** Conversation entries without the leading system or developer entry. */
   readonly messages: readonly unknown[] | null;
 }
@@ -18,6 +18,8 @@ export interface SizedSection { readonly key: string; readonly chars: number }
 export interface PlacedSection extends SizedSection { readonly start: number }
 
 export interface CapturedRequest {
+  /** This request's place among every request the runtime has sent, identical replays included; counted from 1. */
+  readonly seq: number;
   readonly at: string;
   readonly provider: string;
   readonly model: string;
@@ -51,8 +53,25 @@ export interface RequestDigest {
 export interface RecordedRequest {
   readonly request: CapturedRequest;
   readonly digest: RequestDigest;
-  /** The conversation entries themselves, held only so the next request can show its first changed message; never reported whole. */
+  /** The conversation entries of `payload`, for the next request's comparison. */
   readonly bodies: readonly unknown[] | null;
+  /** The provider payload as sent, minus base64 media (see `redactImages`); headers, keys and URL never reach this code. */
+  readonly payload: unknown;
+}
+
+/** The latest request's whole body, as the read endpoints serve it. */
+export interface CapturedBody { readonly seq: number; readonly at: string; readonly shape: RequestShape | null; readonly payload: unknown }
+
+/** A message of the request without its text: kinds of block, size, cache marker, and whether it starts a user turn (a user input, not a tool result). */
+export interface MessageOutline { readonly role: string; readonly kinds: readonly string[]; readonly chars: number; readonly cache: boolean; readonly turn: boolean }
+
+export interface PromptToolsPart { readonly seq: number; readonly at: string; readonly shape: RequestShape | null; readonly tools: readonly { readonly name: string; readonly exposure: string | null; readonly declaration: unknown }[] }
+export interface PromptMessagesPart {
+  readonly seq: number; readonly at: string; readonly shape: RequestShape | null;
+  readonly total: number; readonly offset: number;
+  /** First message of the last user turn; `null` when no message is a user input. */
+  readonly turnStart: number | null;
+  readonly messages: readonly unknown[]; readonly outline: readonly MessageOutline[];
 }
 
 export interface Change { readonly key: string; readonly before: number; readonly after: number }
@@ -87,3 +106,6 @@ export interface RenderedSystem {
   readonly base: string;
   readonly sections: Readonly<Record<string, string>>;
 }
+export type PromptPartName = "tools" | "messages" | "raw";
+/** `limit` is one page of `messages`: at most `PROMPT_PAGE_MAX`; both are ignored by the other parts. */
+export interface PromptPartRequest { readonly part: PromptPartName; readonly offset?: number; readonly limit?: number }

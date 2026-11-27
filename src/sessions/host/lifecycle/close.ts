@@ -32,6 +32,7 @@ export function close(ctx: HostContext): Promise<void> {
     ctx.unsubscribeKernel!();
     ctx.unsubscribeExtensionUi!();
     ctx.unsubscribeTerminals!();
+    ctx.unsubscribePrompt!();
     // Cleanup that could not be confirmed still ends the session; failureCount and the thrown error keep that fact.
     ctx.state = "closed";
     emit(ctx, "host_closed", { details: { failureCount: failures.length } });

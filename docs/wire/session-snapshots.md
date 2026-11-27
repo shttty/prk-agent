@@ -135,6 +135,7 @@ type SessionPresentation = {
   compactionEntryIds: string[]; // 当前分支所有压缩条目的身份，不含页外摘要
   contextUsage?: {tokens:number;contextWindow:number;percent:number} | null;
   queuedMessages?: {steering:string[];followUp:string[]};
+  prompt?: {requests:number}; // 该运行时已发出的模型请求数（含相同重放），第一次请求前缺省；见 sessions.md#prompt
   requiresReload?: boolean;
   extensionUi?: unknown; // extension-ui.md
   toolMode?: "code" | "direct";                 // 有效工具档位（活动会话取运行时，否则取原生会话状态或宿主默认）
@@ -150,7 +151,7 @@ type SessionPresentation = {
 
 `recentOperations` 是进程内最近 64 个结果。
 `sequence` 与休眠视图零序号的身份规则见 [ORD-9](../contract.md)、[ORD-10](../contract.md)、[ORD-11](../contract.md)、[ORD-14](../contract.md)。
-`state_changed.details` 的执行状态变化包含 `{state,operation:HostOperationSnapshot|null}`；仅内核观测变化仍为 `{kernel}`，不替换执行状态。
+`state_changed.details` 在每次模型请求被记录后带 `{prompt:{requests}}`（提示词面板据此重取，见 [prompt](sessions.md#prompt)）；执行状态变化包含 `{state,operation:HostOperationSnapshot|null}`；仅内核观测变化仍为 `{kernel}`，不替换执行状态。
 额外 host event types：`snapshot`（`details.snapshot`）、`extension_ui`（`details.extensionUi`）；SDK `queue_update` 位于 `session_event.details.sdkType`。
 `message` 是 SDK 流式增量，仅供展示，`message_end` 与快照里的消息为准（[REQ-12](../contract.md)）：正文增量 `{text}`；思考增量 `{text, details:{part:"thinking", contentIndex}}`，`contentIndex` 是该 assistant 消息内的块序号，同一消息内序号变化即新的思考块。其余流式更新为 `session_event.details` `{sdkType:"message_update", assistantEvent}`（SDK `assistantMessageEvent.type`，如 `toolcall_delta`），不带内容。自动重试为 `session_event.details` `{sdkType:"auto_retry_start", attempt, maxAttempts}`。
 `snapshot` 由 Gateway 在每次 `operation_completed` 之后紧接着推送一次（同流、同 sequence），绑定换代、tree 完成与 reload 后也推（[ORD-23](../contract.md)）。`details.snapshot` 带 `sessionId/streamId/sequence/state/operation?`、当前显示及运行状态（包括 `recentOperations[].returnedMessages`）和 `historyThrough`，**没有** `messages/messageEntryIds/historyBefore/historyForkBefore/compactions/compactionEntryIds`。浏览器收到变更的锚点，主动读取 `historyPage`；`messageEntryIds` 和对应的持久消息一起返回。手动压缩沿用 operation 协议，活动快照及终态带 `kind:"compact"`；工作台的 `compacting:true` 随运行行与 `session_running` 事件发布。`message_end` 等单消息增量不传图片正文；输入图片随主动读取的历史页显示，工具图片通过 `toolContent` 拉取。Web 服务不代客户端取历史（[WEB-53](../contract.md)）。更新前打开的旧页面仍按旧快照格式读取；更新 Web 后硬刷新页面，加载使用新协议的 bundle。

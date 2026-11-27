@@ -26,6 +26,7 @@ conversation.host = createSessionHost({
         sessionOptions: ctx.dependencies.sessionOptions,
         kernel: ctx.python,
         terminals: ctx.modelTerminals,
+        promptCapture: ctx.promptCapture,
         dispose: disposeConversation.bind(undefined, ctx, conversation),
         ...(ctx.dependencies.onOperationCompletion ? { onOperationCompletion: ctx.dependencies.onOperationCompletion } : {}),
       });

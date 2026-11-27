@@ -51,6 +51,7 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
   ctx.lastNamespace = undefined;
   ctx.unsubscribeKernel = kernel?.subscribe((snapshot) => observeKernel(ctx, snapshot)) ?? (() => { });
   ctx.unsubscribeTerminals = options.terminals?.subscribeState((terminals) => emit(ctx, "state_changed", { details: { terminals } })) ?? (() => {});
+  ctx.unsubscribePrompt = options.promptCapture?.subscribe((requests) => emit(ctx, "state_changed", { details: { prompt: { requests } } })) ?? (() => {});
   return {
     sessionId,
     get isIdle() { return isIdle(ctx); },

@@ -26,7 +26,7 @@ function tools(value: unknown): RequestFields["tools"] {
     const body = record(record(entry)?.function ?? record(entry)?.custom ?? record(entry)?.toolSpec ?? entry);
     if (typeof body?.name !== "string") return undefined;
     const parameters = body.parameters ?? body.input_schema ?? body.inputSchema ?? body.parametersJsonSchema ?? body.format;
-    return { name: body.name, description: typeof body.description === "string" ? body.description : "", parameters };
+    return { name: body.name, description: typeof body.description === "string" ? body.description : "", parameters, declaration: entry };
   });
   return read.every((tool) => tool !== undefined) ? read : null;
 }
